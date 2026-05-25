@@ -9,6 +9,12 @@ export default defineConfig({
 	// and the generated sitemap.
 	site: 'https://freepromptbase.com',
 
+	// Clean URLs without trailing slashes. `build.format: 'file'` emits
+	// `/slug.html` (not `/slug/index.html`) so Cloudflare Workers static assets
+	// serve `/slug` with a 200 instead of a 307 trailing-slash redirect.
+	trailingSlash: 'never',
+	build: { format: 'file' },
+
 	integrations: [sitemap()],
 
 	// Tailwind CSS v4 via the official Vite plugin (the @astrojs/tailwind

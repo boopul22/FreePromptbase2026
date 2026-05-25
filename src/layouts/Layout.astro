@@ -16,7 +16,15 @@ const {
 } = Astro.props;
 
 const siteUrl = (Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '');
-const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href;
+
+// Normalize the path for canonical/OG: the `file` build format makes
+// Astro.url.pathname end in ".html" (e.g. /cold-email-writer.html), but the
+// served + sitemap URL is clean (/cold-email-writer). Strip index/.html and any
+// trailing slash so canonical matches the real URL.
+let cleanPath = Astro.url.pathname.replace(/index\.html$/, '').replace(/\.html$/, '');
+if (cleanPath.length > 1) cleanPath = cleanPath.replace(/\/$/, '');
+if (cleanPath === '') cleanPath = '/';
+const canonical = `${siteUrl}${cleanPath === '/' ? '/' : cleanPath}`;
 
 // Site-wide WebSite schema with a sitelinks search box action.
 const websiteSchema = {
