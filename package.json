@@ -9,9 +9,14 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "cf-typegen": "wrangler types",
+    "db:gen-seed": "node --experimental-strip-types scripts/gen-seed.ts",
+    "db:setup:local": "npm run db:gen-seed && wrangler d1 execute freepromptbase --local --file=db/schema.sql && wrangler d1 execute freepromptbase --local --file=db/seed.sql",
+    "db:setup:remote": "npm run db:gen-seed && wrangler d1 execute freepromptbase --remote --file=db/schema.sql && wrangler d1 execute freepromptbase --remote --file=db/seed.sql"
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^13.5.4",
     "@astrojs/sitemap": "^3.7.2",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^6.3.7",

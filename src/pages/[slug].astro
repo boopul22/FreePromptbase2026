@@ -5,27 +5,22 @@ import Footer from '../components/Footer.astro';
 import CopyPromptButton from '../components/CopyPromptButton.astro';
 import PromptCard from '../components/PromptCard.astro';
 import {
-	getAllPrompts,
+	getPromptBySlug,
 	getCategoryBySlug,
 	getRelatedPrompts,
 	getAllCategories,
 	readTime,
-	type Prompt,
 } from '../lib/prompts';
 
-export async function getStaticPaths() {
-	const prompts = await getAllPrompts();
-	return prompts.map((prompt) => ({
-		params: { slug: prompt.slug },
-		props: { prompt },
-	}));
+// On-demand: look the prompt up in D1 at request time.
+export const prerender = false;
+
+const slug = Astro.params.slug!;
+const prompt = await getPromptBySlug(slug);
+if (!prompt) {
+	return Astro.rewrite('/404');
 }
 
-interface Props {
-	prompt: Prompt;
-}
-
-const { prompt } = Astro.props;
 const category = await getCategoryBySlug(prompt.category);
 const related = await getRelatedPrompts(prompt);
 const categories = await getAllCategories();

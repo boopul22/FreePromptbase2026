@@ -1,16 +1,26 @@
 {
-	// Cloudflare Worker that serves the prebuilt static Astro site (./dist) via
-	// Workers Static Assets. No server script needed yet — when D1 + the admin
-	// panel land, add the @astrojs/cloudflare adapter and a "main" entry here.
-	//
-	// NOTE: "name" must match the Worker created in the dashboard/CLI. Confirmed
-	// at deploy time against the account's worker list.
+	// Cloudflare Worker for Free Prompt Base.
+	// SSR via the @astrojs/cloudflare adapter (unified entrypoint) + static
+	// assets, with a D1 database binding for prompt content.
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "freepromptbase2026",
+	"main": "@astrojs/cloudflare/entrypoints/server",
 	"compatibility_date": "2026-05-25",
+	"compatibility_flags": ["nodejs_compat"],
 	"assets": {
 		"directory": "./dist",
-		// Serve /404.html for unknown paths (content site, not an SPA).
-		"not_found_handling": "404-page"
-	}
+		"binding": "ASSETS",
+		// The SSR worker renders 404.astro for unmatched routes.
+		"not_found_handling": "none"
+	},
+	"observability": { "enabled": true },
+	"d1_databases": [
+		{
+			// Accessed in code as env.DB (see src/lib/prompts.ts).
+			"binding": "DB",
+			"database_name": "freepromptbase",
+			// Filled in after `wrangler d1 create freepromptbase`.
+			"database_id": "PLACEHOLDER_DB_ID"
+		}
+	]
 }

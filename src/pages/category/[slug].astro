@@ -6,33 +6,23 @@ import CategoryChips from '../../components/CategoryChips.astro';
 import PromptGrid from '../../components/PromptGrid.astro';
 import {
 	getAllCategories,
+	getCategoryBySlug,
 	getPromptsByCategory,
-	type Category,
-	type Prompt,
 } from '../../lib/prompts';
 
-export async function getStaticPaths() {
-	const categories = await getAllCategories();
-	const all = await Promise.all(
-		categories.map(async (category) => ({
-			params: { slug: category.slug },
-			props: {
-				category,
-				prompts: await getPromptsByCategory(category.slug),
-				categories,
-			},
-		})),
-	);
-	return all;
+// On-demand: resolve the category + its prompts from D1 at request time.
+export const prerender = false;
+
+const slug = Astro.params.slug!;
+const category = await getCategoryBySlug(slug);
+if (!category) {
+	return Astro.rewrite('/404');
 }
 
-interface Props {
-	category: Category;
-	prompts: Prompt[];
-	categories: Category[];
-}
-
-const { category, prompts, categories } = Astro.props;
+const [prompts, categories] = await Promise.all([
+	getPromptsByCategory(slug),
+	getAllCategories(),
+]);
 ---
 
 <Layout

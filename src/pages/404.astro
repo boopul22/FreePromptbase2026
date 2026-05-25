@@ -2,6 +2,11 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+
+// SSR so other on-demand routes can rewrite here, and so the response carries
+// a real 404 status.
+export const prerender = false;
+Astro.response.status = 404;
 ---
 
 <Layout title="Page not found — Free Prompt Base" description="The page you’re looking for doesn’t exist.">

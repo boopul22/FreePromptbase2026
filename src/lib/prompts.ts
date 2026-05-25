@@ -1,72 +1,146 @@
 // ---------------------------------------------------------------------------
-// Data-access layer for prompts & categories.
+// Data-access layer for prompts & categories — now backed by Cloudflare D1.
 //
-// This is the ONLY module the rest of the app imports for data. Today it reads
-// from the in-memory seed arrays; when we move to Cloudflare D1, only the bodies
-// of these functions change (e.g. `await env.DB.prepare(...).all()`), and every
-// page/component keeps working unchanged.
+// This is the ONLY module the rest of the app imports for data. It reads the
+// `DB` binding via the Workers `env` (see wrangler.jsonc d1_databases). The
+// public function signatures are unchanged from the hardcoded version, so the
+// pages that call them did not need to change shape — only `prerender = false`.
 //
-// All functions are async on purpose so the D1 swap is drop-in (D1 is async).
+// Types still live in src/data (which doubles as the D1 seed source via
+// scripts/gen-seed.ts).
 // ---------------------------------------------------------------------------
 
-import { prompts, type Prompt } from '../data/prompts';
-import { categories, type Category } from '../data/categories';
+import { env } from 'cloudflare:workers';
+import type { Prompt, AiModel } from '../data/prompts';
+import type { Category } from '../data/categories';
 
-export type { Prompt, Category };
-export type { AiModel } from '../data/prompts';
+export type { Prompt, Category, AiModel };
 
-/** All prompts, newest first by default. */
+function getDB(): D1Database {
+	const db = env.DB;
+	if (!db) {
+		throw new Error(
+			'D1 binding "DB" is not available. Check wrangler.jsonc d1_databases and that the DB is seeded.',
+		);
+	}
+	return db;
+}
+
+interface PromptRow {
+	slug: string;
+	title: string;
+	description: string;
+	prompt_text: string;
+	model: string;
+	category: string;
+	tags: string;
+	author: string;
+	date: string;
+	cover_image: string | null;
+	featured: number;
+	liked: number;
+	popularity: number;
+	how_to_use: string | null;
+}
+
+function rowToPrompt(r: PromptRow): Prompt {
+	return {
+		slug: r.slug,
+		title: r.title,
+		description: r.description,
+		promptText: r.prompt_text,
+		model: r.model as AiModel,
+		category: r.category,
+		tags: JSON.parse(r.tags || '[]'),
+		author: r.author,
+		date: r.date,
+		coverImage: r.cover_image ?? undefined,
+		featured: !!r.featured,
+		liked: !!r.liked,
+		popularity: r.popularity,
+		howToUse: r.how_to_use ?? undefined,
+	};
+}
+
+const PROMPT_COLS =
+	'slug, title, description, prompt_text, model, category, tags, author, date, cover_image, featured, liked, popularity, how_to_use';
+
+/** All prompts, newest first. */
 export async function getAllPrompts(): Promise<Prompt[]> {
-	return [...prompts].sort(
-		(a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-	);
+	const { results } = await getDB()
+		.prepare(`SELECT ${PROMPT_COLS} FROM prompts ORDER BY date DESC`)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
 }
 
-/** A single prompt by its slug, or undefined if not found. */
+/** A single prompt by slug, or undefined. */
 export async function getPromptBySlug(slug: string): Promise<Prompt | undefined> {
-	return prompts.find((p) => p.slug === slug);
+	const row = await getDB()
+		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE slug = ?`)
+		.bind(slug)
+		.first<PromptRow>();
+	return row ? rowToPrompt(row) : undefined;
 }
 
-/** Prompts in a given category, newest first. */
+/** Prompts in a category, newest first. */
 export async function getPromptsByCategory(categorySlug: string): Promise<Prompt[]> {
-	return (await getAllPrompts()).filter((p) => p.category === categorySlug);
+	const { results } = await getDB()
+		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE category = ? ORDER BY date DESC`)
+		.bind(categorySlug)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
 }
 
-/** Featured prompts for the hero / spotlight area. */
+/** Featured prompts. */
 export async function getFeaturedPrompts(): Promise<Prompt[]> {
-	return (await getAllPrompts()).filter((p) => p.featured);
+	const { results } = await getDB()
+		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE featured = 1 ORDER BY date DESC`)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
 }
 
 /** Related prompts: same category first, then most popular, excluding self. */
 export async function getRelatedPrompts(prompt: Prompt, limit = 3): Promise<Prompt[]> {
-	const others = prompts.filter((p) => p.slug !== prompt.slug);
-	others.sort((a, b) => {
-		const sameCat = (p: Prompt) => (p.category === prompt.category ? 1 : 0);
-		const byCat = sameCat(b) - sameCat(a);
-		return byCat !== 0 ? byCat : b.popularity - a.popularity;
-	});
-	return others.slice(0, limit);
+	const { results } = await getDB()
+		.prepare(
+			`SELECT ${PROMPT_COLS} FROM prompts
+			 WHERE slug != ?
+			 ORDER BY (category = ?) DESC, popularity DESC
+			 LIMIT ?`,
+		)
+		.bind(prompt.slug, prompt.category, limit)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
 }
 
-/** All categories. */
+/** All categories, in display order. */
 export async function getAllCategories(): Promise<Category[]> {
-	return categories;
+	const { results } = await getDB()
+		.prepare('SELECT slug, name, description, emoji FROM categories ORDER BY sort_order')
+		.all<Category>();
+	return results;
 }
 
 /** A single category by slug. */
 export async function getCategoryBySlug(slug: string): Promise<Category | undefined> {
-	return categories.find((c) => c.slug === slug);
+	const row = await getDB()
+		.prepare('SELECT slug, name, description, emoji FROM categories WHERE slug = ?')
+		.bind(slug)
+		.first<Category>();
+	return row ?? undefined;
 }
 
-/** Map of category slug -> prompt count (for category listings). */
+/** Map of category slug -> prompt count. */
 export async function getCategoryCounts(): Promise<Record<string, number>> {
-	return prompts.reduce<Record<string, number>>((acc, p) => {
-		acc[p.category] = (acc[p.category] ?? 0) + 1;
-		return acc;
-	}, {});
+	const { results } = await getDB()
+		.prepare('SELECT category, COUNT(*) AS n FROM prompts GROUP BY category')
+		.all<{ category: string; n: number }>();
+	const map: Record<string, number> = {};
+	for (const r of results) map[r.category] = r.n;
+	return map;
 }
 
-/** Rough read-time estimate in minutes from prompt + guidance length. */
+/** Rough read-time estimate in minutes. */
 export function readTime(prompt: Prompt): number {
 	const words = `${prompt.description} ${prompt.promptText} ${prompt.howToUse ?? ''}`
 		.trim()

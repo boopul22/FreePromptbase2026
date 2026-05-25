@@ -20,6 +20,10 @@ pnpm-debug.log*
 # wrangler / cloudflare local state
 .wrangler/
 .dev.vars
+# generated cloudflare binding types
+worker-configuration.d.ts
+# generated D1 seed (derived from src/data via npm run db:gen-seed)
+db/seed.sql
 
 # macOS-specific files
 .DS_Store

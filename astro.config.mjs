@@ -1,10 +1,16 @@
 // @ts-check
 import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
-import sitemap from '@astrojs/sitemap';
+import cloudflare from '@astrojs/cloudflare';
 
 // https://astro.build/config
 export default defineConfig({
+	// Cloudflare adapter — enables on-demand (SSR) rendering for the D1-backed
+	// pages. Static pages (about, privacy, terms, 404) stay prerendered; only
+	// pages with `export const prerender = false` render at request time.
+	// platformProxy exposes Cloudflare bindings (D1) during `astro dev`.
+	adapter: cloudflare({ platformProxy: { enabled: true } }),
+
 	// Canonical production URL — powers <link rel="canonical">, Open Graph URLs
 	// and the generated sitemap.
 	site: 'https://freepromptbase.com',
@@ -15,7 +21,8 @@ export default defineConfig({
 	trailingSlash: 'never',
 	build: { format: 'file' },
 
-	integrations: [sitemap()],
+	// Sitemap is generated dynamically from D1 at /sitemap.xml (see
+	// src/pages/sitemap.xml.ts) so it always reflects current prompts.
 
 	// Tailwind CSS v4 via the official Vite plugin (the @astrojs/tailwind
 	// integration is deprecated as of Tailwind v4 / Astro 6).

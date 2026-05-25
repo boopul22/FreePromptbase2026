@@ -7,6 +7,9 @@ import PromptGrid from '../components/PromptGrid.astro';
 import Footer from '../components/Footer.astro';
 import { getAllPrompts, getAllCategories } from '../lib/prompts';
 
+// Rendered on-demand (SSR) so new prompts added to D1 appear without a rebuild.
+export const prerender = false;
+
 const allPrompts = await getAllPrompts();
 const categories = await getAllCategories();
 
