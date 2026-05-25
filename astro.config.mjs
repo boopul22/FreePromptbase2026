@@ -1,9 +1,16 @@
 // @ts-check
 import { defineConfig, fontProviders } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
+	// Canonical production URL — powers <link rel="canonical">, Open Graph URLs
+	// and the generated sitemap.
+	site: 'https://freepromptbase.com',
+
+	integrations: [sitemap()],
+
 	// Tailwind CSS v4 via the official Vite plugin (the @astrojs/tailwind
 	// integration is deprecated as of Tailwind v4 / Astro 6).
 	vite: {

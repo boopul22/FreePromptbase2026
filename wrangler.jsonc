@@ -1,0 +1,16 @@
+{
+	// Cloudflare Worker that serves the prebuilt static Astro site (./dist) via
+	// Workers Static Assets. No server script needed yet — when D1 + the admin
+	// panel land, add the @astrojs/cloudflare adapter and a "main" entry here.
+	//
+	// NOTE: "name" must match the Worker created in the dashboard/CLI. Confirmed
+	// at deploy time against the account's worker list.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "freepromptbase2026",
+	"compatibility_date": "2026-05-25",
+	"assets": {
+		"directory": "./dist",
+		// Serve /404.html for unknown paths (content site, not an SPA).
+		"not_found_handling": "404-page"
+	}
+}

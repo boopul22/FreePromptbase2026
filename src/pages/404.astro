@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="Page not found — Free Prompt Base" description="The page you’re looking for doesn’t exist.">
+	<Header />
+	<main class="flex-grow max-w-2xl mx-auto px-4 w-full py-24 text-center">
+		<p class="text-6xl font-bold text-primary">404</p>
+		<h1 class="text-2xl font-bold text-text-primary mt-4">This prompt wandered off.</h1>
+		<p class="text-gray-600 mt-3">
+			The page you’re looking for doesn’t exist or may have moved.
+		</p>
+		<div class="mt-8 flex items-center justify-center gap-3">
+			<a
+				href="/"
+				class="px-6 py-3 bg-primary text-link rounded-lg text-sm font-bold hover:opacity-90 transition-opacity"
+				>Back home</a
+			>
+			<a
+				href="/categories"
+				class="px-6 py-3 bg-white text-text-primary border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
+				>Browse categories</a
+			>
+		</div>
+	</main>
+	<Footer />
+</Layout>

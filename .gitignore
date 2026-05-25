@@ -17,6 +17,10 @@ pnpm-debug.log*
 .env
 .env.production
 
+# wrangler / cloudflare local state
+.wrangler/
+.dev.vars
+
 # macOS-specific files
 .DS_Store
 

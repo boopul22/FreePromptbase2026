@@ -37,11 +37,28 @@ const dateLabel = new Date(prompt.date).toLocaleDateString('en-US', {
 	year: 'numeric',
 });
 const mins = readTime(prompt);
+
+const promptSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'CreativeWork',
+	name: prompt.title,
+	headline: prompt.title,
+	description: prompt.description,
+	datePublished: prompt.date,
+	author: { '@type': 'Person', name: prompt.author },
+	keywords: prompt.tags.join(', '),
+	about: category?.name,
+	url: new URL(`/${prompt.slug}`, Astro.site).href,
+	inLanguage: 'en',
+	isAccessibleForFree: true,
+	text: prompt.promptText,
+};
 ---
 
 <Layout
 	title={`${prompt.title} — Free Prompt Base`}
 	description={prompt.description}
+	schema={promptSchema}
 >
 	<Header />
 	<main class="flex-grow max-w-3xl mx-auto px-4 w-full py-10">

@@ -5,14 +5,36 @@ import '../styles/global.css';
 interface Props {
 	title?: string;
 	description?: string;
+	/** Optional page-specific JSON-LD (e.g. CreativeWork on a prompt page). */
+	schema?: Record<string, unknown>;
 }
 
 const {
 	title = 'Free Prompt Base — Curated AI prompts you can copy and use',
 	description = 'A free, curated library of ready-to-use prompts for ChatGPT, Midjourney, Claude and Gemini. Find one, copy it, create.',
+	schema,
 } = Astro.props;
 
+const siteUrl = (Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '');
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).href;
+
+// Site-wide WebSite schema with a sitelinks search box action.
+const websiteSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'WebSite',
+	name: 'Free Prompt Base',
+	url: siteUrl,
+	description:
+		'A free, curated library of ready-to-use AI prompts for ChatGPT, Midjourney, Claude and Gemini.',
+	potentialAction: {
+		'@type': 'SearchAction',
+		target: {
+			'@type': 'EntryPoint',
+			urlTemplate: `${siteUrl}/?q={search_term_string}`,
+		},
+		'query-input': 'required name=search_term_string',
+	},
+};
 ---
 
 <!doctype html>
@@ -36,6 +58,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url.origin).hr
 
 		<Font cssVariable="--font-rubik" preload />
 		<title>{title}</title>
+
+		<!-- Structured data -->
+		<script
+			type="application/ld+json"
+			set:html={JSON.stringify(websiteSchema)}
+		/>
+		{schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
 	</head>
 	<body class="min-h-screen flex flex-col">
 		<slot />
