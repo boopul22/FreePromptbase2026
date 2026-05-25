@@ -18,8 +18,8 @@
 		{
 			// Accessed in code as env.DB (see src/lib/prompts.ts).
 			"binding": "DB",
-			"database_name": "freepromptbase",
-			// Filled in after `wrangler d1 create freepromptbase`.
+			"database_name": "freepromptbase-com",
+			// Filled in after `wrangler d1 create freepromptbase-com`.
 			"database_id": "PLACEHOLDER_DB_ID"
 		}
 	]

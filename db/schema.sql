@@ -1,5 +1,5 @@
 -- Free Prompt Base — D1 schema
--- Apply:  wrangler d1 execute freepromptbase --remote --file=db/schema.sql
+-- Apply:  wrangler d1 execute freepromptbase-com --remote --file=db/schema.sql
 --   (use --local for the local dev database)
 
 DROP TABLE IF EXISTS prompts;
