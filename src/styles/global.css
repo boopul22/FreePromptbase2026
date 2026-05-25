@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   Design tokens
+   Sourced from the brand design-token spec (Marc Lou / Indie Page scrape).
+   Exposed as Tailwind v4 theme variables so utilities are generated:
+     --color-*  -> bg-*, text-*, border-*   (e.g. bg-primary, text-text-primary)
+     --font-*   -> font-*                    (e.g. font-sans, font-heading)
+     --text-*   -> text-*                    (e.g. text-h1, text-h2, text-body)
+     --radius-* -> rounded-*                 (e.g. rounded-base)
+   ========================================================================== */
+@theme {
+	/* --- Colors ----------------------------------------------------------- */
+	--color-primary: #e0a82e;
+	--color-secondary: #9ca3af;
+	--color-accent: #e0a82e;
+	--color-background: #e6e6e6;
+	--color-text-primary: #333333;
+	--color-link: #181830;
+
+	/* --- Typography ------------------------------------------------------- */
+	/* Rubik is loaded via the Astro Fonts API (--font-rubik). */
+	--font-sans: var(--font-rubik), ui-sans-serif, system-ui, -apple-system,
+		BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+		"Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+		"Segoe UI Symbol", "Noto Color Emoji";
+	--font-heading: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+
+	--text-h1: 36px;
+	--text-h2: 16px;
+	--text-body: 16px;
+
+	/* --- Spacing ---------------------------------------------------------- */
+	/* baseUnit: 4px — matches Tailwind's default spacing scale (0.25rem). */
+	--spacing: 0.25rem;
+
+	/* --- Radius ----------------------------------------------------------- */
+	--radius-base: 16px;
+}
+
+/* ----------------------------------------------------------------------------
+   Component-level design tokens.
+   Kept as plain custom properties (not Tailwind utilities) so they're ready
+   to consume when components are built later — no components are created here.
+   -------------------------------------------------------------------------- */
+:root {
+	color-scheme: light;
+
+	/* Input */
+	--input-bg: #ffffff;
+	--input-text: #333333;
+	--input-border: #e0a82e;
+	--input-radius: 8px;
+	--input-radius-tl: 8px;
+	--input-radius-tr: 0px;
+	--input-radius-br: 0px;
+	--input-radius-bl: 8px;
+	--input-shadow: none;
+
+	/* Primary button */
+	--btn-primary-bg: #e0a82e;
+	--btn-primary-text: #181830;
+	--btn-primary-border: #e0a82e;
+	--btn-primary-radius-tl: 0px;
+	--btn-primary-radius-tr: 8px;
+	--btn-primary-radius-br: 8px;
+	--btn-primary-radius-bl: 0px;
+	--btn-primary-shadow: none;
+
+	/* Secondary button */
+	--btn-secondary-bg: #ffffff;
+	--btn-secondary-text: #333333;
+	--btn-secondary-radius: 16px;
+	--btn-secondary-shadow: none;
+}
+
+/* ----------------------------------------------------------------------------
+   Base layer — applies the light color scheme and Rubik to the document.
+   -------------------------------------------------------------------------- */
+@layer base {
+	body {
+		background-color: var(--color-background);
+		color: var(--color-text-primary);
+		font-family: var(--font-sans);
+		font-size: var(--text-body);
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		font-family: var(--font-heading);
+	}
+}
+
+/* ----------------------------------------------------------------------------
+   Masonry gallery — CSS multi-column layout (original design). Cards carry
+   varied cover aspect ratios so columns stagger like a magazine spread.
+   -------------------------------------------------------------------------- */
+.masonry-grid {
+	column-count: 1;
+	column-gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+	.masonry-grid {
+		column-count: 2;
+	}
+}
+
+@media (min-width: 1024px) {
+	.masonry-grid {
+		column-count: 4;
+	}
+}
+
+.masonry-item {
+	break-inside: avoid;
+	margin-bottom: 2rem;
+}
+
+/* Like button affordance */
+.like-btn {
+	cursor: pointer;
+	line-height: 0;
+}
+.like-btn:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+	border-radius: 9999px;
+}
+
+/* ----------------------------------------------------------------------------
+   Copyable prompt box (detail page).
+   -------------------------------------------------------------------------- */
+.prompt-box {
+	background-color: #181830;
+	color: #f5f5f5;
+	border-radius: var(--radius-base);
+	white-space: pre-wrap;
+	word-break: break-word;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+	font-size: 0.875rem;
+	line-height: 1.6;
+}
+
+.copy-btn:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+}

@@ -1,0 +1,57 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout title="About — Free Prompt Base" description="Free Prompt Base is a community library of ready-to-use AI prompts. Built by Boopul.">
+	<Header />
+	<main class="flex-grow max-w-3xl mx-auto px-4 w-full py-12">
+		<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary">
+			About Free Prompt Base
+		</h1>
+		<p class="text-gray-600 text-lg mt-4">
+			Free Prompt Base is a free, curated library of AI prompts — built for the community, by
+			the community. Every prompt is ready to copy and use with ChatGPT, Midjourney, Claude or
+			Gemini.
+		</p>
+
+		<div class="prose-like mt-8 space-y-4 text-gray-600 leading-relaxed">
+			<p>
+				Hi, I'm <strong class="text-text-primary">Boopul</strong> 👋 — an AI-powered creator,
+				no-code explorer, and disciplined builder. I believe consistency beats talent and action
+				beats intention.
+			</p>
+			<p>
+				I build small apps, tools and websites with AI and no-code, and I share what I learn
+				about prompting, automation and building in public. Free Prompt Base is where I collect
+				the prompts I actually use, so anyone can grab them for free.
+			</p>
+			<p>The idea is simple: <strong class="text-text-primary">find a prompt, copy it, create.</strong></p>
+		</div>
+
+		<div class="mt-10 flex flex-wrap gap-3">
+			<a
+				href="/categories"
+				class="px-6 py-3 bg-primary text-link rounded-lg text-sm font-bold hover:opacity-90 transition-opacity"
+			>
+				Browse prompts
+			</a>
+			<a
+				href="https://github.com/boopul22"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="px-6 py-3 bg-white text-text-primary border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
+			>
+				GitHub
+			</a>
+			<a
+				href="mailto:blog.boopul@gmail.com"
+				class="px-6 py-3 bg-white text-text-primary border border-gray-200 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
+			>
+				Contact
+			</a>
+		</div>
+	</main>
+	<Footer />
+</Layout>

@@ -1,0 +1,144 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import CopyPromptButton from '../components/CopyPromptButton.astro';
+import PromptCard from '../components/PromptCard.astro';
+import {
+	getAllPrompts,
+	getCategoryBySlug,
+	getRelatedPrompts,
+	getAllCategories,
+	readTime,
+	type Prompt,
+} from '../lib/prompts';
+
+export async function getStaticPaths() {
+	const prompts = await getAllPrompts();
+	return prompts.map((prompt) => ({
+		params: { slug: prompt.slug },
+		props: { prompt },
+	}));
+}
+
+interface Props {
+	prompt: Prompt;
+}
+
+const { prompt } = Astro.props;
+const category = await getCategoryBySlug(prompt.category);
+const related = await getRelatedPrompts(prompt);
+const categories = await getAllCategories();
+const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
+
+const dateLabel = new Date(prompt.date).toLocaleDateString('en-US', {
+	month: 'short',
+	day: 'numeric',
+	year: 'numeric',
+});
+const mins = readTime(prompt);
+---
+
+<Layout
+	title={`${prompt.title} — Free Prompt Base`}
+	description={prompt.description}
+>
+	<Header />
+	<main class="flex-grow max-w-3xl mx-auto px-4 w-full py-10">
+		<!-- Breadcrumb -->
+		<nav class="text-sm text-gray-500 mb-6">
+			<a href="/" class="hover:text-primary">Home</a>
+			<span class="mx-2">/</span>
+			{
+				category && (
+					<>
+						<a href={`/category/${category.slug}`} class="hover:text-primary">
+							{category.name}
+						</a>
+						<span class="mx-2">/</span>
+					</>
+				)
+			}
+			<span class="text-text-primary">{prompt.title}</span>
+		</nav>
+
+		<!-- Meta row -->
+		<div class="flex flex-wrap items-center gap-3 text-xs font-semibold mb-4">
+			<span class="bg-link text-white px-2.5 py-1 rounded-full">{prompt.model}</span>
+			{
+				category && (
+					<a
+						href={`/category/${category.slug}`}
+						class="text-primary hover:underline"
+					>
+						{category.emoji} {category.name}
+					</a>
+				)
+			}
+			<span class="text-gray-400">{dateLabel}</span>
+			<span class="text-gray-400">· {mins} min read</span>
+			<span class="text-gray-400">· by {prompt.author}</span>
+		</div>
+
+		<!-- Title + intro -->
+		<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary leading-tight">
+			{prompt.title}
+		</h1>
+		<p class="text-gray-600 text-lg mt-4">{prompt.description}</p>
+
+		<!-- Cover (only when provided) -->
+		{
+			prompt.coverImage && (
+				<img
+					src={prompt.coverImage}
+					alt={prompt.title}
+					class="w-full rounded-base mt-8 object-cover"
+					loading="lazy"
+				/>
+			)
+		}
+
+		<!-- The prompt + copy -->
+		<div class="mt-10">
+			<CopyPromptButton text={prompt.promptText} />
+		</div>
+
+		<!-- How to use -->
+		{
+			prompt.howToUse && (
+				<section class="mt-10">
+					<h2 class="text-xl font-bold text-text-primary mb-3">How to use it</h2>
+					<p class="text-gray-600 leading-relaxed">{prompt.howToUse}</p>
+				</section>
+			)
+		}
+
+		<!-- Tags -->
+		{
+			prompt.tags.length > 0 && (
+				<div class="flex flex-wrap gap-2 mt-10">
+					{prompt.tags.map((tag) => (
+						<span class="bg-white border border-gray-200 text-gray-600 text-xs font-semibold px-3 py-1 rounded-full">
+							#{tag}
+						</span>
+					))}
+				</div>
+			)
+		}
+
+		<!-- Related -->
+		{
+			related.length > 0 && (
+				<section class="mt-16">
+					<h2 class="text-xl font-bold text-text-primary mb-6">Related prompts</h2>
+					<div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+						{related.map((rel) => (
+							<PromptCard prompt={rel} category={categoryBySlug.get(rel.category)} />
+						))}
+					</div>
+				</section>
+			)
+		}
+	</main>
+	<Footer />
+</Layout>

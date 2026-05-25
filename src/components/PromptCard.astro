@@ -1,0 +1,128 @@
+---
+import type { Prompt, Category } from '../lib/prompts';
+
+interface Props {
+	prompt: Prompt;
+	/** Resolved category (for the badge emoji + gradient fallback). */
+	category?: Category;
+	/** Tailwind aspect class for the cover, e.g. "aspect-[3/4]" (masonry variety). */
+	aspectClass?: string;
+}
+
+const { prompt, category, aspectClass = 'aspect-[4/3]' } = Astro.props;
+
+const searchIndex = [prompt.title, prompt.description, prompt.model, ...prompt.tags]
+	.join(' ')
+	.toLowerCase();
+---
+
+<article
+	class="masonry-item group relative"
+	data-prompt
+	data-popularity={prompt.popularity}
+	data-date={prompt.date}
+	data-search={searchIndex}
+>
+	<!-- Cover -->
+	<div class={`relative overflow-hidden rounded-lg mb-3 ${aspectClass}`}>
+		{
+			prompt.featured && (
+				<>
+					<span class="absolute top-4 right-4 z-10 bg-primary text-link text-[10px] font-bold px-2 py-1 rounded">
+						Prompt of the Day
+					</span>
+					<span class="absolute top-10 right-4 z-10 text-primary">
+						<svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+							<path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+						</svg>
+					</span>
+				</>
+			)
+		}
+
+		{
+			prompt.coverImage ? (
+				<img
+					src={prompt.coverImage}
+					alt={prompt.title}
+					class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+					loading="lazy"
+					decoding="async"
+				/>
+			) : (
+				<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/30 via-primary/10 to-link/15 group-hover:scale-105 transition-transform duration-500">
+					<span class="text-5xl select-none">{category?.emoji ?? '✨'}</span>
+				</div>
+			)
+		}
+
+		<!-- Model badge -->
+		<span
+			class="absolute bottom-3 left-3 z-10 bg-link/85 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-sm"
+		>
+			{prompt.model}
+		</span>
+
+		<!-- Like (sits above the stretched link) -->
+		<button
+			class="like-btn absolute bottom-4 right-4 z-20"
+			data-like
+			data-liked={prompt.liked ? 'true' : 'false'}
+			aria-label="Save prompt"
+			aria-pressed={prompt.liked ? 'true' : 'false'}
+		>
+			<svg
+				class:list={[
+					'like-icon w-5 h-5 transition-all duration-200',
+					prompt.liked
+						? 'fill-primary text-primary opacity-100'
+						: 'fill-white text-white opacity-0 group-hover:opacity-100',
+				]}
+				viewBox="0 0 20 20"
+			>
+				<path
+					clip-rule="evenodd"
+					d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+					fill-rule="evenodd"></path>
+			</svg>
+		</button>
+	</div>
+
+	<!-- Caption -->
+	<div class="space-y-1">
+		<h3 class="font-bold text-sm text-text-primary group-hover:text-primary transition-colors">
+			{prompt.title}
+		</h3>
+		{prompt.description && <p class="text-xs text-gray-500 line-clamp-2">{prompt.description}</p>}
+	</div>
+
+	<!-- Stretched link: makes the whole card open the prompt (except the heart) -->
+	<a href={`/${prompt.slug}`} class="absolute inset-0 z-[1]" aria-label={prompt.title}></a>
+</article>
+
+<script>
+	// Wires every like button on the page. Astro bundles this component script
+	// once regardless of how many cards render, so it runs a single time.
+	document.querySelectorAll<HTMLButtonElement>('[data-like]').forEach((btn) => {
+		if (btn.dataset.likeWired) return;
+		btn.dataset.likeWired = '1';
+		btn.addEventListener('click', (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			const icon = btn.querySelector<SVGElement>('.like-icon');
+			const liked = btn.dataset.liked === 'true';
+			const next = !liked;
+			btn.dataset.liked = String(next);
+			btn.setAttribute('aria-pressed', String(next));
+			const LIKED = ['fill-primary', 'text-primary', 'opacity-100'];
+			const UNLIKED = ['fill-white', 'text-white', 'opacity-0', 'group-hover:opacity-100'];
+			icon?.classList.remove(...LIKED, ...UNLIKED);
+			icon?.classList.add(...(next ? LIKED : UNLIKED));
+			const card = btn.closest<HTMLElement>('[data-prompt]');
+			if (card) {
+				const cur = Number(card.dataset.popularity ?? 0);
+				card.dataset.popularity = String(cur + (next ? 1 : -1));
+			}
+		});
+	});
+</script>

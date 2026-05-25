@@ -1,0 +1,47 @@
+---
+import type { Category } from '../lib/prompts';
+
+interface Props {
+	categories: Category[];
+	/** Slug of the active category, if any (highlights its chip). */
+	active?: string;
+	/** Show an "All" chip linking back to the full grid. */
+	showAll?: boolean;
+}
+
+const { categories, active, showAll = true } = Astro.props;
+---
+
+<div class="flex flex-wrap gap-2" data-purpose="category-chips">
+	{
+		showAll && (
+			<a
+				href="/"
+				class:list={[
+					'px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors',
+					!active
+						? 'bg-primary text-link border-primary'
+						: 'bg-white text-text-primary border-gray-200 hover:border-primary',
+				]}
+			>
+				All
+			</a>
+		)
+	}
+	{
+		categories.map((cat) => (
+			<a
+				href={`/category/${cat.slug}`}
+				class:list={[
+					'px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors',
+					active === cat.slug
+						? 'bg-primary text-link border-primary'
+						: 'bg-white text-text-primary border-gray-200 hover:border-primary',
+				]}
+			>
+				<span class="mr-1">{cat.emoji}</span>
+				{cat.name}
+			</a>
+		))
+	}
+</div>

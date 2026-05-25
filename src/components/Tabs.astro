@@ -1,0 +1,27 @@
+---
+// Sort tabs for the prompt grid. Wired to the grid in index.astro via the
+// [data-sort] value ("popular" | "recent").
+const tabs = [
+	{ id: 'popular', label: 'Popular' },
+	{ id: 'recent', label: 'Recent' },
+] as const;
+---
+
+<nav class="flex gap-8 mb-10 border-b border-gray-300 pb-4" data-purpose="content-tabs">
+	{
+		tabs.map((tab, i) => (
+			<button
+				data-sort={tab.id}
+				data-active={i === 0 ? 'true' : 'false'}
+				class:list={[
+					'sort-tab font-bold transition-colors relative',
+					i === 0
+						? "text-text-primary after:content-[''] after:absolute after:-bottom-4 after:left-0 after:w-full after:h-1 after:bg-primary"
+						: 'text-gray-500 hover:text-primary',
+				]}
+			>
+				{tab.label}
+			</button>
+		))
+	}
+</nav>

@@ -1,0 +1,70 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import CategoryChips from '../../components/CategoryChips.astro';
+import PromptGrid from '../../components/PromptGrid.astro';
+import {
+	getAllCategories,
+	getPromptsByCategory,
+	type Category,
+	type Prompt,
+} from '../../lib/prompts';
+
+export async function getStaticPaths() {
+	const categories = await getAllCategories();
+	const all = await Promise.all(
+		categories.map(async (category) => ({
+			params: { slug: category.slug },
+			props: {
+				category,
+				prompts: await getPromptsByCategory(category.slug),
+				categories,
+			},
+		})),
+	);
+	return all;
+}
+
+interface Props {
+	category: Category;
+	prompts: Prompt[];
+	categories: Category[];
+}
+
+const { category, prompts, categories } = Astro.props;
+---
+
+<Layout
+	title={`${category.name} prompts — Free Prompt Base`}
+	description={category.description}
+>
+	<Header />
+	<main class="flex-grow max-w-7xl mx-auto px-4 w-full py-10">
+		<header class="mb-8">
+			<div class="text-4xl mb-3">{category.emoji}</div>
+			<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary">
+				{category.name}
+			</h1>
+			<p class="text-gray-600 text-lg mt-2">{category.description}</p>
+			<p class="text-sm text-gray-400 mt-2">
+				{prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'}
+			</p>
+		</header>
+
+		<div class="mb-10">
+			<CategoryChips categories={categories} active={category.slug} />
+		</div>
+
+		{
+			prompts.length > 0 ? (
+				<PromptGrid prompts={prompts} categories={categories} />
+			) : (
+				<p class="text-center text-gray-500 py-16">
+					No prompts in this category yet. Check back soon!
+				</p>
+			)
+		}
+	</main>
+	<Footer />
+</Layout>
