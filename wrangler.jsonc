@@ -19,11 +19,7 @@
 			// Accessed in code as env.DB (see src/lib/prompts.ts + src/lib/db.ts).
 			"binding": "DB",
 			"database_name": "freepromptbase-com",
-			// PLACEHOLDER until a remote D1 is created (CF account D1 limit reached).
-			// Local dev works because platformProxy uses a local SQLite replica.
-			// Run `wrangler d1 create freepromptbase-com` once a slot is free, then
-			// paste the UUID here.
-			"database_id": "PLACEHOLDER_DB_ID"
+			"database_id": "90131e07-7de7-48e7-b8bc-6153b5b105e6"
 		}
 	],
 	"r2_buckets": [
