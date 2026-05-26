@@ -1,7 +1,8 @@
 ---
-// Sort tabs for the prompt grid. Wired to the grid in index.astro via the
-// [data-sort] value ("popular" | "recent").
+// Sort tabs for the prompt grid. The homepage SSRs three grids (one per tab)
+// and the tab click toggles which grid is visible — no client-side reorder.
 const tabs = [
+	{ id: 'trending', label: 'Trending' },
 	{ id: 'popular', label: 'Popular' },
 	{ id: 'recent', label: 'Recent' },
 ] as const;

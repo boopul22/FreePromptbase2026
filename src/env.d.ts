@@ -33,5 +33,11 @@ declare namespace App {
       avatarUrl: string;
       role: 'user' | 'admin';
     };
+    /** "user:<id>" when signed in, "anon:<uuid>" otherwise. Set by middleware. */
+    actorId?: string;
+    /** Slugs the current actor has saved (bookmarked) — seeds bookmark state on cards. */
+    savedSlugs?: Set<string>;
+    /** Slugs the current actor has liked — seeds heart state on cards. */
+    likedSlugs?: Set<string>;
   }
 }

@@ -23,8 +23,14 @@ export interface Prompt {
 	featured?: boolean;
 	/** Whether the current user has saved/liked this prompt. */
 	liked?: boolean;
-	/** Drives the "Popular" sort. */
+	/** Legacy seed counter — kept for backfill. New code reads saveCount instead. */
 	popularity: number;
+	/** Number of saves (denormalized from prompt_saves). */
+	saveCount?: number;
+	/** Number of likes (denormalized from prompt_likes). */
+	likeCount?: number;
+	/** Number of shares (denormalized from prompt_events kind='share'). */
+	shareCount?: number;
 	/** Optional extra guidance rendered on the detail page. */
 	howToUse?: string;
 	/** Image gallery rendered as a carousel on the detail page. cover_image is used for cards. */

@@ -40,6 +40,9 @@ interface PromptRow {
 	featured: number;
 	liked: number;
 	popularity: number;
+	save_count: number;
+	like_count: number;
+	share_count: number;
 	how_to_use: string | null;
 	created_by: string | null;
 }
@@ -64,13 +67,16 @@ function rowToPrompt(r: PromptRow): Prompt {
 		featured: !!r.featured,
 		liked: !!r.liked,
 		popularity: r.popularity,
+		saveCount: r.save_count,
+		likeCount: r.like_count,
+		shareCount: r.share_count,
 		howToUse: r.how_to_use ?? undefined,
 		createdBy: r.created_by ?? undefined,
 	};
 }
 
 const PROMPT_COLS =
-	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, how_to_use, created_by';
+	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, how_to_use, created_by';
 
 /** All prompts, newest first. */
 export async function getAllPrompts(): Promise<Prompt[]> {
@@ -153,4 +159,63 @@ export function readTime(prompt: Prompt): number {
 		.trim()
 		.split(/\s+/).length;
 	return Math.max(1, Math.round(words / 200));
+}
+
+// ---------------------------------------------------------------------------
+// Social queries — drive the Popular / Trending tabs and the /saved page.
+// ---------------------------------------------------------------------------
+
+/** Prompts ordered by all-time saves, newest as tiebreaker. */
+export async function getPopularPrompts(limit = 60): Promise<Prompt[]> {
+	const { results } = await getDB()
+		.prepare(
+			`SELECT ${PROMPT_COLS} FROM prompts ORDER BY save_count DESC, date DESC LIMIT ?`,
+		)
+		.bind(limit)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
+}
+
+/**
+ * Trending = prompts with the most saves+shares in the last 7 days. Computed
+ * live; if nothing has happened in a week, the list will be empty (callers
+ * should fall back to the Popular list to avoid a dead tab).
+ */
+export async function getTrendingPrompts(limit = 60): Promise<Prompt[]> {
+	const cols = PROMPT_COLS.split(', ')
+		.map((c) => `p.${c}`)
+		.join(', ');
+	const { results } = await getDB()
+		.prepare(
+			`SELECT ${cols}, COUNT(e.id) AS score
+			 FROM prompts p
+			 LEFT JOIN prompt_events e
+			   ON e.prompt_slug = p.slug
+			  AND e.kind IN ('save','like','share')
+			  AND e.created_at > datetime('now','-7 days')
+			 GROUP BY p.slug
+			 HAVING score > 0
+			 ORDER BY score DESC, p.date DESC
+			 LIMIT ?`,
+		)
+		.bind(limit)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
+}
+
+/** Prompts saved by a given actor, most recently saved first. */
+export async function getSavedPrompts(actorId: string): Promise<Prompt[]> {
+	const cols = PROMPT_COLS.split(', ')
+		.map((c) => `p.${c}`)
+		.join(', ');
+	const { results } = await getDB()
+		.prepare(
+			`SELECT ${cols} FROM prompts p
+			 INNER JOIN prompt_saves s ON s.prompt_slug = p.slug
+			 WHERE s.actor_id = ?
+			 ORDER BY s.created_at DESC`,
+		)
+		.bind(actorId)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
 }

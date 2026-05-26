@@ -5,23 +5,42 @@ import Hero from '../components/Hero.astro';
 import Tabs from '../components/Tabs.astro';
 import PromptGrid from '../components/PromptGrid.astro';
 import Footer from '../components/Footer.astro';
-import { getAllPrompts, getAllCategories } from '../lib/prompts';
+import {
+	getAllPrompts,
+	getAllCategories,
+	getPopularPrompts,
+	getTrendingPrompts,
+} from '../lib/prompts';
 import { itemListSchema } from '../lib/seo';
 
-// Rendered on-demand (SSR) so new prompts added to D1 appear without a rebuild.
+// Rendered on-demand (SSR) so new prompts added to D1 appear without a rebuild
+// and so save/share counts stay fresh across requests.
 export const prerender = false;
 
-const allPrompts = await getAllPrompts();
-const categories = await getAllCategories();
+const [allPrompts, categories, popularPrompts, trendingFromEvents] = await Promise.all([
+	getAllPrompts(),
+	getAllCategories(),
+	getPopularPrompts(),
+	getTrendingPrompts(),
+]);
 
-// Default tab is "Popular" — render in popularity order so the static output
-// matches the initial view before the client script takes over.
-const initialPrompts = [...allPrompts].sort((a, b) => b.popularity - a.popularity);
+// Recent = newest first (getAllPrompts already orders by date DESC).
+const recentPrompts = allPrompts;
+
+// Trending leads with the past-7-day winners, then pads from Popular so a
+// quiet week doesn't leave the default tab looking thin. Dedup by slug.
+const MIN_TRENDING = 12;
+const trendingSlugs = new Set(trendingFromEvents.map((p) => p.slug));
+const padding = popularPrompts.filter((p) => !trendingSlugs.has(p.slug));
+const trendingPrompts =
+	trendingFromEvents.length >= MIN_TRENDING
+		? trendingFromEvents
+		: [...trendingFromEvents, ...padding].slice(0, MIN_TRENDING);
 
 // ItemList for the homepage collection (cap to 30 so the JSON-LD stays small).
 const homeList = itemListSchema(
-	initialPrompts.slice(0, 30).map((p) => ({ name: p.title, url: `/${p.slug}` })),
-	'Popular prompts',
+	trendingPrompts.slice(0, 30).map((p) => ({ name: p.title, url: `/${p.slug}` })),
+	'Trending prompts',
 );
 ---
 
@@ -30,15 +49,34 @@ const homeList = itemListSchema(
 	<main class="max-w-7xl mx-auto px-4 py-12">
 		<Hero promptCount={allPrompts.length} categoryCount={categories.length} />
 		<Tabs />
-		<PromptGrid prompts={initialPrompts} categories={categories} />
+		<PromptGrid
+			prompts={trendingPrompts}
+			categories={categories}
+			tab="trending"
+			emptyMessage="No trending prompts yet — heart a few to get this section moving."
+		/>
+		<PromptGrid
+			prompts={popularPrompts}
+			categories={categories}
+			tab="popular"
+			hidden
+		/>
+		<PromptGrid
+			prompts={recentPrompts}
+			categories={categories}
+			tab="recent"
+			hidden
+		/>
 	</main>
 	<Footer />
 </Layout>
 
 <script>
-	// Home interactivity: sort tabs, live search (also reads ?q= on load), and
-	// the collection follow button. Like toggles live in PromptCard's own script.
-	const grid = document.querySelector<HTMLElement>('[data-grid]');
+	// Home interactivity: tab switching (show/hide pre-rendered grids), live
+	// search across the active grid, and the collection follow button. Save and
+	// share live inside PromptCard via /scripts/social.ts.
+	const grids = Array.from(document.querySelectorAll<HTMLElement>('[data-grid][data-tab]'));
+	const emptyTabMessages = Array.from(document.querySelectorAll<HTMLElement>('[data-empty-tab]'));
 	const emptyState = document.querySelector<HTMLElement>('[data-empty]');
 	const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
 	const searchForm = document.querySelector<HTMLFormElement>('[data-search-form]');
@@ -57,21 +95,15 @@ const homeList = itemListSchema(
 	];
 	const INACTIVE_TAB = ['text-gray-500', 'hover:text-primary'];
 
-	const items = () =>
-		Array.from(grid?.querySelectorAll<HTMLElement>('[data-prompt]') ?? []);
+	function activeGrid(): HTMLElement | null {
+		return grids.find((g) => !g.classList.contains('hidden')) ?? null;
+	}
 
-	function sortBy(mode: string) {
-		if (!grid) return;
-		const sorted = items().sort((a, b) => {
-			if (mode === 'recent') {
-				return (
-					new Date(b.dataset.date ?? 0).getTime() - new Date(a.dataset.date ?? 0).getTime()
-				);
-			}
-			// popular
-			return Number(b.dataset.popularity ?? 0) - Number(a.dataset.popularity ?? 0);
-		});
-		sorted.forEach((el) => grid.appendChild(el));
+	function showTab(id: string) {
+		grids.forEach((g) => g.classList.toggle('hidden', g.dataset.tab !== id));
+		emptyTabMessages.forEach((p) => p.classList.toggle('hidden', p.dataset.emptyTab !== id));
+		// Re-run any active search filter against the newly visible grid.
+		if (searchInput?.value) runSearch(searchInput.value);
 	}
 
 	sortTabs.forEach((tab) => {
@@ -82,14 +114,17 @@ const homeList = itemListSchema(
 				t.classList.remove(...ACTIVE_TAB, ...INACTIVE_TAB);
 				t.classList.add(...(isActive ? ACTIVE_TAB : INACTIVE_TAB));
 			});
-			sortBy(tab.dataset.sort ?? 'popular');
+			showTab(tab.dataset.sort ?? 'trending');
 		});
 	});
 
 	function runSearch(query: string) {
 		const q = query.trim().toLowerCase();
+		const grid = activeGrid();
+		if (!grid) return;
+		const items = Array.from(grid.querySelectorAll<HTMLElement>('[data-prompt]'));
 		let visible = 0;
-		items().forEach((el) => {
+		items.forEach((el) => {
 			const match = !q || (el.dataset.search ?? '').includes(q);
 			el.classList.toggle('hidden', !match);
 			if (match) visible++;

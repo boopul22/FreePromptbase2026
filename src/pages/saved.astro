@@ -1,0 +1,65 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import PromptGrid from '../components/PromptGrid.astro';
+import { getAllCategories, getSavedPrompts } from '../lib/prompts';
+
+// Per-actor — never cache publicly.
+export const prerender = false;
+
+const actorId = Astro.locals.actorId;
+const [savedPrompts, categories] = await Promise.all([
+	actorId ? getSavedPrompts(actorId) : Promise.resolve([]),
+	getAllCategories(),
+]);
+
+const isAnon = !Astro.locals.user;
+---
+
+<Layout
+	title="Your saved prompts — Free Prompt Base"
+	description="Prompts you've saved on this device or to your account."
+>
+	<Header />
+	<main class="max-w-7xl mx-auto px-4 py-12">
+		<header class="mb-10">
+			<h1 class="text-4xl font-bold tracking-tight text-text-primary">Saved prompts</h1>
+			<p class="text-gray-600 mt-3 max-w-2xl">
+				{
+					savedPrompts.length === 0
+						? "Nothing here yet — tap the heart on any prompt card to save it."
+						: `${savedPrompts.length} saved ${savedPrompts.length === 1 ? 'prompt' : 'prompts'}.`
+				}
+				{
+					isAnon && savedPrompts.length > 0 && (
+						<>
+							{' '}
+							<a href="/api/auth/login" class="text-primary font-medium hover:underline">
+								Sign in
+							</a>{' '}
+							to keep them across devices.
+						</>
+					)
+				}
+			</p>
+		</header>
+
+		{
+			savedPrompts.length > 0 ? (
+				<PromptGrid prompts={savedPrompts} categories={categories} />
+			) : (
+				<div class="border border-dashed border-gray-300 rounded-lg p-10 text-center">
+					<p class="text-gray-500 mb-4">No saved prompts yet.</p>
+					<a
+						href="/"
+						class="inline-flex items-center gap-2 bg-primary text-link px-5 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+					>
+						Browse prompts
+					</a>
+				</div>
+			)
+		}
+	</main>
+	<Footer />
+</Layout>

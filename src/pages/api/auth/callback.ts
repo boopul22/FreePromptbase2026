@@ -93,6 +93,42 @@ export const GET: APIRoute = async ({ request, url, cookies, redirect, locals })
     // Create session
     const sessionToken = await createSession(db, user.id);
 
+    // Migrate any saves/events the user accumulated as an anonymous visitor on
+    // this device into their newly minted user actor. INSERT OR IGNORE dedupes
+    // if they happened to save the same prompt twice from two devices already.
+    const anonCookieId =
+      cookies.get('anon_id')?.value || parseCookie('anon_id');
+    if (anonCookieId) {
+      const userActor = `user:${user.id}`;
+      const anonActor = `anon:${anonCookieId}`;
+      try {
+        await db.batch([
+          db
+            .prepare(
+              `INSERT OR IGNORE INTO prompt_saves (actor_id, prompt_slug, created_at)
+               SELECT ?1, prompt_slug, created_at FROM prompt_saves WHERE actor_id = ?2`,
+            )
+            .bind(userActor, anonActor),
+          db.prepare('DELETE FROM prompt_saves WHERE actor_id = ?').bind(anonActor),
+          db
+            .prepare(
+              `INSERT OR IGNORE INTO prompt_likes (actor_id, prompt_slug, created_at)
+               SELECT ?1, prompt_slug, created_at FROM prompt_likes WHERE actor_id = ?2`,
+            )
+            .bind(userActor, anonActor),
+          db.prepare('DELETE FROM prompt_likes WHERE actor_id = ?').bind(anonActor),
+          db
+            .prepare(
+              `UPDATE prompt_events SET actor_id = ?1 WHERE actor_id = ?2`,
+            )
+            .bind(userActor, anonActor),
+        ]);
+      } catch (err) {
+        console.error('anon→user save migration failed:', err);
+        // Non-fatal — sign-in still succeeds, anon saves stay on the device.
+      }
+    }
+
     // Set session cookie and clear OAuth cookies
     const isSecure = import.meta.env.PROD;
     const domain = isSecure ? '; Domain=.freepromptbase.com' : '';

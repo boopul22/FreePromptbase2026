@@ -15,12 +15,27 @@ const { prompt, category, aspectClass = 'aspect-[4/3]' } = Astro.props;
 const searchIndex = [prompt.title, prompt.description, ...prompt.tags]
 	.join(' ')
 	.toLowerCase();
+
+// Per-actor state, seeded server-side so SSR matches reality (no flicker).
+const liked = Astro.locals.likedSlugs?.has(prompt.slug) ?? false;
+const saved = Astro.locals.savedSlugs?.has(prompt.slug) ?? false;
+const likeCount = prompt.likeCount ?? 0;
+const saveCount = prompt.saveCount ?? prompt.popularity ?? 0;
+
+// Human-friendly count (1.2k instead of 1234) for the pill.
+function fmt(n: number): string {
+	if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'k';
+	return String(n);
+}
 ---
 
 <article
 	class="masonry-item group relative"
 	data-prompt
-	data-popularity={prompt.popularity}
+	data-slug={prompt.slug}
+	data-save-count={saveCount}
+	data-popularity={saveCount}
+	data-like-count={likeCount}
 	data-date={prompt.date}
 	data-search={searchIndex}
 >
@@ -63,29 +78,71 @@ const searchIndex = [prompt.title, prompt.description, ...prompt.tags]
 			)
 		}
 
-		<!-- Like (sits above the stretched link) -->
-		<button
-			class="like-btn absolute bottom-4 right-4 z-20"
-			data-like
-			data-liked={prompt.liked ? 'true' : 'false'}
-			aria-label="Save prompt"
-			aria-pressed={prompt.liked ? 'true' : 'false'}
-		>
-			<svg
-				class:list={[
-					'like-icon w-5 h-5 transition-all duration-200',
-					prompt.liked
-						? 'fill-primary text-primary opacity-100'
-						: 'fill-white text-white opacity-0 group-hover:opacity-100',
-				]}
-				viewBox="0 0 20 20"
+		<!--
+			Action cluster (sits above the stretched link).
+			Layout: [share][bookmark][♥ count] — hearts always visible (social
+			proof), bookmark + share fade in on hover so the image stays clean.
+		-->
+		<div class="absolute bottom-3 right-3 z-20 flex items-center gap-1.5">
+			<button
+				type="button"
+				class="action-icon-btn opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+				data-share
+				aria-label="Share prompt"
 			>
-				<path
-					clip-rule="evenodd"
-					d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
-					fill-rule="evenodd"></path>
-			</svg>
-		</button>
+				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+					<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+				</svg>
+			</button>
+
+			<button
+				type="button"
+				class={`action-icon-btn opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ${saved ? 'is-saved' : ''}`}
+				data-save
+				data-saved={saved ? 'true' : 'false'}
+				aria-label={saved ? 'Remove from saved' : 'Save prompt'}
+				aria-pressed={saved ? 'true' : 'false'}
+			>
+				<svg
+					class="save-icon w-4 h-4"
+					viewBox="0 0 24 24"
+					fill={saved ? 'currentColor' : 'none'}
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+				</svg>
+			</button>
+
+			<button
+				type="button"
+				class={`like-pill ${liked ? 'is-liked' : ''}`}
+				data-like
+				data-liked={liked ? 'true' : 'false'}
+				aria-label={liked ? 'Unlike prompt' : 'Like prompt'}
+				aria-pressed={liked ? 'true' : 'false'}
+			>
+				<svg
+					class="like-icon w-4 h-4"
+					viewBox="0 0 24 24"
+					fill={liked ? 'currentColor' : 'none'}
+					stroke="currentColor"
+					stroke-width="2"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+				</svg>
+				<span class="like-count tabular-nums" data-like-count-text data-raw={likeCount}>
+					{likeCount > 0 ? fmt(likeCount) : ''}
+				</span>
+			</button>
+		</div>
 	</div>
 
 	<!-- Caption -->
@@ -96,33 +153,83 @@ const searchIndex = [prompt.title, prompt.description, ...prompt.tags]
 		{prompt.description && <p class="text-xs text-gray-500 line-clamp-2">{prompt.description}</p>}
 	</div>
 
-	<!-- Stretched link: makes the whole card open the prompt (except the heart) -->
+	<!-- Stretched link: makes the whole card open the prompt (except the actions) -->
 	<a href={`/${prompt.slug}`} class="absolute inset-0 z-[1]" aria-label={prompt.title}></a>
 </article>
 
+<style is:global>
+	/* Shared visual for the three action buttons on a prompt card. Lives in
+	   :global so it applies across every PromptCard instance without scoping
+	   collisions. */
+	.action-icon-btn {
+		width: 1.75rem;
+		height: 1.75rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 9999px;
+		background: rgba(255, 255, 255, 0.92);
+		backdrop-filter: blur(6px);
+		color: var(--color-text-primary, #111827);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+		transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+	}
+	.action-icon-btn:hover {
+		background: #fff;
+		transform: translateY(-1px);
+	}
+	.action-icon-btn.is-saved {
+		background: var(--color-primary, #f97316);
+		color: var(--color-link, #fff);
+		opacity: 1 !important;
+	}
+
+	/* Always-visible like pill — anchors the cluster's right edge. Pill grows
+	   wider when a count is shown; the heart fill + color signal liked state. */
+	.like-pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		height: 1.75rem;
+		padding: 0 0.55rem;
+		border-radius: 9999px;
+		font-size: 11px;
+		font-weight: 700;
+		line-height: 1;
+		background: rgba(255, 255, 255, 0.92);
+		backdrop-filter: blur(6px);
+		color: var(--color-text-primary, #111827);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+		transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+	}
+	.like-pill:hover {
+		background: #fff;
+		transform: translateY(-1px);
+	}
+	.like-pill .like-count:empty {
+		display: none;
+	}
+	.like-pill.is-liked {
+		background: #fde2e2;
+		color: #e11d48;
+	}
+	.like-pill.is-liked .like-icon {
+		fill: currentColor;
+	}
+	/* Pop animation when the heart toggles on. */
+	.like-pill.is-liked .like-icon {
+		animation: like-pop 280ms cubic-bezier(0.22, 1.4, 0.36, 1);
+	}
+	@keyframes like-pop {
+		0%   { transform: scale(1); }
+		40%  { transform: scale(1.35); }
+		100% { transform: scale(1); }
+	}
+</style>
+
 <script>
-	// Wires every like button on the page. Astro bundles this component script
-	// once regardless of how many cards render, so it runs a single time.
-	document.querySelectorAll<HTMLButtonElement>('[data-like]').forEach((btn) => {
-		if (btn.dataset.likeWired) return;
-		btn.dataset.likeWired = '1';
-		btn.addEventListener('click', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			const icon = btn.querySelector<SVGElement>('.like-icon');
-			const liked = btn.dataset.liked === 'true';
-			const next = !liked;
-			btn.dataset.liked = String(next);
-			btn.setAttribute('aria-pressed', String(next));
-			const LIKED = ['fill-primary', 'text-primary', 'opacity-100'];
-			const UNLIKED = ['fill-white', 'text-white', 'opacity-0', 'group-hover:opacity-100'];
-			icon?.classList.remove(...LIKED, ...UNLIKED);
-			icon?.classList.add(...(next ? LIKED : UNLIKED));
-			const card = btn.closest<HTMLElement>('[data-prompt]');
-			if (card) {
-				const cur = Number(card.dataset.popularity ?? 0);
-				card.dataset.popularity = String(cur + (next ? 1 : -1));
-			}
-		});
-	});
+	import { wireSave, wireShare, wireLike } from '../scripts/social';
+	wireSave();
+	wireShare();
+	wireLike();
 </script>

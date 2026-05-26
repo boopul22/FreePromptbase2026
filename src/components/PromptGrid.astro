@@ -5,9 +5,15 @@ import type { Prompt, Category } from '../lib/prompts';
 interface Props {
 	prompts: Prompt[];
 	categories: Category[];
+	/** Tab id this grid belongs to (trending | popular | recent | etc). */
+	tab?: string;
+	/** Hidden by default? Used when multiple grids share the same screen. */
+	hidden?: boolean;
+	/** Optional empty-state message rendered when the prompts array is empty. */
+	emptyMessage?: string;
 }
 
-const { prompts, categories } = Astro.props;
+const { prompts, categories, tab, hidden = false, emptyMessage } = Astro.props;
 const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
 
 // Vary cover aspect ratios so the masonry columns stagger like the original.
@@ -22,7 +28,12 @@ const aspects = [
 ];
 ---
 
-<section class="masonry-grid" data-purpose="prompt-gallery" data-grid>
+<section
+	class:list={['masonry-grid', hidden && 'hidden']}
+	data-purpose="prompt-gallery"
+	data-grid
+	data-tab={tab}
+>
 	{
 		prompts.map((prompt, i) => (
 			<PromptCard
@@ -34,5 +45,16 @@ const aspects = [
 	}
 </section>
 
-<!-- Empty state shown by the search filter when nothing matches -->
+{
+	prompts.length === 0 && emptyMessage && (
+		<p
+			class:list={['text-center text-gray-500 py-16', hidden && 'hidden']}
+			data-empty-tab={tab}
+		>
+			{emptyMessage}
+		</p>
+	)
+}
+
+<!-- Empty state shown by the search filter when nothing matches in the active tab -->
 <p data-empty class="hidden text-center text-gray-500 py-16">No prompts match your search.</p>

@@ -32,6 +32,7 @@ const isAdmin = sessionUser?.role === 'admin';
 			<nav class="hidden md:flex items-center gap-6 font-medium text-sm text-gray-600">
 				<a class="text-text-primary" href="/">Feed</a>
 				<a class="hover:text-primary transition-colors" href="/categories">Discover</a>
+				<a class="hover:text-primary transition-colors" href="/saved">Saved</a>
 				<a class="hover:text-primary transition-colors" href="/blog">Blog</a>
 				<a class="hover:text-primary transition-colors" href="/about">Community</a>
 			</nav>
@@ -183,6 +184,10 @@ const isAdmin = sessionUser?.role === 'admin';
 			<a href="/categories" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-text-primary hover:bg-gray-100 transition-colors">
 				<svg class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
 				Discover
+			</a>
+			<a href="/saved" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-text-primary hover:bg-gray-100 transition-colors">
+				<svg class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+				Saved
 			</a>
 			<a href="/blog" class="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium text-text-primary hover:bg-gray-100 transition-colors">
 				<svg class="w-5 h-5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>

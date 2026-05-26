@@ -13,6 +13,9 @@ DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS prompt_events;
+DROP TABLE IF EXISTS prompt_likes;
+DROP TABLE IF EXISTS prompt_saves;
 DROP TABLE IF EXISTS prompts;
 DROP TABLE IF EXISTS prompt_categories;
 
@@ -44,6 +47,9 @@ CREATE TABLE prompts (
 	featured     INTEGER NOT NULL DEFAULT 0,
 	liked        INTEGER NOT NULL DEFAULT 0,
 	popularity   INTEGER NOT NULL DEFAULT 0,
+	save_count   INTEGER NOT NULL DEFAULT 0,    -- denormalized count of prompt_saves rows for this slug
+	like_count   INTEGER NOT NULL DEFAULT 0,    -- denormalized count of prompt_likes rows for this slug
+	share_count  INTEGER NOT NULL DEFAULT 0,    -- denormalized count of 'share' rows in prompt_events
 	how_to_use   TEXT,
 	created_by   TEXT,                          -- FK to users.id (nullable for seed)
 	created_at   TEXT NOT NULL DEFAULT (datetime('now'))
@@ -52,6 +58,40 @@ CREATE TABLE prompts (
 CREATE INDEX idx_prompts_category   ON prompts(category);
 CREATE INDEX idx_prompts_date       ON prompts(date);
 CREATE INDEX idx_prompts_popularity ON prompts(popularity);
+CREATE INDEX idx_prompts_save_count ON prompts(save_count);
+
+-- Per-actor save list. actor_id is "user:<id>" for signed-in users and
+-- "anon:<uuid>" for anonymous visitors (migrated to user form on login).
+CREATE TABLE prompt_saves (
+	actor_id    TEXT NOT NULL,
+	prompt_slug TEXT NOT NULL REFERENCES prompts(slug) ON DELETE CASCADE,
+	created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+	PRIMARY KEY (actor_id, prompt_slug)
+);
+CREATE INDEX idx_saves_actor  ON prompt_saves(actor_id);
+CREATE INDEX idx_saves_prompt ON prompt_saves(prompt_slug);
+
+-- Per-actor like list — same shape as prompt_saves but a different concept
+-- (likes = public approval signal, saves = personal bookmark).
+CREATE TABLE prompt_likes (
+	actor_id    TEXT NOT NULL,
+	prompt_slug TEXT NOT NULL REFERENCES prompts(slug) ON DELETE CASCADE,
+	created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+	PRIMARY KEY (actor_id, prompt_slug)
+);
+CREATE INDEX idx_likes_actor  ON prompt_likes(actor_id);
+CREATE INDEX idx_likes_prompt ON prompt_likes(prompt_slug);
+
+-- Append-only event log; powers the 7-day Trending query.
+CREATE TABLE prompt_events (
+	id          INTEGER PRIMARY KEY AUTOINCREMENT,
+	prompt_slug TEXT NOT NULL REFERENCES prompts(slug) ON DELETE CASCADE,
+	actor_id    TEXT NOT NULL,
+	kind        TEXT NOT NULL,            -- 'save' | 'unsave' | 'share'
+	created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX idx_events_prompt_created ON prompt_events(prompt_slug, created_at);
+CREATE INDEX idx_events_kind_created   ON prompt_events(kind, created_at);
 
 -- ===========================================================================
 -- Auth (from astro-cloudflare-cms skill — db-schema.sql, trimmed to essentials)
