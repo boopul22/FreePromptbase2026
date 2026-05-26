@@ -7,173 +7,173 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
 ---
 
 <Layout title="Media Library - CMS - Free Prompt Base" noindex={true}>
-  <Nav activePage="admin" />
+ <Nav activePage="admin" />
 
-  <div class="flex">
-    <AdminSidebar activePage="cms" />
+ <div class="flex">
+ <AdminSidebar activePage="cms" />
 
-    <main class="flex-1 p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 bg-surface-container-lowest min-h-[calc(100dvh-var(--nav-h,57px))]">
-      <!-- Breadcrumb -->
-      <nav class="flex items-center gap-2 text-xs font-label font-bold uppercase tracking-wider text-outline" aria-label="Breadcrumb">
-        <a href="/admin/cms" class="hover:text-on-surface transition-colors">Content</a>
-        <span class="material-symbols-outlined text-sm">chevron_right</span>
-        <span class="text-on-surface">Media</span>
-      </nav>
+ <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-4 sm:space-y-6 bg-gray-50 min-h-[calc(100dvh-var(--nav-h,57px))]">
+ <!-- Breadcrumb -->
+ <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500" aria-label="Breadcrumb">
+ <a href="/admin/cms" class="hover:text-text-primary transition-colors">Content</a>
+ <span class="material-symbols-outlined text-sm">chevron_right</span>
+ <span class="text-text-primary">Media</span>
+ </nav>
 
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 class="text-xl sm:text-2xl font-headline italic font-black text-on-surface">Media Library</h1>
-          <p class="text-on-surface-variant mt-1" id="media-count">Manage uploaded images for your content.</p>
-        </div>
-        <label class="bg-primary text-on-primary px-5 py-3 rounded-xl font-label text-xs font-bold uppercase tracking-wider border-2 border-on-surface hard-shadow hover:-translate-y-1 active:scale-95 transition-all cursor-pointer flex items-center gap-2 self-start sm:self-auto">
-          <span class="material-symbols-outlined text-lg">upload</span>
-          Upload Media
-          <input type="file" accept="image/*" multiple class="hidden" id="media-upload-input" />
-        </label>
-      </div>
+ <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+ <div>
+ <h1 class="text-xl sm:text-2xl font-bold text-text-primary">Media Library</h1>
+ <p class="text-gray-600 mt-1" id="media-count">Manage uploaded images for your content.</p>
+ </div>
+ <label class="bg-primary text-link px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wide border border-gray-200 transition-all cursor-pointer flex items-center gap-2 self-start sm:self-auto">
+ <span class="material-symbols-outlined text-lg">upload</span>
+ Upload Media
+ <input type="file" accept="image/*" multiple class="hidden" id="media-upload-input" />
+ </label>
+ </div>
 
-      <!-- Folder Filters -->
-      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-        <div class="flex flex-wrap gap-1" id="folder-filters">
-          <button class="px-4 py-2 rounded-full border-2 border-on-surface text-xs font-bold uppercase bg-on-surface text-surface active:scale-95 transition-all" data-folder="all">All</button>
-          <button class="px-4 py-2 rounded-full border-2 border-on-surface text-xs font-bold uppercase bg-surface hover:bg-surface-container-highest active:scale-95 transition-all" data-folder="blog">Blog</button>
-          <button class="px-4 py-2 rounded-full border-2 border-on-surface text-xs font-bold uppercase bg-surface hover:bg-surface-container-highest active:scale-95 transition-all" data-folder="pages">Pages</button>
-          <button class="px-4 py-2 rounded-full border-2 border-on-surface text-xs font-bold uppercase bg-surface hover:bg-surface-container-highest active:scale-95 transition-all" data-folder="general">General</button>
-        </div>
-        <select id="upload-folder" class="ml-auto border-2 border-on-surface rounded-lg px-3 py-1.5 bg-surface text-xs font-label font-bold">
-          <option value="general">Upload to: General</option>
-          <option value="blog">Upload to: Blog</option>
-          <option value="pages">Upload to: Pages</option>
-        </select>
-      </div>
+ <!-- Folder Filters -->
+ <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+ <div class="flex flex-wrap gap-1" id="folder-filters">
+ <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-text-primary text-surface transition-all" data-folder="all">All</button>
+ <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-white hover:bg-gray-100 transition-all" data-folder="blog">Blog</button>
+ <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-white hover:bg-gray-100 transition-all" data-folder="pages">Pages</button>
+ <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-white hover:bg-gray-100 transition-all" data-folder="general">General</button>
+ </div>
+ <select id="upload-folder" class="ml-auto border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-xs font-bold">
+ <option value="general">Upload to: General</option>
+ <option value="blog">Upload to: Blog</option>
+ <option value="pages">Upload to: Pages</option>
+ </select>
+ </div>
 
-      <!-- Media Grid -->
-      <div id="media-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        <div class="col-span-full p-12 text-center text-outline">
-          <span class="material-symbols-outlined text-5xl">hourglass_empty</span>
-          <p class="font-label text-xs uppercase mt-3">Loading...</p>
-        </div>
-      </div>
+ <!-- Media Grid -->
+ <div id="media-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+ <div class="col-span-full p-12 text-center text-gray-500">
+ <span class="material-symbols-outlined text-5xl">hourglass_empty</span>
+ <p class="text-xs uppercase tracking-wide mt-3">Loading...</p>
+ </div>
+ </div>
 
-      <!-- Pagination -->
-      <div id="pagination" class="flex justify-center items-center gap-2 pt-4"></div>
-    </main>
-  </div>
+ <!-- Pagination -->
+ <div id="pagination" class="flex justify-center items-center gap-2 pt-4"></div>
+ </main>
+ </div>
 </Layout>
 
 <script>
-  function esc(s: string): string {
-    const d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
+ function esc(s: string): string {
+ const d = document.createElement('div');
+ d.textContent = s;
+ return d.innerHTML;
+ }
 
-  let currentPage = 1;
-  let currentFolder = 'all';
+ let currentPage = 1;
+ let currentFolder = 'all';
 
-  async function loadMedia(page: number) {
-    const params = new URLSearchParams({ page: String(page), limit: '24' });
-    if (currentFolder !== 'all') params.set('folder', currentFolder);
+ async function loadMedia(page: number) {
+ const params = new URLSearchParams({ page: String(page), limit: '24' });
+ if (currentFolder !== 'all') params.set('folder', currentFolder);
 
-    const res = await fetch(`/api/admin/cms/media?${params}`);
-    const data = await res.json();
-    currentPage = page;
+ const res = await fetch(`/api/admin/cms/media?${params}`);
+ const data = await res.json();
+ currentPage = page;
 
-    document.getElementById('media-count')!.textContent = `${data.total} media files`;
+ document.getElementById('media-count')!.textContent = `${data.total} media files`;
 
-    const grid = document.getElementById('media-grid')!;
-    if (!data.media?.length) {
-      grid.innerHTML = '<div class="col-span-full p-12 text-center text-outline"><span class="material-symbols-outlined text-5xl">image</span><p class="font-label text-xs uppercase mt-3">No media found</p></div>';
-      document.getElementById('pagination')!.innerHTML = '';
-      return;
-    }
+ const grid = document.getElementById('media-grid')!;
+ if (!data.media?.length) {
+ grid.innerHTML = '<div class="col-span-full p-12 text-center text-gray-500"><span class="material-symbols-outlined text-5xl">image</span><p class="text-xs uppercase tracking-wide mt-3">No media found</p></div>';
+ document.getElementById('pagination')!.innerHTML = '';
+ return;
+ }
 
-    grid.innerHTML = data.media.map((m: any) => `
-      <div class="bg-surface border-2 border-on-surface rounded-xl overflow-hidden hard-shadow group hover:-translate-y-1 transition-all">
-        <div class="h-36 bg-surface-container-highest overflow-hidden">
-          <img src="${esc(m.url)}" alt="${esc(m.altText || m.filename)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
-        </div>
-        <div class="p-3 space-y-2">
-          <p class="text-xs font-bold truncate" title="${esc(m.filename)}">${esc(m.filename)}</p>
-          <div class="flex items-center justify-between text-xs text-outline uppercase tracking-wider">
-            <span>${esc(m.folder)}</span>
-            <span>${(m.sizeBytes / 1024).toFixed(0)} KB</span>
-          </div>
-          <div class="flex items-center gap-1">
-            <button onclick="copyUrl('${esc(m.url)}')" class="flex-1 px-2 py-1 rounded text-xs font-bold uppercase border border-primary text-primary hover:bg-primary hover:text-on-primary transition-colors text-center">Copy URL</button>
-            <button onclick="deleteMedia('${esc(m.id)}')" class="text-error hover:bg-error hover:text-on-error w-6 h-6 rounded flex items-center justify-center transition-colors">
-              <span class="material-symbols-outlined text-sm">delete</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    `).join('');
+ grid.innerHTML = data.media.map((m: any) => `
+ <div class="bg-white border border-gray-200 rounded-md overflow-hidden group transition-all">
+ <div class="h-36 bg-gray-100 overflow-hidden">
+ <img src="${esc(m.url)}" alt="${esc(m.altText || m.filename)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async" />
+ </div>
+ <div class="p-3 space-y-2">
+ <p class="text-xs font-bold truncate" title="${esc(m.filename)}">${esc(m.filename)}</p>
+ <div class="flex items-center justify-between text-xs text-gray-500 uppercase tracking-wider">
+ <span>${esc(m.folder)}</span>
+ <span>${(m.sizeBytes / 1024).toFixed(0)} KB</span>
+ </div>
+ <div class="flex items-center gap-1">
+ <button onclick="copyUrl('${esc(m.url)}')" class="flex-1 px-2 py-1 rounded text-xs font-bold uppercase border border-primary text-primary hover:bg-primary hover:text-link transition-colors text-center">Copy URL</button>
+ <button onclick="deleteMedia('${esc(m.id)}')" class="text-red-600 hover:bg-red-50 hover:text-red-900 w-6 h-6 rounded flex items-center justify-center transition-colors">
+ <span class="material-symbols-outlined text-sm">delete</span>
+ </button>
+ </div>
+ </div>
+ </div>
+ `).join('');
 
-    // Pagination
-    const pag = document.getElementById('pagination')!;
-    if (data.totalPages > 1) {
-      pag.innerHTML = `
-        <button onclick="loadPage(${Math.max(1, page - 1)})" class="px-4 py-2.5 border-2 border-on-surface rounded-xl font-label text-xs font-bold bg-surface hover:bg-surface-container-highest active:bg-surface-container-highest transition-colors ${page === 1 ? 'opacity-30' : ''}">Previous</button>
-        <span class="text-sm text-outline">Page ${page} of ${data.totalPages}</span>
-        <button onclick="loadPage(${Math.min(data.totalPages, page + 1)})" class="px-4 py-2.5 border-2 border-on-surface rounded-xl font-label text-xs font-bold bg-surface hover:bg-surface-container-highest active:bg-surface-container-highest transition-colors ${page === data.totalPages ? 'opacity-30' : ''}">Next</button>
-      `;
-    } else {
-      pag.innerHTML = '';
-    }
-  }
+ // Pagination
+ const pag = document.getElementById('pagination')!;
+ if (data.totalPages > 1) {
+ pag.innerHTML = `
+ <button onclick="loadPage(${Math.max(1, page - 1)})" class="px-4 py-2.5 border border-gray-200 rounded-md text-xs font-bold bg-white hover:bg-gray-100 active:bg-gray-100 transition-colors ${page === 1 ? 'opacity-30' : ''}">Previous</button>
+ <span class="text-sm text-gray-500">Page ${page} of ${data.totalPages}</span>
+ <button onclick="loadPage(${Math.min(data.totalPages, page + 1)})" class="px-4 py-2.5 border border-gray-200 rounded-md text-xs font-bold bg-white hover:bg-gray-100 active:bg-gray-100 transition-colors ${page === data.totalPages ? 'opacity-30' : ''}">Next</button>
+ `;
+ } else {
+ pag.innerHTML = '';
+ }
+ }
 
-  function showToast(message: string) {
-    const existing = document.querySelector('.admin-toast');
-    if (existing) existing.remove();
-    const toast = document.createElement('div');
-    toast.className = 'admin-toast fixed bottom-6 left-1/2 -translate-x-1/2 bg-on-surface text-surface px-5 py-3 rounded-xl font-label text-xs font-bold uppercase tracking-wider z-50 border-2 border-on-surface hard-shadow transition-opacity';
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2000);
-  }
+ function showToast(message: string) {
+ const existing = document.querySelector('.admin-toast');
+ if (existing) existing.remove();
+ const toast = document.createElement('div');
+ toast.className = 'admin-toast fixed bottom-6 left-1/2 -translate-x-1/2 bg-text-primary text-surface px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wide z-50 border border-gray-200 transition-opacity';
+ toast.textContent = message;
+ document.body.appendChild(toast);
+ setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2000);
+ }
 
-  (window as any).copyUrl = (url: string) => {
-    navigator.clipboard.writeText(url).then(() => showToast('URL copied!'));
-  };
+ (window as any).copyUrl = (url: string) => {
+ navigator.clipboard.writeText(url).then(() => showToast('URL copied!'));
+ };
 
-  (window as any).deleteMedia = async (id: string) => {
-    if (!confirm('Delete this media permanently?')) return;
-    await fetch('/api/admin/cms/media', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id }),
-    });
-    loadMedia(currentPage);
-  };
+ (window as any).deleteMedia = async (id: string) => {
+ if (!confirm('Delete this media permanently?')) return;
+ await fetch('/api/admin/cms/media', {
+ method: 'DELETE',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ id }),
+ });
+ loadMedia(currentPage);
+ };
 
-  (window as any).loadPage = (page: number) => loadMedia(page);
+ (window as any).loadPage = (page: number) => loadMedia(page);
 
-  // Folder filter
-  document.getElementById('folder-filters')?.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest('button');
-    if (!btn) return;
-    currentFolder = btn.dataset.folder || 'all';
-    document.querySelectorAll('#folder-filters button').forEach(b => {
-      b.className = b === btn
-        ? 'px-4 py-2 rounded-full border-2 border-on-surface text-xs font-bold uppercase bg-on-surface text-surface active:scale-95 transition-all'
-        : 'px-4 py-2 rounded-full border-2 border-on-surface text-xs font-bold uppercase bg-surface hover:bg-surface-container-highest active:scale-95 transition-all';
-    });
-    loadMedia(1);
-  });
+ // Folder filter
+ document.getElementById('folder-filters')?.addEventListener('click', (e) => {
+ const btn = (e.target as HTMLElement).closest('button');
+ if (!btn) return;
+ currentFolder = btn.dataset.folder || 'all';
+ document.querySelectorAll('#folder-filters button').forEach(b => {
+ b.className = b === btn
+ ? 'px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-text-primary text-surface transition-all'
+ : 'px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-white hover:bg-gray-100 transition-all';
+ });
+ loadMedia(1);
+ });
 
-  // Upload
-  document.getElementById('media-upload-input')?.addEventListener('change', async (e) => {
-    const files = (e.target as HTMLInputElement).files;
-    if (!files?.length) return;
-    const folder = (document.getElementById('upload-folder') as HTMLSelectElement).value;
-    for (const file of files) {
-      const form = new FormData();
-      form.append('file', file);
-      form.append('folder', folder);
-      await fetch('/api/admin/cms/media', { method: 'POST', body: form });
-    }
-    loadMedia(1);
-  });
+ // Upload
+ document.getElementById('media-upload-input')?.addEventListener('change', async (e) => {
+ const files = (e.target as HTMLInputElement).files;
+ if (!files?.length) return;
+ const folder = (document.getElementById('upload-folder') as HTMLSelectElement).value;
+ for (const file of files) {
+ const form = new FormData();
+ form.append('file', file);
+ form.append('folder', folder);
+ await fetch('/api/admin/cms/media', { method: 'POST', body: form });
+ }
+ loadMedia(1);
+ });
 
-  loadMedia(1);
+ loadMedia(1);
 </script>
