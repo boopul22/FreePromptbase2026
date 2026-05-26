@@ -71,19 +71,30 @@ const currentUserId = Astro.locals.user?.id ?? '';
  `${data.total} ${data.total === 1 ? 'user' : 'users'}.`;
 
  if (!data.users?.length) {
- list.innerHTML = '<div class="p-8 text-center text-gray-500"><p class="text-sm">No users match the current filter.</p></div>';
+ list.innerHTML = `
+ <div class="p-12 text-center text-gray-500">
+ <span class="material-symbols-outlined text-4xl text-gray-300">group_off</span>
+ <p class="text-sm mt-2">No users match the current filter.</p>
+ </div>`;
  return;
  }
 
  list.innerHTML = `
- <table class="w-full text-sm">
+ <table class="w-full text-sm table-fixed">
+ <colgroup>
+ <col />
+ <col class="hidden md:table-column" style="width: 110px;" />
+ <col class="hidden lg:table-column" style="width: 130px;" />
+ <col class="hidden md:table-column" style="width: 110px;" />
+ <col style="width: 280px;" />
+ </colgroup>
  <thead class="bg-gray-50 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
  <tr>
- <th class="text-left px-4 py-3">User</th>
- <th class="text-left px-4 py-3 hidden md:table-cell">Role</th>
- <th class="text-left px-4 py-3 hidden lg:table-cell">Joined</th>
- <th class="text-left px-4 py-3 hidden md:table-cell">Status</th>
- <th class="text-right px-4 py-3">Actions</th>
+ <th class="text-left px-4 py-2.5">User</th>
+ <th class="text-left px-4 py-2.5 hidden md:table-cell">Role</th>
+ <th class="text-left px-4 py-2.5 hidden lg:table-cell">Joined</th>
+ <th class="text-left px-4 py-2.5 hidden md:table-cell">Status</th>
+ <th class="text-right px-4 py-2.5">Actions</th>
  </tr>
  </thead>
  <tbody class="divide-y divide-gray-200">
@@ -91,8 +102,8 @@ const currentUserId = Astro.locals.user?.id ?? '';
  const isMe = u.id === currentUserId;
  return `
  <tr class="hover:bg-gray-50 transition-colors ${u.isBanned ? 'opacity-60' : ''}">
- <td class="px-4 py-3">
- <div class="flex items-center gap-3">
+ <td class="px-4 py-3 align-middle">
+ <div class="flex items-center gap-3 min-w-0">
  ${u.avatarUrl
  ? `<img src="${esc(u.avatarUrl)}" alt="" class="w-8 h-8 rounded-full object-cover shrink-0" />`
  : `<div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-500 shrink-0">${esc((u.name || '?')[0].toUpperCase())}</div>`}
@@ -105,18 +116,18 @@ const currentUserId = Astro.locals.user?.id ?? '';
  </div>
  </div>
  </td>
- <td class="px-4 py-3 hidden md:table-cell">
+ <td class="px-4 py-3 hidden md:table-cell align-middle">
  <span class="px-2 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wide ${
  u.role === 'admin' ? 'bg-amber-50 text-amber-700' : 'bg-gray-100 text-gray-600'
  }">${esc(u.role)}</span>
  </td>
- <td class="px-4 py-3 hidden lg:table-cell text-xs text-gray-500">${esc(fmtDate(u.createdAt))}</td>
- <td class="px-4 py-3 hidden md:table-cell">
+ <td class="px-4 py-3 hidden lg:table-cell text-xs text-gray-500 align-middle whitespace-nowrap">${esc(fmtDate(u.createdAt))}</td>
+ <td class="px-4 py-3 hidden md:table-cell align-middle">
  ${u.isBanned
  ? '<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold uppercase tracking-wide bg-red-50 text-red-700">Banned</span>'
  : '<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold text-gray-500">Active</span>'}
  </td>
- <td class="px-4 py-3 text-right whitespace-nowrap">
+ <td class="px-4 py-3 text-right whitespace-nowrap align-middle">
  ${isMe ? '<span class="text-xs text-gray-400">—</span>' : `
  ${u.role === 'admin'
  ? `<button onclick="setRole('${esc(u.id)}', 'user')" class="text-xs font-semibold px-2 py-1 rounded-md text-gray-600 hover:bg-gray-100 transition-colors" title="Remove admin">Demote</button>`

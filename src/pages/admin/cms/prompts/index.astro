@@ -103,44 +103,60 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  `${data.total} ${data.total === 1 ? 'prompt' : 'prompts'} in the library.`;
 
  if (!data.prompts?.length) {
- list.innerHTML = '<div class="p-8 text-center text-gray-500"><p class="text-sm">No prompts match the current filter.</p></div>';
+ list.innerHTML = `
+ <div class="p-12 text-center text-gray-500">
+ <span class="material-symbols-outlined text-4xl text-gray-300">inbox</span>
+ <p class="text-sm mt-2">No prompts match the current filter.</p>
+ <a href="/admin/cms/prompts/new" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline mt-3">
+ <span class="material-symbols-outlined text-base">add</span>
+ Create the first one
+ </a>
+ </div>`;
  document.getElementById('pagination')!.innerHTML = '';
  return;
  }
 
  list.innerHTML = `
- <table class="w-full text-sm">
+ <table class="w-full text-sm table-fixed">
+ <colgroup>
+ <col />
+ <col class="hidden md:table-column" style="width: 160px;" />
+ <col class="hidden lg:table-column" style="width: 120px;" />
+ <col class="hidden lg:table-column" style="width: 170px;" />
+ <col class="hidden xl:table-column" style="width: 110px;" />
+ <col style="width: 130px;" />
+ </colgroup>
  <thead class="bg-gray-50 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
  <tr>
- <th class="text-left px-4 py-3">Title</th>
- <th class="text-left px-4 py-3 hidden md:table-cell">Category</th>
- <th class="text-left px-4 py-3 hidden lg:table-cell">Model</th>
- <th class="text-left px-4 py-3 hidden lg:table-cell">Added by</th>
- <th class="text-left px-4 py-3 hidden xl:table-cell">Date</th>
- <th class="text-right px-4 py-3">Actions</th>
+ <th class="text-left px-4 py-2.5">Title</th>
+ <th class="text-left px-4 py-2.5 hidden md:table-cell">Category</th>
+ <th class="text-left px-4 py-2.5 hidden lg:table-cell">Model</th>
+ <th class="text-left px-4 py-2.5 hidden lg:table-cell">Added by</th>
+ <th class="text-left px-4 py-2.5 hidden xl:table-cell">Date</th>
+ <th class="text-right px-4 py-2.5">Actions</th>
  </tr>
  </thead>
  <tbody class="divide-y divide-gray-200">
  ${data.prompts.map((p: any) => `
  <tr class="hover:bg-gray-50 transition-colors">
- <td class="px-4 py-3">
- <div class="flex items-center gap-2">
- ${p.featured ? '<span class="material-symbols-outlined text-primary text-base" title="Featured">star</span>' : ''}
- <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="font-medium text-text-primary hover:text-primary">${esc(p.title)}</a>
+ <td class="px-4 py-3 align-top">
+ <div class="flex items-center gap-2 min-w-0">
+ ${p.featured ? '<span class="material-symbols-outlined text-primary text-base shrink-0" title="Featured">star</span>' : ''}
+ <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="font-medium text-text-primary hover:text-primary truncate">${esc(p.title)}</a>
  </div>
- <p class="text-xs text-gray-500 mt-0.5 truncate max-w-md">${esc(p.description || '')}</p>
+ <p class="text-xs text-gray-500 mt-0.5 truncate">${esc(p.description || '')}</p>
  </td>
- <td class="px-4 py-3 hidden md:table-cell text-gray-600">${p.categoryEmoji ?? ''} ${esc(p.categoryName ?? p.category)}</td>
- <td class="px-4 py-3 hidden lg:table-cell text-gray-600">${esc(p.model)}</td>
- <td class="px-4 py-3 hidden lg:table-cell">
+ <td class="px-4 py-3 hidden md:table-cell text-gray-600 align-middle truncate">${p.categoryEmoji ?? ''} ${esc(p.categoryName ?? p.category)}</td>
+ <td class="px-4 py-3 hidden lg:table-cell text-gray-600 align-middle truncate">${esc(p.model)}</td>
+ <td class="px-4 py-3 hidden lg:table-cell align-middle">
  ${p.createdByName
- ? `<div class="flex items-center gap-2">
- ${p.createdByAvatar ? `<img src="${esc(p.createdByAvatar)}" alt="" class="w-6 h-6 rounded-full object-cover" />` : `<div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-gray-500">${esc(p.createdByName[0].toUpperCase())}</div>`}
- <span class="text-gray-600 text-xs truncate max-w-[120px]">${esc(p.createdByName)}</span>
+ ? `<div class="flex items-center gap-2 min-w-0">
+ ${p.createdByAvatar ? `<img src="${esc(p.createdByAvatar)}" alt="" class="w-6 h-6 rounded-full object-cover shrink-0" />` : `<div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-gray-500 shrink-0">${esc(p.createdByName[0].toUpperCase())}</div>`}
+ <span class="text-gray-600 text-xs truncate">${esc(p.createdByName)}</span>
  </div>`
- : `<span class="text-gray-400 text-xs">${esc(p.author || 'Seed')}</span>`}
+ : `<span class="text-gray-400 text-xs">${esc(p.author || '—')}</span>`}
  </td>
- <td class="px-4 py-3 hidden xl:table-cell text-gray-500 text-xs">${esc(p.date)}</td>
+ <td class="px-4 py-3 hidden xl:table-cell text-gray-500 text-xs align-middle whitespace-nowrap">${esc(p.date)}</td>
  <td class="px-4 py-3 text-right whitespace-nowrap">
  <a href="/${esc(p.slug)}" target="_blank" rel="noopener" class="inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-100 text-gray-500 hover:text-text-primary transition-colors" title="View live">
  <span class="material-symbols-outlined text-base">open_in_new</span>

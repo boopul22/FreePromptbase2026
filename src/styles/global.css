@@ -136,14 +136,34 @@
    Copyable prompt box (detail page).
    -------------------------------------------------------------------------- */
 .prompt-box {
-	background-color: #181830;
-	color: #f5f5f5;
-	border-radius: var(--radius-base);
+	background-color: #1a1a2e;
+	color: #ececf1;
+	border-radius: 0;
 	white-space: pre-wrap;
 	word-break: break-word;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 	font-size: 0.875rem;
-	line-height: 1.6;
+	line-height: 1.7;
+	tab-size: 2;
+}
+
+/* Subtle scrollbar for the prompt box on overflow */
+.prompt-box::-webkit-scrollbar {
+	height: 8px;
+	width: 8px;
+}
+.prompt-box::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 4px;
+}
+.prompt-box::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+/* The CopyPromptButton owns its own card chrome now; .prompt-card just
+   provides the outer border + rounding via Tailwind on the wrapper. */
+.prompt-card {
+	scroll-margin-top: 1rem;
 }
 
 .copy-btn:focus-visible {
