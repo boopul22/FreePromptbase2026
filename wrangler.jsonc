@@ -30,6 +30,17 @@
 			"bucket_name": "freepromptbase-media-2026"
 		}
 	],
+	"kv_namespaces": [
+		{
+			// Required by @astrojs/cloudflare which auto-enables Astro sessions.
+			// We don't use Astro sessions ourselves (the CMS has its own D1-backed
+			// sessions in src/lib/session.ts), but the adapter still expects this
+			// binding. Pinning the existing namespace ID prevents the build from
+			// trying to re-create it on every deploy.
+			"binding": "SESSION",
+			"id": "f32c5a6d533d46dea4de2fe8417d82d6"
+		}
+	],
 	"vars": {
 		// Public R2 dev URL (or your custom CDN domain) — uploaded media URLs are
 		// built as `${R2_PUBLIC_URL}/${r2_key}`. Safe to commit; not a secret.
