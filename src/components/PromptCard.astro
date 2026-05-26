@@ -80,17 +80,19 @@ function fmt(n: number): string {
 
 		<!--
 			Action cluster (sits above the stretched link).
-			Layout: [share][bookmark][♥ count] — hearts always visible (social
-			proof), bookmark + share fade in on hover so the image stays clean.
+			Layout: [share][bookmark][♥ count] — flat icons floating on the image
+			(no chip backgrounds), kept legible by a soft drop-shadow so they
+			read on any cover. Heart + count always visible; share + bookmark
+			fade in on hover.
 		-->
-		<div class="absolute bottom-3 right-3 z-20 flex items-center gap-1.5">
+		<div class="action-cluster absolute bottom-3 right-3 z-20 flex items-center gap-3">
 			<button
 				type="button"
-				class="action-icon-btn opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+				class="card-action opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
 				data-share
 				aria-label="Share prompt"
 			>
-				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
 					<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
 				</svg>
@@ -98,14 +100,14 @@ function fmt(n: number): string {
 
 			<button
 				type="button"
-				class={`action-icon-btn opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ${saved ? 'is-saved' : ''}`}
+				class={`card-action opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ${saved ? 'is-saved' : ''}`}
 				data-save
 				data-saved={saved ? 'true' : 'false'}
 				aria-label={saved ? 'Remove from saved' : 'Save prompt'}
 				aria-pressed={saved ? 'true' : 'false'}
 			>
 				<svg
-					class="save-icon w-4 h-4"
+					class="save-icon w-[18px] h-[18px]"
 					viewBox="0 0 24 24"
 					fill={saved ? 'currentColor' : 'none'}
 					stroke="currentColor"
@@ -120,14 +122,14 @@ function fmt(n: number): string {
 
 			<button
 				type="button"
-				class={`like-pill ${liked ? 'is-liked' : ''}`}
+				class={`card-action card-like ${liked ? 'is-liked' : ''}`}
 				data-like
 				data-liked={liked ? 'true' : 'false'}
 				aria-label={liked ? 'Unlike prompt' : 'Like prompt'}
 				aria-pressed={liked ? 'true' : 'false'}
 			>
 				<svg
-					class="like-icon w-4 h-4"
+					class="like-icon w-[18px] h-[18px]"
 					viewBox="0 0 24 24"
 					fill={liked ? 'currentColor' : 'none'}
 					stroke="currentColor"
@@ -158,66 +160,43 @@ function fmt(n: number): string {
 </article>
 
 <style is:global>
-	/* Shared visual for the three action buttons on a prompt card. Lives in
-	   :global so it applies across every PromptCard instance without scoping
-	   collisions. */
-	.action-icon-btn {
-		width: 1.75rem;
-		height: 1.75rem;
+	/* Flat action buttons on prompt cards — no chip/pill background, just the
+	   icon (and a count for the like). A soft drop-shadow on the SVG keeps the
+	   stroke readable on any cover image. Lives in :global so it applies to
+	   every PromptCard without scope collisions. */
+	.card-action {
 		display: inline-flex;
 		align-items: center;
-		justify-content: center;
-		border-radius: 9999px;
-		background: rgba(255, 255, 255, 0.92);
-		backdrop-filter: blur(6px);
-		color: var(--color-text-primary, #111827);
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-		transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
-	}
-	.action-icon-btn:hover {
-		background: #fff;
-		transform: translateY(-1px);
-	}
-	.action-icon-btn.is-saved {
-		background: var(--color-primary, #f97316);
-		color: var(--color-link, #fff);
-		opacity: 1 !important;
-	}
-
-	/* Always-visible like pill — anchors the cluster's right edge. Pill grows
-	   wider when a count is shown; the heart fill + color signal liked state. */
-	.like-pill {
-		display: inline-flex;
-		align-items: center;
-		gap: 0.25rem;
-		height: 1.75rem;
-		padding: 0 0.55rem;
-		border-radius: 9999px;
-		font-size: 11px;
+		gap: 0.3rem;
+		padding: 0;
+		background: none;
+		border: 0;
+		color: #fff;
+		font-size: 12px;
 		font-weight: 700;
 		line-height: 1;
-		background: rgba(255, 255, 255, 0.92);
-		backdrop-filter: blur(6px);
-		color: var(--color-text-primary, #111827);
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-		transition: background-color 150ms ease, color 150ms ease, transform 150ms ease;
+		cursor: pointer;
+		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+		transition: color 150ms ease, transform 150ms ease;
 	}
-	.like-pill:hover {
-		background: #fff;
-		transform: translateY(-1px);
+	.card-action:hover {
+		transform: scale(1.1);
 	}
-	.like-pill .like-count:empty {
+	.card-action.is-saved {
+		color: var(--color-primary, #f97316);
+		opacity: 1 !important;
+	}
+	.card-action .like-count {
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+	}
+	.card-action .like-count:empty {
 		display: none;
 	}
-	.like-pill.is-liked {
-		background: #fde2e2;
-		color: #e11d48;
+	.card-like.is-liked {
+		color: #fb7185;
 	}
-	.like-pill.is-liked .like-icon {
+	.card-like.is-liked .like-icon {
 		fill: currentColor;
-	}
-	/* Pop animation when the heart toggles on. */
-	.like-pill.is-liked .like-icon {
 		animation: like-pop 280ms cubic-bezier(0.22, 1.4, 0.36, 1);
 	}
 	@keyframes like-pop {
