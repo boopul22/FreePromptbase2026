@@ -6,6 +6,7 @@ import Tabs from '../components/Tabs.astro';
 import PromptGrid from '../components/PromptGrid.astro';
 import Footer from '../components/Footer.astro';
 import { getAllPrompts, getAllCategories } from '../lib/prompts';
+import { itemListSchema } from '../lib/seo';
 
 // Rendered on-demand (SSR) so new prompts added to D1 appear without a rebuild.
 export const prerender = false;
@@ -16,9 +17,15 @@ const categories = await getAllCategories();
 // Default tab is "Popular" — render in popularity order so the static output
 // matches the initial view before the client script takes over.
 const initialPrompts = [...allPrompts].sort((a, b) => b.popularity - a.popularity);
+
+// ItemList for the homepage collection (cap to 30 so the JSON-LD stays small).
+const homeList = itemListSchema(
+	initialPrompts.slice(0, 30).map((p) => ({ name: p.title, url: `/${p.slug}` })),
+	'Popular prompts',
+);
 ---
 
-<Layout>
+<Layout extraSchemas={[homeList]}>
 	<Header />
 	<main class="max-w-7xl mx-auto px-4 py-12">
 		<Hero promptCount={allPrompts.length} categoryCount={categories.length} />

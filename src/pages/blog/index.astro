@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import { getAllPosts, postReadTime } from '../../lib/posts';
+import { itemListSchema, breadcrumbSchema } from '../../lib/seo';
 
 // On-demand: read posts from D1 at request time.
 export const prerender = false;
@@ -11,11 +12,21 @@ const posts = await getAllPosts();
 
 const fmt = (iso: string) =>
 	new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+const list = itemListSchema(
+	posts.slice(0, 30).map((p) => ({ name: p.title, url: `/blog/${p.slug}` })),
+	'Free Prompt Base blog',
+);
+const crumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name: 'Blog', path: '/blog' },
+]);
 ---
 
 <Layout
 	title="Blog — Free Prompt Base"
 	description="Field notes on prompt engineering, AI workflows and what actually works when you build with ChatGPT, Claude, Midjourney and friends."
+	extraSchemas={[list, crumb]}
 >
 	<Header />
 	<main class="flex-grow max-w-5xl mx-auto px-4 w-full py-12">

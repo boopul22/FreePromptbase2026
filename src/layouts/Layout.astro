@@ -7,6 +7,12 @@ interface Props {
 	description?: string;
 	/** Optional page-specific JSON-LD (e.g. CreativeWork on a prompt page). */
 	schema?: Record<string, unknown>;
+	/** Additional JSON-LD blocks (BreadcrumbList, ItemList, etc.) emitted alongside `schema`. */
+	extraSchemas?: Record<string, unknown>[];
+	/** Absolute or root-relative URL of the social-share image (1200×630 ideal). */
+	ogImage?: string;
+	/** `website` (default) or `article` for detail pages. */
+	ogType?: 'website' | 'article';
 	/** Set to true on admin/CMS pages to add a noindex meta + load Material Symbols. */
 	noindex?: boolean;
 }
@@ -15,6 +21,9 @@ const {
 	title = 'Free Prompt Base — Curated AI prompts you can copy and use',
 	description = 'A free, curated library of ready-to-use prompts for ChatGPT, Midjourney, Claude and Gemini. Find one, copy it, create.',
 	schema,
+	extraSchemas = [],
+	ogImage = '/og-default.png',
+	ogType = 'website',
 	noindex = false,
 } = Astro.props;
 
@@ -28,6 +37,13 @@ let cleanPath = Astro.url.pathname.replace(/index\.html$/, '').replace(/\.html$/
 if (cleanPath.length > 1) cleanPath = cleanPath.replace(/\/$/, '');
 if (cleanPath === '') cleanPath = '/';
 const canonical = `${siteUrl}${cleanPath === '/' ? '/' : cleanPath}`;
+
+// Resolve og:image to an absolute URL if a relative path was passed in.
+const absoluteOgImage = ogImage
+	? ogImage.startsWith('http')
+		? ogImage
+		: `${siteUrl}${ogImage.startsWith('/') ? ogImage : `/${ogImage}`}`
+	: undefined;
 
 // Site-wide WebSite schema with a sitelinks search box action.
 const websiteSchema = {
@@ -46,6 +62,19 @@ const websiteSchema = {
 		'query-input': 'required name=search_term_string',
 	},
 };
+
+// Site-wide Organization schema — needed by BlogPosting.publisher and Google
+// brand-entity indexing.
+const organizationSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'Organization',
+	name: 'Free Prompt Base',
+	url: siteUrl,
+	logo: {
+		'@type': 'ImageObject',
+		url: `${siteUrl}/favicon.svg`,
+	},
+};
 ---
 
 <!doctype html>
@@ -54,18 +83,29 @@ const websiteSchema = {
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="theme-color" content="#e0a82e" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
 		<link rel="canonical" href={canonical} />
 
+		<!-- Preconnect to Google's CDN since signed-in user avatars come from there. -->
+		<link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin />
+
 		<!-- Open Graph -->
-		<meta property="og:type" content="website" />
+		<meta property="og:type" content={ogType} />
+		<meta property="og:site_name" content="Free Prompt Base" />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonical} />
-		<meta name="twitter:card" content="summary_large_image" />
+		{absoluteOgImage && <meta property="og:image" content={absoluteOgImage} />}
+		{absoluteOgImage && <meta property="og:image:width" content="1200" />}
+		{absoluteOgImage && <meta property="og:image:height" content="630" />}
+
+		<!-- Twitter -->
+		<meta name="twitter:card" content={absoluteOgImage ? 'summary_large_image' : 'summary'} />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
+		{absoluteOgImage && <meta name="twitter:image" content={absoluteOgImage} />}
 
 		<Font cssVariable="--font-rubik" preload />
 		<title>{title}</title>
@@ -79,11 +119,12 @@ const websiteSchema = {
 		)}
 
 		<!-- Structured data -->
-		<script
-			type="application/ld+json"
-			set:html={JSON.stringify(websiteSchema)}
-		/>
+		<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+		<script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
 		{schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+		{extraSchemas.map((s) => (
+			<script type="application/ld+json" set:html={JSON.stringify(s)} />
+		))}
 	</head>
 	<body class="min-h-screen flex flex-col">
 		<slot />

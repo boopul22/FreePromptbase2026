@@ -4,14 +4,28 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CategoryIcon from '../components/CategoryIcon.astro';
 import { getAllCategories, getCategoryCounts } from '../lib/prompts';
+import { itemListSchema, breadcrumbSchema } from '../lib/seo';
 
 export const prerender = false;
 
 const categories = await getAllCategories();
 const counts = await getCategoryCounts();
+
+const list = itemListSchema(
+	categories.map((c) => ({ name: c.name, url: `/category/${c.slug}` })),
+	'Prompt categories',
+);
+const crumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name: 'Categories', path: '/categories' },
+]);
 ---
 
-<Layout title="Categories — Free Prompt Base" description="Browse AI prompt categories: writing, coding, image generation, marketing and more.">
+<Layout
+	title="Categories — Free Prompt Base"
+	description="Browse AI prompt categories: writing, coding, image generation, marketing and more."
+	extraSchemas={[list, crumb]}
+>
 	<Header />
 	<main class="flex-grow max-w-7xl mx-auto px-4 w-full py-12">
 		<header class="text-center mb-12">

@@ -10,6 +10,7 @@ import {
 	getCategoryBySlug,
 	getPromptsByCategory,
 } from '../../lib/prompts';
+import { itemListSchema, breadcrumbSchema } from '../../lib/seo';
 
 // On-demand: resolve the category + its prompts from D1 at request time.
 export const prerender = false;
@@ -24,11 +25,22 @@ const [prompts, categories] = await Promise.all([
 	getPromptsByCategory(slug),
 	getAllCategories(),
 ]);
+
+const list = itemListSchema(
+	prompts.slice(0, 30).map((p) => ({ name: p.title, url: `/${p.slug}` })),
+	`${category.name} prompts`,
+);
+const crumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name: 'Categories', path: '/categories' },
+	{ name: category.name, path: `/category/${category.slug}` },
+]);
 ---
 
 <Layout
 	title={`${category.name} prompts — Free Prompt Base`}
 	description={category.description}
+	extraSchemas={[list, crumb]}
 >
 	<Header />
 	<main class="flex-grow max-w-7xl mx-auto px-4 w-full py-10">

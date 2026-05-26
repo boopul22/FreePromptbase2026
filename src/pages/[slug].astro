@@ -12,6 +12,7 @@ import {
 	getAllCategories,
 	readTime,
 } from '../lib/prompts';
+import { breadcrumbSchema } from '../lib/seo';
 
 // On-demand: look the prompt up in D1 at request time.
 export const prerender = false;
@@ -34,27 +35,49 @@ const dateLabel = new Date(prompt.date).toLocaleDateString('en-US', {
 });
 const mins = readTime(prompt);
 
-const promptSchema = {
+// Use the gallery as og:image when present, otherwise the cover.
+const heroImage =
+	(prompt.images && prompt.images.length > 0 ? prompt.images[0] : prompt.coverImage) ?? undefined;
+
+// Prefer the real creator name (from createdBy join) over the static author
+// string for E-E-A-T signal; fall back to the author string.
+const authorName = (prompt as unknown as { createdByName?: string }).createdByName || prompt.author;
+
+const promptSchema: Record<string, unknown> = {
 	'@context': 'https://schema.org',
 	'@type': 'CreativeWork',
 	name: prompt.title,
 	headline: prompt.title,
 	description: prompt.description,
-	datePublished: prompt.date,
-	author: { '@type': 'Person', name: prompt.author },
+	datePublished: new Date(prompt.date).toISOString(),
+	author: { '@type': 'Person', name: authorName },
 	keywords: prompt.tags.join(', '),
 	about: category?.name,
 	url: new URL(`/${prompt.slug}`, Astro.site).href,
 	inLanguage: 'en',
 	isAccessibleForFree: true,
 	text: prompt.promptText,
+	...(prompt.images && prompt.images.length > 0
+		? { image: prompt.images }
+		: prompt.coverImage
+			? { image: prompt.coverImage }
+			: {}),
 };
+
+const breadcrumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	...(category ? [{ name: category.name, path: `/category/${category.slug}` }] : []),
+	{ name: prompt.title, path: `/${prompt.slug}` },
+]);
 ---
 
 <Layout
 	title={`${prompt.title} — Free Prompt Base`}
 	description={prompt.description}
 	schema={promptSchema}
+	extraSchemas={[breadcrumb]}
+	ogType="article"
+	ogImage={heroImage}
 >
 	<Header />
 	<main class="flex-grow max-w-3xl mx-auto px-4 w-full py-8 sm:py-12">

@@ -3,6 +3,7 @@ import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import { getPostBySlug, getRelatedPosts, postReadTime } from '../../lib/posts';
+import { breadcrumbSchema, publisherBlock } from '../../lib/seo';
 
 // On-demand: look the post up in D1 at request time.
 export const prerender = false;
@@ -67,6 +68,8 @@ function buildToc(html: string): { html: string; toc: TocEntry[] } {
 const rawBody = post.htmlContent || post.content.intro || '';
 const { html: bodyHtml, toc } = buildToc(rawBody);
 
+const postUrl = new URL(`/blog/${post.slug}`, Astro.site).href;
+
 const postSchema = {
 	'@context': 'https://schema.org',
 	'@type': 'BlogPosting',
@@ -75,16 +78,41 @@ const postSchema = {
 	datePublished: new Date(dateIso).toISOString(),
 	dateModified: new Date(post.updatedAt ?? dateIso).toISOString(),
 	author: { '@type': 'Person', name: authorName },
-	url: new URL(`/blog/${post.slug}`, Astro.site).href,
+	publisher: publisherBlock(),
+	url: postUrl,
+	mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
 	inLanguage: 'en',
 	...(post.coverImage ? { image: post.coverImage } : {}),
 };
+
+// FAQPage schema gets a separate JSON-LD block (Google's preferred shape).
+const faqSchema =
+	post.faqItems.length > 0
+		? {
+				'@context': 'https://schema.org',
+				'@type': 'FAQPage',
+				mainEntity: post.faqItems.map((it) => ({
+					'@type': 'Question',
+					name: it.question,
+					acceptedAnswer: { '@type': 'Answer', text: it.answer },
+				})),
+			}
+		: null;
+
+const breadcrumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name: 'Blog', path: '/blog' },
+	{ name: post.title, path: `/blog/${post.slug}` },
+]);
 ---
 
 <Layout
 	title={`${post.title} — Free Prompt Base`}
 	description={post.excerpt}
 	schema={postSchema}
+	extraSchemas={[breadcrumb, ...(faqSchema ? [faqSchema] : [])]}
+	ogType="article"
+	ogImage={post.coverImage ?? undefined}
 >
 	<Header />
 	<main class="flex-grow max-w-6xl mx-auto px-4 w-full py-8 sm:py-12">

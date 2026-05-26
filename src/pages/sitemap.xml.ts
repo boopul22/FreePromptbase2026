@@ -20,13 +20,27 @@ export const GET: APIRoute = async () => {
 			.all<{ slug: string; updated_at: string }>(),
 	]);
 
-	const entries: { loc: string; lastmod?: string }[] = [
+	interface Entry {
+		loc: string;
+		lastmod?: string;
+		images?: string[];
+	}
+
+	const entries: Entry[] = [
 		...STATIC_PATHS.map((p) => ({ loc: p })),
 		...categories.map((c) => ({ loc: `/category/${c.slug}` })),
-		...prompts.map((p) => ({ loc: `/${p.slug}`, lastmod: p.date })),
+		...prompts.map((p) => {
+			const imgs = [...(p.images ?? []), ...(p.coverImage ? [p.coverImage] : [])];
+			return {
+				loc: `/${p.slug}`,
+				lastmod: p.date,
+				images: Array.from(new Set(imgs.filter(Boolean))),
+			};
+		}),
 		...posts.map((p) => ({
 			loc: `/blog/${p.slug}`,
 			lastmod: (p.publishedAt ?? p.createdAt).slice(0, 10),
+			images: p.coverImage ? [p.coverImage] : [],
 		})),
 		...(pageRows.results ?? []).map((p) => ({
 			loc: `/p/${p.slug}`,
@@ -34,14 +48,20 @@ export const GET: APIRoute = async () => {
 		})),
 	];
 
+	const escapeXml = (s: string) =>
+		s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 	const body =
 		`<?xml version="1.0" encoding="UTF-8"?>\n` +
-		`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+		`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemaps-image/1.1">\n` +
 		entries
 			.map((e) => {
 				const loc = `${SITE}${e.loc === '/' ? '' : e.loc}`;
 				const lastmod = e.lastmod ? `<lastmod>${e.lastmod}</lastmod>` : '';
-				return `  <url><loc>${loc}</loc>${lastmod}</url>`;
+				const images = (e.images ?? [])
+					.map((u) => `\n    <image:image><image:loc>${escapeXml(u)}</image:loc></image:image>`)
+					.join('');
+				return `  <url><loc>${loc}</loc>${lastmod}${images}</url>`;
 			})
 			.join('\n') +
 		`\n</urlset>\n`;

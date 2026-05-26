@@ -1,0 +1,31 @@
+# Free Prompt Base
+
+> A free, curated library of ready-to-use AI prompts for ChatGPT, Claude, Midjourney and Gemini. Find one, copy it, create.
+
+Every prompt is hand-curated and accompanied by usage notes, the originating model, tags, and (where applicable) a cover image or gallery. We also publish field-note articles on prompt engineering at /blog.
+
+## Prompt catalog
+
+- [Browse all prompts (homepage)](https://freepromptbase.com/)
+- [Categories index](https://freepromptbase.com/categories)
+- Each prompt lives at `/<slug>` (for example, [Cinematic Portrait Photography](https://freepromptbase.com/cinematic-portrait))
+
+## Blog
+
+- [Blog index](https://freepromptbase.com/blog)
+- Each post lives at `/blog/<slug>` and includes a table of contents, FAQ markup where applicable, and structured `BlogPosting` schema.
+
+## Site map
+
+- [XML sitemap](https://freepromptbase.com/sitemap.xml) — dynamically generated, kept in sync with the live database.
+
+## Indexing policy
+
+- AI crawlers (GPTBot, ClaudeBot, PerplexityBot, and any well-behaved generic UA) are explicitly allowed in [/robots.txt](https://freepromptbase.com/robots.txt).
+- `/admin/*` is `noindex` and returns 403 to unauthenticated traffic.
+- All public pages include structured data (`Schema.org` JSON-LD): `WebSite`, `Organization`, `CreativeWork` or `BlogPosting`, `BreadcrumbList`, and `ItemList` on collection pages.
+
+## Contact
+
+- Site owner: Bipul Kumar
+- Domain: freepromptbase.com
