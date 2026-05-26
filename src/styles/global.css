@@ -78,6 +78,14 @@
    Base layer — applies the light color scheme and Rubik to the document.
    -------------------------------------------------------------------------- */
 @layer base {
+	/* While a drawer/modal is open we add this class to <html> to freeze
+	   background scroll. Set on <html> (not body) for cross-browser reliability.
+	   The drawer JS also writes an inline `padding-right` equal to the measured
+	   scrollbar width so the page doesn't jump when the scrollbar disappears. */
+	html.drawer-open {
+		overflow: hidden;
+	}
+
 	body {
 		background-color: var(--color-background);
 		color: var(--color-text-primary);

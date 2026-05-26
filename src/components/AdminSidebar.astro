@@ -68,10 +68,11 @@ const pageLabel = current?.label ?? 'CMS';
 <dialog
 	id="admin-drawer"
 	class="admin-drawer md:hidden p-0 m-0 max-w-none max-h-none w-full h-full bg-transparent"
+	aria-label="Admin navigation"
 >
-	<div class="flex h-full">
-		<!-- Drawer panel -->
-		<div class="w-72 max-w-[85vw] h-full bg-white flex flex-col shadow-xl">
+	<!-- Drawer panel (left-aligned). Native ::backdrop handles the dim; clicks
+	     bubble up to the dialog where the script catches and closes. -->
+	<div class="drawer-panel w-72 max-w-[85vw] h-full bg-white flex flex-col shadow-2xl">
 			<div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
 				<a href="/admin/cms" class="flex items-center gap-2">
 					<svg class="w-6 h-6 text-primary shrink-0" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -82,7 +83,7 @@ const pageLabel = current?.label ?? 'CMS';
 				<button
 					type="button"
 					aria-label="Close menu"
-					data-admin-menu-close
+					data-drawer-close
 					class="w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 text-text-primary"
 				>
 					<span class="material-symbols-outlined text-xl">close</span>
@@ -137,14 +138,6 @@ const pageLabel = current?.label ?? 'CMS';
 				</div>
 			</div>
 		</div>
-		<!-- Backdrop fills the rest of the screen; clicking it closes. -->
-		<button
-			type="button"
-			aria-label="Close menu"
-			data-admin-menu-close
-			class="flex-1 bg-transparent cursor-pointer"
-		/>
-	</div>
 </dialog>
 
 <!-- ============================================================
@@ -208,51 +201,84 @@ const pageLabel = current?.label ?? 'CMS';
 	</div>
 </aside>
 
-<style is:global>
-	/* Native <dialog> default centers/sizes its panel; we want full-bleed so
-	   our flex layout can slide the drawer in from the left. */
-	dialog.admin-drawer {
-		position: fixed;
-		inset: 0;
-		max-width: none;
-		max-height: none;
-		width: 100%;
-		height: 100%;
-		border: 0;
-		background: transparent;
-	}
-	dialog.admin-drawer::backdrop {
-		background: rgba(24, 24, 48, 0.5);
-		backdrop-filter: blur(2px);
-	}
-	dialog.admin-drawer[open] > div {
-		animation: admin-drawer-in 200ms ease-out;
-	}
-	@keyframes admin-drawer-in {
-		from { transform: translateX(-12px); opacity: 0.6; }
-		to { transform: translateX(0); opacity: 1; }
-	}
-</style>
-
+<!-- Drawer animation + scroll lock styles live in Header.astro's global block
+     (they cover both .site-drawer and .admin-drawer). The script below reuses
+     the same bindDrawer pattern but operates on this drawer's id. -->
 <script>
-	const drawer = document.getElementById('admin-drawer') as HTMLDialogElement | null;
-	if (drawer) {
-		document.querySelectorAll('[data-admin-menu-open]').forEach((btn) => {
-			btn.addEventListener('click', () => {
-				try {
-					drawer.showModal();
-				} catch {
-					drawer.setAttribute('open', '');
-				}
-			});
+	(function bindAdminDrawer() {
+		const drawer = document.getElementById('admin-drawer') as HTMLDialogElement | null;
+		if (!drawer) return;
+
+		const DURATION = 280;
+		let lastTrigger: HTMLElement | null = null;
+		let closingTimer: ReturnType<typeof setTimeout> | null = null;
+
+		function lockScroll() {
+			const sbw = window.innerWidth - document.documentElement.clientWidth;
+			if (sbw > 0) document.documentElement.style.paddingRight = `${sbw}px`;
+			document.documentElement.classList.add('drawer-open');
+		}
+		function unlockScroll() {
+			document.documentElement.classList.remove('drawer-open');
+			document.documentElement.style.paddingRight = '';
+		}
+
+		function open(trigger: HTMLElement | null) {
+			if (drawer!.dataset.state === 'open' || drawer!.dataset.state === 'opening') return;
+			if (closingTimer) {
+				clearTimeout(closingTimer);
+				closingTimer = null;
+			}
+			lastTrigger = trigger;
+			lockScroll();
+			try {
+				drawer!.showModal();
+			} catch {
+				drawer!.setAttribute('open', '');
+			}
+			drawer!.dataset.state = 'opening';
+			requestAnimationFrame(() =>
+				requestAnimationFrame(() => {
+					if (drawer!.dataset.state !== 'opening') return;
+					drawer!.dataset.state = 'open';
+					(drawer!.querySelector('[data-drawer-close]') as HTMLButtonElement | null)?.focus();
+				}),
+			);
+		}
+
+		function close() {
+			if (!drawer!.dataset.state || drawer!.dataset.state === 'closing') return;
+			drawer!.dataset.state = 'closing';
+			closingTimer = setTimeout(() => {
+				drawer!.close();
+				delete drawer!.dataset.state;
+				unlockScroll();
+				lastTrigger?.focus();
+				closingTimer = null;
+			}, DURATION);
+		}
+
+		document.querySelectorAll<HTMLElement>('[data-admin-menu-open]').forEach((btn) => {
+			btn.addEventListener('click', () => open(btn));
 		});
-		document.querySelectorAll('[data-admin-menu-close]').forEach((btn) => {
-			btn.addEventListener('click', () => drawer.close());
+
+		drawer.addEventListener('click', (e) => {
+			const target = e.target as HTMLElement;
+			if (target.closest('[data-drawer-close]')) {
+				e.preventDefault();
+				close();
+				return;
+			}
+			if (target === drawer) close();
 		});
-		// Close drawer when any nav link inside is clicked (so the navigation
-		// transition isn't covered by a blurred backdrop).
+
 		drawer.querySelectorAll('a[href]').forEach((a) => {
-			a.addEventListener('click', () => drawer.close());
+			a.addEventListener('click', () => close());
 		});
-	}
+
+		drawer.addEventListener('cancel', (e) => {
+			e.preventDefault();
+			close();
+		});
+	})();
 </script>

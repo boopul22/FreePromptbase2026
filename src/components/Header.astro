@@ -151,31 +151,26 @@ const isAdmin = sessionUser?.role === 'admin';
 <dialog
 	id="mobile-nav-drawer"
 	class="site-drawer md:hidden p-0 m-0 max-w-none max-h-none w-full h-full bg-transparent"
+	aria-label="Site navigation"
 >
-	<div class="flex h-full">
-		<!-- Backdrop fills the left; tap to close. -->
-		<button
-			type="button"
-			aria-label="Close menu"
-			data-site-menu-close
-			class="flex-1 bg-transparent cursor-pointer"
-		/>
-		<!-- Drawer panel (right-aligned) -->
-		<div class="w-72 max-w-[85vw] h-full bg-white flex flex-col shadow-xl">
-			<!-- Brand band + close button -->
-			<div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-				<a href="/" class="flex items-center gap-2">
-					<svg class="w-6 h-6 text-primary shrink-0" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-						<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-					</svg>
-					<span class="text-sm font-semibold text-text-primary">Free Prompt Base</span>
-				</a>
-				<button
-					type="button"
-					aria-label="Close menu"
-					data-site-menu-close
-					class="w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 text-text-primary"
-				>
+	<!-- Drawer panel (right-aligned via margin-left auto). Native ::backdrop
+	     handles the dim overlay; clicks on it bubble up to the dialog where
+	     the script catches and closes. -->
+	<div class="drawer-panel ml-auto w-72 max-w-[85vw] h-full bg-white flex flex-col shadow-2xl">
+		<!-- Brand band + close button -->
+		<div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+			<a href="/" class="flex items-center gap-2">
+				<svg class="w-6 h-6 text-primary shrink-0" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+					<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+				</svg>
+				<span class="text-sm font-semibold text-text-primary">Free Prompt Base</span>
+			</a>
+			<button
+				type="button"
+				aria-label="Close menu"
+				data-drawer-close
+				class="w-10 h-10 flex items-center justify-center rounded-md hover:bg-gray-100 text-text-primary"
+			>
 					<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 				</button>
 			</div>
@@ -240,11 +235,13 @@ const isAdmin = sessionUser?.role === 'admin';
 				}
 			</div>
 		</div>
-	</div>
 </dialog>
 
 <style is:global>
-	dialog.site-drawer {
+	/* Drawer shell — full-bleed dialog, transparent itself; the panel inside
+	   carries the visible chrome. */
+	dialog.site-drawer,
+	dialog.admin-drawer {
 		position: fixed;
 		inset: 0;
 		max-width: none;
@@ -253,39 +250,152 @@ const isAdmin = sessionUser?.role === 'admin';
 		height: 100%;
 		border: 0;
 		background: transparent;
+		outline: none;
+		overflow: hidden;
 	}
-	dialog.site-drawer::backdrop {
-		background: rgba(24, 24, 48, 0.5);
-		backdrop-filter: blur(2px);
+
+	/* Backdrop fade. ::backdrop is in the top layer, opacity transitions safely. */
+	dialog.site-drawer::backdrop,
+	dialog.admin-drawer::backdrop {
+		background: rgba(24, 24, 48, 0.55);
+		backdrop-filter: blur(3px);
+		opacity: 0;
+		transition: opacity 280ms ease;
 	}
-	dialog.site-drawer[open] > div {
-		animation: site-drawer-in 200ms ease-out;
+	dialog[data-state='open']::backdrop {
+		opacity: 1;
 	}
-	@keyframes site-drawer-in {
-		from { transform: translateX(12px); opacity: 0.6; }
-		to { transform: translateX(0); opacity: 1; }
+	dialog[data-state='closing']::backdrop {
+		opacity: 0;
+	}
+
+	/* Panel slide — site drawer enters from the right, admin drawer from the left.
+	   The `data-state="opening"` / no-attribute initial state holds the panel
+	   offscreen so the transition to `open` has somewhere to start from. */
+	dialog.site-drawer .drawer-panel {
+		transform: translateX(100%);
+		transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+		will-change: transform;
+	}
+	dialog.admin-drawer .drawer-panel {
+		transform: translateX(-100%);
+		transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+		will-change: transform;
+	}
+	dialog[data-state='open'] .drawer-panel {
+		transform: translateX(0);
+	}
+	dialog.site-drawer[data-state='closing'] .drawer-panel {
+		transform: translateX(100%);
+	}
+	dialog.admin-drawer[data-state='closing'] .drawer-panel {
+		transform: translateX(-100%);
+	}
+
+	/* Scrolling inside the menu shouldn't bubble to the page. */
+	.drawer-panel {
+		overscroll-behavior: contain;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		dialog.site-drawer .drawer-panel,
+		dialog.admin-drawer .drawer-panel,
+		dialog.site-drawer::backdrop,
+		dialog.admin-drawer::backdrop {
+			transition-duration: 1ms !important;
+		}
 	}
 </style>
 
 <script>
-	const siteDrawer = document.getElementById('mobile-nav-drawer') as HTMLDialogElement | null;
-	if (siteDrawer) {
-		document.querySelectorAll('[data-site-menu-open]').forEach((btn) => {
-			btn.addEventListener('click', () => {
-				try {
-					siteDrawer.showModal();
-				} catch {
-					siteDrawer.setAttribute('open', '');
-				}
-			});
+	// Shared drawer behavior — animated open/close + body scroll lock + focus
+	// management. Used by both the public-site drawer (this file) and the admin
+	// drawer (AdminSidebar.astro). Each binds with its own selectors.
+	function bindDrawer(drawerId: string, openSelector: string) {
+		const drawer = document.getElementById(drawerId) as HTMLDialogElement | null;
+		if (!drawer) return;
+
+		const DURATION = 280;
+		let lastTrigger: HTMLElement | null = null;
+		let closingTimer: ReturnType<typeof setTimeout> | null = null;
+
+		function lockScroll() {
+			const sbw = window.innerWidth - document.documentElement.clientWidth;
+			if (sbw > 0) document.documentElement.style.paddingRight = `${sbw}px`;
+			document.documentElement.classList.add('drawer-open');
+		}
+		function unlockScroll() {
+			document.documentElement.classList.remove('drawer-open');
+			document.documentElement.style.paddingRight = '';
+		}
+
+		function open(trigger: HTMLElement | null) {
+			if (drawer!.dataset.state === 'open' || drawer!.dataset.state === 'opening') return;
+			if (closingTimer) {
+				clearTimeout(closingTimer);
+				closingTimer = null;
+			}
+			lastTrigger = trigger;
+			lockScroll();
+			try {
+				drawer!.showModal();
+			} catch {
+				drawer!.setAttribute('open', '');
+			}
+			drawer!.dataset.state = 'opening';
+			// Two rAFs to make sure the initial "off-screen" state lays down
+			// before we transition to the "open" state.
+			requestAnimationFrame(() =>
+				requestAnimationFrame(() => {
+					if (drawer!.dataset.state !== 'opening') return;
+					drawer!.dataset.state = 'open';
+					(drawer!.querySelector('[data-drawer-close]') as HTMLButtonElement | null)?.focus();
+				}),
+			);
+		}
+
+		function close() {
+			if (!drawer!.dataset.state || drawer!.dataset.state === 'closing') return;
+			drawer!.dataset.state = 'closing';
+			closingTimer = setTimeout(() => {
+				drawer!.close();
+				delete drawer!.dataset.state;
+				unlockScroll();
+				lastTrigger?.focus();
+				closingTimer = null;
+			}, DURATION);
+		}
+
+		document.querySelectorAll<HTMLElement>(openSelector).forEach((btn) => {
+			btn.addEventListener('click', () => open(btn));
 		});
-		document.querySelectorAll('[data-site-menu-close]').forEach((btn) => {
-			btn.addEventListener('click', () => siteDrawer.close());
+
+		// Any close trigger inside the drawer (×, "Back", logout link etc).
+		drawer.addEventListener('click', (e) => {
+			const target = e.target as HTMLElement;
+			if (target.closest('[data-drawer-close]')) {
+				e.preventDefault();
+				close();
+				return;
+			}
+			// Clicks on the dialog itself (its own background = the ::backdrop area)
+			// close the drawer too. The panel intercepts its own clicks first.
+			if (target === drawer) close();
 		});
-		// Auto-close when any link inside is clicked, so the navigation
+
+		// Auto-close when a link inside the panel is followed so the page
 		// transition isn't covered by the backdrop.
-		siteDrawer.querySelectorAll('a[href]').forEach((a) => {
-			a.addEventListener('click', () => siteDrawer.close());
+		drawer.querySelectorAll('a[href]').forEach((a) => {
+			a.addEventListener('click', () => close());
+		});
+
+		// Animate the Esc close (native `cancel` fires before `close`).
+		drawer.addEventListener('cancel', (e) => {
+			e.preventDefault();
+			close();
 		});
 	}
+
+	bindDrawer('mobile-nav-drawer', '[data-site-menu-open]');
 </script>
