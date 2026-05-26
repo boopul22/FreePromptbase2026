@@ -11,10 +11,10 @@
 // ---------------------------------------------------------------------------
 
 import { env } from 'cloudflare:workers';
-import type { Prompt, AiModel } from '../data/prompts';
+import type { Prompt } from '../data/prompts';
 import type { Category } from '../data/categories';
 
-export type { Prompt, Category, AiModel };
+export type { Prompt, Category };
 
 function getDB(): D1Database {
 	const db = env.DB;
@@ -31,7 +31,6 @@ interface PromptRow {
 	title: string;
 	description: string;
 	prompt_text: string;
-	model: string;
 	category: string;
 	tags: string;
 	author: string;
@@ -56,7 +55,6 @@ function rowToPrompt(r: PromptRow): Prompt {
 		title: r.title,
 		description: r.description,
 		promptText: r.prompt_text,
-		model: r.model as AiModel,
 		category: r.category,
 		tags: JSON.parse(r.tags || '[]'),
 		author: r.author,
@@ -72,7 +70,7 @@ function rowToPrompt(r: PromptRow): Prompt {
 }
 
 const PROMPT_COLS =
-	'slug, title, description, prompt_text, model, category, tags, author, date, cover_image, images, featured, liked, popularity, how_to_use, created_by';
+	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, how_to_use, created_by';
 
 /** All prompts, newest first. */
 export async function getAllPrompts(): Promise<Prompt[]> {

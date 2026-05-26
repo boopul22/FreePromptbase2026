@@ -20,13 +20,12 @@ categories.forEach((c, i) => {
 
 for (const p of prompts) {
 	lines.push(
-		`INSERT INTO prompts (slug,title,description,prompt_text,model,category,tags,author,date,cover_image,featured,liked,popularity,how_to_use) VALUES (` +
+		`INSERT INTO prompts (slug,title,description,prompt_text,category,tags,author,date,cover_image,featured,liked,popularity,how_to_use) VALUES (` +
 			[
 				q(p.slug),
 				q(p.title),
 				q(p.description),
 				q(p.promptText),
-				q(p.model),
 				q(p.category),
 				q(JSON.stringify(p.tags)),
 				q(p.author),

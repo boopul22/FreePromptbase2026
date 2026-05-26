@@ -12,7 +12,7 @@ interface Props {
 
 const { prompt, category, aspectClass = 'aspect-[4/3]' } = Astro.props;
 
-const searchIndex = [prompt.title, prompt.description, prompt.model, ...prompt.tags]
+const searchIndex = [prompt.title, prompt.description, ...prompt.tags]
 	.join(' ')
 	.toLowerCase();
 ---
@@ -62,13 +62,6 @@ const searchIndex = [prompt.title, prompt.description, prompt.model, ...prompt.t
 				</div>
 			)
 		}
-
-		<!-- Model badge -->
-		<span
-			class="absolute bottom-3 left-3 z-10 bg-link/85 text-white text-[10px] font-bold px-2 py-1 rounded-full backdrop-blur-sm"
-		>
-			{prompt.model}
-		</span>
 
 		<!-- Like (sits above the stretched link) -->
 		<button

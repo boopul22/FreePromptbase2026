@@ -37,19 +37,22 @@ const crumb = breadcrumbSchema([
 			</p>
 		</header>
 
-		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+		<div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
 			{
 				categories.map((cat) => (
 					<a
 						href={`/category/${cat.slug}`}
-						class="flex flex-col bg-white rounded-base border border-gray-200 p-6 hover:border-primary hover:shadow-sm transition-all"
+						class="flex items-center gap-4 bg-gray-100 rounded-2xl p-4 hover:bg-gray-200 transition-colors"
 					>
-						<CategoryIcon slug={cat.slug} class="w-9 h-9 text-primary" />
-						<h2 class="font-bold text-lg text-text-primary mt-4">{cat.name}</h2>
-						<p class="text-sm text-gray-500 mt-1 flex-grow">{cat.description}</p>
-						<span class="text-xs font-semibold text-primary mt-4">
-							{counts[cat.slug] ?? 0} {(counts[cat.slug] ?? 0) === 1 ? 'prompt' : 'prompts'} →
-						</span>
+						<div class="flex items-center justify-center w-12 h-12 shrink-0 rounded-xl bg-white shadow-sm">
+							<CategoryIcon slug={cat.slug} class="w-6 h-6 text-primary" />
+						</div>
+						<div class="min-w-0">
+							<h2 class="font-bold text-text-primary leading-tight truncate">{cat.name}</h2>
+							<p class="text-xs text-gray-500 mt-1">
+								{counts[cat.slug] ?? 0} {(counts[cat.slug] ?? 0) === 1 ? 'Prompt' : 'Prompts'}
+							</p>
+						</div>
 					</a>
 				))
 			}

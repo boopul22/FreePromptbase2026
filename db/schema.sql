@@ -35,7 +35,6 @@ CREATE TABLE prompts (
 	title        TEXT NOT NULL,
 	description  TEXT NOT NULL,
 	prompt_text  TEXT NOT NULL,
-	model        TEXT NOT NULL,
 	category     TEXT NOT NULL REFERENCES prompt_categories(slug),
 	tags         TEXT NOT NULL DEFAULT '[]',
 	author       TEXT NOT NULL DEFAULT 'Admin',

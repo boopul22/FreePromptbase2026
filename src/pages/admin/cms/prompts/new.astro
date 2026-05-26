@@ -86,18 +86,6 @@ const today = new Date().toISOString().slice(0, 10);
  </select>
  </div>
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-model">Model</label>
- <input list="model-list" id="f-model" name="model" type="text" required placeholder="ChatGPT" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
- <datalist id="model-list">
- <option value="ChatGPT"></option>
- <option value="Claude"></option>
- <option value="Midjourney"></option>
- <option value="Gemini"></option>
- <option value="DALL·E"></option>
- <option value="Stable Diffusion"></option>
- </datalist>
- </div>
- <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-tags">Tags</label>
  <input id="f-tags" name="tags" type="text" placeholder="copywriting, social media, hooks" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
  <p class="text-xs text-gray-500 mt-1">Comma-separated.</p>
@@ -216,7 +204,6 @@ const today = new Date().toISOString().slice(0, 10);
  slug: val('f-slug') || undefined,
  description: val('f-description'),
  promptText: val('f-prompt-text'),
- model: val('f-model'),
  category: val('f-category'),
  tags,
  author: val('f-author'),
@@ -228,8 +215,8 @@ const today = new Date().toISOString().slice(0, 10);
  howToUse: val('f-how-to-use') || null,
  };
 
- if (!body.title || !body.promptText || !body.model || !body.category) {
- alert('Title, prompt text, model and category are required.');
+ if (!body.title || !body.promptText || !body.category) {
+ alert('Title, prompt text and category are required.');
  btn.disabled = false;
  btn.textContent = 'Save prompt';
  return;

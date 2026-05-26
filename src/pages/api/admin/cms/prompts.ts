@@ -10,7 +10,6 @@ interface PromptRow {
   title: string;
   description: string;
   prompt_text: string;
-  model: string;
   category: string;
   tags: string;
   author: string;
@@ -36,7 +35,6 @@ function mapRow(r: PromptRow) {
     title: r.title,
     description: r.description,
     promptText: r.prompt_text,
-    model: r.model,
     category: r.category,
     categoryName: r.category_name ?? null,
     categoryEmoji: r.category_emoji ?? null,
@@ -80,7 +78,6 @@ export const GET: APIRoute = async ({ locals, url }) => {
   const limit = parseInt(url.searchParams.get('limit') || '20');
   const offset = (page - 1) * limit;
   const category = url.searchParams.get('category');
-  const model = url.searchParams.get('model');
   const featured = url.searchParams.get('featured');
   const search = url.searchParams.get('search');
 
@@ -90,10 +87,6 @@ export const GET: APIRoute = async ({ locals, url }) => {
   if (category && category !== 'all') {
     where += ' AND p.category = ?';
     params.push(category);
-  }
-  if (model && model !== 'all') {
-    where += ' AND p.model = ?';
-    params.push(model);
   }
   if (featured === '1') {
     where += ' AND p.featured = 1';
@@ -145,9 +138,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const db = getDB(locals);
   const body = await request.json();
 
-  if (!body.title || !body.promptText || !body.model || !body.category) {
+  if (!body.title || !body.promptText || !body.category) {
     return new Response(
-      JSON.stringify({ error: 'Missing required fields: title, promptText, model, category' }),
+      JSON.stringify({ error: 'Missing required fields: title, promptText, category' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } },
     );
   }
@@ -170,16 +163,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
   await db
     .prepare(
       `INSERT INTO prompts
-        (slug, title, description, prompt_text, model, category, tags, author, date,
+        (slug, title, description, prompt_text, category, tags, author, date,
          cover_image, images, featured, liked, popularity, how_to_use, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       slug,
       body.title,
       body.description || '',
       body.promptText,
-      body.model,
       body.category,
       JSON.stringify(Array.isArray(body.tags) ? body.tags : []),
       body.author || locals.user.name,

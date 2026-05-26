@@ -105,18 +105,6 @@ const slug = Astro.params.slug!;
  <select id="f-category" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"></select>
  </div>
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-model">Model</label>
- <input list="model-list" id="f-model" type="text" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
- <datalist id="model-list">
- <option value="ChatGPT"></option>
- <option value="Claude"></option>
- <option value="Midjourney"></option>
- <option value="Gemini"></option>
- <option value="DALL·E"></option>
- <option value="Stable Diffusion"></option>
- </datalist>
- </div>
- <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-tags">Tags</label>
  <input id="f-tags" type="text" placeholder="comma, separated, list" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
  </div>
@@ -258,7 +246,6 @@ const slug = Astro.params.slug!;
  document.getElementById('f-description').value = p.description || '';
  document.getElementById('f-prompt-text').value = p.promptText || '';
  document.getElementById('f-how-to-use').value = p.howToUse || '';
- document.getElementById('f-model').value = p.model || '';
  document.getElementById('f-tags').value = (p.tags || []).join(', ');
  document.getElementById('f-cover').value = p.coverImage || '';
  document.getElementById('f-author').value = p.author || '';
@@ -281,7 +268,6 @@ const slug = Astro.params.slug!;
  slug: v('f-slug'),
  description: v('f-description'),
  promptText: v('f-prompt-text'),
- model: v('f-model'),
  category: v('f-category'),
  tags,
  author: v('f-author'),

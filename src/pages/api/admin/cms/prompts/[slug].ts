@@ -9,7 +9,6 @@ interface PromptRow {
   title: string;
   description: string;
   prompt_text: string;
-  model: string;
   category: string;
   tags: string;
   author: string;
@@ -35,7 +34,6 @@ function mapRow(r: PromptRow) {
     title: r.title,
     description: r.description,
     promptText: r.prompt_text,
-    model: r.model,
     category: r.category,
     categoryName: r.category_name ?? null,
     categoryEmoji: r.category_emoji ?? null,
@@ -150,7 +148,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
   await db
     .prepare(
       `UPDATE prompts SET
-        slug = ?, title = ?, description = ?, prompt_text = ?, model = ?, category = ?,
+        slug = ?, title = ?, description = ?, prompt_text = ?, category = ?,
         tags = ?, author = ?, date = ?, cover_image = ?, images = ?,
         featured = ?, popularity = ?, how_to_use = ?
        WHERE slug = ?`,
@@ -160,7 +158,6 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       body.title ?? existing.title,
       body.description ?? existing.description,
       body.promptText ?? existing.prompt_text,
-      body.model ?? existing.model,
       body.category ?? existing.category,
       JSON.stringify(Array.isArray(body.tags) ? body.tags : safeJsonArray(existing.tags)),
       body.author ?? existing.author,

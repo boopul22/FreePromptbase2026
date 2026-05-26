@@ -27,9 +27,6 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <select id="category-filter" class="px-3 py-2 border border-gray-200 rounded-md bg-white text-sm">
  <option value="">All categories</option>
  </select>
- <select id="model-filter" class="px-3 py-2 border border-gray-200 rounded-md bg-white text-sm">
- <option value="">All models</option>
- </select>
  <label class="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-md bg-white text-sm text-text-primary cursor-pointer">
  <input id="featured-filter" type="checkbox" class="accent-primary" />
  Featured only
@@ -78,20 +75,6 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  }
  }
 
- async function loadModels() {
- // Distinct models from the existing list endpoint (cheap: pull first 200 and dedupe client-side).
- const res = await fetch('/api/admin/cms/prompts?limit=200');
- const data = await res.json();
- const models = Array.from(new Set((data.prompts || []).map((p: any) => p.model).filter(Boolean))).sort();
- const sel = document.getElementById('model-filter') as HTMLSelectElement;
- for (const m of models as string[]) {
- const opt = document.createElement('option');
- opt.value = m;
- opt.textContent = m;
- sel.appendChild(opt);
- }
- }
-
  async function loadPrompts(page = 1) {
  currentPage = page;
  const params = new URLSearchParams({ page: String(page), limit: '20', ...currentFilters });
@@ -131,8 +114,6 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-gray-500">
  <span>${p.categoryEmoji ?? ''} ${esc(p.categoryName ?? p.category)}</span>
  <span aria-hidden="true">·</span>
- <span>${esc(p.model)}</span>
- <span aria-hidden="true">·</span>
  <span>${esc(p.date)}</span>
  </div>
  ${p.createdByName ? `
@@ -166,7 +147,6 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <colgroup>
  <col />
  <col class="hidden md:table-column" style="width: 160px;" />
- <col class="hidden lg:table-column" style="width: 120px;" />
  <col class="hidden lg:table-column" style="width: 170px;" />
  <col class="hidden xl:table-column" style="width: 110px;" />
  <col style="width: 130px;" />
@@ -175,7 +155,6 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <tr>
  <th class="text-left px-4 py-2.5">Title</th>
  <th class="text-left px-4 py-2.5 hidden md:table-cell">Category</th>
- <th class="text-left px-4 py-2.5 hidden lg:table-cell">Model</th>
  <th class="text-left px-4 py-2.5 hidden lg:table-cell">Added by</th>
  <th class="text-left px-4 py-2.5 hidden xl:table-cell">Date</th>
  <th class="text-right px-4 py-2.5">Actions</th>
@@ -192,7 +171,6 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <p class="text-xs text-gray-500 mt-0.5 truncate">${esc(p.description || '')}</p>
  </td>
  <td class="px-4 py-3 hidden md:table-cell text-gray-600 align-middle truncate">${p.categoryEmoji ?? ''} ${esc(p.categoryName ?? p.category)}</td>
- <td class="px-4 py-3 hidden lg:table-cell text-gray-600 align-middle truncate">${esc(p.model)}</td>
  <td class="px-4 py-3 hidden lg:table-cell align-middle">
  ${p.createdByName
  ? `<div class="flex items-center gap-2 min-w-0">
@@ -250,18 +228,15 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  function applyFilters() {
  currentFilters = {};
  const cat = (document.getElementById('category-filter') as HTMLSelectElement).value;
- const model = (document.getElementById('model-filter') as HTMLSelectElement).value;
  const featured = (document.getElementById('featured-filter') as HTMLInputElement).checked;
  const search = (document.getElementById('search-input') as HTMLInputElement).value.trim();
  if (cat) currentFilters.category = cat;
- if (model) currentFilters.model = model;
  if (featured) currentFilters.featured = '1';
  if (search) currentFilters.search = search;
  loadPrompts(1);
  }
 
  (document.getElementById('category-filter') as HTMLSelectElement).addEventListener('change', applyFilters);
- (document.getElementById('model-filter') as HTMLSelectElement).addEventListener('change', applyFilters);
  (document.getElementById('featured-filter') as HTMLInputElement).addEventListener('change', applyFilters);
 
  let searchTimer: any;
@@ -272,7 +247,7 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
 
  // Boot
  (async () => {
- await Promise.all([loadCategories(), loadModels()]);
+ await loadCategories();
  loadPrompts(1);
  })();
 </script>
