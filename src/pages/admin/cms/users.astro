@@ -8,10 +8,10 @@ const currentUserId = Astro.locals.user?.id ?? '';
 ---
 
 <Layout title="Users - CMS - Free Prompt Base" noindex={true}>
- <div class="flex">
+ <div class="flex h-screen overflow-hidden">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 min-h-screen">
+ <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 overflow-y-auto h-screen">
  <!-- Header -->
  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
  <div>

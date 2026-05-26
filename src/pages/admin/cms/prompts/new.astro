@@ -9,10 +9,10 @@ const today = new Date().toISOString().slice(0, 10);
 ---
 
 <Layout title="New Prompt - CMS - Free Prompt Base" noindex={true}>
- <div class="flex">
+ <div class="flex h-screen overflow-hidden">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 min-h-screen">
+ <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 overflow-y-auto h-screen">
  <!-- Breadcrumb -->
  <nav class="flex items-center gap-2 text-xs text-gray-500">
  <a href="/admin/cms/prompts" class="hover:text-text-primary transition-colors">Prompts</a>
@@ -56,6 +56,23 @@ const today = new Date().toISOString().slice(0, 10);
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-how-to-use">How to use (optional)</label>
  <textarea id="f-how-to-use" name="howToUse" rows="3" placeholder="Tips on substituting placeholders, tuning, etc." class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
  </div>
+ </div>
+
+ <!-- Images -->
+ <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div class="flex items-center justify-between gap-3">
+ <div>
+ <p class="text-sm font-semibold text-text-primary">Images</p>
+ <p class="text-xs text-gray-500 mt-0.5">Upload multiple images — they'll render as a carousel on the prompt page. First image is used as the card cover.</p>
+ </div>
+ <label class="bg-white text-text-primary px-3 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:border-primary transition-colors flex items-center gap-2 cursor-pointer shrink-0">
+ <span class="material-symbols-outlined text-base">add_photo_alternate</span>
+ Upload
+ <input id="image-input" type="file" accept="image/*" multiple class="hidden" />
+ </label>
+ </div>
+ <div id="image-status" class="text-xs text-gray-500 hidden"></div>
+ <div id="image-strip" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 empty:hidden"></div>
  </div>
  </div>
 
@@ -135,6 +152,59 @@ const today = new Date().toISOString().slice(0, 10);
  return (document.getElementById(id) as HTMLInputElement).checked;
  }
 
+ // --- Image gallery state ---
+ let images: string[] = [];
+
+ function renderStrip() {
+ const strip = document.getElementById('image-strip')!;
+ strip.innerHTML = images.map((url, i) => `
+ <div class="relative group rounded-md overflow-hidden border border-gray-200 aspect-square bg-gray-50">
+ <img src="${url}" alt="" class="w-full h-full object-cover" />
+ ${i === 0 ? '<span class="absolute top-1 left-1 bg-primary text-link text-[10px] font-semibold px-1.5 py-0.5 rounded-md uppercase tracking-wide">Cover</span>' : ''}
+ <button type="button" data-remove="${i}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-white/90 hover:bg-white text-gray-700 hover:text-red-600 flex items-center justify-center shadow-sm transition-colors" title="Remove">
+ <span class="material-symbols-outlined text-sm">close</span>
+ </button>
+ </div>
+ `).join('');
+ strip.querySelectorAll('button[data-remove]').forEach((btn) => {
+ btn.addEventListener('click', () => {
+ const idx = parseInt((btn as HTMLElement).dataset.remove || '0', 10);
+ images.splice(idx, 1);
+ renderStrip();
+ });
+ });
+ }
+
+ async function uploadFiles(files: FileList) {
+ const status = document.getElementById('image-status')!;
+ status.classList.remove('hidden');
+ const total = files.length;
+ let done = 0;
+ for (const file of Array.from(files)) {
+ done++;
+ status.textContent = `Uploading ${done} of ${total}…`;
+ const fd = new FormData();
+ fd.append('file', file);
+ fd.append('folder', 'prompts');
+ const res = await fetch('/api/admin/cms/media', { method: 'POST', body: fd });
+ if (!res.ok) {
+ const err = await res.json().catch(() => ({}));
+ status.textContent = `Upload failed: ${err.error || res.statusText}`;
+ return;
+ }
+ const data = await res.json();
+ if (data.url) images.push(data.url);
+ renderStrip();
+ }
+ status.classList.add('hidden');
+ (document.getElementById('image-input') as HTMLInputElement).value = '';
+ }
+
+ (document.getElementById('image-input') as HTMLInputElement).addEventListener('change', (e) => {
+ const target = e.target as HTMLInputElement;
+ if (target.files && target.files.length > 0) uploadFiles(target.files);
+ });
+
  async function save() {
  const btn = document.getElementById('save-btn') as HTMLButtonElement;
  btn.disabled = true;
@@ -152,6 +222,7 @@ const today = new Date().toISOString().slice(0, 10);
  author: val('f-author'),
  date: val('f-date'),
  coverImage: val('f-cover') || null,
+ images,
  featured: bool('f-featured'),
  popularity: parseInt(val('f-popularity') || '0', 10),
  howToUse: val('f-how-to-use') || null,

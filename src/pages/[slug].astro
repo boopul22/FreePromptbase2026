@@ -100,16 +100,32 @@ const promptSchema = {
 		</h1>
 		<p class="text-gray-600 text-lg mt-4">{prompt.description}</p>
 
-		<!-- Cover (only when provided) -->
+		<!-- Gallery / cover -->
 		{
-			prompt.coverImage && (
+			(prompt.images?.length ?? 0) > 1 ? (
+				<div class="mt-8">
+					<div
+						class="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 -mx-4 px-4 scroll-smooth"
+						style="scrollbar-width: thin;"
+					>
+						{prompt.images!.map((src, i) => (
+							<img
+								src={src}
+								alt={`${prompt.title} — image ${i + 1}`}
+								class="snap-center shrink-0 w-[88%] sm:w-[60%] md:w-[55%] rounded-base object-cover aspect-[4/3] bg-gray-100"
+								loading={i === 0 ? 'eager' : 'lazy'}
+							/>
+						))}
+					</div>
+				</div>
+			) : prompt.coverImage ? (
 				<img
 					src={prompt.coverImage}
 					alt={prompt.title}
 					class="w-full rounded-base mt-8 object-cover"
 					loading="lazy"
 				/>
-			)
+			) : null
 		}
 
 		<!-- The prompt + copy -->

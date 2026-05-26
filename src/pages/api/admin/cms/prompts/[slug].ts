@@ -15,13 +15,18 @@ interface PromptRow {
   author: string;
   date: string;
   cover_image: string | null;
+  images: string | null;
   featured: number;
   liked: number;
   popularity: number;
   how_to_use: string | null;
+  created_by: string | null;
   created_at: string;
   category_name?: string | null;
   category_emoji?: string | null;
+  creator_name?: string | null;
+  creator_avatar?: string | null;
+  creator_email?: string | null;
 }
 
 function mapRow(r: PromptRow) {
@@ -35,6 +40,7 @@ function mapRow(r: PromptRow) {
     categoryName: r.category_name ?? null,
     categoryEmoji: r.category_emoji ?? null,
     tags: safeJsonArray(r.tags),
+    images: safeJsonArray(r.images),
     author: r.author,
     date: r.date,
     coverImage: r.cover_image ?? null,
@@ -42,6 +48,10 @@ function mapRow(r: PromptRow) {
     liked: !!r.liked,
     popularity: r.popularity,
     howToUse: r.how_to_use ?? null,
+    createdBy: r.created_by ?? null,
+    createdByName: r.creator_name ?? null,
+    createdByAvatar: r.creator_avatar ?? null,
+    createdByEmail: r.creator_email ?? null,
     createdAt: r.created_at,
   };
 }
@@ -70,8 +80,12 @@ export const GET: APIRoute = async ({ params, locals }) => {
 
   const row = await db
     .prepare(
-      `SELECT p.*, c.name AS category_name, c.emoji AS category_emoji
-       FROM prompts p LEFT JOIN prompt_categories c ON p.category = c.slug
+      `SELECT p.*,
+              c.name AS category_name, c.emoji AS category_emoji,
+              u.name AS creator_name, u.avatar_url AS creator_avatar, u.email AS creator_email
+       FROM prompts p
+       LEFT JOIN prompt_categories c ON p.category = c.slug
+       LEFT JOIN users u ON p.created_by = u.id
        WHERE p.slug = ?`,
     )
     .bind(slug)
@@ -119,12 +133,26 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     }
   }
 
-  // Build UPDATE — fall back to existing values for omitted fields.
+  // Resolve images (new value, or keep existing). Auto-set cover_image to
+  // images[0] if cover_image is being cleared/empty but we have images.
+  const incomingImages = Array.isArray(body.images)
+    ? body.images.filter((s: any) => typeof s === 'string' && s.trim())
+    : null;
+  const finalImages = incomingImages ?? safeJsonArray(existing.images);
+
+  let finalCover: string | null;
+  if (body.coverImage !== undefined) {
+    finalCover = body.coverImage || (finalImages.length > 0 ? finalImages[0] : null);
+  } else {
+    finalCover = existing.cover_image;
+  }
+
   await db
     .prepare(
       `UPDATE prompts SET
         slug = ?, title = ?, description = ?, prompt_text = ?, model = ?, category = ?,
-        tags = ?, author = ?, date = ?, cover_image = ?, featured = ?, popularity = ?, how_to_use = ?
+        tags = ?, author = ?, date = ?, cover_image = ?, images = ?,
+        featured = ?, popularity = ?, how_to_use = ?
        WHERE slug = ?`,
     )
     .bind(
@@ -137,7 +165,8 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       JSON.stringify(Array.isArray(body.tags) ? body.tags : safeJsonArray(existing.tags)),
       body.author ?? existing.author,
       body.date ?? existing.date,
-      body.coverImage !== undefined ? body.coverImage || null : existing.cover_image,
+      finalCover,
+      JSON.stringify(finalImages),
       body.featured !== undefined ? (body.featured ? 1 : 0) : existing.featured,
       Number.isFinite(body.popularity) ? body.popularity : existing.popularity,
       body.howToUse !== undefined ? body.howToUse || null : existing.how_to_use,

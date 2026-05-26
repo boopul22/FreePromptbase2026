@@ -41,10 +41,12 @@ CREATE TABLE prompts (
 	author       TEXT NOT NULL DEFAULT 'Admin',
 	date         TEXT NOT NULL,
 	cover_image  TEXT,
+	images       TEXT NOT NULL DEFAULT '[]',  -- JSON array of image URLs for the carousel
 	featured     INTEGER NOT NULL DEFAULT 0,
 	liked        INTEGER NOT NULL DEFAULT 0,
 	popularity   INTEGER NOT NULL DEFAULT 0,
 	how_to_use   TEXT,
+	created_by   TEXT,                          -- FK to users.id (nullable for seed)
 	created_at   TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

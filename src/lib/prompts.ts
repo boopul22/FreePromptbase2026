@@ -37,13 +37,20 @@ interface PromptRow {
 	author: string;
 	date: string;
 	cover_image: string | null;
+	images: string | null;
 	featured: number;
 	liked: number;
 	popularity: number;
 	how_to_use: string | null;
+	created_by: string | null;
 }
 
 function rowToPrompt(r: PromptRow): Prompt {
+	let images: string[] = [];
+	try {
+		const parsed = JSON.parse(r.images || '[]');
+		if (Array.isArray(parsed)) images = parsed;
+	} catch {}
 	return {
 		slug: r.slug,
 		title: r.title,
@@ -55,15 +62,17 @@ function rowToPrompt(r: PromptRow): Prompt {
 		author: r.author,
 		date: r.date,
 		coverImage: r.cover_image ?? undefined,
+		images,
 		featured: !!r.featured,
 		liked: !!r.liked,
 		popularity: r.popularity,
 		howToUse: r.how_to_use ?? undefined,
+		createdBy: r.created_by ?? undefined,
 	};
 }
 
 const PROMPT_COLS =
-	'slug, title, description, prompt_text, model, category, tags, author, date, cover_image, featured, liked, popularity, how_to_use';
+	'slug, title, description, prompt_text, model, category, tags, author, date, cover_image, images, featured, liked, popularity, how_to_use, created_by';
 
 /** All prompts, newest first. */
 export async function getAllPrompts(): Promise<Prompt[]> {

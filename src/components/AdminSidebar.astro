@@ -26,7 +26,7 @@ const isActive = (it: { match: string }) =>
 		? path === '/admin/cms' || path === '/admin/cms/' || path.endsWith('/admin/cms.html')
 		: path.includes('/admin/cms/' + it.match);
 ---
-<aside class="hidden md:flex flex-col w-52 shrink-0 bg-white border-r border-gray-200 min-h-screen">
+<aside class="hidden md:flex flex-col w-52 shrink-0 bg-white border-r border-gray-200 h-screen sticky top-0">
 	<!-- Brand band -->
 	<a href="/admin/cms" class="flex items-center gap-2 px-4 py-4 border-b border-gray-200">
 		<svg class="w-6 h-6 text-primary shrink-0" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">

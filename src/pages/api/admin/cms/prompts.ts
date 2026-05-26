@@ -16,13 +16,18 @@ interface PromptRow {
   author: string;
   date: string;
   cover_image: string | null;
+  images: string | null;
   featured: number;
   liked: number;
   popularity: number;
   how_to_use: string | null;
+  created_by: string | null;
   created_at: string;
   category_name?: string | null;
   category_emoji?: string | null;
+  creator_name?: string | null;
+  creator_avatar?: string | null;
+  creator_email?: string | null;
 }
 
 function mapRow(r: PromptRow) {
@@ -36,6 +41,7 @@ function mapRow(r: PromptRow) {
     categoryName: r.category_name ?? null,
     categoryEmoji: r.category_emoji ?? null,
     tags: safeJsonArray(r.tags),
+    images: safeJsonArray(r.images),
     author: r.author,
     date: r.date,
     coverImage: r.cover_image ?? null,
@@ -43,6 +49,10 @@ function mapRow(r: PromptRow) {
     liked: !!r.liked,
     popularity: r.popularity,
     howToUse: r.how_to_use ?? null,
+    createdBy: r.created_by ?? null,
+    createdByName: r.creator_name ?? null,
+    createdByAvatar: r.creator_avatar ?? null,
+    createdByEmail: r.creator_email ?? null,
     createdAt: r.created_at,
   };
 }
@@ -101,8 +111,12 @@ export const GET: APIRoute = async ({ locals, url }) => {
 
   const rows = await db
     .prepare(
-      `SELECT p.*, c.name AS category_name, c.emoji AS category_emoji
-       FROM prompts p LEFT JOIN prompt_categories c ON p.category = c.slug
+      `SELECT p.*,
+              c.name AS category_name, c.emoji AS category_emoji,
+              u.name AS creator_name, u.avatar_url AS creator_avatar, u.email AS creator_email
+       FROM prompts p
+       LEFT JOIN prompt_categories c ON p.category = c.slug
+       LEFT JOIN users u ON p.created_by = u.id
        ${where} ORDER BY p.date DESC, p.created_at DESC LIMIT ? OFFSET ?`,
     )
     .bind(...params, limit, offset)
@@ -149,12 +163,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const today = new Date().toISOString().slice(0, 10);
 
+  const images: string[] = Array.isArray(body.images) ? body.images.filter((s: any) => typeof s === 'string' && s.trim()) : [];
+  // Auto-cover: if no explicit cover_image given but images were uploaded, use the first.
+  const coverImage = body.coverImage || (images.length > 0 ? images[0] : null);
+
   await db
     .prepare(
       `INSERT INTO prompts
         (slug, title, description, prompt_text, model, category, tags, author, date,
-         cover_image, featured, liked, popularity, how_to_use)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         cover_image, images, featured, liked, popularity, how_to_use, created_by)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       slug,
@@ -166,11 +184,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
       JSON.stringify(Array.isArray(body.tags) ? body.tags : []),
       body.author || locals.user.name,
       body.date || today,
-      body.coverImage || null,
+      coverImage,
+      JSON.stringify(images),
       body.featured ? 1 : 0,
       0,
       Number.isFinite(body.popularity) ? body.popularity : 0,
       body.howToUse || null,
+      locals.user.id,
     )
     .run();
 

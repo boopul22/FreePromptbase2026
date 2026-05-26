@@ -8,10 +8,10 @@ const slug = Astro.params.slug!;
 ---
 
 <Layout title="Edit Prompt - CMS - Free Prompt Base" noindex={true}>
- <div class="flex">
+ <div class="flex h-screen overflow-hidden">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 min-h-screen">
+ <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 overflow-y-auto h-screen">
  <!-- Breadcrumb -->
  <nav class="flex items-center gap-2 text-xs text-gray-500">
  <a href="/admin/cms/prompts" class="hover:text-text-primary transition-colors">Prompts</a>
@@ -22,10 +22,18 @@ const slug = Astro.params.slug!;
  <header class="flex items-center justify-between gap-4">
  <div>
  <h1 class="text-xl sm:text-2xl font-semibold text-text-primary" id="page-title">Edit prompt</h1>
- <a id="live-link" href="#" target="_blank" rel="noopener" class="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-1">
+ <div class="flex items-center gap-3 mt-1">
+ <a id="live-link" href="#" target="_blank" rel="noopener" class="text-xs text-primary hover:underline inline-flex items-center gap-1">
  <span class="material-symbols-outlined text-sm">open_in_new</span>
  <span data-slug></span>
  </a>
+ <span id="creator-meta" class="text-xs text-gray-500 hidden items-center gap-1.5">
+ <span>·</span>
+ <span>Added by</span>
+ <img id="creator-avatar" alt="" class="w-4 h-4 rounded-full object-cover hidden" />
+ <span id="creator-name" class="font-medium text-text-primary"></span>
+ </span>
+ </div>
  </div>
  <div class="flex gap-2">
  <a href="/admin/cms/prompts" class="px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>
@@ -60,6 +68,23 @@ const slug = Astro.params.slug!;
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-how-to-use">How to use (optional)</label>
  <textarea id="f-how-to-use" rows="3" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
  </div>
+ </div>
+
+ <!-- Images -->
+ <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div class="flex items-center justify-between gap-3">
+ <div>
+ <p class="text-sm font-semibold text-text-primary">Images</p>
+ <p class="text-xs text-gray-500 mt-0.5">Upload multiple images — they'll render as a carousel on the prompt page. First image is used as the card cover.</p>
+ </div>
+ <label class="bg-white text-text-primary px-3 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:border-primary transition-colors flex items-center gap-2 cursor-pointer shrink-0">
+ <span class="material-symbols-outlined text-base">add_photo_alternate</span>
+ Upload
+ <input id="image-input" type="file" accept="image/*" multiple class="hidden" />
+ </label>
+ </div>
+ <div id="image-status" class="text-xs text-gray-500 hidden"></div>
+ <div id="image-strip" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 empty:hidden"></div>
  </div>
 
  <!-- Danger zone -->
@@ -126,6 +151,58 @@ const slug = Astro.params.slug!;
 </Layout>
 
 <script define:vars={{ slug }}>
+ // --- Image gallery state ---
+ let images = [];
+
+ function renderStrip() {
+ const strip = document.getElementById('image-strip');
+ strip.innerHTML = images.map((url, i) => `
+ <div class="relative group rounded-md overflow-hidden border border-gray-200 aspect-square bg-gray-50">
+ <img src="${url}" alt="" class="w-full h-full object-cover" />
+ ${i === 0 ? '<span class="absolute top-1 left-1 bg-primary text-link text-[10px] font-semibold px-1.5 py-0.5 rounded-md uppercase tracking-wide">Cover</span>' : ''}
+ <button type="button" data-remove="${i}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-white/90 hover:bg-white text-gray-700 hover:text-red-600 flex items-center justify-center shadow-sm transition-colors" title="Remove">
+ <span class="material-symbols-outlined text-sm">close</span>
+ </button>
+ </div>
+ `).join('');
+ strip.querySelectorAll('button[data-remove]').forEach((btn) => {
+ btn.addEventListener('click', () => {
+ const idx = parseInt(btn.dataset.remove || '0', 10);
+ images.splice(idx, 1);
+ renderStrip();
+ });
+ });
+ }
+
+ async function uploadFiles(files) {
+ const status = document.getElementById('image-status');
+ status.classList.remove('hidden');
+ const total = files.length;
+ let done = 0;
+ for (const file of Array.from(files)) {
+ done++;
+ status.textContent = `Uploading ${done} of ${total}…`;
+ const fd = new FormData();
+ fd.append('file', file);
+ fd.append('folder', 'prompts');
+ const res = await fetch('/api/admin/cms/media', { method: 'POST', body: fd });
+ if (!res.ok) {
+ const err = await res.json().catch(() => ({}));
+ status.textContent = `Upload failed: ${err.error || res.statusText}`;
+ return;
+ }
+ const data = await res.json();
+ if (data.url) images.push(data.url);
+ renderStrip();
+ }
+ status.classList.add('hidden');
+ document.getElementById('image-input').value = '';
+ }
+
+ document.getElementById('image-input').addEventListener('change', (e) => {
+ if (e.target.files && e.target.files.length > 0) uploadFiles(e.target.files);
+ });
+
  async function boot() {
  // Load categories + prompt in parallel
  const [catRes, promptRes] = await Promise.all([
@@ -141,6 +218,10 @@ const slug = Astro.params.slug!;
  const catData = await catRes.json();
  const promptData = await promptRes.json();
  const p = promptData.prompt;
+
+ // Seed gallery
+ images = Array.isArray(p.images) ? p.images.slice() : [];
+ renderStrip();
 
  // Populate category dropdown
  const catSel = document.getElementById('f-category');
@@ -158,6 +239,20 @@ const slug = Astro.params.slug!;
  const live = document.getElementById('live-link');
  live.href = `/${p.slug}`;
  live.querySelector('[data-slug]').textContent = `/${p.slug}`;
+
+ // Creator metadata
+ const creatorMeta = document.getElementById('creator-meta');
+ if (p.createdByName || p.author) {
+ creatorMeta.classList.remove('hidden');
+ creatorMeta.classList.add('inline-flex');
+ const name = p.createdByName || p.author;
+ document.getElementById('creator-name').textContent = name;
+ const av = document.getElementById('creator-avatar');
+ if (p.createdByAvatar) {
+ av.src = p.createdByAvatar;
+ av.classList.remove('hidden');
+ }
+ }
  document.getElementById('f-title').value = p.title;
  document.getElementById('f-slug').value = p.slug;
  document.getElementById('f-description').value = p.description || '';
@@ -192,6 +287,7 @@ const slug = Astro.params.slug!;
  author: v('f-author'),
  date: v('f-date'),
  coverImage: v('f-cover') || null,
+ images,
  featured: b('f-featured'),
  popularity: parseInt(v('f-popularity') || '0', 10),
  howToUse: v('f-how-to-use') || null,

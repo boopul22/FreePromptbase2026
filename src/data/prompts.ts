@@ -30,6 +30,10 @@ export interface Prompt {
 	popularity: number;
 	/** Optional extra guidance rendered on the detail page. */
 	howToUse?: string;
+	/** Image gallery rendered as a carousel on the detail page. cover_image is used for cards. */
+	images?: string[];
+	/** users.id of the admin who added this prompt (null for seed entries). */
+	createdBy?: string;
 }
 
 export const prompts: Prompt[] = [
