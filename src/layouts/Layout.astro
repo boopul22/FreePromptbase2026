@@ -7,12 +7,15 @@ interface Props {
 	description?: string;
 	/** Optional page-specific JSON-LD (e.g. CreativeWork on a prompt page). */
 	schema?: Record<string, unknown>;
+	/** Set to true on admin/CMS pages to add a noindex meta + load Material Symbols. */
+	noindex?: boolean;
 }
 
 const {
 	title = 'Free Prompt Base — Curated AI prompts you can copy and use',
 	description = 'A free, curated library of ready-to-use prompts for ChatGPT, Midjourney, Claude and Gemini. Find one, copy it, create.',
 	schema,
+	noindex = false,
 } = Astro.props;
 
 const siteUrl = (Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '');
@@ -66,6 +69,14 @@ const websiteSchema = {
 
 		<Font cssVariable="--font-rubik" preload />
 		<title>{title}</title>
+
+		{noindex && <meta name="robots" content="noindex, nofollow" />}
+		{noindex && (
+			<link
+				href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+				rel="stylesheet"
+			/>
+		)}
 
 		<!-- Structured data -->
 		<script

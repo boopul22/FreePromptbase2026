@@ -1,0 +1,853 @@
+---
+export const prerender = false;
+
+import Layout from '../../../../../layouts/Layout.astro';
+
+const { id } = Astro.params;
+---
+
+<Layout title="Edit Post - CMS - Free Prompt Base" noindex={true}>
+  <div class="fixed inset-0 flex flex-col bg-surface-container-lowest z-50" data-post-id={id}>
+    <!-- Top Bar -->
+    <div class="flex-none flex items-center justify-between px-3 sm:px-5 py-2.5 border-b-2 border-on-surface bg-surface">
+      <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+        <button type="button" id="back-btn" class="flex-none w-9 h-9 rounded-xl border-2 border-on-surface flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container-highest transition-colors">
+          <span class="material-symbols-outlined text-lg">arrow_back</span>
+        </button>
+        <h1 id="page-title" class="font-headline text-sm sm:text-base font-black text-on-surface truncate">Edit Post</h1>
+        <span id="status-badge" class="hidden sm:inline px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase"></span>
+        <span id="save-status" class="hidden sm:inline text-[10px] text-outline"></span>
+      </div>
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <span id="error-msg" class="text-error text-xs max-w-32 truncate hidden lg:inline"></span>
+        <button id="save-btn" type="button" class="px-3 py-1.5 border-2 border-on-surface rounded-xl font-label text-xs font-bold uppercase tracking-wider hover:bg-surface-container-highest active:scale-95 transition-all">
+          Save
+        </button>
+        <button id="translate-btn" type="button" title="Auto-translate to all languages via OpenRouter" class="px-3 py-1.5 border-2 border-on-surface rounded-xl font-label text-xs font-bold uppercase tracking-wider hover:bg-surface-container-highest active:scale-95 transition-all flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-base">translate</span>
+          <span id="translate-btn-label">Translate</span>
+        </button>
+        <button id="publish-toggle-btn" type="button" class="px-3 py-1.5 bg-primary text-on-primary border-2 border-on-surface rounded-xl font-label text-xs font-bold uppercase tracking-wider hard-shadow hover:-translate-y-0.5 active:scale-95 transition-all">
+          Publish
+        </button>
+        <a id="view-post-link" href="#" class="hidden w-9 h-9 flex items-center justify-center rounded-xl border-2 border-on-surface hover:bg-surface-container-highest transition-colors" title="View post">
+          <span class="material-symbols-outlined text-lg">open_in_new</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Mobile status bar -->
+    <div class="flex-none sm:hidden flex items-center justify-between px-3 py-1.5 border-b border-outline-variant/30 bg-surface">
+      <div class="flex items-center gap-2">
+        <span id="status-badge-mobile" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase"></span>
+        <span id="save-status-mobile" class="text-[10px] text-outline"></span>
+      </div>
+    </div>
+
+    <!-- Mobile Tabs -->
+    <div class="flex-none sm:hidden flex border-b-2 border-on-surface">
+      <button type="button" data-mobile-tab="details" class="mobile-tab flex-1 px-2 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 -mb-px flex items-center justify-center gap-1.5 border-on-surface text-on-surface">
+        <span class="material-symbols-outlined text-sm">tune</span> Details
+      </button>
+      <button type="button" data-mobile-tab="editor" class="mobile-tab flex-1 px-2 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 -mb-px flex items-center justify-center gap-1.5 border-transparent text-outline">
+        <span class="material-symbols-outlined text-sm">edit</span> Write
+      </button>
+      <button type="button" data-mobile-tab="preview" class="mobile-tab flex-1 px-2 py-2.5 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 -mb-px flex items-center justify-center gap-1.5 border-transparent text-outline">
+        <span class="material-symbols-outlined text-sm">visibility</span> Preview
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="flex-1 flex min-h-0 relative">
+      <!-- Desktop: Left Sidebar (metadata) -->
+      <div class="hidden sm:block flex-none w-72 xl:w-80 border-r-2 border-on-surface overflow-y-auto p-3 space-y-2.5 bg-surface no-scrollbar" id="left-sidebar">
+        <div id="metadata-fields"></div>
+      </div>
+
+      <!-- Desktop: Right panel -->
+      <div class="hidden sm:flex flex-1 flex-col min-w-0">
+        <div class="flex-none flex items-center border-b-2 border-on-surface px-1 bg-surface">
+          <button type="button" data-tab="editor" class="desktop-tab px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 -mb-px flex items-center gap-1.5 border-on-surface text-on-surface">
+            <span class="material-symbols-outlined text-sm">edit</span> Write
+          </button>
+          <button type="button" data-tab="preview" class="desktop-tab px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors border-b-2 -mb-px flex items-center gap-1.5 border-transparent text-outline hover:text-on-surface">
+            <span class="material-symbols-outlined text-sm">visibility</span> Preview
+          </button>
+        </div>
+        <div id="desktop-editor" class="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <div id="editor-toolbar" class="flex-none flex flex-wrap items-center gap-0.5 px-2 sm:px-3 py-1.5 bg-surface-container border-b border-outline-variant/50 overflow-x-auto">
+            <button type="button" data-action="h2" title="Heading 2" class="tb-btn font-bold text-xs">H2</button>
+            <button type="button" data-action="h3" title="Heading 3" class="tb-btn font-bold text-xs">H3</button>
+            <div class="tb-divider"></div>
+            <button type="button" data-action="bold" title="Bold" class="tb-btn"><span class="material-symbols-outlined text-base">format_bold</span></button>
+            <button type="button" data-action="italic" title="Italic" class="tb-btn"><span class="material-symbols-outlined text-base">format_italic</span></button>
+            <div class="tb-divider"></div>
+            <button type="button" data-action="bulletList" title="Bullet List" class="tb-btn"><span class="material-symbols-outlined text-base">format_list_bulleted</span></button>
+            <button type="button" data-action="orderedList" title="Ordered List" class="tb-btn"><span class="material-symbols-outlined text-base">format_list_numbered</span></button>
+            <div class="tb-divider"></div>
+            <button type="button" data-action="blockquote" title="Blockquote" class="tb-btn"><span class="material-symbols-outlined text-base">format_quote</span></button>
+            <button type="button" data-action="link" title="Link" class="tb-btn"><span class="material-symbols-outlined text-base">link</span></button>
+            <button type="button" data-action="image" title="Insert Image" class="tb-btn"><span class="material-symbols-outlined text-base">image</span></button>
+            <button type="button" data-action="horizontalRule" title="Horizontal Rule" class="tb-btn"><span class="material-symbols-outlined text-base">horizontal_rule</span></button>
+            <button type="button" data-action="table" title="Insert Table" class="tb-btn"><span class="material-symbols-outlined text-base">table</span></button>
+            <div class="tb-divider"></div>
+            <button type="button" data-action="undo" title="Undo" class="tb-btn"><span class="material-symbols-outlined text-base">undo</span></button>
+            <button type="button" data-action="redo" title="Redo" class="tb-btn"><span class="material-symbols-outlined text-base">redo</span></button>
+          </div>
+          <div id="table-toolbar" class="hidden flex-none flex-wrap items-center gap-1 px-2 sm:px-3 py-1.5 bg-primary/5 border-b border-primary/30 overflow-x-auto">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-primary mr-1 flex-none">Table</span>
+            <button type="button" data-action="addRowBefore" title="Insert a new row above the current row" class="tt-btn"><span class="material-symbols-outlined text-sm">keyboard_double_arrow_up</span>+ Row Above</button>
+            <button type="button" data-action="addRowAfter" title="Insert a new row below the current row" class="tt-btn"><span class="material-symbols-outlined text-sm">keyboard_double_arrow_down</span>+ Row Below</button>
+            <button type="button" data-action="deleteRow" title="Delete the current row" class="tt-btn tt-btn--danger"><span class="material-symbols-outlined text-sm">remove</span>Row</button>
+            <div class="tb-divider"></div>
+            <button type="button" data-action="addColumnBefore" title="Insert a new column to the left" class="tt-btn"><span class="material-symbols-outlined text-sm">keyboard_double_arrow_left</span>+ Col Left</button>
+            <button type="button" data-action="addColumnAfter" title="Insert a new column to the right" class="tt-btn"><span class="material-symbols-outlined text-sm">keyboard_double_arrow_right</span>+ Col Right</button>
+            <button type="button" data-action="deleteColumn" title="Delete the current column" class="tt-btn tt-btn--danger"><span class="material-symbols-outlined text-sm">remove</span>Col</button>
+            <div class="tb-divider"></div>
+            <button type="button" data-action="toggleHeaderRow" title="Turn the top row into a header (or remove header)" class="tt-btn"><span class="material-symbols-outlined text-sm">view_headline</span>Header Row</button>
+            <div class="tb-divider"></div>
+            <button type="button" data-action="deleteTable" title="Delete the whole table" class="tt-btn tt-btn--nuke"><span class="material-symbols-outlined text-sm">delete</span>Delete Table</button>
+          </div>
+          <div id="editor-content" class="flex-1 min-h-0 overflow-y-auto"></div>
+          <input type="file" accept="image/jpeg,image/png,image/gif,image/webp,image/svg+xml" class="hidden" id="editor-image-upload" />
+        </div>
+        <div id="desktop-preview" class="flex-1 min-h-0 overflow-y-auto p-8 hidden">
+          <div id="preview-content" class="prose prose-on-surface max-w-3xl mx-auto"></div>
+        </div>
+      </div>
+
+      <!-- Mobile: Editor panel -->
+      <div id="mobile-editor" class="sm:hidden flex-1 flex flex-col min-w-0 hidden">
+        <div id="editor-toolbar-mobile" class="flex-none flex flex-wrap items-center gap-0.5 px-2 py-1.5 bg-surface-container border-b border-outline-variant/50 overflow-x-auto">
+          <button type="button" data-action="h2" title="Heading 2" class="tb-btn font-bold text-xs">H2</button>
+          <button type="button" data-action="h3" title="Heading 3" class="tb-btn font-bold text-xs">H3</button>
+          <div class="tb-divider"></div>
+          <button type="button" data-action="bold" title="Bold" class="tb-btn"><span class="material-symbols-outlined text-base">format_bold</span></button>
+          <button type="button" data-action="italic" title="Italic" class="tb-btn"><span class="material-symbols-outlined text-base">format_italic</span></button>
+          <div class="tb-divider"></div>
+          <button type="button" data-action="blockquote" title="Blockquote" class="tb-btn"><span class="material-symbols-outlined text-base">format_quote</span></button>
+          <button type="button" data-action="link" title="Link" class="tb-btn"><span class="material-symbols-outlined text-base">link</span></button>
+          <button type="button" data-action="image" title="Insert Image" class="tb-btn"><span class="material-symbols-outlined text-base">image</span></button>
+          <button type="button" data-action="table" title="Insert Table" class="tb-btn"><span class="material-symbols-outlined text-base">table</span></button>
+          <div class="tb-divider"></div>
+          <button type="button" data-action="undo" title="Undo" class="tb-btn"><span class="material-symbols-outlined text-base">undo</span></button>
+          <button type="button" data-action="redo" title="Redo" class="tb-btn"><span class="material-symbols-outlined text-base">redo</span></button>
+        </div>
+        <div id="table-toolbar-mobile" class="hidden flex-none flex-wrap items-center gap-1 px-2 py-1.5 bg-primary/5 border-b border-primary/30 overflow-x-auto">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-primary mr-1 flex-none">Table</span>
+          <button type="button" data-action="addRowBefore" title="Insert a new row above the current row" class="tt-btn"><span class="material-symbols-outlined text-sm">keyboard_double_arrow_up</span>+ Row Above</button>
+          <button type="button" data-action="addRowAfter" title="Insert a new row below the current row" class="tt-btn"><span class="material-symbols-outlined text-sm">keyboard_double_arrow_down</span>+ Row Below</button>
+          <button type="button" data-action="deleteRow" title="Delete the current row" class="tt-btn tt-btn--danger"><span class="material-symbols-outlined text-sm">remove</span>Row</button>
+          <div class="tb-divider"></div>
+          <button type="button" data-action="addColumnBefore" title="Insert a new column to the left" class="tt-btn"><span class="material-symbols-outlined text-sm">keyboard_double_arrow_left</span>+ Col Left</button>
+          <button type="button" data-action="addColumnAfter" title="Insert a new column to the right" class="tt-btn"><span class="material-symbols-outlined text-sm">keyboard_double_arrow_right</span>+ Col Right</button>
+          <button type="button" data-action="deleteColumn" title="Delete the current column" class="tt-btn tt-btn--danger"><span class="material-symbols-outlined text-sm">remove</span>Col</button>
+          <div class="tb-divider"></div>
+          <button type="button" data-action="toggleHeaderRow" title="Turn the top row into a header (or remove header)" class="tt-btn"><span class="material-symbols-outlined text-sm">view_headline</span>Header</button>
+          <div class="tb-divider"></div>
+          <button type="button" data-action="deleteTable" title="Delete the whole table" class="tt-btn tt-btn--nuke"><span class="material-symbols-outlined text-sm">delete</span>Delete Table</button>
+        </div>
+        <div id="editor-content-mobile" class="flex-1 min-h-0 overflow-y-auto"></div>
+      </div>
+
+      <!-- Mobile: Preview panel -->
+      <div id="mobile-preview" class="sm:hidden flex-1 overflow-y-auto p-4 hidden">
+        <div id="preview-content-mobile" class="prose prose-on-surface max-w-none text-sm"></div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<template id="metadata-template">
+  <div class="space-y-2.5">
+    <input id="post-title" type="text" placeholder="Post title" class="sf-input !font-bold !text-on-surface" />
+
+    <div>
+      <span class="sf-label">Slug</span>
+      <input id="post-slug" type="text" placeholder="auto-generated" class="sf-input !text-xs text-outline" />
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <span class="sf-label">Author</span>
+        <input id="post-author-name" type="text" class="sf-input" />
+      </div>
+      <div>
+        <span class="sf-label">Role</span>
+        <input id="post-author-role" type="text" class="sf-input" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2">
+      <div>
+        <span class="sf-label">Category</span>
+        <select id="post-category" class="sf-input">
+          <option value="">Select...</option>
+        </select>
+      </div>
+      <div>
+        <span class="sf-label">Icon Fallback</span>
+        <input id="post-icon-fallback" type="text" placeholder="article" class="sf-input" />
+      </div>
+    </div>
+
+    <div>
+      <span class="sf-label">Featured Image</span>
+      <div class="flex gap-1.5">
+        <input id="post-cover-image" type="text" placeholder="URL or upload" class="sf-input flex-1 !text-xs" />
+        <input type="file" accept="image/*" class="hidden" id="cover-upload" />
+        <button type="button" id="cover-upload-btn" class="flex-none w-8 h-[30px] rounded-lg border-2 border-outline-variant flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container-highest transition-colors">
+          <span class="material-symbols-outlined text-sm">upload</span>
+        </button>
+      </div>
+      <div id="cover-preview" class="hidden mt-1.5">
+        <img id="cover-img" class="rounded-lg h-20 w-full object-cover border-2 border-outline-variant" />
+      </div>
+    </div>
+
+    <div>
+      <span class="sf-label">Avatar URL</span>
+      <input id="post-author-avatar" type="text" placeholder="https://..." class="sf-input !text-xs" />
+    </div>
+
+    <div>
+      <span class="sf-label">Icon Background</span>
+      <input id="post-icon-bg" type="text" placeholder="bg-primary-fixed" class="sf-input !text-xs" />
+    </div>
+
+    <label class="flex items-center gap-2.5 cursor-pointer py-1">
+      <input id="post-featured" type="checkbox" class="w-4 h-4 rounded border-2 border-on-surface accent-primary" />
+      <span class="sf-label !mb-0">Featured Post</span>
+    </label>
+
+    <div>
+      <span class="sf-label">Related</span>
+      <div id="related-list" class="mt-1 flex flex-wrap gap-1"></div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="pt-2 border-t border-outline-variant/50">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="sf-label !mb-0">FAQ</span>
+        <button type="button" id="add-faq-btn" class="flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold text-primary hover:bg-primary/10 transition-colors">
+          <span class="material-symbols-outlined text-xs">add_circle</span> Add
+        </button>
+      </div>
+      <div id="faq-list" class="space-y-2">
+        <p id="faq-empty" class="text-[10px] text-outline italic">No FAQ items yet</p>
+      </div>
+    </div>
+
+    <div class="pt-2 border-t border-outline-variant/50">
+      <span class="sf-label">Meta Title</span>
+      <input id="post-meta-title" type="text" class="sf-input !text-xs" />
+    </div>
+    <div>
+      <span class="sf-label">Meta Description</span>
+      <textarea id="post-meta-description" placeholder="Meta description for search engines..." rows="2" class="sf-input resize-none !text-xs"></textarea>
+    </div>
+
+    <div id="published-info" class="hidden pt-1 border-t border-outline-variant/50">
+      <span class="sf-label">Published</span>
+      <p id="published-date" class="text-xs text-outline"></p>
+    </div>
+  </div>
+</template>
+
+<style>
+  .sf-label {
+    display: block; font-size: 0.625rem; color: var(--color-outline);
+    text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 0.125rem;
+  }
+  .sf-input {
+    width: 100%; padding: 0.3rem 0.5rem;
+    background: var(--color-surface-container-lowest);
+    border: 1.5px solid var(--color-outline-variant);
+    border-radius: 0.5rem; color: var(--color-on-surface);
+    font-size: 0.75rem; transition: border-color 0.15s;
+  }
+  .sf-input:focus { outline: none; border-color: var(--color-primary); }
+  .sf-input::placeholder { color: var(--color-outline); opacity: 0.5; }
+  @media (max-width: 639px) {
+    .sf-input { padding: 0.5rem 0.625rem; font-size: 1rem; border-radius: 0.625rem; }
+    .sf-label { font-size: 0.6875rem; margin-bottom: 0.25rem; }
+  }
+
+  .tb-btn {
+    width: 2rem; height: 2rem; border-radius: 0.5rem;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-outline); transition: all 0.15s;
+    cursor: pointer; border: none; background: none;
+  }
+  .tb-btn:hover { background: var(--color-surface-container-highest); color: var(--color-on-surface); }
+  .tb-btn.is-active { background: var(--color-primary); color: var(--color-on-primary); }
+  .tb-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  @media (max-width: 639px) { .tb-btn { width: 2.25rem; height: 2.25rem; } }
+  .tb-divider { width: 1px; height: 1.5rem; background: var(--color-outline-variant); margin: 0 0.25rem; align-self: center; }
+
+  /* Contextual table toolbar buttons (shown only when cursor is inside a table) */
+  #table-toolbar:not(.hidden), #table-toolbar-mobile:not(.hidden) { display: flex; }
+  .tt-btn {
+    display: inline-flex; align-items: center; gap: 0.25rem;
+    height: 1.75rem; padding: 0 0.5rem; border-radius: 0.375rem;
+    font-size: 0.6875rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.03em; color: var(--color-on-surface); white-space: nowrap;
+    background: var(--color-surface-container-lowest);
+    border: 1.5px solid var(--color-outline-variant);
+    cursor: pointer; transition: all 0.12s; flex: none;
+  }
+  .tt-btn:hover { background: var(--color-surface-container-highest); border-color: var(--color-on-surface); }
+  .tt-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .tt-btn .material-symbols-outlined { font-size: 1rem; line-height: 1; }
+  .tt-btn--danger { color: #b91c1c; border-color: #fca5a5; background: #fef2f2; }
+  .tt-btn--danger:hover { background: #fee2e2; border-color: #b91c1c; }
+  .tt-btn--nuke { color: #fff; border-color: #b91c1c; background: #b91c1c; }
+  .tt-btn--nuke:hover { background: #991b1b; border-color: #991b1b; }
+  @media (max-width: 639px) {
+    .tt-btn { height: 2rem; font-size: 0.75rem; padding: 0 0.625rem; }
+  }
+
+  :global(.tiptap) {
+    min-height: 100%; padding: 1.5rem 2rem;
+    color: var(--color-on-surface); font-size: 0.9375rem;
+    line-height: 1.75; outline: none; max-width: 48rem; margin: 0 auto;
+  }
+  @media (max-width: 639px) { :global(.tiptap) { padding: 1rem; font-size: 1rem; } }
+  :global(.tiptap h2) { font-weight: 900; font-style: italic; font-size: 1.5rem; margin: 1.5rem 0 0.75rem; color: var(--color-primary); font-family: var(--font-headline), serif; }
+  :global(.tiptap h3) { font-weight: 700; font-size: 1.25rem; margin: 1.25rem 0 0.5rem; color: var(--color-on-surface); font-family: var(--font-headline), serif; }
+  :global(.tiptap p) { margin-bottom: 0.75rem; }
+  :global(.tiptap ul) { list-style: disc; padding-left: 1.25rem; margin: 0.75rem 0; }
+  :global(.tiptap ol) { list-style: decimal; padding-left: 1.25rem; margin: 0.75rem 0; }
+  :global(.tiptap li) { margin-bottom: 0.375rem; }
+  :global(.tiptap blockquote) { border-left: 4px solid var(--color-primary); background: var(--color-surface-container); padding: 0.75rem 1rem; margin: 1rem 0; border-radius: 0 0.5rem 0.5rem 0; font-style: italic; }
+  :global(.tiptap a) { color: var(--color-primary); text-decoration: underline; cursor: pointer; }
+  :global(.tiptap hr) { border-color: var(--color-outline-variant); margin: 1.5rem 0; }
+  :global(.tiptap img) { max-width: 100%; height: auto; border-radius: 0.75rem; border: 2px solid var(--color-outline-variant); margin: 1rem 0; }
+  :global(.tiptap p.is-editor-empty:first-child::before) { content: attr(data-placeholder); color: var(--color-outline); opacity: 0.4; pointer-events: none; float: left; height: 0; }
+  :global(.tiptap table) { border-collapse: collapse; width: 100%; margin: 1rem 0; border: 2px solid var(--color-outline-variant); border-radius: 0.5rem; overflow: hidden; }
+  :global(.tiptap th) { background: var(--color-surface-container); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.5rem 0.75rem; border: 1px solid var(--color-outline-variant); text-align: left; }
+  :global(.tiptap td) { padding: 0.5rem 0.75rem; border: 1px solid var(--color-outline-variant); vertical-align: top; }
+  :global(.tiptap .selectedCell:after) { background: var(--color-primary); opacity: 0.1; content: ''; left: 0; right: 0; top: 0; bottom: 0; pointer-events: none; position: absolute; z-index: 2; }
+  :global(.tiptap .tableWrapper) { overflow-x: auto; }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+<script>
+  import { Editor } from '@tiptap/core';
+  import StarterKit from '@tiptap/starter-kit';
+  import Link from '@tiptap/extension-link';
+  import Image from '@tiptap/extension-image';
+  import Placeholder from '@tiptap/extension-placeholder';
+  import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table';
+
+  const postId = document.querySelector('[data-post-id]')!.getAttribute('data-post-id')!;
+  let relatedSlugs: string[] = [];
+  let allPosts: any[] = [];
+  let currentPostStatus = 'draft';
+  let currentSlug = '';
+
+  // --- Clone metadata template ---
+  const template = document.getElementById('metadata-template') as HTMLTemplateElement;
+  document.getElementById('metadata-fields')!.appendChild(template.content.cloneNode(true));
+
+  // --- TipTap Editor ---
+  const editor = new Editor({
+    element: document.querySelector('#editor-content')!,
+    extensions: [
+      StarterKit.configure({ heading: { levels: [2, 3] } }),
+      Link.configure({ openOnClick: false, autolink: true, HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' } }),
+      Image.configure({ inline: false, allowBase64: false }),
+      Placeholder.configure({ placeholder: 'Start writing your post content...' }),
+      Table.configure({ resizable: false }),
+      TableRow,
+      TableHeader,
+      TableCell,
+    ],
+    content: '',
+    onUpdate: () => updatePreview(),
+  });
+
+  // --- Tabs ---
+  document.querySelectorAll('.desktop-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = (btn as HTMLElement).dataset.tab;
+      document.querySelectorAll('.desktop-tab').forEach(b => {
+        b.classList.toggle('border-on-surface', (b as HTMLElement).dataset.tab === tab);
+        b.classList.toggle('text-on-surface', (b as HTMLElement).dataset.tab === tab);
+        b.classList.toggle('border-transparent', (b as HTMLElement).dataset.tab !== tab);
+        b.classList.toggle('text-outline', (b as HTMLElement).dataset.tab !== tab);
+      });
+      document.getElementById('desktop-editor')!.classList.toggle('hidden', tab !== 'editor');
+      document.getElementById('desktop-preview')!.classList.toggle('hidden', tab !== 'preview');
+      if (tab === 'preview') updatePreview();
+    });
+  });
+
+  const leftSidebar = document.getElementById('left-sidebar')!;
+  const mobileEditorPanel = document.getElementById('mobile-editor')!;
+  const mobilePreviewPanel = document.getElementById('mobile-preview')!;
+  const mobileEditorContent = document.getElementById('editor-content-mobile')!;
+
+  function setMobileTab(tab: string) {
+    document.querySelectorAll('.mobile-tab').forEach(b => {
+      const isActive = (b as HTMLElement).dataset.mobileTab === tab;
+      b.classList.toggle('border-on-surface', isActive);
+      b.classList.toggle('text-on-surface', isActive);
+      b.classList.toggle('border-transparent', !isActive);
+      b.classList.toggle('text-outline', !isActive);
+    });
+
+    const showDetails = tab === 'details';
+    leftSidebar.style.display = showDetails ? 'block' : '';
+    leftSidebar.style.width = showDetails ? '100%' : '';
+    leftSidebar.style.flex = showDetails ? '1' : '';
+
+    mobileEditorPanel.classList.toggle('hidden', tab !== 'editor');
+    mobilePreviewPanel.classList.toggle('hidden', tab !== 'preview');
+
+    if (tab === 'editor') {
+      const tiptap = document.querySelector('#editor-content .tiptap');
+      if (tiptap) mobileEditorContent.appendChild(tiptap);
+    } else {
+      const tiptap = mobileEditorContent.querySelector('.tiptap');
+      if (tiptap) document.getElementById('editor-content')!.appendChild(tiptap);
+    }
+    if (tab === 'preview') updatePreview();
+  }
+
+  document.querySelectorAll('.mobile-tab').forEach(btn => {
+    btn.addEventListener('click', () => setMobileTab((btn as HTMLElement).dataset.mobileTab!));
+  });
+
+  // Set initial mobile state
+  if (window.innerWidth < 640) {
+    setMobileTab('details');
+  }
+
+  function updatePreview() {
+    const html = editor.getHTML();
+    const placeholder = '<p class="text-outline italic">Preview will appear here...</p>';
+    const el = document.getElementById('preview-content');
+    if (el) el.innerHTML = html || placeholder;
+    const elM = document.getElementById('preview-content-mobile');
+    if (elM) elM.innerHTML = html || placeholder;
+  }
+
+  // --- Toolbar ---
+  const imageInput = document.getElementById('editor-image-upload') as HTMLInputElement;
+
+  function wireToolbar(toolbarEl: HTMLElement) {
+    toolbarEl.addEventListener('mousedown', (e) => {
+      if ((e.target as HTMLElement).closest('button[data-action]')) e.preventDefault();
+    });
+    toolbarEl.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('button[data-action]') as HTMLButtonElement | null;
+      if (!btn) return;
+      handleAction(btn.dataset.action!);
+      updateToolbars();
+    });
+  }
+
+  function handleAction(action: string) {
+    switch (action) {
+      case 'h2': editor.chain().focus().toggleHeading({ level: 2 }).run(); break;
+      case 'h3': editor.chain().focus().toggleHeading({ level: 3 }).run(); break;
+      case 'bold': editor.chain().focus().toggleBold().run(); break;
+      case 'italic': editor.chain().focus().toggleItalic().run(); break;
+      case 'bulletList': editor.chain().focus().toggleBulletList().run(); break;
+      case 'orderedList': editor.chain().focus().toggleOrderedList().run(); break;
+      case 'blockquote': editor.chain().focus().toggleBlockquote().run(); break;
+      case 'link': {
+        const prev = editor.getAttributes('link').href;
+        const url = window.prompt('Enter URL:', prev || 'https://');
+        if (url === null) break;
+        if (url === '') { editor.chain().focus().extendMarkRange('link').unsetLink().run(); break; }
+        editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+        break;
+      }
+      case 'image': imageInput.click(); break;
+      case 'horizontalRule': editor.chain().focus().setHorizontalRule().run(); break;
+      case 'table': editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(); break;
+      case 'addRowBefore': editor.chain().focus().addRowBefore().run(); break;
+      case 'addRowAfter': editor.chain().focus().addRowAfter().run(); break;
+      case 'deleteRow': editor.chain().focus().deleteRow().run(); break;
+      case 'addColumnBefore': editor.chain().focus().addColumnBefore().run(); break;
+      case 'addColumnAfter': editor.chain().focus().addColumnAfter().run(); break;
+      case 'deleteColumn': editor.chain().focus().deleteColumn().run(); break;
+      case 'toggleHeaderRow': editor.chain().focus().toggleHeaderRow().run(); break;
+      case 'deleteTable':
+        if (window.confirm('Delete the entire table? You can press Ctrl+Z (Cmd+Z on Mac) to undo.')) {
+          editor.chain().focus().deleteTable().run();
+        }
+        break;
+      case 'undo': editor.chain().focus().undo().run(); break;
+      case 'redo': editor.chain().focus().redo().run(); break;
+    }
+  }
+
+  function updateToolbars() {
+    document.querySelectorAll('#editor-toolbar .tb-btn, #editor-toolbar-mobile .tb-btn').forEach((btn) => {
+      const a = (btn as HTMLElement).dataset.action;
+      let active = false;
+      switch (a) {
+        case 'h2': active = editor.isActive('heading', { level: 2 }); break;
+        case 'h3': active = editor.isActive('heading', { level: 3 }); break;
+        case 'bold': active = editor.isActive('bold'); break;
+        case 'italic': active = editor.isActive('italic'); break;
+        case 'bulletList': active = editor.isActive('bulletList'); break;
+        case 'orderedList': active = editor.isActive('orderedList'); break;
+        case 'blockquote': active = editor.isActive('blockquote'); break;
+        case 'link': active = editor.isActive('link'); break;
+        case 'table': active = editor.isActive('table'); break;
+      }
+      btn.classList.toggle('is-active', active);
+      if (a === 'undo') (btn as HTMLButtonElement).disabled = !editor.can().undo();
+      if (a === 'redo') (btn as HTMLButtonElement).disabled = !editor.can().redo();
+    });
+    const inTable = editor.isActive('table');
+    document.getElementById('table-toolbar')?.classList.toggle('hidden', !inTable);
+    document.getElementById('table-toolbar-mobile')?.classList.toggle('hidden', !inTable);
+  }
+
+  wireToolbar(document.getElementById('editor-toolbar')!);
+  wireToolbar(document.getElementById('editor-toolbar-mobile')!);
+  wireToolbar(document.getElementById('table-toolbar')!);
+  wireToolbar(document.getElementById('table-toolbar-mobile')!);
+  editor.on('selectionUpdate', updateToolbars);
+  editor.on('update', updateToolbars);
+
+  imageInput.addEventListener('change', async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const form = new FormData();
+    form.append('file', file);
+    form.append('folder', 'blog');
+    try {
+      const res = await fetch('/api/admin/cms/media', { method: 'POST', body: form });
+      const data = await res.json();
+      if (data.url) editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
+    } catch (err: any) { alert(`Upload failed: ${err.message}`); }
+    imageInput.value = '';
+  });
+
+  // --- Back ---
+  document.getElementById('back-btn')!.addEventListener('click', () => {
+    window.location.href = '/admin/cms/posts';
+  });
+
+  // --- Convert old JSON content to HTML ---
+  function jsonContentToHtml(content: any): string {
+    const parts: string[] = [];
+    if (content.intro) parts.push(`<p>${content.intro}</p>`);
+    for (const section of content.sections || []) {
+      if (section.heading) parts.push(`<h2>${section.heading}</h2>`);
+      if (section.body) parts.push(`<p>${section.body}</p>`);
+    }
+    if (content.blockquote) parts.push(`<blockquote><p>${content.blockquote}</p></blockquote>`);
+    if (content.callout) {
+      parts.push(`<h3>${content.callout.title || 'Note'}</h3>`);
+      parts.push(`<p>${content.callout.body || ''}</p>`);
+    }
+    if (content.outro) parts.push(`<p>${content.outro}</p>`);
+    return parts.join('');
+  }
+
+  // --- Categories ---
+  async function loadCategories() {
+    const res = await fetch('/api/admin/cms/categories');
+    const data = await res.json();
+    const select = document.getElementById('post-category') as HTMLSelectElement;
+    for (const cat of data.categories || []) {
+      const opt = document.createElement('option');
+      opt.value = cat.id;
+      opt.textContent = cat.name;
+      select.appendChild(opt);
+    }
+  }
+
+  async function loadAllPosts() {
+    const res = await fetch('/api/admin/cms/posts?limit=100&status=published');
+    const data = await res.json();
+    allPosts = (data.posts || []).filter((p: any) => p.id !== postId);
+  }
+
+  // --- Cover image ---
+  const coverInput = document.getElementById('post-cover-image') as HTMLInputElement;
+  const coverPreview = document.getElementById('cover-preview')!;
+  const coverImg = document.getElementById('cover-img') as HTMLImageElement;
+  const coverUploadInput = document.getElementById('cover-upload') as HTMLInputElement;
+
+  document.getElementById('cover-upload-btn')!.addEventListener('click', () => coverUploadInput.click());
+  coverUploadInput.addEventListener('change', async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const form = new FormData();
+    form.append('file', file);
+    form.append('folder', 'blog');
+    const res = await fetch('/api/admin/cms/media', { method: 'POST', body: form });
+    const data = await res.json();
+    if (data.url) {
+      coverInput.value = data.url;
+      coverImg.src = data.url;
+      coverPreview.classList.remove('hidden');
+    }
+  });
+
+  // --- Related posts ---
+  function renderRelated() {
+    const container = document.getElementById('related-list')!;
+    container.innerHTML = allPosts.map(p => {
+      const sel = relatedSlugs.includes(p.slug);
+      return `<button type="button" data-slug="${p.slug}" class="related-chip px-2 py-0.5 rounded-lg text-[10px] font-bold transition-colors border ${sel
+        ? 'bg-primary/20 border-primary/40 text-primary'
+        : 'bg-surface-container-lowest border-outline-variant text-outline hover:text-on-surface hover:bg-surface-container-highest'
+      }">${p.title}</button>`;
+    }).join('');
+    container.querySelectorAll('.related-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const slug = (btn as HTMLElement).dataset.slug!;
+        if (relatedSlugs.includes(slug)) relatedSlugs = relatedSlugs.filter(s => s !== slug);
+        else relatedSlugs.push(slug);
+        renderRelated();
+      });
+    });
+  }
+
+  // --- Status UI ---
+  function updateStatusUI() {
+    const badge = document.getElementById('status-badge')!;
+    const badgeMobile = document.getElementById('status-badge-mobile')!;
+    const toggleBtn = document.getElementById('publish-toggle-btn')!;
+    const viewLink = document.getElementById('view-post-link') as HTMLAnchorElement;
+    const pageTitle = document.getElementById('page-title')!;
+
+    if (currentPostStatus === 'published') {
+      badge.textContent = 'Published';
+      badge.className = 'hidden sm:inline px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-secondary-container text-on-secondary-container';
+      badgeMobile.textContent = 'Published';
+      badgeMobile.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-secondary-container text-on-secondary-container';
+      toggleBtn.textContent = 'Unpublish';
+      toggleBtn.className = 'px-3 py-1.5 bg-outline text-surface border-2 border-on-surface rounded-xl font-label text-xs font-bold uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all';
+      viewLink.href = `/blog/${currentSlug}`;
+      viewLink.classList.remove('hidden');
+    } else {
+      badge.textContent = 'Draft';
+      badge.className = 'hidden sm:inline px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-tertiary-fixed text-on-tertiary-fixed';
+      badgeMobile.textContent = 'Draft';
+      badgeMobile.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-tertiary-fixed text-on-tertiary-fixed';
+      toggleBtn.textContent = 'Publish';
+      toggleBtn.className = 'px-3 py-1.5 bg-primary text-on-primary border-2 border-on-surface rounded-xl font-label text-xs font-bold uppercase tracking-wider hard-shadow hover:-translate-y-0.5 active:scale-95 transition-all';
+      viewLink.classList.add('hidden');
+    }
+
+    const title = (document.getElementById('post-title') as HTMLInputElement).value;
+    pageTitle.textContent = title ? `Edit: ${title}` : 'Edit Post';
+  }
+
+  // --- FAQ management ---
+  let faqItems: Array<{ question: string; answer: string }> = [];
+
+  function renderFaq() {
+    const list = document.getElementById('faq-list')!;
+    const empty = document.getElementById('faq-empty');
+    if (empty) empty.style.display = faqItems.length ? 'none' : '';
+
+    list.querySelectorAll('.faq-entry').forEach(el => el.remove());
+
+    faqItems.forEach((faq, i) => {
+      const div = document.createElement('div');
+      div.className = 'faq-entry rounded-lg border border-outline-variant bg-surface-container-lowest p-2 space-y-1.5';
+      div.innerHTML = `
+        <div class="flex items-start gap-1">
+          <div class="flex-1">
+            <span class="sf-label">Q${i + 1}</span>
+            <input type="text" value="${faq.question.replace(/"/g, '&quot;')}" placeholder="Question..." class="sf-input !text-xs faq-q" data-index="${i}" />
+          </div>
+          <button type="button" class="faq-remove flex-none mt-3 w-6 h-6 rounded flex items-center justify-center text-outline hover:text-error hover:bg-error/10 transition-colors" data-index="${i}">
+            <span class="material-symbols-outlined text-sm">delete</span>
+          </button>
+        </div>
+        <div>
+          <span class="sf-label">Answer</span>
+          <textarea placeholder="Answer..." rows="2" class="sf-input resize-none !text-xs faq-a" data-index="${i}">${faq.answer}</textarea>
+        </div>
+      `;
+      list.appendChild(div);
+
+      div.querySelector('.faq-q')!.addEventListener('input', (e) => {
+        faqItems[i].question = (e.target as HTMLInputElement).value;
+      });
+      div.querySelector('.faq-a')!.addEventListener('input', (e) => {
+        faqItems[i].answer = (e.target as HTMLTextAreaElement).value;
+      });
+      div.querySelector('.faq-remove')!.addEventListener('click', () => {
+        faqItems.splice(i, 1);
+        renderFaq();
+      });
+    });
+  }
+
+  document.getElementById('add-faq-btn')!.addEventListener('click', () => {
+    faqItems.push({ question: '', answer: '' });
+    renderFaq();
+  });
+
+  // --- Save status helper ---
+  function setSaveStatus(text: string) {
+    const el = document.getElementById('save-status');
+    const elM = document.getElementById('save-status-mobile');
+    if (el) el.textContent = text;
+    if (elM) elM.textContent = text;
+  }
+
+  // --- Collect ---
+  function collectPostData() {
+    return {
+      title: (document.getElementById('post-title') as HTMLInputElement).value || 'Untitled',
+      slug: (document.getElementById('post-slug') as HTMLInputElement).value || undefined,
+      excerpt: (document.getElementById('post-meta-description') as HTMLTextAreaElement).value || '',
+      content: editor.getHTML(),
+      categoryId: (document.getElementById('post-category') as HTMLSelectElement).value || null,
+      featured: (document.getElementById('post-featured') as HTMLInputElement).checked,
+      coverImage: coverInput.value || null,
+      iconFallback: (document.getElementById('post-icon-fallback') as HTMLInputElement).value || null,
+      iconBg: (document.getElementById('post-icon-bg') as HTMLInputElement).value || null,
+      authorName: (document.getElementById('post-author-name') as HTMLInputElement).value,
+      authorRole: (document.getElementById('post-author-role') as HTMLInputElement).value,
+      authorAvatar: (document.getElementById('post-author-avatar') as HTMLInputElement).value,
+      metaTitle: (document.getElementById('post-meta-title') as HTMLInputElement).value || null,
+      metaDescription: (document.getElementById('post-meta-description') as HTMLTextAreaElement).value || null,
+      relatedSlugs,
+      faqItems,
+    };
+  }
+
+  // --- Save ---
+  async function savePost() {
+    const data = collectPostData();
+    setSaveStatus('Saving...');
+    const res = await fetch(`/api/admin/cms/posts/${postId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const result = await res.json();
+    setSaveStatus(result.success ? 'Saved!' : `Error: ${result.error}`);
+    setTimeout(() => { setSaveStatus(''); }, 3000);
+  }
+
+  async function togglePublish() {
+    const action = currentPostStatus === 'published' ? 'unpublish' : 'publish';
+    await fetch(`/api/admin/cms/posts/${postId}/${action}`, { method: 'POST' });
+    currentPostStatus = action === 'publish' ? 'published' : 'draft';
+    updateStatusUI();
+    await savePost();
+  }
+
+  document.getElementById('save-btn')!.addEventListener('click', savePost);
+  document.getElementById('publish-toggle-btn')!.addEventListener('click', togglePublish);
+
+  // Auto-translate into all 27 non-English locales via OpenRouter.
+  // Saves first so the latest draft gets translated. Skips locales that
+  // already have a translation row (idempotent). Takes ~30–90s.
+  async function translateAll() {
+    const btn = document.getElementById('translate-btn') as HTMLButtonElement;
+    const label = document.getElementById('translate-btn-label')!;
+    btn.disabled = true;
+    label.textContent = 'Saving…';
+    try {
+      await savePost();
+      label.textContent = 'Translating…';
+      const res = await fetch(`/api/admin/cms/posts/${postId}/translate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ onlyMissing: true }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || `HTTP ${res.status}`);
+      }
+      const ok = (data.results || []).filter((r: any) => r.ok).length;
+      const failed = (data.results || []).filter((r: any) => !r.ok).length;
+      label.textContent = failed ? `${ok} ok, ${failed} failed` : `✓ ${ok} locales`;
+      setTimeout(() => { label.textContent = 'Translate'; }, 4000);
+    } catch (err: any) {
+      label.textContent = 'Failed';
+      alert('Translation failed: ' + (err?.message ?? err));
+      setTimeout(() => { label.textContent = 'Translate'; }, 4000);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+  document.getElementById('translate-btn')!.addEventListener('click', translateAll);
+
+  // Ctrl/Cmd+S
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); savePost(); }
+  });
+
+  // Auto-save
+  setInterval(() => {
+    setSaveStatus('Auto-saved');
+    setTimeout(() => {
+      const el = document.getElementById('save-status');
+      if (el?.textContent === 'Auto-saved') setSaveStatus('');
+    }, 2000);
+  }, 15000);
+
+  // --- Load post ---
+  async function loadPost() {
+    const res = await fetch(`/api/admin/cms/posts/${postId}`);
+    const data = await res.json();
+    if (!data.success) { alert('Post not found'); window.location.href = '/admin/cms/posts'; return; }
+
+    const p = data.post;
+    currentPostStatus = p.status;
+    currentSlug = p.slug;
+
+    (document.getElementById('post-title') as HTMLInputElement).value = p.title;
+    // If no meta description set, use excerpt as the description
+    if (!p.metaDescription && p.excerpt) {
+      (document.getElementById('post-meta-description') as HTMLTextAreaElement).value = p.excerpt;
+    }
+    (document.getElementById('post-slug') as HTMLInputElement).value = p.slug;
+
+    if (p.htmlContent) {
+      editor.commands.setContent(p.htmlContent);
+    } else if (p.content && (p.content.intro || p.content.sections?.length || p.content.outro)) {
+      editor.commands.setContent(jsonContentToHtml(p.content));
+    }
+
+    if (p.categoryId) (document.getElementById('post-category') as HTMLSelectElement).value = p.categoryId;
+    (document.getElementById('post-featured') as HTMLInputElement).checked = p.featured;
+    if (p.coverImage) {
+      coverInput.value = p.coverImage;
+      coverImg.src = p.coverImage;
+      coverPreview.classList.remove('hidden');
+    }
+
+    (document.getElementById('post-icon-fallback') as HTMLInputElement).value = p.iconFallback || '';
+    (document.getElementById('post-icon-bg') as HTMLInputElement).value = p.iconBg || '';
+    (document.getElementById('post-author-name') as HTMLInputElement).value = p.authorName;
+    (document.getElementById('post-author-role') as HTMLInputElement).value = p.authorRole;
+    (document.getElementById('post-author-avatar') as HTMLInputElement).value = p.authorAvatar;
+    (document.getElementById('post-meta-title') as HTMLInputElement).value = p.metaTitle || '';
+    (document.getElementById('post-meta-description') as HTMLTextAreaElement).value = p.metaDescription || '';
+
+    relatedSlugs = p.relatedSlugs || [];
+    faqItems = p.faqItems || [];
+    renderFaq();
+
+    if (p.publishedAt) {
+      document.getElementById('published-info')!.classList.remove('hidden');
+      document.getElementById('published-date')!.textContent = new Date(p.publishedAt).toLocaleString();
+    }
+
+    updateStatusUI();
+  }
+
+  // --- Init ---
+  loadCategories().then(() => loadPost().then(() => loadAllPosts().then(() => renderRelated())));
+</script>

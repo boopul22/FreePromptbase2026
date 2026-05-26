@@ -1,0 +1,10 @@
+---
+// Adapter component — the admin UI was copied from a site that uses <Nav />.
+// We just wrap our existing <Header /> so admin pages get the same chrome as
+// the public site. activePage prop is accepted but not used here.
+import Header from './Header.astro';
+interface Props {
+	activePage?: string;
+}
+---
+<Header />

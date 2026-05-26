@@ -11,6 +11,11 @@ export default defineConfig({
 	// platformProxy exposes Cloudflare bindings (D1) during `astro dev`.
 	adapter: cloudflare({ platformProxy: { enabled: true } }),
 
+	// SSR everywhere — the CMS middleware resolves sessions for every request,
+	// so we need request-time rendering. Pages that don't need it (about/privacy/
+	// terms/404) still opt into pre-render via `export const prerender = true`.
+	output: 'server',
+
 	// Canonical production URL — powers <link rel="canonical">, Open Graph URLs
 	// and the generated sitemap.
 	site: 'https://freepromptbase.com',

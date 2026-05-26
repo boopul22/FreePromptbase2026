@@ -30,3 +30,6 @@ db/seed.sql
 
 # jetbrains setting folder
 .idea/
+
+# Playwright test artifacts
+.playwright-mcp/

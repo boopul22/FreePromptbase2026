@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import CopyPromptButton from '../components/CopyPromptButton.astro';
 import PromptCard from '../components/PromptCard.astro';
+import CategoryIcon from '../components/CategoryIcon.astro';
 import {
 	getPromptBySlug,
 	getCategoryBySlug,
@@ -81,9 +82,10 @@ const promptSchema = {
 				category && (
 					<a
 						href={`/category/${category.slug}`}
-						class="text-primary hover:underline"
+						class="inline-flex items-center gap-1.5 text-primary hover:underline"
 					>
-						{category.emoji} {category.name}
+						<CategoryIcon slug={category.slug} class="w-4 h-4" />
+						{category.name}
 					</a>
 				)
 			}

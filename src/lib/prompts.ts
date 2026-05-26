@@ -116,7 +116,7 @@ export async function getRelatedPrompts(prompt: Prompt, limit = 3): Promise<Prom
 /** All categories, in display order. */
 export async function getAllCategories(): Promise<Category[]> {
 	const { results } = await getDB()
-		.prepare('SELECT slug, name, description, emoji FROM categories ORDER BY sort_order')
+		.prepare('SELECT slug, name, description, emoji FROM prompt_categories ORDER BY sort_order')
 		.all<Category>();
 	return results;
 }
@@ -124,7 +124,7 @@ export async function getAllCategories(): Promise<Category[]> {
 /** A single category by slug. */
 export async function getCategoryBySlug(slug: string): Promise<Category | undefined> {
 	const row = await getDB()
-		.prepare('SELECT slug, name, description, emoji FROM categories WHERE slug = ?')
+		.prepare('SELECT slug, name, description, emoji FROM prompt_categories WHERE slug = ?')
 		.bind(slug)
 		.first<Category>();
 	return row ?? undefined;

@@ -1,0 +1,194 @@
+---
+export const prerender = false;
+
+import Layout from '../../../../layouts/Layout.astro';
+import Nav from '../../../../components/Nav.astro';
+import AdminSidebar from '../../../../components/AdminSidebar.astro';
+---
+
+<Layout title="Pages - CMS - Free Prompt Base" noindex={true}>
+  <Nav activePage="admin" />
+
+  <div class="flex">
+    <AdminSidebar activePage="cms" />
+
+    <main class="flex-1 p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 bg-surface-container-lowest min-h-[calc(100dvh-var(--nav-h,57px))]">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs font-label font-bold uppercase tracking-wider text-outline" aria-label="Breadcrumb">
+        <a href="/admin/cms" class="hover:text-on-surface transition-colors">Content</a>
+        <span class="material-symbols-outlined text-sm">chevron_right</span>
+        <span class="text-on-surface">Pages</span>
+      </nav>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-headline italic font-black text-on-surface">Pages</h1>
+          <p class="text-on-surface-variant mt-1">Manage static pages like About, Terms, and Privacy.</p>
+        </div>
+        <button id="new-page-btn" class="bg-primary text-on-primary px-5 py-3 rounded-xl font-label text-xs font-bold uppercase tracking-wider border-2 border-on-surface hard-shadow hover:-translate-y-1 active:scale-95 transition-all flex items-center gap-2 self-start sm:self-auto">
+          <span class="material-symbols-outlined text-lg">add</span>
+          New Page
+        </button>
+      </div>
+
+      <!-- New Page Form (hidden initially) -->
+      <div id="new-page-form" class="hidden bg-surface border-2 border-on-surface rounded-xl p-6 hard-shadow space-y-4">
+        <h3 class="font-headline italic text-xl font-black">Create New Page</h3>
+        <input id="page-title" type="text" placeholder="Page title..." class="w-full border-2 border-on-surface rounded-lg px-4 py-2 bg-surface text-sm" />
+        <input id="page-slug" type="text" placeholder="page-slug (auto-generated)" class="w-full border-2 border-on-surface rounded-lg px-4 py-2 bg-surface text-sm" />
+        <textarea id="page-content" rows="10" placeholder="Page content (HTML supported)..." class="w-full border-2 border-on-surface rounded-lg px-4 py-3 bg-surface text-sm font-mono resize-y"></textarea>
+        <div class="flex items-center gap-4">
+          <select id="page-status" class="border-2 border-on-surface rounded-lg px-4 py-2 bg-surface text-sm">
+            <option value="draft">Draft</option>
+            <option value="published">Published</option>
+          </select>
+          <input id="page-meta-title" type="text" placeholder="Meta title (optional)" class="flex-1 border-2 border-on-surface rounded-lg px-4 py-2 bg-surface text-sm" />
+        </div>
+        <div class="flex gap-3">
+          <button id="save-page-btn" class="bg-primary text-on-primary px-6 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-wider border-2 border-on-surface hard-shadow">Save Page</button>
+          <button id="cancel-page-btn" class="bg-surface px-6 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-wider border-2 border-on-surface">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Pages Table -->
+      <div id="pages-table" class="bg-surface border-2 border-on-surface rounded-xl overflow-hidden hard-shadow">
+        <div class="p-8 text-center text-outline">
+          <span class="material-symbols-outlined text-4xl">hourglass_empty</span>
+          <p class="font-label text-xs uppercase mt-2">Loading...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  function esc(s: string): string {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  let editingPageId: string | null = null;
+
+  async function loadPages() {
+    const res = await fetch('/api/admin/cms/pages');
+    const data = await res.json();
+    const table = document.getElementById('pages-table')!;
+
+    if (!data.pages?.length) {
+      table.innerHTML = '<div class="p-8 text-center text-outline"><span class="material-symbols-outlined text-4xl">description</span><p class="font-label text-xs uppercase mt-2">No pages yet</p></div>';
+      return;
+    }
+
+    table.innerHTML = `
+      <div class="overflow-x-auto"><table class="w-full text-left min-w-[600px]">
+        <thead>
+          <tr class="border-b-2 border-on-surface">
+            <th class="px-6 py-4 font-label text-xs uppercase font-bold text-outline tracking-wider">Title</th>
+            <th class="px-6 py-4 font-label text-xs uppercase font-bold text-outline tracking-wider">Slug</th>
+            <th class="px-6 py-4 font-label text-xs uppercase font-bold text-outline tracking-wider">Status</th>
+            <th class="px-6 py-4 font-label text-xs uppercase font-bold text-outline tracking-wider">Updated</th>
+            <th class="px-6 py-4 font-label text-xs uppercase font-bold text-outline tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-outline-variant/50">
+          ${data.pages.map((p: any) => `
+            <tr class="hover:bg-surface-container-lowest transition-colors">
+              <td class="px-6 py-4 font-bold text-sm">${esc(p.title)}</td>
+              <td class="px-6 py-4 text-sm text-outline">/p/${esc(p.slug)}</td>
+              <td class="px-6 py-4">
+                <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase ${
+                  p.status === 'published' ? 'bg-secondary-container text-on-secondary-container' : 'bg-tertiary-fixed text-on-tertiary-fixed'
+                }">${p.status}</span>
+              </td>
+              <td class="px-6 py-4 text-sm text-outline">${new Date(p.updatedAt).toLocaleDateString()}</td>
+              <td class="px-6 py-4">
+                <div class="flex gap-2">
+                  <button onclick="editPage('${esc(p.id)}')" class="px-3 py-1 rounded-full text-xs font-bold uppercase border border-primary text-primary hover:bg-primary hover:text-on-primary transition-colors">Edit</button>
+                  <button onclick="deletePage('${esc(p.id)}')" class="px-3 py-1 rounded-full text-xs font-bold uppercase border border-error text-error hover:bg-error hover:text-on-error transition-colors">Delete</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table></div>
+    `;
+  }
+
+  // New page toggle
+  document.getElementById('new-page-btn')!.addEventListener('click', () => {
+    editingPageId = null;
+    document.getElementById('new-page-form')!.classList.remove('hidden');
+    (document.getElementById('page-title') as HTMLInputElement).value = '';
+    (document.getElementById('page-slug') as HTMLInputElement).value = '';
+    (document.getElementById('page-content') as HTMLTextAreaElement).value = '';
+    (document.getElementById('page-status') as HTMLSelectElement).value = 'draft';
+    (document.getElementById('page-meta-title') as HTMLInputElement).value = '';
+  });
+
+  document.getElementById('cancel-page-btn')!.addEventListener('click', () => {
+    document.getElementById('new-page-form')!.classList.add('hidden');
+    editingPageId = null;
+  });
+
+  // Auto-generate slug
+  document.getElementById('page-title')!.addEventListener('input', (e) => {
+    const slug = (e.target as HTMLInputElement).value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-');
+    (document.getElementById('page-slug') as HTMLInputElement).value = slug;
+  });
+
+  // Save page
+  document.getElementById('save-page-btn')!.addEventListener('click', async () => {
+    const title = (document.getElementById('page-title') as HTMLInputElement).value;
+    const slug = (document.getElementById('page-slug') as HTMLInputElement).value;
+    const content = (document.getElementById('page-content') as HTMLTextAreaElement).value;
+    const status = (document.getElementById('page-status') as HTMLSelectElement).value;
+    const metaTitle = (document.getElementById('page-meta-title') as HTMLInputElement).value;
+
+    if (!title) return;
+
+    if (editingPageId) {
+      await fetch(`/api/admin/cms/pages/${editingPageId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, slug, content, status, metaTitle: metaTitle || null }),
+      });
+    } else {
+      await fetch('/api/admin/cms/pages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, slug, content, status, metaTitle: metaTitle || null }),
+      });
+    }
+
+    document.getElementById('new-page-form')!.classList.add('hidden');
+    editingPageId = null;
+    loadPages();
+  });
+
+  (window as any).editPage = async (id: string) => {
+    const res = await fetch(`/api/admin/cms/pages/${id}`);
+    const data = await res.json();
+    if (!data.success) return;
+
+    editingPageId = id;
+    document.getElementById('new-page-form')!.classList.remove('hidden');
+    (document.getElementById('page-title') as HTMLInputElement).value = data.page.title;
+    (document.getElementById('page-slug') as HTMLInputElement).value = data.page.slug;
+    (document.getElementById('page-content') as HTMLTextAreaElement).value = data.page.content;
+    (document.getElementById('page-status') as HTMLSelectElement).value = data.page.status;
+    (document.getElementById('page-meta-title') as HTMLInputElement).value = data.page.metaTitle || '';
+  };
+
+  (window as any).deletePage = async (id: string) => {
+    if (!confirm('Delete this page permanently?')) return;
+    await fetch('/api/admin/cms/pages', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    loadPages();
+  };
+
+  loadPages();
+</script>

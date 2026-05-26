@@ -1,5 +1,10 @@
 ---
 import { currentUser } from '../data/site';
+
+// Resolve the auth-aware user from middleware. Falls back to the mock when no
+// one is signed in, so the UI stays familiar for guests.
+const sessionUser = Astro.locals.user;
+const isAdmin = sessionUser?.role === 'admin';
 ---
 
 <header
@@ -27,6 +32,7 @@ import { currentUser } from '../data/site';
 			<nav class="hidden md:flex items-center gap-6 font-medium text-sm text-gray-600">
 				<a class="text-text-primary" href="/">Feed</a>
 				<a class="hover:text-primary transition-colors" href="/categories">Discover</a>
+				<a class="hover:text-primary transition-colors" href="/blog">Blog</a>
 				<a class="hover:text-primary transition-colors" href="/about">Community</a>
 			</nav>
 		</div>
@@ -67,31 +73,60 @@ import { currentUser } from '../data/site';
 						stroke-width="2"></path>
 				</svg>
 			</button>
-			<a
-				href="/about"
-				class="px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold transition-colors"
-				>Upload</a
-			>
+			{
+				isAdmin && (
+					<a
+						href="/admin/cms"
+						class="px-4 py-2 bg-link text-white hover:opacity-90 rounded-lg text-sm font-semibold transition-opacity"
+					>
+						Admin
+					</a>
+				)
+			}
 
-			<!-- Profile & Stats -->
-			<div class="flex items-center gap-3 ml-2">
-				<img
-					alt={currentUser.name}
-					class="w-8 h-8 rounded-full object-cover"
-					src={currentUser.avatar}
-					width="32"
-					height="32"
-					loading="lazy"
-				/>
-				<div class="hidden lg:flex items-center gap-3 text-xs font-semibold text-gray-500">
-					<span class="flex items-center gap-1"
-						><span class="text-text-primary">{currentUser.streak}</span> 🔥</span
+			{
+				sessionUser ? (
+					<div class="flex items-center gap-3 ml-2">
+						{sessionUser.avatarUrl && (
+							<img
+								alt={sessionUser.name}
+								class="w-8 h-8 rounded-full object-cover"
+								src={sessionUser.avatarUrl}
+								width="32"
+								height="32"
+								loading="lazy"
+							/>
+						)}
+						<a
+							href="/api/auth/logout"
+							class="hidden sm:inline text-xs font-semibold text-gray-500 hover:text-text-primary"
+						>
+							Sign out
+						</a>
+					</div>
+				) : (
+					<a
+						href="/api/auth/login"
+						class="px-5 py-2 bg-primary text-link hover:opacity-90 rounded-lg text-sm font-semibold transition-opacity"
 					>
-					<span class="flex items-center gap-1"
-						><span class="text-text-primary">{currentUser.energy}</span> ⚡</span
-					>
-				</div>
-			</div>
+						Sign in
+					</a>
+				)
+			}
+
+			<!-- Guest decoration: keep the mock streak/energy so the public chrome still pops -->
+			{
+				!sessionUser && (
+					<div class="hidden lg:flex items-center gap-3 text-xs font-semibold text-gray-500 ml-2">
+						<span class="flex items-center gap-1">
+							<span class="text-text-primary">{currentUser.streak}</span> 🔥
+						</span>
+						<span class="flex items-center gap-1">
+							<span class="text-text-primary">{currentUser.energy}</span> ⚡
+						</span>
+					</div>
+				)
+			}
 		</div>
 	</div>
 </header>

@@ -1,0 +1,157 @@
+---
+export const prerender = false;
+
+import Layout from '../../../layouts/Layout.astro';
+import Nav from '../../../components/Nav.astro';
+import AdminSidebar from '../../../components/AdminSidebar.astro';
+---
+
+<Layout title="Categories - CMS - Free Prompt Base" noindex={true}>
+  <Nav activePage="admin" />
+
+  <div class="flex">
+    <AdminSidebar activePage="cms" />
+
+    <main class="flex-1 p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 bg-surface-container-lowest min-h-[calc(100dvh-var(--nav-h,57px))]">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs font-label font-bold uppercase tracking-wider text-outline" aria-label="Breadcrumb">
+        <a href="/admin/cms" class="hover:text-on-surface transition-colors">Content</a>
+        <span class="material-symbols-outlined text-sm">chevron_right</span>
+        <span class="text-on-surface">Categories</span>
+      </nav>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl font-headline italic font-black text-on-surface">Categories</h1>
+          <p class="text-on-surface-variant mt-1">Organize your blog content by topic.</p>
+        </div>
+      </div>
+
+      <!-- Add Category -->
+      <div class="bg-surface border-2 border-on-surface rounded-xl p-5 hard-shadow">
+        <h3 class="font-label text-xs font-bold uppercase tracking-wider mb-4">Add New Category</h3>
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input id="new-cat-name" type="text" placeholder="Category name..." class="flex-1 border-2 border-on-surface rounded-lg px-4 py-2 bg-surface text-sm" />
+          <select id="new-cat-color" class="border-2 border-on-surface rounded-lg px-4 py-2 bg-surface text-sm">
+            <option value="primary">Purple (Primary)</option>
+            <option value="secondary">Teal (Secondary)</option>
+            <option value="tertiary">Olive (Tertiary)</option>
+          </select>
+          <button id="add-cat-btn" class="bg-primary text-on-primary px-6 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-wider border-2 border-on-surface hard-shadow hover:-translate-y-1 transition-all">
+            Add
+          </button>
+        </div>
+      </div>
+
+      <!-- Categories List -->
+      <div id="categories-list" class="bg-surface border-2 border-on-surface rounded-xl overflow-hidden hard-shadow">
+        <div class="p-8 text-center text-outline">
+          <span class="material-symbols-outlined text-4xl">hourglass_empty</span>
+          <p class="font-label text-xs uppercase mt-2">Loading...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</Layout>
+
+<script>
+  function esc(s: string): string {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  async function loadCategories() {
+    const res = await fetch('/api/admin/cms/categories');
+    const data = await res.json();
+    const container = document.getElementById('categories-list')!;
+
+    if (!data.categories?.length) {
+      container.innerHTML = '<div class="p-8 text-center text-outline"><span class="material-symbols-outlined text-4xl">category</span><p class="font-label text-xs uppercase mt-2">No categories yet</p></div>';
+      return;
+    }
+
+    const colorLabel = (c: string) => c === 'primary' ? 'Purple' : c === 'secondary' ? 'Teal' : 'Olive';
+
+    container.innerHTML = `
+      <div class="overflow-x-auto"><table class="w-full text-left min-w-[600px]">
+        <thead>
+          <tr class="border-b-2 border-on-surface">
+            <th class="px-6 py-4 font-label text-xs uppercase font-bold text-outline tracking-wider">Name</th>
+            <th class="px-6 py-4 font-label text-xs uppercase font-bold text-outline tracking-wider">Slug</th>
+            <th class="px-6 py-4 font-label text-xs uppercase font-bold text-outline tracking-wider">Color</th>
+            <th class="px-6 py-4 font-label text-xs uppercase font-bold text-outline tracking-wider">Posts</th>
+            <th class="px-6 py-4 font-label text-xs uppercase font-bold text-outline tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-outline-variant/50">
+          ${data.categories.map((c: any) => `
+            <tr class="hover:bg-surface-container-lowest transition-colors" data-id="${esc(c.id)}">
+              <td class="px-6 py-4">
+                <input type="text" value="${esc(c.name)}" class="cat-name bg-transparent border-b border-transparent hover:border-outline-variant focus:border-primary focus:outline-none font-bold text-sm w-full" />
+              </td>
+              <td class="px-6 py-4 text-sm text-outline">${esc(c.slug)}</td>
+              <td class="px-6 py-4">
+                <select class="cat-color border border-on-surface rounded px-2 py-1 bg-surface text-xs">
+                  <option value="primary" ${c.color === 'primary' ? 'selected' : ''}>Purple</option>
+                  <option value="secondary" ${c.color === 'secondary' ? 'selected' : ''}>Teal</option>
+                  <option value="tertiary" ${c.color === 'tertiary' ? 'selected' : ''}>Olive</option>
+                </select>
+              </td>
+              <td class="px-6 py-4 text-sm font-bold">${c.postCount}</td>
+              <td class="px-6 py-4">
+                <div class="flex gap-2">
+                  <button onclick="saveCat('${esc(c.id)}')" class="px-3 py-1 rounded-full text-xs font-bold uppercase border border-primary text-primary hover:bg-primary hover:text-on-primary transition-colors">Save</button>
+                  <button onclick="deleteCat('${esc(c.id)}')" class="px-3 py-1 rounded-full text-xs font-bold uppercase border border-error text-error hover:bg-error hover:text-on-error transition-colors">Delete</button>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table></div>
+    `;
+  }
+
+  (window as any).saveCat = async (id: string) => {
+    const row = document.querySelector(`tr[data-id="${id}"]`)!;
+    const name = (row.querySelector('.cat-name') as HTMLInputElement).value;
+    const color = (row.querySelector('.cat-color') as HTMLSelectElement).value;
+
+    await fetch('/api/admin/cms/categories', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, name, color }),
+    });
+    loadCategories();
+  };
+
+  (window as any).deleteCat = async (id: string) => {
+    if (!confirm('Delete this category?')) return;
+    const res = await fetch('/api/admin/cms/categories', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    const data = await res.json();
+    if (data.error) alert(data.error);
+    loadCategories();
+  };
+
+  document.getElementById('add-cat-btn')!.addEventListener('click', async () => {
+    const name = (document.getElementById('new-cat-name') as HTMLInputElement).value.trim();
+    const color = (document.getElementById('new-cat-color') as HTMLSelectElement).value;
+    if (!name) return;
+
+    const res = await fetch('/api/admin/cms/categories', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, color }),
+    });
+    const data = await res.json();
+    if (data.error) { alert(data.error); return; }
+    (document.getElementById('new-cat-name') as HTMLInputElement).value = '';
+    loadCategories();
+  });
+
+  loadCategories();
+</script>

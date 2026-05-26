@@ -1,5 +1,6 @@
 ---
 import type { Category } from '../lib/prompts';
+import CategoryIcon from './CategoryIcon.astro';
 
 interface Props {
 	categories: Category[];
@@ -18,7 +19,7 @@ const { categories, active, showAll = true } = Astro.props;
 			<a
 				href="/"
 				class:list={[
-					'px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors',
+					'px-4 py-1.5 rounded-md text-sm font-semibold border transition-colors',
 					!active
 						? 'bg-primary text-link border-primary'
 						: 'bg-white text-text-primary border-gray-200 hover:border-primary',
@@ -33,13 +34,13 @@ const { categories, active, showAll = true } = Astro.props;
 			<a
 				href={`/category/${cat.slug}`}
 				class:list={[
-					'px-4 py-1.5 rounded-full text-sm font-semibold border transition-colors',
+					'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-semibold border transition-colors',
 					active === cat.slug
 						? 'bg-primary text-link border-primary'
 						: 'bg-white text-text-primary border-gray-200 hover:border-primary',
 				]}
 			>
-				<span class="mr-1">{cat.emoji}</span>
+				<CategoryIcon slug={cat.slug} class="w-4 h-4" />
 				{cat.name}
 			</a>
 		))

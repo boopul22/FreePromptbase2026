@@ -1,5 +1,6 @@
 ---
 import type { Prompt, Category } from '../lib/prompts';
+import CategoryIcon from './CategoryIcon.astro';
 
 interface Props {
 	prompt: Prompt;
@@ -50,8 +51,14 @@ const searchIndex = [prompt.title, prompt.description, prompt.model, ...prompt.t
 					decoding="async"
 				/>
 			) : (
-				<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/30 via-primary/10 to-link/15 group-hover:scale-105 transition-transform duration-500">
-					<span class="text-5xl select-none">{category?.emoji ?? '✨'}</span>
+				<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/30 via-primary/10 to-link/15 text-text-primary group-hover:scale-105 transition-transform duration-500">
+					{category ? (
+						<CategoryIcon slug={category.slug} class="w-14 h-14" />
+					) : (
+						<svg class="w-14 h-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+						</svg>
+					)}
 				</div>
 			)
 		}

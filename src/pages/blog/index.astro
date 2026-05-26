@@ -1,0 +1,89 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getAllPosts, postReadTime } from '../../lib/posts';
+
+// On-demand: read posts from D1 at request time.
+export const prerender = false;
+
+const posts = await getAllPosts();
+
+const fmt = (iso: string) =>
+	new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+---
+
+<Layout
+	title="Blog — Free Prompt Base"
+	description="Field notes on prompt engineering, AI workflows and what actually works when you build with ChatGPT, Claude, Midjourney and friends."
+>
+	<Header />
+	<main class="flex-grow max-w-5xl mx-auto px-4 w-full py-12">
+		<header class="mb-12">
+			<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary">Blog</h1>
+			<p class="text-gray-600 text-lg mt-3 max-w-2xl">
+				Field notes on prompt engineering, AI workflows and what actually works.
+			</p>
+		</header>
+
+		{
+			posts.length === 0 ? (
+				<p class="text-gray-500">No posts yet — check back soon.</p>
+			) : (
+				<div class="grid gap-8 md:grid-cols-2">
+					{posts.map((post) => (
+						<a
+							href={`/blog/${post.slug}`}
+							class="group flex flex-col bg-white rounded-base border border-gray-200 overflow-hidden hover:border-primary hover:shadow-sm transition-all"
+						>
+							<div class="aspect-[16/9] overflow-hidden bg-gradient-to-br from-primary/30 via-primary/10 to-link/15 flex items-center justify-center">
+								{post.coverImage ? (
+									<img
+										src={post.coverImage}
+										alt={post.title}
+										class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+										loading="lazy"
+										decoding="async"
+									/>
+								) : (
+									<svg
+										class="w-14 h-14 text-text-primary/70"
+										viewBox="0 0 24 24"
+										fill="none"
+										stroke="currentColor"
+										stroke-width="1.5"
+										stroke-linecap="round"
+										stroke-linejoin="round"
+										aria-hidden="true"
+									>
+										<path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z" />
+										<path d="M8 9h8M8 13h8M8 17h5" />
+									</svg>
+								)}
+							</div>
+							<div class="p-6 flex flex-col flex-grow">
+								<div class="flex items-center gap-2 text-xs text-gray-500 mb-3">
+									{post.publishedAt && <span>{fmt(post.publishedAt)}</span>}
+									{post.publishedAt && <span>·</span>}
+									<span>{post.readTime || `${postReadTime(post)} min read`}</span>
+								</div>
+								<h2 class="font-bold text-lg text-text-primary group-hover:text-primary transition-colors leading-snug">
+									{post.title}
+								</h2>
+								<p class="text-sm text-gray-600 mt-2 flex-grow">{post.excerpt}</p>
+								{post.categoryName && (
+									<div class="mt-4">
+										<span class="bg-gray-100 text-gray-600 text-[11px] font-semibold px-2 py-0.5 rounded">
+											{post.categoryName}
+										</span>
+									</div>
+								)}
+							</div>
+						</a>
+					))}
+				</div>
+			)
+		}
+	</main>
+	<Footer />
+</Layout>

@@ -1,0 +1,42 @@
+---
+// Vertical sidebar for /admin/cms/* — links between CMS sections.
+interface Props {
+	activePage?: string;
+}
+const { activePage = '' } = Astro.props;
+
+const items = [
+	{ href: '/admin/cms', label: 'Dashboard', icon: 'dashboard', match: 'dashboard' },
+	{ href: '/admin/cms/posts', label: 'Posts', icon: 'article', match: 'posts' },
+	{ href: '/admin/cms/categories', label: 'Categories', icon: 'category', match: 'categories' },
+	{ href: '/admin/cms/media', label: 'Media', icon: 'image', match: 'media' },
+	{ href: '/admin/cms/pages', label: 'Pages', icon: 'description', match: 'pages' },
+];
+---
+<aside class="hidden md:flex flex-col w-56 shrink-0 bg-surface border-r-2 border-on-surface min-h-[calc(100dvh-var(--nav-h,57px))] p-4 gap-1">
+	<p class="px-3 py-2 font-label text-[10px] font-bold uppercase tracking-widest text-outline">CMS</p>
+	{items.map((it) => (
+		<a
+			href={it.href}
+			class:list={[
+				'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold transition-colors',
+				activePage === 'cms' && Astro.url.pathname.includes(it.match)
+					? 'bg-primary text-on-primary'
+					: 'text-on-surface hover:bg-surface-container-highest',
+			]}
+		>
+			<span class="material-symbols-outlined text-lg">{it.icon}</span>
+			{it.label}
+		</a>
+	))}
+	<div class="mt-auto pt-4 border-t border-outline-variant/50">
+		<a href="/" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-outline hover:text-on-surface transition-colors">
+			<span class="material-symbols-outlined text-lg">arrow_back</span>
+			Back to site
+		</a>
+		<a href="/api/auth/logout" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-outline hover:text-on-surface transition-colors">
+			<span class="material-symbols-outlined text-lg">logout</span>
+			Sign out
+		</a>
+	</div>
+</aside>

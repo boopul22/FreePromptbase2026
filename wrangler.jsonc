@@ -16,11 +16,27 @@
 	"observability": { "enabled": true },
 	"d1_databases": [
 		{
-			// Accessed in code as env.DB (see src/lib/prompts.ts).
+			// Accessed in code as env.DB (see src/lib/prompts.ts + src/lib/db.ts).
 			"binding": "DB",
 			"database_name": "freepromptbase-com",
-			// Filled in after `wrangler d1 create freepromptbase-com`.
+			// PLACEHOLDER until a remote D1 is created (CF account D1 limit reached).
+			// Local dev works because platformProxy uses a local SQLite replica.
+			// Run `wrangler d1 create freepromptbase-com` once a slot is free, then
+			// paste the UUID here.
 			"database_id": "PLACEHOLDER_DB_ID"
 		}
-	]
+	],
+	"r2_buckets": [
+		{
+			// Accessed in code as env.R2 (CMS media library uploads use the binding
+			// directly — no S3 API token needed).
+			"binding": "R2",
+			"bucket_name": "freepromptbase-media-2026"
+		}
+	],
+	"vars": {
+		// Public R2 dev URL (or your custom CDN domain) — uploaded media URLs are
+		// built as `${R2_PUBLIC_URL}/${r2_key}`. Safe to commit; not a secret.
+		"R2_PUBLIC_URL": "https://pub-a8f43320b2794bc5ad6fbb36a3523130.r2.dev"
+	}
 }

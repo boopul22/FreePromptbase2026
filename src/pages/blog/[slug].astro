@@ -1,0 +1,217 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import { getPostBySlug, getRelatedPosts, postReadTime } from '../../lib/posts';
+
+// On-demand: look the post up in D1 at request time.
+export const prerender = false;
+
+const slug = Astro.params.slug!;
+const post = await getPostBySlug(slug);
+if (!post) {
+	return Astro.rewrite('/404');
+}
+
+const related = await getRelatedPosts(post);
+const mins = postReadTime(post);
+const dateIso = post.publishedAt ?? post.createdAt;
+const dateLabel = new Date(dateIso).toLocaleDateString('en-US', {
+	month: 'short',
+	day: 'numeric',
+	year: 'numeric',
+});
+const authorName = post.authorName || 'Admin';
+
+const postSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'BlogPosting',
+	headline: post.title,
+	description: post.excerpt,
+	datePublished: dateIso,
+	dateModified: post.updatedAt ?? dateIso,
+	author: { '@type': 'Person', name: authorName },
+	url: new URL(`/blog/${post.slug}`, Astro.site).href,
+	inLanguage: 'en',
+	image: post.coverImage,
+};
+---
+
+<Layout
+	title={`${post.title} — Free Prompt Base`}
+	description={post.excerpt}
+	schema={postSchema}
+>
+	<Header />
+	<main class="flex-grow max-w-3xl mx-auto px-4 w-full py-10">
+		<!-- Breadcrumb -->
+		<nav class="text-sm text-gray-500 mb-6">
+			<a href="/" class="hover:text-primary">Home</a>
+			<span class="mx-2">/</span>
+			<a href="/blog" class="hover:text-primary">Blog</a>
+			<span class="mx-2">/</span>
+			<span class="text-text-primary">{post.title}</span>
+		</nav>
+
+		<!-- Meta row -->
+		<div class="flex flex-wrap items-center gap-3 text-xs font-semibold mb-4 text-gray-500">
+			<span>{dateLabel}</span>
+			<span>· {post.readTime || `${mins} min read`}</span>
+			<span>· by {authorName}</span>
+			{post.categoryName && <span>· {post.categoryName}</span>}
+		</div>
+
+		<!-- Title + excerpt -->
+		<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary leading-tight">
+			{post.title}
+		</h1>
+		<p class="text-gray-600 text-lg mt-4">{post.excerpt}</p>
+
+		<!-- Cover -->
+		{
+			post.coverImage && (
+				<img
+					src={post.coverImage}
+					alt={post.title}
+					class="w-full rounded-base mt-8 object-cover"
+					loading="lazy"
+				/>
+			)
+		}
+
+		<!-- Body -->
+		<article class="prose-blog mt-10" set:html={post.htmlContent || post.content.intro || ''} />
+
+		<!-- FAQ (if present) -->
+		{
+			post.faqItems.length > 0 && (
+				<section class="mt-12 border-t border-gray-200 pt-10">
+					<h2 class="text-xl font-bold text-text-primary mb-6">Frequently asked</h2>
+					<div class="space-y-5">
+						{post.faqItems.map((item) => (
+							<div>
+								<h3 class="font-semibold text-text-primary">{item.question}</h3>
+								<p class="text-gray-600 mt-1">{item.answer}</p>
+							</div>
+						))}
+					</div>
+				</section>
+			)
+		}
+
+		<!-- Related -->
+		{
+			related.length > 0 && (
+				<section class="mt-16 border-t border-gray-200 pt-10">
+					<h2 class="text-xl font-bold text-text-primary mb-6">Keep reading</h2>
+					<div class="grid gap-6 sm:grid-cols-2">
+						{related.map((rel) => (
+							<a
+								href={`/blog/${rel.slug}`}
+								class="block bg-white rounded-base border border-gray-200 p-5 hover:border-primary hover:shadow-sm transition-all"
+							>
+								<div class="text-xs text-gray-500 mb-2">
+									{new Date(rel.publishedAt ?? rel.createdAt).toLocaleDateString('en-US', {
+										month: 'short',
+										day: 'numeric',
+										year: 'numeric',
+									})}
+								</div>
+								<h3 class="font-bold text-text-primary leading-snug">{rel.title}</h3>
+								<p class="text-sm text-gray-600 mt-2">{rel.excerpt}</p>
+							</a>
+						))}
+					</div>
+				</section>
+			)
+		}
+	</main>
+	<Footer />
+</Layout>
+
+<style is:global>
+	.prose-blog {
+		color: var(--color-text-primary, #1f2937);
+		font-size: 1.0625rem;
+		line-height: 1.75;
+	}
+	.prose-blog h2 {
+		font-size: 1.5rem;
+		font-weight: 700;
+		margin-top: 2.5rem;
+		margin-bottom: 0.75rem;
+		letter-spacing: -0.01em;
+	}
+	.prose-blog h3 {
+		font-size: 1.2rem;
+		font-weight: 700;
+		margin-top: 2rem;
+		margin-bottom: 0.5rem;
+	}
+	.prose-blog p {
+		margin-top: 1rem;
+		margin-bottom: 1rem;
+		color: #374151;
+	}
+	.prose-blog ul,
+	.prose-blog ol {
+		margin: 1rem 0;
+		padding-left: 1.5rem;
+		color: #374151;
+	}
+	.prose-blog ul {
+		list-style: disc;
+	}
+	.prose-blog ol {
+		list-style: decimal;
+	}
+	.prose-blog li {
+		margin: 0.25rem 0;
+	}
+	.prose-blog a {
+		color: var(--color-primary, #d97706);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+	.prose-blog strong {
+		color: #111827;
+		font-weight: 600;
+	}
+	.prose-blog em {
+		font-style: italic;
+		color: #4b5563;
+	}
+	.prose-blog code {
+		background: #f3f4f6;
+		border-radius: 4px;
+		padding: 0.1rem 0.35rem;
+		font-size: 0.92em;
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	}
+	.prose-blog pre {
+		background: #0f172a;
+		color: #f8fafc;
+		padding: 1rem 1.25rem;
+		border-radius: 8px;
+		overflow-x: auto;
+		margin: 1.5rem 0;
+		font-size: 0.92rem;
+		line-height: 1.6;
+	}
+	.prose-blog pre code {
+		background: transparent;
+		padding: 0;
+		color: inherit;
+	}
+	.prose-blog blockquote {
+		border-left: 3px solid var(--color-primary, #d97706);
+		padding-left: 1rem;
+		margin: 1.5rem 0;
+		color: #4b5563;
+		font-style: italic;
+	}
+	.prose-blog img {
+		border-radius: 8px;
+		margin: 1.5rem 0;
+	}
+</style>

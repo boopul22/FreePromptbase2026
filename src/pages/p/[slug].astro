@@ -1,0 +1,41 @@
+---
+// ISR — SSR + edge cache. SSG speed with background refresh on CMS edits.
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Nav from '../../components/Nav.astro';
+import Footer from '../../components/Footer.astro';
+import { getDB } from '../../lib/db';
+
+const { slug } = Astro.params;
+const db = getDB(Astro.locals);
+
+const row = await db
+  .prepare("SELECT * FROM pages WHERE slug = ? AND status = 'published'")
+  .bind(slug)
+  .first();
+
+if (!row) {
+  return new Response(null, { status: 404 });
+}
+
+// ISR: Cache at CDN edge for 10 min, serve stale up to 1 day while revalidating
+Astro.response.headers.set('CDN-Cache-Control', 'public, max-age=600, stale-while-revalidate=86400');
+Astro.response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+
+const page = row as any;
+const title = page.meta_title || page.title;
+---
+
+<Layout title={`${title} - Free Prompt Base`}>
+  <Nav />
+
+  <main class="py-16 px-6">
+    <article class="max-w-3xl mx-auto">
+      <h1 class="text-5xl font-headline italic font-black text-on-surface mb-8">{page.title}</h1>
+      <div class="prose prose-on-surface max-w-none text-lg leading-relaxed" set:html={page.content} />
+    </article>
+  </main>
+
+  <Footer />
+</Layout>
