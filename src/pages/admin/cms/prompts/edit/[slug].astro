@@ -1,0 +1,237 @@
+---
+export const prerender = false;
+
+import Layout from '../../../../../layouts/Layout.astro';
+import AdminSidebar from '../../../../../components/AdminSidebar.astro';
+
+const slug = Astro.params.slug!;
+---
+
+<Layout title="Edit Prompt - CMS - Free Prompt Base" noindex={true}>
+ <div class="flex">
+ <AdminSidebar activePage="cms" />
+
+ <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 min-h-screen">
+ <!-- Breadcrumb -->
+ <nav class="flex items-center gap-2 text-xs text-gray-500">
+ <a href="/admin/cms/prompts" class="hover:text-text-primary transition-colors">Prompts</a>
+ <span class="material-symbols-outlined text-sm">chevron_right</span>
+ <span class="text-text-primary font-medium" id="crumb-title">Loading…</span>
+ </nav>
+
+ <header class="flex items-center justify-between gap-4">
+ <div>
+ <h1 class="text-xl sm:text-2xl font-semibold text-text-primary" id="page-title">Edit prompt</h1>
+ <a id="live-link" href="#" target="_blank" rel="noopener" class="text-xs text-primary hover:underline inline-flex items-center gap-1 mt-1">
+ <span class="material-symbols-outlined text-sm">open_in_new</span>
+ <span data-slug></span>
+ </a>
+ </div>
+ <div class="flex gap-2">
+ <a href="/admin/cms/prompts" class="px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>
+ <button id="save-btn" type="button" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
+ <span class="material-symbols-outlined text-base">save</span>
+ Save changes
+ </button>
+ </div>
+ </header>
+
+ <form id="prompt-form" class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+ <div class="lg:col-span-2 space-y-4">
+ <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-title">Title</label>
+ <input id="f-title" type="text" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-slug">Slug</label>
+ <input id="f-slug" type="text" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" />
+ <p class="text-xs text-gray-500 mt-1">Changing the slug changes the public URL.</p>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-description">Description</label>
+ <textarea id="f-description" rows="2" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-prompt-text">Prompt text</label>
+ <textarea id="f-prompt-text" rows="12" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-how-to-use">How to use (optional)</label>
+ <textarea id="f-how-to-use" rows="3" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ </div>
+ </div>
+
+ <!-- Danger zone -->
+ <div class="bg-white border border-red-200 rounded-md p-5">
+ <h2 class="text-sm font-semibold text-red-700">Danger zone</h2>
+ <p class="text-xs text-gray-500 mt-1 mb-3">Deleting a prompt is permanent. The public URL will 404 immediately.</p>
+ <button id="delete-btn" type="button" class="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold border border-red-300 text-red-700 hover:bg-red-50 transition-colors">
+ <span class="material-symbols-outlined text-base">delete</span>
+ Delete prompt
+ </button>
+ </div>
+ </div>
+
+ <aside class="space-y-4">
+ <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-category">Category</label>
+ <select id="f-category" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"></select>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-model">Model</label>
+ <input list="model-list" id="f-model" type="text" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <datalist id="model-list">
+ <option value="ChatGPT"></option>
+ <option value="Claude"></option>
+ <option value="Midjourney"></option>
+ <option value="Gemini"></option>
+ <option value="DALL·E"></option>
+ <option value="Stable Diffusion"></option>
+ </datalist>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-tags">Tags</label>
+ <input id="f-tags" type="text" placeholder="comma, separated, list" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-cover">Cover image URL</label>
+ <input id="f-cover" type="url" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ </div>
+
+ <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-author">Author</label>
+ <input id="f-author" type="text" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-date">Date</label>
+ <input id="f-date" type="date" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-popularity">Popularity</label>
+ <input id="f-popularity" type="number" min="0" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <label class="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
+ <input id="f-featured" type="checkbox" class="accent-primary w-4 h-4" />
+ Featured prompt
+ </label>
+ </div>
+ </aside>
+ </form>
+ </main>
+ </div>
+</Layout>
+
+<script define:vars={{ slug }}>
+ async function boot() {
+ // Load categories + prompt in parallel
+ const [catRes, promptRes] = await Promise.all([
+ fetch('/api/admin/cms/prompt-categories'),
+ fetch(`/api/admin/cms/prompts/${encodeURIComponent(slug)}`),
+ ]);
+
+ if (!promptRes.ok) {
+ document.getElementById('page-title').textContent = 'Prompt not found';
+ return;
+ }
+
+ const catData = await catRes.json();
+ const promptData = await promptRes.json();
+ const p = promptData.prompt;
+
+ // Populate category dropdown
+ const catSel = document.getElementById('f-category');
+ for (const c of catData.categories || []) {
+ const opt = document.createElement('option');
+ opt.value = c.slug;
+ opt.textContent = `${c.emoji} ${c.name}`;
+ if (c.slug === p.category) opt.selected = true;
+ catSel.appendChild(opt);
+ }
+
+ // Fill form
+ document.getElementById('crumb-title').textContent = p.title;
+ document.getElementById('page-title').textContent = p.title;
+ const live = document.getElementById('live-link');
+ live.href = `/${p.slug}`;
+ live.querySelector('[data-slug]').textContent = `/${p.slug}`;
+ document.getElementById('f-title').value = p.title;
+ document.getElementById('f-slug').value = p.slug;
+ document.getElementById('f-description').value = p.description || '';
+ document.getElementById('f-prompt-text').value = p.promptText || '';
+ document.getElementById('f-how-to-use').value = p.howToUse || '';
+ document.getElementById('f-model').value = p.model || '';
+ document.getElementById('f-tags').value = (p.tags || []).join(', ');
+ document.getElementById('f-cover').value = p.coverImage || '';
+ document.getElementById('f-author').value = p.author || '';
+ document.getElementById('f-date').value = p.date || '';
+ document.getElementById('f-popularity').value = String(p.popularity ?? 0);
+ document.getElementById('f-featured').checked = !!p.featured;
+ }
+
+ function v(id) { return document.getElementById(id).value; }
+ function b(id) { return document.getElementById(id).checked; }
+
+ async function save() {
+ const btn = document.getElementById('save-btn');
+ btn.disabled = true;
+ btn.textContent = 'Saving…';
+
+ const tags = v('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
+ const body = {
+ title: v('f-title'),
+ slug: v('f-slug'),
+ description: v('f-description'),
+ promptText: v('f-prompt-text'),
+ model: v('f-model'),
+ category: v('f-category'),
+ tags,
+ author: v('f-author'),
+ date: v('f-date'),
+ coverImage: v('f-cover') || null,
+ featured: b('f-featured'),
+ popularity: parseInt(v('f-popularity') || '0', 10),
+ howToUse: v('f-how-to-use') || null,
+ };
+
+ const res = await fetch(`/api/admin/cms/prompts/${encodeURIComponent(slug)}`, {
+ method: 'PUT',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify(body),
+ });
+
+ if (res.ok) {
+ const data = await res.json();
+ // If slug changed, redirect to the new edit URL; otherwise back to list.
+ if (data.slug && data.slug !== slug) {
+ window.location.href = `/admin/cms/prompts/edit/${encodeURIComponent(data.slug)}`;
+ } else {
+ window.location.href = '/admin/cms/prompts';
+ }
+ } else {
+ const err = await res.json().catch(() => ({}));
+ alert(`Save failed: ${err.error || res.statusText}`);
+ btn.disabled = false;
+ btn.textContent = 'Save changes';
+ }
+ }
+
+ async function del() {
+ const title = v('f-title') || slug;
+ if (!confirm(`Delete prompt "${title}"? This cannot be undone.`)) return;
+ const res = await fetch(`/api/admin/cms/prompts/${encodeURIComponent(slug)}`, { method: 'DELETE' });
+ if (res.ok) {
+ window.location.href = '/admin/cms/prompts';
+ } else {
+ const err = await res.json().catch(() => ({}));
+ alert(`Delete failed: ${err.error || res.statusText}`);
+ }
+ }
+
+ document.getElementById('save-btn').addEventListener('click', save);
+ document.getElementById('delete-btn').addEventListener('click', del);
+ boot();
+</script>

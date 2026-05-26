@@ -1,0 +1,201 @@
+---
+export const prerender = false;
+
+import Layout from '../../../../layouts/Layout.astro';
+import AdminSidebar from '../../../../components/AdminSidebar.astro';
+
+const defaultAuthor = Astro.locals.user?.name || 'Admin';
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<Layout title="New Prompt - CMS - Free Prompt Base" noindex={true}>
+ <div class="flex">
+ <AdminSidebar activePage="cms" />
+
+ <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 min-h-screen">
+ <!-- Breadcrumb -->
+ <nav class="flex items-center gap-2 text-xs text-gray-500">
+ <a href="/admin/cms/prompts" class="hover:text-text-primary transition-colors">Prompts</a>
+ <span class="material-symbols-outlined text-sm">chevron_right</span>
+ <span class="text-text-primary font-medium">New</span>
+ </nav>
+
+ <header class="flex items-center justify-between gap-4">
+ <h1 class="text-xl sm:text-2xl font-semibold text-text-primary">New prompt</h1>
+ <div class="flex gap-2">
+ <a href="/admin/cms/prompts" class="px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>
+ <button id="save-btn" type="button" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
+ <span class="material-symbols-outlined text-base">save</span>
+ Save prompt
+ </button>
+ </div>
+ </header>
+
+ <form id="prompt-form" class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+ <!-- Main column -->
+ <div class="lg:col-span-2 space-y-4">
+ <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-title">Title</label>
+ <input id="f-title" name="title" type="text" required placeholder="Cinematic Portrait Photography" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-slug">Slug</label>
+ <input id="f-slug" name="slug" type="text" placeholder="auto-generated from title" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" />
+ <p class="text-xs text-gray-500 mt-1">Used in the URL: <span class="font-mono">/your-slug</span>. Leave blank to auto-generate.</p>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-description">Description</label>
+ <textarea id="f-description" name="description" rows="2" placeholder="One-line hook shown on cards and search." class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-prompt-text">Prompt text</label>
+ <textarea id="f-prompt-text" name="promptText" rows="12" required placeholder="The full prompt body the user will copy." class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-how-to-use">How to use (optional)</label>
+ <textarea id="f-how-to-use" name="howToUse" rows="3" placeholder="Tips on substituting placeholders, tuning, etc." class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ </div>
+ </div>
+ </div>
+
+ <!-- Side column -->
+ <aside class="space-y-4">
+ <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-category">Category</label>
+ <select id="f-category" name="category" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+ <option value="">Select category…</option>
+ </select>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-model">Model</label>
+ <input list="model-list" id="f-model" name="model" type="text" required placeholder="ChatGPT" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <datalist id="model-list">
+ <option value="ChatGPT"></option>
+ <option value="Claude"></option>
+ <option value="Midjourney"></option>
+ <option value="Gemini"></option>
+ <option value="DALL·E"></option>
+ <option value="Stable Diffusion"></option>
+ </datalist>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-tags">Tags</label>
+ <input id="f-tags" name="tags" type="text" placeholder="copywriting, social media, hooks" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <p class="text-xs text-gray-500 mt-1">Comma-separated.</p>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-cover">Cover image URL</label>
+ <input id="f-cover" name="coverImage" type="url" placeholder="https://..." class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ </div>
+
+ <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-author">Author</label>
+ <input id="f-author" name="author" type="text" value={defaultAuthor} class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-date">Date</label>
+ <input id="f-date" name="date" type="date" value={today} class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-popularity">Popularity</label>
+ <input id="f-popularity" name="popularity" type="number" min="0" value="0" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <label class="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
+ <input id="f-featured" name="featured" type="checkbox" class="accent-primary w-4 h-4" />
+ Featured prompt
+ </label>
+ </div>
+ </aside>
+ </form>
+ </main>
+ </div>
+</Layout>
+
+<script>
+ async function loadCategories() {
+ const res = await fetch('/api/admin/cms/prompt-categories');
+ const data = await res.json();
+ const sel = document.getElementById('f-category') as HTMLSelectElement;
+ for (const c of data.categories || []) {
+ const opt = document.createElement('option');
+ opt.value = c.slug;
+ opt.textContent = `${c.emoji} ${c.name}`;
+ sel.appendChild(opt);
+ }
+ }
+
+ function val(id: string): string {
+ return (document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).value;
+ }
+ function bool(id: string): boolean {
+ return (document.getElementById(id) as HTMLInputElement).checked;
+ }
+
+ async function save() {
+ const btn = document.getElementById('save-btn') as HTMLButtonElement;
+ btn.disabled = true;
+ btn.textContent = 'Saving…';
+
+ const tags = val('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
+ const body = {
+ title: val('f-title'),
+ slug: val('f-slug') || undefined,
+ description: val('f-description'),
+ promptText: val('f-prompt-text'),
+ model: val('f-model'),
+ category: val('f-category'),
+ tags,
+ author: val('f-author'),
+ date: val('f-date'),
+ coverImage: val('f-cover') || null,
+ featured: bool('f-featured'),
+ popularity: parseInt(val('f-popularity') || '0', 10),
+ howToUse: val('f-how-to-use') || null,
+ };
+
+ if (!body.title || !body.promptText || !body.model || !body.category) {
+ alert('Title, prompt text, model and category are required.');
+ btn.disabled = false;
+ btn.textContent = 'Save prompt';
+ return;
+ }
+
+ const res = await fetch('/api/admin/cms/prompts', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify(body),
+ });
+
+ if (res.ok) {
+ window.location.href = '/admin/cms/prompts';
+ } else {
+ const err = await res.json().catch(() => ({}));
+ alert(`Save failed: ${err.error || res.statusText}`);
+ btn.disabled = false;
+ btn.textContent = 'Save prompt';
+ }
+ }
+
+ document.getElementById('save-btn')!.addEventListener('click', save);
+
+ // Auto-slug from title (only when slug field is empty)
+ const titleInput = document.getElementById('f-title') as HTMLInputElement;
+ const slugInput = document.getElementById('f-slug') as HTMLInputElement;
+ let slugTouched = false;
+ slugInput.addEventListener('input', () => { slugTouched = true; });
+ titleInput.addEventListener('input', () => {
+ if (slugTouched) return;
+ slugInput.value = titleInput.value
+ .toLowerCase()
+ .replace(/[^a-z0-9\s-]/g, '')
+ .replace(/\s+/g, '-')
+ .replace(/-+/g, '-')
+ .replace(/^-|-$/g, '');
+ });
+
+ loadCategories();
+</script>

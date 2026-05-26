@@ -2,17 +2,15 @@
 export const prerender = false;
 
 import Layout from '../../../layouts/Layout.astro';
-import Nav from '../../../components/Nav.astro';
 import AdminSidebar from '../../../components/AdminSidebar.astro';
 ---
 
 <Layout title="Content Management - Admin - Free Prompt Base" noindex={true}>
- <Nav activePage="admin" />
 
  <div class="flex">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-4 sm:space-y-6 md:space-y-8 bg-gray-50 min-h-[calc(100dvh-var(--nav-h,57px))]">
+ <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-4 sm:space-y-6 md:space-y-8 bg-gray-50 min-h-screen">
  <!-- Header -->
  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
  <div>
@@ -23,7 +21,11 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
 
  <!-- Quick Actions -->
  <div class="flex flex-wrap gap-3 sm:gap-4">
- <a href="/admin/cms/posts/new" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
+ <a href="/admin/cms/prompts/new" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
+ <span class="material-symbols-outlined text-base">bolt</span>
+ New Prompt
+ </a>
+ <a href="/admin/cms/posts/new" class="bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:border-primary transition-colors flex items-center gap-2">
  <span class="material-symbols-outlined text-base">add</span>
  New Post
  </a>
@@ -31,28 +33,24 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <span class="material-symbols-outlined text-base">upload</span>
  Upload Media
  </a>
- <a href="/admin/cms/categories" class="bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:border-primary transition-colors flex items-center gap-2">
- <span class="material-symbols-outlined text-base">category</span>
- Categories
- </a>
  </div>
 
  <!-- Stats Cards -->
  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3" id="cms-stats">
  <div class="bg-white border border-gray-200 rounded-md p-4">
+ <span class="material-symbols-outlined text-primary text-xl">bolt</span>
+ <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-2">Prompts</p>
+ <p class="text-2xl font-semibold text-text-primary mt-1" id="stat-prompts">—</p>
+ </div>
+ <div class="bg-white border border-gray-200 rounded-md p-4">
  <span class="material-symbols-outlined text-primary text-xl">article</span>
- <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-2">Total Posts</p>
+ <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-2">Posts</p>
  <p class="text-2xl font-semibold text-text-primary mt-1" id="stat-posts">—</p>
  </div>
  <div class="bg-white border border-gray-200 rounded-md p-4">
  <span class="material-symbols-outlined text-primary text-xl">publish</span>
  <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-2">Published</p>
  <p class="text-2xl font-semibold text-text-primary mt-1" id="stat-published">—</p>
- </div>
- <div class="bg-white border border-gray-200 rounded-md p-4">
- <span class="material-symbols-outlined text-primary text-xl">edit_note</span>
- <p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-2">Drafts</p>
- <p class="text-2xl font-semibold text-text-primary mt-1" id="stat-drafts">—</p>
  </div>
  <div class="bg-white border border-gray-200 rounded-md p-4">
  <span class="material-symbols-outlined text-primary text-xl">category</span>
@@ -110,31 +108,28 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
 
  async function loadDashboard() {
  // Load stats
- const [postsRes, categoriesRes, mediaRes, activityRes] = await Promise.all([
+ const [promptsRes, postsRes, publishedRes, categoriesRes, mediaRes, activityRes] = await Promise.all([
+ fetch('/api/admin/cms/prompts?limit=5'),
  fetch('/api/admin/cms/posts?limit=5'),
+ fetch('/api/admin/cms/posts?status=published&limit=1'),
  fetch('/api/admin/cms/categories'),
  fetch('/api/admin/cms/media?limit=1'),
  fetch('/api/admin/cms/activity?limit=10'),
  ]);
 
+ const promptsData = await promptsRes.json();
  const postsData = await postsRes.json();
+ const publishedData = await publishedRes.json();
  const categoriesData = await categoriesRes.json();
  const mediaData = await mediaRes.json();
  const activityData = await activityRes.json();
 
  // Stats
+ document.getElementById('stat-prompts')!.textContent = String(promptsData.total || 0);
  document.getElementById('stat-posts')!.textContent = String(postsData.total || 0);
+ document.getElementById('stat-published')!.textContent = String(publishedData.total || 0);
  document.getElementById('stat-categories')!.textContent = String(categoriesData.categories?.length || 0);
  document.getElementById('stat-media')!.textContent = String(mediaData.total || 0);
-
- // Count published/drafts from posts
- const allPostsRes = await fetch('/api/admin/cms/posts?status=published&limit=1');
- const allPostsData = await allPostsRes.json();
- document.getElementById('stat-published')!.textContent = String(allPostsData.total || 0);
-
- const draftsRes = await fetch('/api/admin/cms/posts?status=draft&limit=1');
- const draftsData = await draftsRes.json();
- document.getElementById('stat-drafts')!.textContent = String(draftsData.total || 0);
 
  // Recent posts
  const recentPosts = document.getElementById('recent-posts')!;
@@ -142,13 +137,13 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  recentPosts.innerHTML = postsData.posts.map((p: any) => `
  <a href="/admin/cms/posts/edit/${esc(p.id)}" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
  <div class="flex-1 min-w-0">
- <p class="font-bold text-sm truncate">${esc(p.title)}</p>
- <p class="text-xs text-gray-500 uppercase tracking-wider mt-1">${esc(p.categoryName || 'Uncategorized')} &middot; ${esc(p.readTime)}</p>
+ <p class="font-semibold text-sm truncate">${esc(p.title)}</p>
+ <p class="text-xs text-gray-500 mt-1">${esc(p.categoryName || 'Uncategorized')} &middot; ${esc(p.readTime)}</p>
  </div>
- <span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase ml-3 ${
- p.status === 'published' ? 'bg-blue-50 text-blue-900' :
- p.status === 'draft' ? 'bg-amber-50 text-amber-900' :
- 'bg-red-50 text-red-900'
+ <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wide ml-3 ${
+ p.status === 'published' ? 'bg-green-50 text-green-700' :
+ p.status === 'draft' ? 'bg-amber-50 text-amber-700' :
+ 'bg-gray-100 text-gray-600'
  }">${p.status}</span>
  </a>
  `).join('');
@@ -160,6 +155,7 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  const actionIcons: Record<string, string> = {
  create_post: 'add_circle', update_post: 'edit', archive_post: 'archive',
  publish_post: 'publish', unpublish_post: 'unpublished',
+ create_prompt: 'bolt', update_prompt: 'edit_note', delete_prompt: 'delete_forever',
  create_category: 'new_label', update_category: 'label', delete_category: 'label_off',
  upload_media: 'upload_file', delete_media: 'delete', update_media: 'image',
  create_page: 'note_add', update_page: 'edit_document', delete_page: 'delete',
@@ -173,7 +169,7 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <span class="material-symbols-outlined text-primary text-xl">${actionIcons[a.action] || 'info'}</span>
  <div class="flex-1 min-w-0">
  <p class="text-sm"><strong>${esc(a.userName)}</strong> ${esc(a.action.replace(/_/g, ' '))} ${a.entityTitle ? `"${esc(a.entityTitle)}"` : ''}</p>
- <p class="text-xs text-gray-500 uppercase tracking-wider mt-0.5">${new Date(a.createdAt).toLocaleString()}</p>
+ <p class="text-xs text-gray-500 mt-0.5">${new Date(a.createdAt).toLocaleString()}</p>
  </div>
  </div>
  `).join('');

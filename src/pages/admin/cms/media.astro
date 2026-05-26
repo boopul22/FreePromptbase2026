@@ -2,17 +2,15 @@
 export const prerender = false;
 
 import Layout from '../../../layouts/Layout.astro';
-import Nav from '../../../components/Nav.astro';
 import AdminSidebar from '../../../components/AdminSidebar.astro';
 ---
 
 <Layout title="Media Library - CMS - Free Prompt Base" noindex={true}>
- <Nav activePage="admin" />
 
  <div class="flex">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-4 sm:space-y-6 bg-gray-50 min-h-[calc(100dvh-var(--nav-h,57px))]">
+ <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-4 sm:space-y-6 bg-gray-50 min-h-screen">
  <!-- Breadcrumb -->
  <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500" aria-label="Breadcrumb">
  <a href="/admin/cms" class="hover:text-text-primary transition-colors">Content</a>

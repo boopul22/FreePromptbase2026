@@ -1,0 +1,207 @@
+---
+export const prerender = false;
+
+import Layout from '../../../../layouts/Layout.astro';
+import AdminSidebar from '../../../../components/AdminSidebar.astro';
+---
+
+<Layout title="Prompts - CMS - Free Prompt Base" noindex={true}>
+ <div class="flex">
+ <AdminSidebar activePage="cms" />
+
+ <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 min-h-screen">
+ <!-- Header -->
+ <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+ <div>
+ <h1 class="text-xl sm:text-2xl font-semibold text-text-primary">Prompts</h1>
+ <p class="text-sm text-gray-500 mt-1" id="prompt-subtitle">Manage the prompt library.</p>
+ </div>
+ <a href="/admin/cms/prompts/new" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2 self-start sm:self-auto">
+ <span class="material-symbols-outlined text-base">add</span>
+ New prompt
+ </a>
+ </div>
+
+ <!-- Filters -->
+ <div class="flex flex-col md:flex-row gap-3">
+ <select id="category-filter" class="px-3 py-2 border border-gray-200 rounded-md bg-white text-sm">
+ <option value="">All categories</option>
+ </select>
+ <select id="model-filter" class="px-3 py-2 border border-gray-200 rounded-md bg-white text-sm">
+ <option value="">All models</option>
+ </select>
+ <label class="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-md bg-white text-sm text-text-primary cursor-pointer">
+ <input id="featured-filter" type="checkbox" class="accent-primary" />
+ Featured only
+ </label>
+ <div class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md flex-1">
+ <span class="material-symbols-outlined text-gray-400 text-base">search</span>
+ <input id="search-input" type="text" placeholder="Search prompts..." class="bg-transparent border-none focus:outline-none w-full text-sm" />
+ </div>
+ </div>
+
+ <!-- Table -->
+ <div class="bg-white border border-gray-200 rounded-md overflow-hidden">
+ <div id="prompts-list">
+ <div class="p-8 text-center text-gray-500">
+ <span class="material-symbols-outlined text-3xl">hourglass_empty</span>
+ <p class="text-xs uppercase tracking-wide mt-2">Loading...</p>
+ </div>
+ </div>
+ </div>
+
+ <!-- Pagination -->
+ <div id="pagination" class="flex items-center justify-between text-sm text-gray-500"></div>
+ </main>
+ </div>
+</Layout>
+
+<script>
+ let currentPage = 1;
+ let currentFilters: Record<string, string> = {};
+
+ function esc(s: string): string {
+ const d = document.createElement('div');
+ d.textContent = s;
+ return d.innerHTML;
+ }
+
+ async function loadCategories() {
+ const res = await fetch('/api/admin/cms/prompt-categories');
+ const data = await res.json();
+ const sel = document.getElementById('category-filter') as HTMLSelectElement;
+ for (const c of data.categories || []) {
+ const opt = document.createElement('option');
+ opt.value = c.slug;
+ opt.textContent = `${c.emoji} ${c.name}`;
+ sel.appendChild(opt);
+ }
+ }
+
+ async function loadModels() {
+ // Distinct models from the existing list endpoint (cheap: pull first 200 and dedupe client-side).
+ const res = await fetch('/api/admin/cms/prompts?limit=200');
+ const data = await res.json();
+ const models = Array.from(new Set((data.prompts || []).map((p: any) => p.model).filter(Boolean))).sort();
+ const sel = document.getElementById('model-filter') as HTMLSelectElement;
+ for (const m of models as string[]) {
+ const opt = document.createElement('option');
+ opt.value = m;
+ opt.textContent = m;
+ sel.appendChild(opt);
+ }
+ }
+
+ async function loadPrompts(page = 1) {
+ currentPage = page;
+ const params = new URLSearchParams({ page: String(page), limit: '20', ...currentFilters });
+ const res = await fetch(`/api/admin/cms/prompts?${params}`);
+ const data = await res.json();
+ const list = document.getElementById('prompts-list')!;
+
+ (document.getElementById('prompt-subtitle')!).textContent =
+ `${data.total} ${data.total === 1 ? 'prompt' : 'prompts'} in the library.`;
+
+ if (!data.prompts?.length) {
+ list.innerHTML = '<div class="p-8 text-center text-gray-500"><p class="text-sm">No prompts match the current filter.</p></div>';
+ document.getElementById('pagination')!.innerHTML = '';
+ return;
+ }
+
+ list.innerHTML = `
+ <table class="w-full text-sm">
+ <thead class="bg-gray-50 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+ <tr>
+ <th class="text-left px-4 py-3">Title</th>
+ <th class="text-left px-4 py-3 hidden md:table-cell">Category</th>
+ <th class="text-left px-4 py-3 hidden md:table-cell">Model</th>
+ <th class="text-left px-4 py-3 hidden lg:table-cell">Date</th>
+ <th class="text-right px-4 py-3">Actions</th>
+ </tr>
+ </thead>
+ <tbody class="divide-y divide-gray-200">
+ ${data.prompts.map((p: any) => `
+ <tr class="hover:bg-gray-50 transition-colors">
+ <td class="px-4 py-3">
+ <div class="flex items-center gap-2">
+ ${p.featured ? '<span class="material-symbols-outlined text-primary text-base" title="Featured">star</span>' : ''}
+ <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="font-medium text-text-primary hover:text-primary">${esc(p.title)}</a>
+ </div>
+ <p class="text-xs text-gray-500 mt-0.5 truncate max-w-md">${esc(p.description || '')}</p>
+ </td>
+ <td class="px-4 py-3 hidden md:table-cell text-gray-600">${p.categoryEmoji ?? ''} ${esc(p.categoryName ?? p.category)}</td>
+ <td class="px-4 py-3 hidden md:table-cell text-gray-600">${esc(p.model)}</td>
+ <td class="px-4 py-3 hidden lg:table-cell text-gray-500 text-xs">${esc(p.date)}</td>
+ <td class="px-4 py-3 text-right whitespace-nowrap">
+ <a href="/${esc(p.slug)}" target="_blank" rel="noopener" class="inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-100 text-gray-500 hover:text-text-primary transition-colors" title="View live">
+ <span class="material-symbols-outlined text-base">open_in_new</span>
+ </a>
+ <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-100 text-gray-500 hover:text-text-primary transition-colors" title="Edit">
+ <span class="material-symbols-outlined text-base">edit</span>
+ </a>
+ <button onclick="deletePrompt('${esc(p.slug)}', '${esc(p.title.replace(/'/g, "\\'"))}')" class="inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-red-50 text-gray-500 hover:text-red-600 transition-colors" title="Delete">
+ <span class="material-symbols-outlined text-base">delete</span>
+ </button>
+ </td>
+ </tr>
+ `).join('')}
+ </tbody>
+ </table>
+ `;
+
+ // Pagination
+ const pg = document.getElementById('pagination')!;
+ if (data.totalPages > 1) {
+ pg.innerHTML = `
+ <span>Page ${data.page} of ${data.totalPages}</span>
+ <div class="flex gap-2">
+ <button onclick="loadPrompts(${Math.max(1, page - 1)})" ${page === 1 ? 'disabled' : ''} class="px-3 py-1.5 border border-gray-200 rounded-md text-xs font-semibold bg-white hover:bg-gray-50 transition-colors disabled:opacity-40">Previous</button>
+ <button onclick="loadPrompts(${Math.min(data.totalPages, page + 1)})" ${page === data.totalPages ? 'disabled' : ''} class="px-3 py-1.5 border border-gray-200 rounded-md text-xs font-semibold bg-white hover:bg-gray-50 transition-colors disabled:opacity-40">Next</button>
+ </div>
+ `;
+ } else {
+ pg.innerHTML = '';
+ }
+ }
+
+ (window as any).loadPrompts = loadPrompts;
+ (window as any).deletePrompt = async (slug: string, title: string) => {
+ if (!confirm(`Delete prompt "${title}"? This cannot be undone.`)) return;
+ const res = await fetch(`/api/admin/cms/prompts/${encodeURIComponent(slug)}`, { method: 'DELETE' });
+ if (res.ok) {
+ loadPrompts(currentPage);
+ } else {
+ const err = await res.json().catch(() => ({}));
+ alert(`Delete failed: ${err.error || res.statusText}`);
+ }
+ };
+
+ function applyFilters() {
+ currentFilters = {};
+ const cat = (document.getElementById('category-filter') as HTMLSelectElement).value;
+ const model = (document.getElementById('model-filter') as HTMLSelectElement).value;
+ const featured = (document.getElementById('featured-filter') as HTMLInputElement).checked;
+ const search = (document.getElementById('search-input') as HTMLInputElement).value.trim();
+ if (cat) currentFilters.category = cat;
+ if (model) currentFilters.model = model;
+ if (featured) currentFilters.featured = '1';
+ if (search) currentFilters.search = search;
+ loadPrompts(1);
+ }
+
+ (document.getElementById('category-filter') as HTMLSelectElement).addEventListener('change', applyFilters);
+ (document.getElementById('model-filter') as HTMLSelectElement).addEventListener('change', applyFilters);
+ (document.getElementById('featured-filter') as HTMLInputElement).addEventListener('change', applyFilters);
+
+ let searchTimer: any;
+ (document.getElementById('search-input') as HTMLInputElement).addEventListener('input', () => {
+ clearTimeout(searchTimer);
+ searchTimer = setTimeout(applyFilters, 250);
+ });
+
+ // Boot
+ (async () => {
+ await Promise.all([loadCategories(), loadModels()]);
+ loadPrompts(1);
+ })();
+</script>
