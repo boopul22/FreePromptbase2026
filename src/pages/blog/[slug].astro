@@ -288,20 +288,32 @@ const breadcrumb = breadcrumbSchema([
 <style is:global>
 	.prose-blog {
 		color: var(--color-text-primary, #1f2937);
-		font-size: 1.0625rem;
-		line-height: 1.75;
+		font-size: 1rem;
+		line-height: 1.7;
+	}
+	@media (min-width: 640px) {
+		.prose-blog {
+			font-size: 1.0625rem;
+			line-height: 1.75;
+		}
 	}
 	.prose-blog > :first-child {
 		margin-top: 0;
 	}
 	.prose-blog h2 {
-		font-size: 1.625rem;
+		font-size: 1.4rem;
 		font-weight: 700;
-		margin-top: 3rem;
+		margin-top: 2.5rem;
 		margin-bottom: 0.75rem;
 		letter-spacing: -0.015em;
 		scroll-margin-top: 5rem;
 		line-height: 1.25;
+	}
+	@media (min-width: 640px) {
+		.prose-blog h2 {
+			font-size: 1.625rem;
+			margin-top: 3rem;
+		}
 	}
 	.prose-blog h3 {
 		font-size: 1.2rem;

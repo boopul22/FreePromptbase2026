@@ -9,10 +9,10 @@ const today = new Date().toISOString().slice(0, 10);
 ---
 
 <Layout title="New Prompt - CMS - Free Prompt Base" noindex={true}>
- <div class="flex h-screen overflow-hidden">
+ <div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 overflow-y-auto h-screen">
+ <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 md:overflow-y-auto md:h-screen">
  <!-- Breadcrumb -->
  <nav class="flex items-center gap-2 text-xs text-gray-500">
  <a href="/admin/cms/prompts" class="hover:text-text-primary transition-colors">Prompts</a>
