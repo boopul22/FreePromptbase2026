@@ -128,18 +128,49 @@ const breadcrumb = breadcrumbSchema([
 				<div class="lg:sticky lg:top-24">
 				{
 					(prompt.images?.length ?? 0) > 1 ? (
-						<div
-							class="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 scroll-smooth"
-							style="scrollbar-width: thin;"
-						>
-							{prompt.images!.map((src, i) => (
-								<img
-									src={src}
-									alt={`${prompt.title} — image ${i + 1}`}
-									class="snap-center shrink-0 w-full rounded-base object-cover aspect-[4/5] bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
-									loading={i === 0 ? 'eager' : 'lazy'}
-								/>
-							))}
+						<div class="relative group" data-carousel data-total={prompt.images!.length}>
+							<div
+								class="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 scroll-smooth no-scrollbar"
+								data-carousel-track
+							>
+								{prompt.images!.map((src, i) => (
+									<img
+										src={src}
+										alt={`${prompt.title} — image ${i + 1}`}
+										class="snap-center shrink-0 w-full rounded-base object-cover aspect-[4/5] bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
+										loading={i === 0 ? 'eager' : 'lazy'}
+									/>
+								))}
+							</div>
+
+							<!-- Prev / next buttons (hidden at the ends via JS) -->
+							<button
+								type="button"
+								data-carousel-prev
+								aria-label="Previous image"
+								class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 backdrop-blur shadow-md flex items-center justify-center text-text-primary hover:bg-white transition-opacity opacity-80 group-hover:opacity-100 focus-visible:opacity-100 disabled:opacity-0 disabled:pointer-events-none"
+							>
+								<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+									<polyline points="15 18 9 12 15 6"/>
+								</svg>
+							</button>
+							<button
+								type="button"
+								data-carousel-next
+								aria-label="Next image"
+								class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 backdrop-blur shadow-md flex items-center justify-center text-text-primary hover:bg-white transition-opacity opacity-80 group-hover:opacity-100 focus-visible:opacity-100 disabled:opacity-0 disabled:pointer-events-none"
+							>
+								<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+									<polyline points="9 18 15 12 9 6"/>
+								</svg>
+							</button>
+
+							<!-- Slide counter / dot indicator -->
+							<div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 backdrop-blur text-white text-[11px] font-semibold tabular-nums">
+								<span data-carousel-index>1</span>
+								<span class="opacity-60">/</span>
+								<span>{prompt.images!.length}</span>
+							</div>
 						</div>
 					) : prompt.coverImage ? (
 						<img
@@ -318,7 +349,56 @@ const breadcrumb = breadcrumbSchema([
 			wireSave();
 			wireShare();
 			wireLike();
+
+			// Image carousel: prev/next buttons + live counter, driven by the
+			// snap-scroll container's scrollLeft. Buttons disable at the ends.
+			// Listens to scroll so counter updates from arrow clicks, drag, or
+			// keyboard scrolling alike.
+			document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
+				if (root.dataset.wired === '1') return;
+				root.dataset.wired = '1';
+				const track = root.querySelector<HTMLElement>('[data-carousel-track]');
+				const prev = root.querySelector<HTMLButtonElement>('[data-carousel-prev]');
+				const next = root.querySelector<HTMLButtonElement>('[data-carousel-next]');
+				const counter = root.querySelector<HTMLElement>('[data-carousel-index]');
+				const total = Number(root.dataset.total ?? 0);
+				if (!track || !prev || !next || !counter || total < 2) return;
+
+				function slideWidth() {
+					const first = track!.querySelector('img');
+					return first ? first.getBoundingClientRect().width + 12 /* gap-3 */ : track!.clientWidth;
+				}
+
+				function update() {
+					const idx = Math.round(track!.scrollLeft / slideWidth());
+					const clamped = Math.min(Math.max(idx, 0), total - 1);
+					counter!.textContent = String(clamped + 1);
+					prev!.disabled = clamped === 0;
+					next!.disabled = clamped === total - 1;
+				}
+
+				prev.addEventListener('click', () => {
+					track!.scrollBy({ left: -slideWidth(), behavior: 'smooth' });
+				});
+				next.addEventListener('click', () => {
+					track!.scrollBy({ left: slideWidth(), behavior: 'smooth' });
+				});
+				track.addEventListener('scroll', () => {
+					// Debounce via rAF so we don't thrash on momentum scroll.
+					if ((track as any)._raf) return;
+					(track as any)._raf = requestAnimationFrame(() => {
+						(track as any)._raf = null;
+						update();
+					});
+				});
+				update();
+			});
 		</script>
+
+		<style>
+			.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+			.no-scrollbar::-webkit-scrollbar { display: none; }
+		</style>
 
 		<!-- Related -->
 		{
