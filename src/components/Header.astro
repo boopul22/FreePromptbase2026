@@ -15,19 +15,13 @@ const isAdmin = sessionUser?.role === 'admin';
 		<!-- Left: logo + desktop nav -->
 		<div class="flex items-center gap-2 md:gap-8">
 			<a href="/" class="flex items-center gap-2 shrink-0" aria-label="Free Prompt Base — home" data-purpose="logo">
-				<svg
-					class="w-8 h-8 text-primary shrink-0"
-					fill="none"
-					viewBox="0 0 24 24"
-					xmlns="http://www.w3.org/2000/svg"
-				>
-					<path
-						d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
-						stroke="currentColor"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						stroke-width="2"></path>
-				</svg>
+				<img
+					src="/logo.svg"
+					alt="Free Prompt Base"
+					class="w-8 h-8 shrink-0"
+					width="32"
+					height="32"
+				/>
 			</a>
 			<nav class="hidden md:flex items-center gap-6 font-medium text-sm text-gray-600">
 				<a class="text-text-primary" href="/">Feed</a>
@@ -160,9 +154,7 @@ const isAdmin = sessionUser?.role === 'admin';
 		<!-- Brand band + close button -->
 		<div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
 			<a href="/" class="flex items-center gap-2">
-				<svg class="w-6 h-6 text-primary shrink-0" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-					<path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-				</svg>
+				<img src="/logo.svg" alt="" aria-hidden="true" class="w-6 h-6 shrink-0" width="24" height="24" />
 				<span id="mobile-nav-title" class="text-sm font-semibold text-text-primary">Free Prompt Base</span>
 			</a>
 			<button
@@ -222,7 +214,7 @@ const isAdmin = sessionUser?.role === 'admin';
 						</div>
 						{isAdmin && (
 							<a href="/admin/cms" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-semibold text-link bg-primary hover:opacity-90 transition-opacity">
-								<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/></svg>
+								<img src="/logo.svg" alt="" aria-hidden="true" class="w-4 h-4" width="16" height="16" />
 								Admin dashboard
 							</a>
 						)}
