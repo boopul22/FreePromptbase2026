@@ -18,7 +18,12 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     // D1 binding not available (e.g. during some build steps). Fail open.
   }
 
-  if (db) {
+  // Static asset proxy paths (/cdn/*) don't need session lookups, actor IDs,
+  // or saved/liked preloads. Bail out early so cached + uncached image hits
+  // alike stay cheap.
+  const isStaticProxy = path.startsWith('/cdn/');
+
+  if (db && !isStaticProxy) {
     const token = cookies.get('session')?.value;
     if (token) {
       try {
@@ -34,16 +39,16 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   // before sign-in. Migrated into the user's actor_id on OAuth callback.
   let anonId = cookies.get('anon_id')?.value;
   let setAnonCookie = false;
-  if (!anonId) {
+  if (!anonId && !isStaticProxy) {
     anonId = crypto.randomUUID();
     setAnonCookie = true;
   }
-  locals.actorId = locals.user ? `user:${locals.user.id}` : `anon:${anonId}`;
+  locals.actorId = locals.user ? `user:${locals.user.id}` : `anon:${anonId ?? ''}`;
 
   // Preload the current actor's liked + saved slugs so PromptCard renders the
   // hearts/bookmarks in their correct initial state on SSR (no client-fetch
   // flicker). Skip for API routes that don't render cards.
-  if (db && !path.startsWith('/api/')) {
+  if (db && !path.startsWith('/api/') && !isStaticProxy) {
     try {
       const [savedRes, likedRes] = await db.batch<{ prompt_slug: string }>([
         db

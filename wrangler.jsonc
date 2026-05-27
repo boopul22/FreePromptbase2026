@@ -42,8 +42,10 @@
 		}
 	],
 	"vars": {
-		// Public R2 dev URL (or your custom CDN domain) — uploaded media URLs are
-		// built as `${R2_PUBLIC_URL}/${r2_key}`. Safe to commit; not a secret.
-		"R2_PUBLIC_URL": "https://pub-a8f43320b2794bc5ad6fbb36a3523130.r2.dev"
+		// Same-origin CDN proxy — uploaded media URLs are built as
+		// `${R2_PUBLIC_URL}/${r2_key}` and served via the /cdn/<key> route in
+		// src/pages/cdn/[...key].ts. Keeps every image under the project's
+		// own domain for SEO + branding. Safe to commit; not a secret.
+		"R2_PUBLIC_URL": "https://freepromptbase.com/cdn"
 	}
 }

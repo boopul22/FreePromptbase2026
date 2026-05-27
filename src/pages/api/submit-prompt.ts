@@ -14,15 +14,21 @@ function jsonError(error: string, status = 400, extra: Record<string, unknown> =
 	});
 }
 
-// Accept only image URLs we issued ourselves (R2 public bucket). Prevents the
-// submission form being used to launder arbitrary URLs into the site.
+// Accept only image URLs we issued ourselves (uploaded via /api/submit-prompt/upload
+// and served from R2_PUBLIC_URL). Prevents the submission form being used to
+// launder arbitrary URLs into the site.
 function isAcceptableImageUrl(url: string, r2PublicUrl: string): boolean {
 	if (typeof url !== 'string') return false;
 	if (!r2PublicUrl) return false;
 	try {
 		const u = new URL(url);
 		const base = new URL(r2PublicUrl);
-		return u.origin === base.origin && u.pathname.startsWith('/submissions/');
+		if (u.origin !== base.origin) return false;
+		// Strip a trailing slash from the base path so `${base}/submissions/...`
+		// and the stored URL line up regardless of whether R2_PUBLIC_URL ends in
+		// `/` or not.
+		const basePath = base.pathname.replace(/\/$/, '');
+		return u.pathname.startsWith(`${basePath}/submissions/`);
 	} catch {
 		return false;
 	}

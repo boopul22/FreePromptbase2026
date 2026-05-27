@@ -51,7 +51,7 @@ export interface Prompt {
 	rejectionReason?: string;
 }
 
-const R2 = 'https://pub-a8f43320b2794bc5ad6fbb36a3523130.r2.dev/prompts';
+const R2 = 'https://freepromptbase.com/cdn/prompts';
 
 export const prompts: Prompt[] = [
 	{
