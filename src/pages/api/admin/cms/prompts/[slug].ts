@@ -145,12 +145,34 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     finalCover = existing.cover_image;
   }
 
+  // Resolve author from `createdBy` (user id from the dropdown). When the
+  // admin picks a user, that user's display name becomes the byline AND the
+  // prompt's created_by FK so /author/<username> resolves correctly.
+  let finalCreatedBy: string | null = existing.created_by;
+  let finalAuthor: string = existing.author;
+  if (typeof body.createdBy === 'string' && body.createdBy.trim()) {
+    const u = await db
+      .prepare('SELECT id, name FROM users WHERE id = ?')
+      .bind(body.createdBy.trim())
+      .first<{ id: string; name: string }>();
+    if (!u) {
+      return new Response(JSON.stringify({ error: 'Selected author does not exist.' }), {
+        status: 400, headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    finalCreatedBy = u.id;
+    finalAuthor = u.name;
+  } else if (body.author !== undefined) {
+    // Legacy free-text author (kept for backwards compat). Doesn't change the FK.
+    finalAuthor = body.author;
+  }
+
   await db
     .prepare(
       `UPDATE prompts SET
         slug = ?, title = ?, description = ?, prompt_text = ?, category = ?,
         tags = ?, author = ?, date = ?, cover_image = ?, images = ?,
-        featured = ?, popularity = ?, how_to_use = ?
+        featured = ?, popularity = ?, how_to_use = ?, created_by = ?
        WHERE slug = ?`,
     )
     .bind(
@@ -160,13 +182,14 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       body.promptText ?? existing.prompt_text,
       body.category ?? existing.category,
       JSON.stringify(Array.isArray(body.tags) ? body.tags : safeJsonArray(existing.tags)),
-      body.author ?? existing.author,
+      finalAuthor,
       body.date ?? existing.date,
       finalCover,
       JSON.stringify(finalImages),
       body.featured !== undefined ? (body.featured ? 1 : 0) : existing.featured,
       Number.isFinite(body.popularity) ? body.popularity : existing.popularity,
       body.howToUse !== undefined ? body.howToUse || null : existing.how_to_use,
+      finalCreatedBy,
       currentSlug,
     )
     .run();

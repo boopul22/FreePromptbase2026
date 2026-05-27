@@ -61,13 +61,15 @@ export const GET: APIRoute = async ({ request, url, cookies, redirect, locals })
 
     // Upsert user
     const userId = generateId();
+    // Only refresh fields that can rotate (email, avatar). Keep `name` stable
+    // so admins / users can override their display name in DB or via /account
+    // without it getting clobbered on the next login.
     await db
       .prepare(
         `INSERT INTO users (id, google_id, email, name, avatar_url, role)
          VALUES (?, ?, ?, ?, ?, ?)
          ON CONFLICT(google_id) DO UPDATE SET
            email = excluded.email,
-           name = excluded.name,
            avatar_url = excluded.avatar_url,
            updated_at = datetime('now')`,
       )

@@ -117,7 +117,10 @@ const slug = Astro.params.slug!;
  <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
  <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-author">Author</label>
- <input id="f-author" type="text" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <select id="f-author" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+ <option value="">Loading users…</option>
+ </select>
+ <p class="text-xs text-gray-500 mt-1">Pick the user this prompt is credited to. Their display name becomes the byline.</p>
  </div>
  <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-date">Date</label>
@@ -192,9 +195,10 @@ const slug = Astro.params.slug!;
  });
 
  async function boot() {
- // Load categories + prompt in parallel
- const [catRes, promptRes] = await Promise.all([
+ // Load categories + users + prompt in parallel
+ const [catRes, usersRes, promptRes] = await Promise.all([
  fetch('/api/admin/cms/prompt-categories'),
+ fetch('/api/admin/cms/users'),
  fetch(`/api/admin/cms/prompts/${encodeURIComponent(slug)}`),
  ]);
 
@@ -204,6 +208,7 @@ const slug = Astro.params.slug!;
  }
 
  const catData = await catRes.json();
+ const usersData = usersRes.ok ? await usersRes.json() : { users: [] };
  const promptData = await promptRes.json();
  const p = promptData.prompt;
 
@@ -219,6 +224,23 @@ const slug = Astro.params.slug!;
  opt.textContent = `${c.emoji} ${c.name}`;
  if (c.slug === p.category) opt.selected = true;
  catSel.appendChild(opt);
+ }
+
+ // Populate author dropdown — admins first, then by name.
+ const authorSel = document.getElementById('f-author');
+ const users = (usersData.users || []).slice();
+ users.sort((a, b) => {
+ if (a.role !== b.role) return a.role === 'admin' ? -1 : 1;
+ return a.name.localeCompare(b.name);
+ });
+ authorSel.innerHTML = '';
+ for (const u of users) {
+ const opt = document.createElement('option');
+ opt.value = u.id;
+ const tag = u.role === 'admin' ? ' (admin)' : '';
+ opt.textContent = `${u.name}${tag} — ${u.email}`;
+ if (u.id === p.createdBy) opt.selected = true;
+ authorSel.appendChild(opt);
  }
 
  // Fill form
@@ -248,7 +270,8 @@ const slug = Astro.params.slug!;
  document.getElementById('f-how-to-use').value = p.howToUse || '';
  document.getElementById('f-tags').value = (p.tags || []).join(', ');
  document.getElementById('f-cover').value = p.coverImage || '';
- document.getElementById('f-author').value = p.author || '';
+ // f-author is populated above. If the prompt has no createdBy yet (e.g. seed
+ // rows), leave the first option selected so the admin makes an explicit pick.
  document.getElementById('f-date').value = p.date || '';
  document.getElementById('f-popularity').value = String(p.popularity ?? 0);
  document.getElementById('f-featured').checked = !!p.featured;
@@ -270,7 +293,7 @@ const slug = Astro.params.slug!;
  promptText: v('f-prompt-text'),
  category: v('f-category'),
  tags,
- author: v('f-author'),
+ createdBy: v('f-author'),
  date: v('f-date'),
  coverImage: v('f-cover') || null,
  images,

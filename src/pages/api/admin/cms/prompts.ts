@@ -160,6 +160,26 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // Auto-cover: if no explicit cover_image given but images were uploaded, use the first.
   const coverImage = body.coverImage || (images.length > 0 ? images[0] : null);
 
+  // Resolve author from `createdBy` (user id from the dropdown). The dropdown
+  // is the source of truth for both the byline display name and the
+  // /author/<username> profile link. Fall back to free-text `author` for
+  // legacy clients, then to the current admin's name.
+  let createdById: string = locals.user.id;
+  let authorName: string = body.author || locals.user.name;
+  if (typeof body.createdBy === 'string' && body.createdBy.trim()) {
+    const u = await db
+      .prepare('SELECT id, name FROM users WHERE id = ?')
+      .bind(body.createdBy.trim())
+      .first<{ id: string; name: string }>();
+    if (!u) {
+      return new Response(JSON.stringify({ error: 'Selected author does not exist.' }), {
+        status: 400, headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    createdById = u.id;
+    authorName = u.name;
+  }
+
   await db
     .prepare(
       `INSERT INTO prompts
@@ -174,7 +194,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       body.promptText,
       body.category,
       JSON.stringify(Array.isArray(body.tags) ? body.tags : []),
-      body.author || locals.user.name,
+      authorName,
       body.date || today,
       coverImage,
       JSON.stringify(images),
@@ -182,7 +202,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       0,
       Number.isFinite(body.popularity) ? body.popularity : 0,
       body.howToUse || null,
-      locals.user.id,
+      createdById,
     )
     .run();
 

@@ -4,7 +4,7 @@ export const prerender = false;
 import Layout from '../../../../layouts/Layout.astro';
 import AdminSidebar from '../../../../components/AdminSidebar.astro';
 
-const defaultAuthor = Astro.locals.user?.name || 'Admin';
+const currentAdminId = Astro.locals.user?.id || '';
 const today = new Date().toISOString().slice(0, 10);
 ---
 
@@ -99,7 +99,10 @@ const today = new Date().toISOString().slice(0, 10);
  <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
  <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-author">Author</label>
- <input id="f-author" name="author" type="text" value={defaultAuthor} class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <select id="f-author" name="createdBy" required data-default-id={currentAdminId} class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+ <option value="">Loading users…</option>
+ </select>
+ <p class="text-xs text-gray-500 mt-1">Pick the user this prompt should be credited to. Their display name becomes the byline.</p>
  </div>
  <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-date">Date</label>
@@ -129,6 +132,32 @@ const today = new Date().toISOString().slice(0, 10);
  const opt = document.createElement('option');
  opt.value = c.slug;
  opt.textContent = `${c.emoji} ${c.name}`;
+ sel.appendChild(opt);
+ }
+ }
+
+ async function loadAuthors() {
+ const sel = document.getElementById('f-author') as HTMLSelectElement;
+ const defaultId = sel.dataset.defaultId || '';
+ const res = await fetch('/api/admin/cms/users');
+ if (!res.ok) {
+ sel.innerHTML = '<option value="">Could not load users</option>';
+ return;
+ }
+ const data = await res.json();
+ const users = (data.users || []) as Array<{ id: string; name: string; email: string; role: string }>;
+ // Sort: admins first, then alphabetical
+ users.sort((a, b) => {
+ if (a.role !== b.role) return a.role === 'admin' ? -1 : 1;
+ return a.name.localeCompare(b.name);
+ });
+ sel.innerHTML = '';
+ for (const u of users) {
+ const opt = document.createElement('option');
+ opt.value = u.id;
+ const tag = u.role === 'admin' ? ' (admin)' : '';
+ opt.textContent = `${u.name}${tag} — ${u.email}`;
+ if (u.id === defaultId) opt.selected = true;
  sel.appendChild(opt);
  }
  }
@@ -206,7 +235,7 @@ const today = new Date().toISOString().slice(0, 10);
  promptText: val('f-prompt-text'),
  category: val('f-category'),
  tags,
- author: val('f-author'),
+ createdBy: val('f-author'),
  date: val('f-date'),
  coverImage: val('f-cover') || null,
  images,
@@ -256,4 +285,5 @@ const today = new Date().toISOString().slice(0, 10);
  });
 
  loadCategories();
+ loadAuthors();
 </script>
