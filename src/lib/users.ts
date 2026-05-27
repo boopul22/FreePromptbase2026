@@ -63,6 +63,22 @@ export async function getUserById(id: string): Promise<UserProfile | null> {
   return row ? rowToProfile(row) : null;
 }
 
+// Usernames of users who have at least one approved prompt — used by the
+// sitemap so /author/<username> pages get crawled.
+export async function getActiveAuthorUsernames(): Promise<string[]> {
+  const { results } = await getDB()
+    .prepare(
+      `SELECT DISTINCT u.username AS username
+       FROM users u
+       JOIN prompts p ON p.submitted_by = u.id OR p.created_by = u.id
+       WHERE p.status = 'approved'
+         AND u.username IS NOT NULL
+         AND u.is_banned = 0`,
+    )
+    .all<{ username: string }>();
+  return (results ?? []).map((r) => r.username).filter(Boolean);
+}
+
 // Slug shape: 3-32 chars, lowercase ascii alphanum + hyphen, no leading/trailing hyphen.
 const USERNAME_RE = /^[a-z0-9](?:[a-z0-9-]{1,30}[a-z0-9])?$/;
 const RESERVED = new Set([

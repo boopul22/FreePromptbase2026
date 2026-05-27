@@ -42,9 +42,12 @@ const dateLabel = new Date(prompt.date).toLocaleDateString('en-US', {
 });
 const mins = readTime(prompt);
 
-// Use the gallery as og:image when present, otherwise the cover.
+// Use the gallery as og:image when present, otherwise the cover. When the
+// prompt has no image at all, fall back to the dynamically-generated branded
+// OG card so social shares don't default to /og-default.png.
 const heroImage =
-	(prompt.images && prompt.images.length > 0 ? prompt.images[0] : prompt.coverImage) ?? undefined;
+	(prompt.images && prompt.images.length > 0 ? prompt.images[0] : prompt.coverImage) ??
+	`/og/${prompt.slug}.svg`;
 
 // Prefer the real creator name (from createdBy join) over the static author
 // string for E-E-A-T signal; fall back to the author string.
@@ -55,6 +58,26 @@ const authorName =
 	(prompt as unknown as { createdByName?: string }).createdByName ||
 	prompt.author;
 const authorHref = authorProfile?.username ? `/author/${authorProfile.username}` : null;
+
+// Engagement counters become InteractionCounter entries so Google can use
+// them as an entity-popularity signal and AI engines can cite usage stats.
+const interactionStatistic = [
+	likeCount > 0 && {
+		'@type': 'InteractionCounter',
+		interactionType: 'https://schema.org/LikeAction',
+		userInteractionCount: likeCount,
+	},
+	saveCount > 0 && {
+		'@type': 'InteractionCounter',
+		interactionType: 'https://schema.org/BookmarkAction',
+		userInteractionCount: saveCount,
+	},
+	shareCount > 0 && {
+		'@type': 'InteractionCounter',
+		interactionType: 'https://schema.org/ShareAction',
+		userInteractionCount: shareCount,
+	},
+].filter(Boolean);
 
 const promptSchema: Record<string, unknown> = {
 	'@context': 'https://schema.org',
@@ -79,6 +102,7 @@ const promptSchema: Record<string, unknown> = {
 		: prompt.coverImage
 			? { image: prompt.coverImage }
 			: {}),
+	...(interactionStatistic.length > 0 ? { interactionStatistic } : {}),
 };
 
 const breadcrumb = breadcrumbSchema([

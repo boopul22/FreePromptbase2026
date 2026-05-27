@@ -37,6 +37,9 @@ const personSchema = {
 	image: profileUser.avatarUrl || undefined,
 	description: profileUser.bio || undefined,
 	url: `${(Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '')}/author/${profileUser.username}`,
+	...(profileUser.twitter
+		? { sameAs: [`https://twitter.com/${profileUser.twitter}`] }
+		: {}),
 };
 
 const title = `${profileUser.name} — prompts on Free Prompt Base`;

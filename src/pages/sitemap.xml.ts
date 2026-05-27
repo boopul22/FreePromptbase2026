@@ -1,23 +1,25 @@
 import type { APIRoute } from 'astro';
 import { getAllPrompts, getAllCategories } from '../lib/prompts';
 import { getAllPosts } from '../lib/posts';
+import { getActiveAuthorUsernames } from '../lib/users';
 import { getDB } from '../lib/db';
 
 // Dynamic sitemap built from D1 so newly added prompts/categories appear
 // immediately (no rebuild). Served at /sitemap.xml.
 export const prerender = false;
 
-const SITE = 'https://freepromptbase.com';
+const SITE = (import.meta.env.SITE ?? 'https://freepromptbase.com').replace(/\/$/, '');
 const STATIC_PATHS = ['/', '/categories', '/blog', '/about', '/privacy', '/terms'];
 
 export const GET: APIRoute = async () => {
-	const [prompts, categories, posts, pageRows] = await Promise.all([
+	const [prompts, categories, posts, pageRows, authors] = await Promise.all([
 		getAllPrompts(),
 		getAllCategories(),
 		getAllPosts(),
 		getDB()
 			.prepare("SELECT slug, updated_at FROM pages WHERE status = 'published'")
 			.all<{ slug: string; updated_at: string }>(),
+		getActiveAuthorUsernames(),
 	]);
 
 	interface Entry {
@@ -46,6 +48,7 @@ export const GET: APIRoute = async () => {
 			loc: `/p/${p.slug}`,
 			lastmod: p.updated_at.slice(0, 10),
 		})),
+		...authors.map((u) => ({ loc: `/author/${u}` })),
 	];
 
 	const escapeXml = (s: string) =>

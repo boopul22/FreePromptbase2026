@@ -36,6 +36,8 @@ const siteUrl = (Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, ''
 let cleanPath = Astro.url.pathname.replace(/index\.html$/, '').replace(/\.html$/, '');
 if (cleanPath.length > 1) cleanPath = cleanPath.replace(/\/$/, '');
 if (cleanPath === '') cleanPath = '/';
+// Lowercase canonical so externally-shared mixed-case URLs collapse to one form.
+cleanPath = cleanPath.toLowerCase();
 const canonical = `${siteUrl}${cleanPath === '/' ? '/' : cleanPath}`;
 
 // Resolve og:image to an absolute URL if a relative path was passed in.
@@ -44,6 +46,23 @@ const absoluteOgImage = ogImage
 		? ogImage
 		: `${siteUrl}${ogImage.startsWith('/') ? ogImage : `/${ogImage}`}`
 	: undefined;
+
+// Infer og:image:type from extension; default jpeg for unknown.
+const ogImageType = absoluteOgImage
+	? /\.svg(\?|$)/i.test(absoluteOgImage)
+		? 'image/svg+xml'
+		: /\.png(\?|$)/i.test(absoluteOgImage)
+			? 'image/png'
+			: /\.webp(\?|$)/i.test(absoluteOgImage)
+				? 'image/webp'
+				: 'image/jpeg'
+	: undefined;
+
+// We only know dimensions for two image shapes: the default OG png and the
+// generated /og/<slug>.svg endpoint (both 1200x630). For user-uploaded covers
+// we don't know real dimensions, so we skip width/height rather than lie.
+const ogImageKnownSize =
+	!!ogImage && (ogImage === '/og-default.png' || /^\/og\/[^/]+\.svg$/.test(ogImage));
 
 // Site-wide WebSite schema with a sitelinks search box action.
 const websiteSchema = {
@@ -96,6 +115,7 @@ const organizationSchema = {
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
 		<link rel="canonical" href={canonical} />
+		<link rel="alternate" type="application/rss+xml" title="Free Prompt Base — Blog" href="/blog/rss.xml" />
 
 		<!-- Preconnect to Google's CDN since signed-in user avatars come from there. -->
 		<link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin />
@@ -107,8 +127,9 @@ const organizationSchema = {
 		<meta property="og:description" content={description} />
 		<meta property="og:url" content={canonical} />
 		{absoluteOgImage && <meta property="og:image" content={absoluteOgImage} />}
-		{absoluteOgImage && <meta property="og:image:width" content="1200" />}
-		{absoluteOgImage && <meta property="og:image:height" content="630" />}
+		{absoluteOgImage && ogImageType && <meta property="og:image:type" content={ogImageType} />}
+		{absoluteOgImage && ogImageKnownSize && <meta property="og:image:width" content="1200" />}
+		{absoluteOgImage && ogImageKnownSize && <meta property="og:image:height" content="630" />}
 
 		<!-- Twitter -->
 		<meta name="twitter:card" content={absoluteOgImage ? 'summary_large_image' : 'summary'} />

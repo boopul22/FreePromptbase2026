@@ -4,7 +4,9 @@
 // supporting types that benefit every page of the same shape.
 // ---------------------------------------------------------------------------
 
-const SITE_URL = 'https://freepromptbase.com';
+// Sourced from astro.config.mjs `site` via import.meta.env.SITE so renaming
+// the canonical domain only needs touching one file. Fallback kept for safety.
+const SITE_URL = (import.meta.env.SITE ?? 'https://freepromptbase.com').replace(/\/$/, '');
 const SITE_NAME = 'Free Prompt Base';
 
 export interface Crumb {
