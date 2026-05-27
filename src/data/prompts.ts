@@ -1,8 +1,11 @@
 // ---------------------------------------------------------------------------
-// Prompt seed data. Hardcoded for now so we can build the design first; this
-// will be replaced by a Cloudflare D1 table managed through an admin panel.
-// IMPORTANT: nothing imports this file directly except src/lib/prompts.ts —
-// that keeps the future D1 swap to a single module.
+// Prompt seed data. Source of truth for `npm run db:gen-seed` — the prompts
+// here get emitted into db/seed.sql, which is then applied to D1 by wrangler.
+// IMPORTANT: nothing imports this file directly except src/lib/prompts.ts
+// (which reads from D1 at runtime) and scripts/gen-seed.ts.
+//
+// Cover + gallery images live on R2 at /prompts/<slug>-<index>.jpg
+// (bucket: freepromptbase-media-2026, served via the R2 dev URL).
 // ---------------------------------------------------------------------------
 
 export interface Prompt {
@@ -39,145 +42,97 @@ export interface Prompt {
 	createdBy?: string;
 }
 
+const R2 = 'https://pub-a8f43320b2794bc5ad6fbb36a3523130.r2.dev/prompts';
+
 export const prompts: Prompt[] = [
 	{
-		slug: 'cinematic-portrait',
-		title: 'Cinematic Portrait Photography',
+		slug: 'hand-drawn-doodle-overlay',
+		title: 'Hand-Drawn Doodle Photo Overlay',
 		description:
-			'Direct Midjourney like a film DP — dramatic lighting, shallow depth of field and a moody color grade for striking portraits.',
+			'Turn any photo into a scroll-stopping social post — playful hand-drawn doodles, motion lines and whimsical captions that react to the subject in the frame.',
 		promptText:
-			'cinematic portrait of {subject}, 85mm lens, shallow depth of field, dramatic rim lighting, soft key light, moody teal-and-orange color grade, film grain, shot on Arri Alexa, ultra detailed, photorealistic --ar 4:5 --style raw --v 6',
+			"Analyze the uploaded image and preserve the original subject, composition, and lighting. Do not alter the identity or structure of the main subject. Add playful, hand-drawn doodles that interact directly with the subject in the image. The doodles should mimic, follow, or exaggerate the shapes, gestures, or motion present — such as outlining poses, extending limbs, adding motion lines, or creating imaginative elements that 'respond' to the subject.\n\nEnsure the doodles feel naturally integrated into the scene, as if they were drawn on top of the photo with intention. Use a sketchy, imperfect, hand-drawn style with organic lines, slightly uneven strokes, and a casual illustrated feel. Include whimsical handwritten text elements placed around the image. The text should match the mood or implied context of the scene, with a playful and spontaneous tone.\n\nAvoid fixed phrases — generate context-aware, creative, and humorous text that fits each unique image. Maintain a balanced composition so the doodles enhance the image without overwhelming the original subject. Keep the overall aesthetic fun, expressive, and social-media-ready. High resolution, clean overlay, vibrant yet natural color harmony.",
 		category: 'image-generation',
-		tags: ['portrait', 'photography', 'cinematic', 'lighting'],
-		author: 'Admin',
-		date: '2026-05-20',
+		tags: ['photo overlay', 'doodle', 'social media', 'chatgpt', 'gemini'],
+		author: 'Free Prompt Base',
+		date: '2026-05-25',
+		coverImage: `${R2}/doodle-overlay-1.jpg`,
+		images: [
+			`${R2}/doodle-overlay-1.jpg`,
+			`${R2}/doodle-overlay-2.jpg`,
+			`${R2}/doodle-overlay-3.jpg`,
+		],
 		featured: true,
 		popularity: 980,
 		howToUse:
-			'Replace {subject} with your person or character (e.g. "an elderly fisherman"). Adjust --ar for orientation and swap the color grade words to change the mood.',
+			'Upload any clear photo of a person, car, or object. The model reads what is in the frame and draws context-aware doodles + captions around it. Works best with ChatGPT (GPT-4o image edit) or Gemini. For the cleanest results, give the model a portrait or hero shot with one obvious subject and some negative space around it.',
 	},
 	{
-		slug: 'viral-hook-generator',
-		title: 'Viral Hook Generator',
+		slug: 'cinematic-football-world-cup-poster',
+		title: 'Cinematic World Cup Football Poster',
 		description:
-			'Generate 10 scroll-stopping hooks for any topic, ranked by stopping power, with the psychological trigger behind each.',
+			'Generate a luxury 4K cinematic football poster of any team — two players back-to-back, neon flag accents, smoky stadium haze and official-campaign typography.',
 		promptText:
-			'You are a world-class short-form copywriter. Generate 10 scroll-stopping hooks for a post about [TOPIC] aimed at [AUDIENCE]. For each hook: (1) write it in under 12 words, (2) name the psychological trigger it uses (curiosity, fear, status, etc.), and (3) rate its stopping power 1-10. Sort from strongest to weakest.',
-		category: 'marketing',
-		tags: ['copywriting', 'social media', 'hooks'],
-		author: 'Admin',
-		date: '2026-05-18',
-		featured: true,
-		liked: true,
-		popularity: 1240,
-		howToUse:
-			'Swap [TOPIC] and [AUDIENCE] for yours. Ask for a follow-up: "expand hook #3 into a full caption".',
-	},
-	{
-		slug: 'code-refactor-reviewer',
-		title: 'Code Refactor Reviewer',
-		description:
-			'Have Claude review a function for readability, bugs and performance, then return a refactored version with a diff-style explanation.',
-		promptText:
-			'Act as a senior software engineer doing a careful code review. Here is a function:\n\n```\n[PASTE CODE]\n```\n\n1. List concrete issues grouped by Correctness, Readability, and Performance.\n2. Provide a refactored version.\n3. Explain each change in one line, referencing the original line it replaces.\nKeep the public API identical unless a change is required for correctness.',
-		category: 'coding',
-		tags: ['code review', 'refactor', 'engineering'],
-		author: 'Admin',
-		date: '2026-05-22',
-		popularity: 870,
-		howToUse: 'Paste your function where indicated. Mention the language and any constraints (e.g. "no new dependencies").',
-	},
-	{
-		slug: 'blog-post-outliner',
-		title: 'SEO Blog Post Outliner',
-		description:
-			'Turn a single keyword into a search-optimized outline with H2/H3s, search intent, and a suggested title and meta description.',
-		promptText:
-			'You are an SEO content strategist. For the target keyword "[KEYWORD]", produce: (1) the likely search intent, (2) a compelling H1 title under 60 characters, (3) a meta description under 155 characters, (4) a full outline of H2 and H3 sections that fully covers the topic, and (5) 5 "People also ask" style FAQ questions. Keep it scannable.',
-		category: 'writing-copy',
-		tags: ['seo', 'blogging', 'outline'],
-		author: 'Admin',
-		date: '2026-05-15',
-		popularity: 760,
-	},
-	{
-		slug: 'weekly-planner',
-		title: 'Weekly Priority Planner',
-		description:
-			'Drop in your tasks and goals and get a realistic, time-blocked week that protects deep work and respects your energy.',
-		promptText:
-			'Act as a productivity coach. Here are my goals and tasks for the week:\n[LIST TASKS]\n\nMy fixed commitments are:\n[LIST MEETINGS]\n\nBuild a Monday-Friday time-blocked plan that: protects 2 hours of deep work each morning, batches shallow tasks in the afternoon, and leaves buffer time. Flag anything unrealistic and suggest what to cut.',
-		category: 'productivity',
-		tags: ['planning', 'time blocking', 'focus'],
-		author: 'Admin',
-		date: '2026-05-12',
-		popularity: 540,
-	},
-	{
-		slug: 'business-plan-drafter',
-		title: 'One-Page Business Plan Drafter',
-		description:
-			'Describe your idea and get a crisp one-page plan: problem, solution, market, model, moat and the riskiest assumption to test first.',
-		promptText:
-			'You are a startup advisor. Based on this idea: [IDEA], draft a one-page business plan with these sections: Problem, Solution, Target Customer, Market Size (rough), Business Model, Go-to-Market, Competitive Moat, Key Risks. End with the single riskiest assumption I should validate first and a cheap experiment to test it.',
-		category: 'business',
-		tags: ['startup', 'strategy', 'planning'],
-		author: 'Admin',
-		date: '2026-05-10',
-		popularity: 620,
-	},
-	{
-		slug: 'lesson-plan-builder',
-		title: 'Lesson Plan Builder',
-		description:
-			'Create an engaging, standards-aligned lesson plan for any topic and grade level, with objectives, activities and assessment.',
-		promptText:
-			'Act as an experienced teacher. Create a 45-minute lesson plan on [TOPIC] for [GRADE LEVEL]. Include: learning objectives, a hook to open, a step-by-step activity sequence with timings, materials needed, differentiation for struggling and advanced students, and a quick formative assessment to check understanding.',
-		category: 'education',
-		tags: ['teaching', 'lesson plan', 'classroom'],
-		author: 'Admin',
-		date: '2026-05-08',
-		popularity: 410,
-	},
-	{
-		slug: 'story-idea-generator',
-		title: 'Story Idea Generator',
-		description:
-			'Spin up original story premises in any genre, each with a logline, a twist and a memorable protagonist.',
-		promptText:
-			'You are an imaginative story editor. Generate 5 original story ideas in the [GENRE] genre. For each, give: a one-sentence logline, the protagonist and their flaw, the central conflict, and an unexpected twist. Avoid clichés and make each premise feel fresh.',
-		category: 'entertainment',
-		tags: ['storytelling', 'creative writing', 'ideas'],
-		author: 'Admin',
-		date: '2026-05-05',
-		popularity: 350,
-	},
-	{
-		slug: 'product-photo-mockup',
-		title: 'Luxury Product Mockup',
-		description:
-			'Studio-grade product shots in Midjourney — clean backdrop, soft shadows and tack-sharp detail for e-commerce and ads.',
-		promptText:
-			'professional product photograph of {product} on a minimal {color} backdrop, soft studio lighting, gentle reflection, subtle shadow, high detail, commercial e-commerce style, shot on Hasselblad, 100mm macro, crisp focus --ar 1:1 --style raw --v 6',
+			"Create a super cinematic hyper-realistic football poster in 4K Ultra HD vertical 9:16 aspect ratio with a luxury minimalist sports-poster aesthetic. Use a long-range cinematic camera angle with half-body framing from waist-up for both characters. The overall atmosphere should feel emotional, elite, dark, dramatic, and professionally designed like an official FIFA World Cup advertisement. On the left side place a fashionable athletic young man with fair white skin tone wearing the EXACT [COUNTRY] 2026 World Cup away jersey with accurate real-world kit details researched from official references — authentic fabric texture, sleeve design, logos, stitching, collar structure, and jersey patterns. On the right side place [PLAYER NAME] wearing the exact same [COUNTRY] 2026 away jersey. Both characters should stand back-to-back with folded arms while looking directly toward the camera with calm champion energy and confident facial expressions. [PLAYER NAME] should look highly realistic with natural facial detail and cinematic lighting. Both subjects should have realistic skin tone with premium smooth skin rendering. The background should be mostly black with deep moody contrast and subtle neon edge-glow effects only around the subjects and design accents. Behind them place 3 long vertical glowing stripes inspired by [COUNTRY] flag colors. Add a large faded [COUNTRY] flag with dark transparent blending in the background for a premium cinematic feel. Include realistic stadium haze, smoke textures, floating dust particles, glossy jersey reflections, cinematic shadows, lens flare details, and premium sports-poster lighting. Add small elegant football typography such as '[COUNTRY]', '[PLAYER NAME]', 'WORLD CUP 2026', small futuristic numbers, minimal sports graphics, and luxury poster-style text elements integrated naturally into the composition. Typography should remain subtle and clean. Use black, [FLAG COLORS], silver, and white tones in the color grading. Ultra realistic textures, sharp focus, authentic jersey folds, dramatic lighting, and official football campaign mood. No clutter, no crowd, no extra players, no cartoon effects.",
 		category: 'image-generation',
-		tags: ['product', 'ecommerce', 'studio'],
-		author: 'Admin',
-		date: '2026-05-03',
-		liked: true,
-		popularity: 690,
-		howToUse: 'Replace {product} and {color}. Try "marble" or "gradient" backdrops, and --ar 4:5 for social ads.',
+		tags: ['football', 'sports', 'poster', 'cinematic', 'gemini', 'world cup'],
+		author: 'Free Prompt Base',
+		date: '2026-05-24',
+		coverImage: `${R2}/football-poster-1.jpg`,
+		images: [
+			`${R2}/football-poster-1.jpg`,
+			`${R2}/football-poster-2.jpg`,
+			`${R2}/football-poster-3.jpg`,
+		],
+		featured: true,
+		popularity: 920,
+		howToUse:
+			'Replace [COUNTRY], [PLAYER NAME], and [FLAG COLORS] before generating. Examples: Argentina + Lionel Messi (sky blue, white, soft gold), Portugal + Cristiano Ronaldo (deep red, emerald green, gold), Brazil + Neymar (canary yellow, deep green, royal blue). Best results in Gemini 2.5 Pro or ChatGPT image. Stick to 9:16 vertical so the framing reads as a real campaign poster.',
 	},
 	{
-		slug: 'cold-email-writer',
-		title: 'Cold Email Writer',
+		slug: 'back-flash-night-portrait',
+		title: 'Back-Flash Cinematic Night Portrait',
 		description:
-			'Write a short, personalized B2B cold email that earns a reply — strong subject line, one clear ask, zero fluff.',
+			'iPhone-flash aesthetic at night — a glowing rim-light halo around the subject, lens flare, soft haze, and that grainy candid mood that goes viral on Instagram reels.',
 		promptText:
-			'You are a B2B sales expert. Write a cold email to [ROLE] at [COMPANY] offering [PRODUCT/SERVICE]. Constraints: under 90 words, one specific personalized opening line based on [TRIGGER], one clear value statement, one low-friction call to action (a question, not a meeting demand). Give me 2 subject line options under 5 words each.',
-		category: 'marketing',
-		tags: ['sales', 'email', 'outreach'],
-		author: 'Admin',
-		date: '2026-05-01',
-		popularity: 580,
+			'Ultra-realistic cinematic night portrait of a young person shown in the photo. A powerful flash light positioned directly behind their head creates an intense glowing white rim light outline around their entire body and hair, giving a dreamy halo effect. Strong lens flare, slightly overexposed flash bloom, soft haze, high contrast shadows, moody night atmosphere. Dark trees and foliage surrounding the scene, faint stars visible in the sky. Shot on iPhone with flash, realistic skin texture, candid aesthetic, Instagram reel filter vibe, cinematic lighting, grainy night photography, vertical composition, soft glow, ethereal and mysterious mood.\n\nKeywords to add for best results:\n- back flash photography\n- glowing outline effect\n- rim light halo\n- overexposed flash\n- cinematic night shot\n- dreamy lens flare\n- iPhone night flash aesthetic\n- soft grain',
+		category: 'image-generation',
+		tags: ['portrait', 'night', 'flash', 'iphone aesthetic', 'instagram', 'reel'],
+		author: 'Free Prompt Base',
+		date: '2026-05-23',
+		coverImage: `${R2}/back-flash-portrait-1.jpg`,
+		images: [
+			`${R2}/back-flash-portrait-1.jpg`,
+			`${R2}/back-flash-portrait-2.jpg`,
+			`${R2}/back-flash-portrait-3.jpg`,
+			`${R2}/back-flash-portrait-4.jpg`,
+		],
+		featured: false,
+		popularity: 870,
+		howToUse:
+			'Upload a clean photo of the subject (preferably at night or with a dark background). The model paints the rim-light halo and the night atmosphere on top — works equally well on portraits in dresses, casual wear, or jewelry shots. Keep the framing vertical (4:5 or 9:16) for the Instagram-reel feel.',
+	},
+	{
+		slug: 'pixar-chibi-scrapbook-collage',
+		title: 'Pixar Chibi Scrapbook Collage',
+		description:
+			'Drop the real photo of a person and surround them with adorable 3D Pixar-style chibi versions of themselves in different poses — same outfit, scrapbook doodles, sticker outlines.',
+		promptText:
+			"Use the uploaded photo exactly as the main base image and preserve all original details including the background, environment, lighting, shadows, camera angle, pose, facial features, hairstyle, outfit, accessories, colors, and overall photography aesthetic. The real person must remain fully realistic, untouched, recognizable, and naturally integrated exactly like the original photo. Do not modify the face, body, clothing, or background. Add multiple adorable Pixar-inspired 3D chibi characters around the real person as decorative scrapbook-style elements. The chibi must look like miniature versions of the same person with oversized expressive eyes, fluffy detailed hair, glossy skin, soft white sticker outlines, subtle glow, and premium 3D rendering. Every chibi must wear the exact same outfit and accessories as the real person, including identical jacket, pants, shoes, glasses, ID card, and hairstyle. Place the chibi naturally around the composition in different cute poses such as waving, jumping, peace sign, selfie pose, sitting, walking, shy smile, and playful fashion poses without covering the real subject. Add aesthetic white handwritten doodles, sparkles, hearts, stars, arrows, smiley icons, and handwritten positive phrases in every area of the composition such as 'capture the moment,' 'stay positive,' 'choose happy,' 'good things take time,' and 'make it happen.' Maintain realistic blending, cinematic lighting, natural shadows, cozy warm tones, elegant scrapbook composition, luxury Instagram aesthetic, realistic depth layering, and ultra detailed 8K quality in a 4:5 vertical canvas.\n\nNegative prompt: outfit changes, altered accessories, different hairstyle, background replacement, face alteration, face reshaping, unrealistic anatomy, bad hands, blurry quality, messy composition, excessive doodles, inconsistent lighting, low quality rendering, cropped body, watermark, text artifacts, uncanny valley, cheap cartoon style.",
+		category: 'image-generation',
+		tags: ['pixar', 'chibi', 'scrapbook', 'collage', 'gpt image', '3d render'],
+		author: 'Free Prompt Base',
+		date: '2026-05-22',
+		coverImage: `${R2}/pixar-chibi-collage-1.jpg`,
+		images: [
+			`${R2}/pixar-chibi-collage-1.jpg`,
+			`${R2}/pixar-chibi-collage-2.jpg`,
+			`${R2}/pixar-chibi-collage-3.jpg`,
+			`${R2}/pixar-chibi-collage-4.jpg`,
+		],
+		featured: true,
+		popularity: 1100,
+		howToUse:
+			'Best on GPT Image 2 (the original viral pairing) or Gemini 2.5 Pro. Upload a single full-body photo with one clear pose — the chibi mini-mes will copy the outfit and surround the real subject. Keep the canvas 4:5 vertical. If you get face drift, re-run with the negative-prompt block intact.',
 	},
 ];
