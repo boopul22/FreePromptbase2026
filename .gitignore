@@ -33,3 +33,6 @@ db/seed.sql
 
 # Playwright test artifacts
 .playwright-mcp/
+# Root-level screenshots from ad-hoc Playwright runs (nested PNGs like
+# public/og-default.png stay tracked).
+/*.png
