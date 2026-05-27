@@ -12,51 +12,15 @@ export interface Category {
 
 export const categories: Category[] = [
 	{
-		slug: 'writing-copy',
-		name: 'Writing & Copy',
-		description: 'Blog posts, emails, scripts and copy that convert.',
-		emoji: '✍️',
+		slug: 'images',
+		name: 'Images',
+		description: 'Prompts for AI image generators — Midjourney, Gemini, DALL·E, Stable Diffusion.',
+		emoji: '🖼️',
 	},
 	{
-		slug: 'coding',
-		name: 'Coding',
-		description: 'Refactors, reviews, debugging and dev workflows.',
-		emoji: '💻',
-	},
-	{
-		slug: 'image-generation',
-		name: 'Image Generation',
-		description: 'Midjourney, Gemini and photoreal art direction.',
-		emoji: '🎨',
-	},
-	{
-		slug: 'productivity',
-		name: 'Productivity',
-		description: 'Plan, prioritise and automate your day.',
-		emoji: '⚡',
-	},
-	{
-		slug: 'marketing',
-		name: 'Marketing',
-		description: 'Hooks, ads, funnels and growth experiments.',
-		emoji: '📈',
-	},
-	{
-		slug: 'business',
-		name: 'Business',
-		description: 'Strategy, plans and operations on autopilot.',
-		emoji: '💼',
-	},
-	{
-		slug: 'education',
-		name: 'Education',
-		description: 'Lesson plans, study aids and explainers.',
-		emoji: '🎓',
-	},
-	{
-		slug: 'entertainment',
-		name: 'Entertainment',
-		description: 'Stories, games and creative fun.',
-		emoji: '🎬',
+		slug: 'text',
+		name: 'Text',
+		description: 'Prompts for writing, coding, planning, and anything text-based.',
+		emoji: '📝',
 	},
 ];

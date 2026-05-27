@@ -49,28 +49,6 @@ const sisterSites = [
 					Curated AI prompts you can copy and use. Find one, copy it, create.
 				</p>
 
-				<!-- Newsletter form -->
-				<form class="mt-6 space-y-2" data-newsletter aria-label="Subscribe to the newsletter">
-					<p class="text-[11px] font-semibold uppercase tracking-widest text-gray-300">Stay updated</p>
-					<div class="flex">
-						<label for="newsletter-email" class="sr-only">Your email</label>
-						<input
-							id="newsletter-email"
-							type="email"
-							required
-							placeholder="Your email..."
-							class="flex-1 min-w-0 bg-white/5 border border-white/10 rounded-l-md px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
-						/>
-						<button
-							type="submit"
-							class="shrink-0 px-4 py-2 bg-primary text-link rounded-r-md text-xs font-bold uppercase tracking-wider hover:opacity-90 transition-opacity"
-						>
-							Join
-						</button>
-					</div>
-					<p class="text-[11px] text-gray-500 hidden" data-newsletter-msg></p>
-				</form>
-
 				<!-- Brand attribution (no outbound links) -->
 				<p class="mt-6 text-sm font-medium text-gray-300">bipul.online</p>
 			</div>
@@ -159,21 +137,3 @@ const sisterSites = [
 	</div>
 </footer>
 
-<script>
-	// Newsletter form — captures email client-side and shows a friendly thanks.
-	// Real persistence/integration can wire to /api/newsletter later.
-	const forms = document.querySelectorAll<HTMLFormElement>('[data-newsletter]');
-	forms.forEach((form) => {
-		const msg = form.querySelector<HTMLParagraphElement>('[data-newsletter-msg]');
-		const input = form.querySelector<HTMLInputElement>('input[type="email"]');
-		form.addEventListener('submit', (e) => {
-			e.preventDefault();
-			if (!input?.value) return;
-			if (msg) {
-				msg.textContent = `Thanks! We'll keep ${input.value} in the loop.`;
-				msg.classList.remove('hidden');
-			}
-			input.value = '';
-		});
-	});
-</script>

@@ -36,19 +36,6 @@ const { promptCount, categoryCount } = Astro.props;
 	<p class="text-gray-600 text-lg mb-4">{collection.description}</p>
 
 	<div class="flex items-center gap-3 text-sm text-gray-500 flex-wrap">
-		<span>
-			{promptCount} prompts across {categoryCount} categories. Curated by
-		</span>
-		<div class="flex items-center gap-2 text-text-primary font-medium">
-			<img
-				alt={collection.curator.name}
-				class="w-6 h-6 rounded-full object-cover"
-				src={collection.curator.avatar}
-				width="24"
-				height="24"
-				loading="lazy"
-			/>
-			<span>{collection.curator.name}</span>
-		</div>
+		<span>{promptCount} prompts across {categoryCount} categories.</span>
 	</div>
 </section>
