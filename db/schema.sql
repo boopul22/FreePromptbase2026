@@ -34,31 +34,41 @@ CREATE TABLE prompt_categories (
 );
 
 CREATE TABLE prompts (
-	slug         TEXT PRIMARY KEY,
-	title        TEXT NOT NULL,
-	description  TEXT NOT NULL,
-	prompt_text  TEXT NOT NULL,
-	category     TEXT NOT NULL REFERENCES prompt_categories(slug),
-	tags         TEXT NOT NULL DEFAULT '[]',
-	author       TEXT NOT NULL DEFAULT 'Admin',
-	date         TEXT NOT NULL,
-	cover_image  TEXT,
-	images       TEXT NOT NULL DEFAULT '[]',  -- JSON array of image URLs for the carousel
-	featured     INTEGER NOT NULL DEFAULT 0,
-	liked        INTEGER NOT NULL DEFAULT 0,
-	popularity   INTEGER NOT NULL DEFAULT 0,
-	save_count   INTEGER NOT NULL DEFAULT 0,    -- denormalized count of prompt_saves rows for this slug
-	like_count   INTEGER NOT NULL DEFAULT 0,    -- denormalized count of prompt_likes rows for this slug
-	share_count  INTEGER NOT NULL DEFAULT 0,    -- denormalized count of 'share' rows in prompt_events
-	how_to_use   TEXT,
-	created_by   TEXT,                          -- FK to users.id (nullable for seed)
-	created_at   TEXT NOT NULL DEFAULT (datetime('now'))
+	slug             TEXT PRIMARY KEY,
+	title            TEXT NOT NULL,
+	description      TEXT NOT NULL,
+	prompt_text      TEXT NOT NULL,
+	category         TEXT NOT NULL REFERENCES prompt_categories(slug),
+	tags             TEXT NOT NULL DEFAULT '[]',
+	author           TEXT NOT NULL DEFAULT 'Admin',
+	date             TEXT NOT NULL,
+	cover_image      TEXT,
+	images           TEXT NOT NULL DEFAULT '[]',  -- JSON array of image URLs for the carousel
+	featured         INTEGER NOT NULL DEFAULT 0,
+	liked            INTEGER NOT NULL DEFAULT 0,
+	popularity       INTEGER NOT NULL DEFAULT 0,
+	save_count       INTEGER NOT NULL DEFAULT 0,    -- denormalized count of prompt_saves rows for this slug
+	like_count       INTEGER NOT NULL DEFAULT 0,    -- denormalized count of prompt_likes rows for this slug
+	share_count      INTEGER NOT NULL DEFAULT 0,    -- denormalized count of 'share' rows in prompt_events
+	how_to_use       TEXT,
+	created_by       TEXT,                           -- FK to users.id of admin who created via CMS (nullable)
+	-- Submission workflow: user-submitted prompts start as 'pending' and require admin approval.
+	-- Admin-created prompts are inserted directly as 'approved'. Existing seed rows default to 'approved'.
+	status           TEXT NOT NULL DEFAULT 'approved',  -- 'pending' | 'approved' | 'rejected'
+	submitted_by     TEXT,                           -- FK to users.id of submitter; NULL for admin-created
+	submitted_at     TEXT,
+	reviewed_by      TEXT,                           -- FK to users.id of admin who approved/rejected
+	reviewed_at      TEXT,
+	rejection_reason TEXT,
+	created_at       TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE INDEX idx_prompts_category   ON prompts(category);
-CREATE INDEX idx_prompts_date       ON prompts(date);
-CREATE INDEX idx_prompts_popularity ON prompts(popularity);
-CREATE INDEX idx_prompts_save_count ON prompts(save_count);
+CREATE INDEX idx_prompts_category     ON prompts(category);
+CREATE INDEX idx_prompts_date         ON prompts(date);
+CREATE INDEX idx_prompts_popularity   ON prompts(popularity);
+CREATE INDEX idx_prompts_save_count   ON prompts(save_count);
+CREATE INDEX idx_prompts_status_date  ON prompts(status, date);
+CREATE INDEX idx_prompts_submitted_by ON prompts(submitted_by);
 
 -- Per-actor save list. actor_id is "user:<id>" for signed-in users and
 -- "anon:<uuid>" for anonymous visitors (migrated to user form on login).
@@ -105,11 +115,15 @@ CREATE TABLE users (
 	avatar_url TEXT,
 	role TEXT NOT NULL DEFAULT 'user',
 	is_banned INTEGER NOT NULL DEFAULT 0,
+	username TEXT UNIQUE,        -- profile slug used at /author/<username>; auto-assigned on first login
+	bio TEXT,                    -- short author bio (~280 chars)
+	twitter TEXT,                -- handle only, no '@' and no URL
 	created_at TEXT NOT NULL DEFAULT (datetime('now')),
 	updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX idx_users_google_id ON users(google_id);
 CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_username ON users(username);
 
 CREATE TABLE sessions (
 	id TEXT PRIMARY KEY,

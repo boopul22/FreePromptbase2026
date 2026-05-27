@@ -7,6 +7,10 @@ export interface SessionUser {
   email: string;
   avatarUrl: string;
   role: 'user' | 'admin';
+  /** Profile slug used at /author/<username>. Assigned on first login. */
+  username: string;
+  bio: string;
+  twitter: string;
 }
 
 const SESSION_DURATION_DAYS = 30;
@@ -26,7 +30,8 @@ export async function createSession(db: D1Database, userId: string): Promise<str
 export async function getSession(db: D1Database, token: string): Promise<SessionUser | null> {
   const row = await db
     .prepare(
-      `SELECT u.id, u.google_id, u.name, u.email, u.avatar_url, u.role, u.is_banned, s.expires_at
+      `SELECT u.id, u.google_id, u.name, u.email, u.avatar_url, u.role, u.is_banned,
+              u.username, u.bio, u.twitter, s.expires_at
        FROM sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.id = ?`
@@ -40,6 +45,9 @@ export async function getSession(db: D1Database, token: string): Promise<Session
       avatar_url: string;
       role: string;
       is_banned: number;
+      username: string | null;
+      bio: string | null;
+      twitter: string | null;
       expires_at: string;
     }>();
 
@@ -54,6 +62,9 @@ export async function getSession(db: D1Database, token: string): Promise<Session
     email: row.email,
     avatarUrl: row.avatar_url,
     role: row.role as 'user' | 'admin',
+    username: row.username ?? '',
+    bio: row.bio ?? '',
+    twitter: row.twitter ?? '',
   };
 }
 

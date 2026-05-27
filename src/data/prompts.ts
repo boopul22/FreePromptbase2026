@@ -40,6 +40,15 @@ export interface Prompt {
 	images?: string[];
 	/** users.id of the admin who added this prompt (null for seed entries). */
 	createdBy?: string;
+	/** Submission workflow status. Public lists only show 'approved'. */
+	status?: 'pending' | 'approved' | 'rejected';
+	/** users.id of the submitter (user-submitted only; NULL for admin-created). */
+	submittedBy?: string;
+	submittedAt?: string;
+	/** users.id of the admin who approved/rejected. */
+	reviewedBy?: string;
+	reviewedAt?: string;
+	rejectionReason?: string;
 }
 
 const R2 = 'https://pub-a8f43320b2794bc5ad6fbb36a3523130.r2.dev/prompts';

@@ -4,6 +4,8 @@
 //   - below md: a sticky top bar with a hamburger that opens a native
 //     <dialog> drawer. Same nav items in both — `items[]` is the
 //     single source of truth.
+import { getPendingCount } from '../lib/prompts';
+
 interface Props {
 	activePage?: string;
 }
@@ -11,14 +13,22 @@ const { activePage = '' } = Astro.props;
 
 const user = Astro.locals.user;
 
+let pendingCount = 0;
+try {
+	pendingCount = await getPendingCount();
+} catch {
+	// Non-fatal — sidebar still renders without the badge.
+}
+
 const items = [
-	{ href: '/admin/cms', label: 'Dashboard', icon: 'dashboard', match: 'dashboard' },
-	{ href: '/admin/cms/prompts', label: 'Prompts', icon: 'bolt', match: 'prompts' },
-	{ href: '/admin/cms/posts', label: 'Posts', icon: 'article', match: 'posts' },
-	{ href: '/admin/cms/categories', label: 'Categories', icon: 'category', match: 'categories' },
-	{ href: '/admin/cms/media', label: 'Media', icon: 'image', match: 'media' },
-	{ href: '/admin/cms/pages', label: 'Pages', icon: 'description', match: 'pages' },
-	{ href: '/admin/cms/users', label: 'Users', icon: 'group', match: 'users' },
+	{ href: '/admin/cms', label: 'Dashboard', icon: 'dashboard', match: 'dashboard', badge: 0 },
+	{ href: '/admin/cms/prompts', label: 'Prompts', icon: 'bolt', match: 'prompts', badge: 0 },
+	{ href: '/admin/cms/submissions', label: 'Submissions', icon: 'inbox', match: 'submissions', badge: pendingCount },
+	{ href: '/admin/cms/posts', label: 'Posts', icon: 'article', match: 'posts', badge: 0 },
+	{ href: '/admin/cms/categories', label: 'Categories', icon: 'category', match: 'categories', badge: 0 },
+	{ href: '/admin/cms/media', label: 'Media', icon: 'image', match: 'media', badge: 0 },
+	{ href: '/admin/cms/pages', label: 'Pages', icon: 'description', match: 'pages', badge: 0 },
+	{ href: '/admin/cms/users', label: 'Users', icon: 'group', match: 'users', badge: 0 },
 ];
 
 const path = Astro.url.pathname;
@@ -100,7 +110,12 @@ const pageLabel = current?.label ?? 'CMS';
 					]}
 				>
 					<span class="material-symbols-outlined text-lg">{it.icon}</span>
-					{it.label}
+					<span class="flex-1">{it.label}</span>
+					{it.badge > 0 && (
+						<span class="ml-auto bg-amber-100 text-amber-900 text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+							{it.badge}
+						</span>
+					)}
 				</a>
 			))}
 		</nav>
@@ -160,7 +175,12 @@ const pageLabel = current?.label ?? 'CMS';
 				]}
 			>
 				<span class="material-symbols-outlined text-lg">{it.icon}</span>
-				{it.label}
+				<span class="flex-1">{it.label}</span>
+				{it.badge > 0 && (
+					<span class="ml-auto bg-amber-100 text-amber-900 text-[10px] font-semibold px-1.5 py-0.5 rounded-full">
+						{it.badge}
+					</span>
+				)}
 			</a>
 		))}
 	</nav>

@@ -1,10 +1,10 @@
 // ---------------------------------------------------------------------------
-// Data-access layer for prompts & categories — now backed by Cloudflare D1.
+// Data-access layer for prompts & categories — backed by Cloudflare D1.
 //
-// This is the ONLY module the rest of the app imports for data. It reads the
-// `DB` binding via the Workers `env` (see wrangler.jsonc d1_databases). The
-// public function signatures are unchanged from the hardcoded version, so the
-// pages that call them did not need to change shape — only `prerender = false`.
+// This is the ONLY module the rest of the app imports for prompt data. It
+// reads the `DB` binding via the Workers `env`. Public functions return
+// approved prompts only; pending/rejected items are visible to the submitter
+// (via getPromptsByAuthor with includeAll) and to admins (via getPendingPrompts).
 //
 // Types still live in src/data (which doubles as the D1 seed source via
 // scripts/gen-seed.ts).
@@ -13,6 +13,7 @@
 import { env } from 'cloudflare:workers';
 import type { Prompt } from '../data/prompts';
 import type { Category } from '../data/categories';
+import { generateSlug, logActivity } from './cms';
 
 export type { Prompt, Category };
 
@@ -45,6 +46,12 @@ interface PromptRow {
 	share_count: number;
 	how_to_use: string | null;
 	created_by: string | null;
+	status?: string;
+	submitted_by?: string | null;
+	submitted_at?: string | null;
+	reviewed_by?: string | null;
+	reviewed_at?: string | null;
+	rejection_reason?: string | null;
 }
 
 function rowToPrompt(r: PromptRow): Prompt {
@@ -72,52 +79,70 @@ function rowToPrompt(r: PromptRow): Prompt {
 		shareCount: r.share_count,
 		howToUse: r.how_to_use ?? undefined,
 		createdBy: r.created_by ?? undefined,
+		status: (r.status as Prompt['status']) ?? 'approved',
+		submittedBy: r.submitted_by ?? undefined,
+		submittedAt: r.submitted_at ?? undefined,
+		reviewedBy: r.reviewed_by ?? undefined,
+		reviewedAt: r.reviewed_at ?? undefined,
+		rejectionReason: r.rejection_reason ?? undefined,
 	};
 }
 
 const PROMPT_COLS =
-	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, how_to_use, created_by';
+	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, how_to_use, created_by, status, submitted_by, submitted_at, reviewed_by, reviewed_at, rejection_reason';
 
-/** All prompts, newest first. */
+const APPROVED = "status = 'approved'";
+
+/** All approved prompts, newest first. */
 export async function getAllPrompts(): Promise<Prompt[]> {
 	const { results } = await getDB()
-		.prepare(`SELECT ${PROMPT_COLS} FROM prompts ORDER BY date DESC`)
+		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE ${APPROVED} ORDER BY date DESC`)
 		.all<PromptRow>();
 	return results.map(rowToPrompt);
 }
 
-/** A single prompt by slug, or undefined. */
-export async function getPromptBySlug(slug: string): Promise<Prompt | undefined> {
+/**
+ * A single prompt by slug. By default returns only approved prompts so pending
+ * items can't be opened by URL guessing. Pass { includeAll: true } from admin
+ * surfaces or from the author's self-view.
+ */
+export async function getPromptBySlug(
+	slug: string,
+	opts: { includeAll?: boolean } = {},
+): Promise<Prompt | undefined> {
+	const where = opts.includeAll ? 'WHERE slug = ?' : `WHERE slug = ? AND ${APPROVED}`;
 	const row = await getDB()
-		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE slug = ?`)
+		.prepare(`SELECT ${PROMPT_COLS} FROM prompts ${where}`)
 		.bind(slug)
 		.first<PromptRow>();
 	return row ? rowToPrompt(row) : undefined;
 }
 
-/** Prompts in a category, newest first. */
+/** Approved prompts in a category, newest first. */
 export async function getPromptsByCategory(categorySlug: string): Promise<Prompt[]> {
 	const { results } = await getDB()
-		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE category = ? ORDER BY date DESC`)
+		.prepare(
+			`SELECT ${PROMPT_COLS} FROM prompts WHERE category = ? AND ${APPROVED} ORDER BY date DESC`,
+		)
 		.bind(categorySlug)
 		.all<PromptRow>();
 	return results.map(rowToPrompt);
 }
 
-/** Featured prompts. */
+/** Featured + approved prompts. */
 export async function getFeaturedPrompts(): Promise<Prompt[]> {
 	const { results } = await getDB()
-		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE featured = 1 ORDER BY date DESC`)
+		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE featured = 1 AND ${APPROVED} ORDER BY date DESC`)
 		.all<PromptRow>();
 	return results.map(rowToPrompt);
 }
 
-/** Related prompts: same category first, then most popular, excluding self. */
+/** Related prompts: same category first, then most popular, excluding self. Approved only. */
 export async function getRelatedPrompts(prompt: Prompt, limit = 3): Promise<Prompt[]> {
 	const { results } = await getDB()
 		.prepare(
 			`SELECT ${PROMPT_COLS} FROM prompts
-			 WHERE slug != ?
+			 WHERE slug != ? AND ${APPROVED}
 			 ORDER BY (category = ?) DESC, popularity DESC
 			 LIMIT ?`,
 		)
@@ -143,10 +168,10 @@ export async function getCategoryBySlug(slug: string): Promise<Category | undefi
 	return row ?? undefined;
 }
 
-/** Map of category slug -> prompt count. */
+/** Map of category slug -> approved-prompt count. */
 export async function getCategoryCounts(): Promise<Record<string, number>> {
 	const { results } = await getDB()
-		.prepare('SELECT category, COUNT(*) AS n FROM prompts GROUP BY category')
+		.prepare(`SELECT category, COUNT(*) AS n FROM prompts WHERE ${APPROVED} GROUP BY category`)
 		.all<{ category: string; n: number }>();
 	const map: Record<string, number> = {};
 	for (const r of results) map[r.category] = r.n;
@@ -165,11 +190,11 @@ export function readTime(prompt: Prompt): number {
 // Social queries — drive the Popular / Trending tabs and the /saved page.
 // ---------------------------------------------------------------------------
 
-/** Prompts ordered by all-time saves, newest as tiebreaker. */
+/** Approved prompts ordered by all-time saves, newest as tiebreaker. */
 export async function getPopularPrompts(limit = 60): Promise<Prompt[]> {
 	const { results } = await getDB()
 		.prepare(
-			`SELECT ${PROMPT_COLS} FROM prompts ORDER BY save_count DESC, date DESC LIMIT ?`,
+			`SELECT ${PROMPT_COLS} FROM prompts WHERE ${APPROVED} ORDER BY save_count DESC, date DESC LIMIT ?`,
 		)
 		.bind(limit)
 		.all<PromptRow>();
@@ -177,9 +202,9 @@ export async function getPopularPrompts(limit = 60): Promise<Prompt[]> {
 }
 
 /**
- * Trending = prompts with the most saves+shares in the last 7 days. Computed
- * live; if nothing has happened in a week, the list will be empty (callers
- * should fall back to the Popular list to avoid a dead tab).
+ * Trending = approved prompts with the most saves+shares in the last 7 days.
+ * Computed live; if nothing has happened in a week, the list will be empty
+ * (callers should fall back to the Popular list to avoid a dead tab).
  */
 export async function getTrendingPrompts(limit = 60): Promise<Prompt[]> {
 	const cols = PROMPT_COLS.split(', ')
@@ -193,6 +218,7 @@ export async function getTrendingPrompts(limit = 60): Promise<Prompt[]> {
 			   ON e.prompt_slug = p.slug
 			  AND e.kind IN ('save','like','share')
 			  AND e.created_at > datetime('now','-7 days')
+			 WHERE p.${APPROVED}
 			 GROUP BY p.slug
 			 HAVING score > 0
 			 ORDER BY score DESC, p.date DESC
@@ -203,7 +229,7 @@ export async function getTrendingPrompts(limit = 60): Promise<Prompt[]> {
 	return results.map(rowToPrompt);
 }
 
-/** Prompts saved by a given actor, most recently saved first. */
+/** Approved prompts saved by a given actor, most recently saved first. */
 export async function getSavedPrompts(actorId: string): Promise<Prompt[]> {
 	const cols = PROMPT_COLS.split(', ')
 		.map((c) => `p.${c}`)
@@ -212,10 +238,219 @@ export async function getSavedPrompts(actorId: string): Promise<Prompt[]> {
 		.prepare(
 			`SELECT ${cols} FROM prompts p
 			 INNER JOIN prompt_saves s ON s.prompt_slug = p.slug
-			 WHERE s.actor_id = ?
+			 WHERE s.actor_id = ? AND p.${APPROVED}
 			 ORDER BY s.created_at DESC`,
 		)
 		.bind(actorId)
 		.all<PromptRow>();
 	return results.map(rowToPrompt);
+}
+
+// ---------------------------------------------------------------------------
+// Author profile + submission workflow
+// ---------------------------------------------------------------------------
+
+/**
+ * Prompts by a given user — joins on submitted_by (user-submitted) or
+ * created_by (admin-created). Default: approved only. Pass includeAll when
+ * the viewer IS the author so they can see their own pending/rejected items.
+ */
+export async function getPromptsByAuthor(
+	userId: string,
+	opts: { includeAll?: boolean } = {},
+): Promise<Prompt[]> {
+	const where = opts.includeAll
+		? '(submitted_by = ? OR created_by = ?)'
+		: `(submitted_by = ? OR created_by = ?) AND ${APPROVED}`;
+	const { results } = await getDB()
+		.prepare(
+			`SELECT ${PROMPT_COLS} FROM prompts
+			 WHERE ${where}
+			 ORDER BY date DESC, submitted_at DESC`,
+		)
+		.bind(userId, userId)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
+}
+
+export interface PromptSubmissionInput {
+	title: string;
+	description: string;
+	promptText: string;
+	category: string;
+	tags: string[];
+	howToUse?: string;
+	coverImage?: string;
+	images?: string[];
+	slug?: string;
+}
+
+export interface PromptSubmissionResult {
+	slug: string;
+}
+
+function randSuffix(): string {
+	return Math.random().toString(36).slice(2, 8);
+}
+
+/** Insert a user-submitted prompt with status='pending'. */
+export async function submitPrompt(
+	input: PromptSubmissionInput,
+	submitter: { id: string; name: string },
+): Promise<PromptSubmissionResult> {
+	const db = getDB();
+
+	if (!input.title?.trim() || !input.promptText?.trim() || !input.category?.trim()) {
+		throw new Error('Missing required fields: title, promptText, category.');
+	}
+
+	let slug = input.slug ? generateSlug(input.slug) : generateSlug(input.title);
+	if (!slug) slug = `prompt-${randSuffix()}`;
+
+	// Ensure unique slug
+	const existing = await db
+		.prepare('SELECT slug FROM prompts WHERE slug = ?')
+		.bind(slug)
+		.first<{ slug: string }>();
+	if (existing) slug = `${slug}-${randSuffix()}`;
+
+	const today = new Date().toISOString().slice(0, 10);
+	const now = new Date().toISOString();
+
+	const images: string[] = Array.isArray(input.images)
+		? input.images.filter((s) => typeof s === 'string' && s.trim())
+		: [];
+	const coverImage = input.coverImage || (images.length > 0 ? images[0] : null);
+
+	await db
+		.prepare(
+			`INSERT INTO prompts
+			   (slug, title, description, prompt_text, category, tags, author, date,
+			    cover_image, images, featured, liked, popularity, how_to_use,
+			    status, submitted_by, submitted_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, ?, 'pending', ?, ?)`,
+		)
+		.bind(
+			slug,
+			input.title.trim(),
+			(input.description || '').trim(),
+			input.promptText,
+			input.category,
+			JSON.stringify(input.tags ?? []),
+			submitter.name,
+			today,
+			coverImage,
+			JSON.stringify(images),
+			input.howToUse?.trim() || null,
+			submitter.id,
+			now,
+		)
+		.run();
+
+	await logActivity(db, {
+		userId: submitter.id,
+		userName: submitter.name,
+		action: 'submit_prompt',
+		entityType: 'prompt',
+		entityId: slug,
+		entityTitle: input.title.trim(),
+	});
+
+	return { slug };
+}
+
+export interface PendingPrompt extends Prompt {
+	submitterName: string;
+	submitterAvatar: string;
+	submitterUsername: string;
+}
+
+/** Pending submissions for the admin queue, oldest first. */
+export async function getPendingPrompts(): Promise<PendingPrompt[]> {
+	const cols = PROMPT_COLS.split(', ')
+		.map((c) => `p.${c}`)
+		.join(', ');
+	const { results } = await getDB()
+		.prepare(
+			`SELECT ${cols},
+			        u.name AS submitter_name,
+			        u.avatar_url AS submitter_avatar,
+			        u.username AS submitter_username
+			 FROM prompts p
+			 LEFT JOIN users u ON u.id = p.submitted_by
+			 WHERE p.status = 'pending'
+			 ORDER BY p.submitted_at ASC`,
+		)
+		.all<PromptRow & {
+			submitter_name: string | null;
+			submitter_avatar: string | null;
+			submitter_username: string | null;
+		}>();
+	return results.map((r) => ({
+		...rowToPrompt(r),
+		submitterName: r.submitter_name ?? r.author,
+		submitterAvatar: r.submitter_avatar ?? '',
+		submitterUsername: r.submitter_username ?? '',
+	}));
+}
+
+/** Count of pending submissions — used for the admin sidebar badge. */
+export async function getPendingCount(): Promise<number> {
+	const row = await getDB()
+		.prepare("SELECT COUNT(*) AS n FROM prompts WHERE status = 'pending'")
+		.first<{ n: number }>();
+	return row?.n ?? 0;
+}
+
+/** Approve or reject a pending submission. */
+export async function reviewPrompt(
+	slug: string,
+	action: 'approve' | 'reject',
+	reviewer: { id: string; name: string },
+	reason?: string,
+): Promise<{ ok: true; status: 'approved' | 'rejected' } | { ok: false; error: string }> {
+	const db = getDB();
+	const row = await db
+		.prepare('SELECT slug, title, status FROM prompts WHERE slug = ?')
+		.bind(slug)
+		.first<{ slug: string; title: string; status: string }>();
+	if (!row) return { ok: false, error: 'Prompt not found.' };
+	if (row.status !== 'pending') return { ok: false, error: `Prompt is already ${row.status}.` };
+
+	const now = new Date().toISOString();
+	const newStatus: 'approved' | 'rejected' = action === 'approve' ? 'approved' : 'rejected';
+
+	if (action === 'approve') {
+		// Refresh `date` so the prompt sorts into Newest at its approval moment.
+		const today = now.slice(0, 10);
+		await db
+			.prepare(
+				`UPDATE prompts
+				 SET status = 'approved', reviewed_by = ?, reviewed_at = ?, rejection_reason = NULL, date = ?
+				 WHERE slug = ?`,
+			)
+			.bind(reviewer.id, now, today, slug)
+			.run();
+	} else {
+		await db
+			.prepare(
+				`UPDATE prompts
+				 SET status = 'rejected', reviewed_by = ?, reviewed_at = ?, rejection_reason = ?
+				 WHERE slug = ?`,
+			)
+			.bind(reviewer.id, now, reason?.trim() || null, slug)
+			.run();
+	}
+
+	await logActivity(db, {
+		userId: reviewer.id,
+		userName: reviewer.name,
+		action: action === 'approve' ? 'approve_prompt' : 'reject_prompt',
+		entityType: 'prompt',
+		entityId: slug,
+		entityTitle: row.title,
+		details: reason?.trim() || undefined,
+	});
+
+	return { ok: true, status: newStatus };
 }

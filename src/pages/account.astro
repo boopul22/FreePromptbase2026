@@ -1,0 +1,168 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getUserById } from '../lib/users';
+
+// Middleware enforces auth.
+const sessionUser = Astro.locals.user!;
+// Re-fetch from DB so we render the live values (session-cached bio/twitter
+// might be stale right after an edit until the session expires).
+const profile = (await getUserById(sessionUser.id)) ?? {
+	id: sessionUser.id,
+	name: sessionUser.name,
+	email: sessionUser.email,
+	avatarUrl: sessionUser.avatarUrl,
+	role: sessionUser.role,
+	username: sessionUser.username,
+	bio: sessionUser.bio,
+	twitter: sessionUser.twitter,
+};
+---
+
+<Layout title="Account settings — Free Prompt Base" noindex={true}>
+	<Header />
+	<section class="max-w-2xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+		<header class="mb-8">
+			<h1 class="text-2xl sm:text-3xl font-semibold text-text-primary">Account</h1>
+			<p class="mt-2 text-sm text-gray-600">
+				Your public profile lives at
+				<a
+					id="profile-link"
+					href={profile.username ? `/author/${profile.username}` : '#'}
+					class="underline">/author/{profile.username || '—'}</a>.
+			</p>
+		</header>
+
+		<form id="account-form" class="space-y-5">
+			<div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+				<div class="flex items-center gap-4">
+					{profile.avatarUrl ? (
+						<img src={profile.avatarUrl} alt="" class="w-14 h-14 rounded-full object-cover bg-gray-100" referrerpolicy="no-referrer" />
+					) : (
+						<div class="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-xl font-semibold text-gray-500">
+							{profile.name.slice(0, 1).toUpperCase()}
+						</div>
+					)}
+					<div class="min-w-0">
+						<p class="font-medium text-text-primary truncate">{profile.name}</p>
+						<p class="text-xs text-gray-500 truncate">{profile.email}</p>
+					</div>
+				</div>
+
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-username">Username</label>
+					<div class="flex items-center gap-2">
+						<span class="text-sm text-gray-500 font-mono">/author/</span>
+						<input id="f-username" name="username" type="text" required maxlength="32"
+							value={profile.username}
+							class="flex-1 border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" />
+					</div>
+					<p id="username-feedback" class="text-xs text-gray-500 mt-1">3-32 chars, lowercase letters, numbers and hyphens.</p>
+				</div>
+
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-bio">Bio</label>
+					<textarea id="f-bio" name="bio" rows="3" maxlength="280"
+						placeholder="A short intro shown on your author page (max 280 chars)."
+						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y">{profile.bio}</textarea>
+				</div>
+
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-twitter">𝕏 / Twitter handle</label>
+					<div class="flex items-center gap-2">
+						<span class="text-sm text-gray-500">@</span>
+						<input id="f-twitter" name="twitter" type="text" maxlength="15"
+							value={profile.twitter}
+							placeholder="handle"
+							class="flex-1 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+					</div>
+					<p class="text-xs text-gray-500 mt-1">Handle only — no @ or URL.</p>
+				</div>
+			</div>
+
+			<div id="account-feedback" class="hidden text-sm rounded-md px-3 py-2 border"></div>
+
+			<div class="flex items-center justify-between gap-3">
+				<a href="/api/auth/logout" class="text-sm text-gray-500 hover:text-red-600">Sign out</a>
+				<button id="save-btn" type="button"
+					class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity">
+					Save changes
+				</button>
+			</div>
+		</form>
+	</section>
+	<Footer />
+</Layout>
+
+<script>
+	const usernameInput = document.getElementById('f-username') as HTMLInputElement;
+	const feedback = document.getElementById('username-feedback') as HTMLParagraphElement;
+	const link = document.getElementById('profile-link') as HTMLAnchorElement;
+	const originalUsername = usernameInput.value;
+	let checkTimer: number | null = null;
+
+	function setFeedback(text: string, kind: 'ok' | 'err' | 'neutral') {
+		feedback.textContent = text;
+		feedback.className = `text-xs mt-1 ${kind === 'ok' ? 'text-green-600' : kind === 'err' ? 'text-red-600' : 'text-gray-500'}`;
+	}
+
+	usernameInput.addEventListener('input', () => {
+		usernameInput.value = usernameInput.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+		const candidate = usernameInput.value;
+		link.href = candidate ? `/author/${candidate}` : '#';
+		link.textContent = `/author/${candidate || '—'}`;
+		if (candidate === originalUsername) {
+			setFeedback('3-32 chars, lowercase letters, numbers and hyphens.', 'neutral');
+			return;
+		}
+		if (checkTimer) window.clearTimeout(checkTimer);
+		setFeedback('Checking availability…', 'neutral');
+		checkTimer = window.setTimeout(async () => {
+			const res = await fetch(`/api/account?check=${encodeURIComponent(candidate)}`);
+			const data = await res.json();
+			if (data.available) setFeedback('Available.', 'ok');
+			else setFeedback(data.reason || 'Not available.', 'err');
+		}, 300);
+	});
+
+	async function save() {
+		const btn = document.getElementById('save-btn') as HTMLButtonElement;
+		const box = document.getElementById('account-feedback')!;
+		box.className = 'hidden';
+		btn.disabled = true;
+		btn.textContent = 'Saving…';
+
+		const body = {
+			username: usernameInput.value.trim(),
+			bio: (document.getElementById('f-bio') as HTMLTextAreaElement).value,
+			twitter: (document.getElementById('f-twitter') as HTMLInputElement).value,
+		};
+
+		const res = await fetch('/api/account', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(body),
+		});
+
+		const data = await res.json().catch(() => ({}));
+		if (res.ok && data.ok) {
+			box.textContent = 'Saved.';
+			box.className = 'text-sm rounded-md px-3 py-2 border bg-green-50 border-green-200 text-green-800';
+			// If username changed, redirect to the new profile URL.
+			if (data.username && data.username !== originalUsername) {
+				window.location.href = `/author/${data.username}`;
+				return;
+			}
+		} else {
+			box.textContent = data.error || `Save failed (${res.status}).`;
+			box.className = 'text-sm rounded-md px-3 py-2 border bg-red-50 border-red-200 text-red-700';
+		}
+		btn.disabled = false;
+		btn.textContent = 'Save changes';
+	}
+
+	document.getElementById('save-btn')!.addEventListener('click', save);
+</script>

@@ -1,0 +1,170 @@
+---
+export const prerender = false;
+
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getAllCategories } from '../lib/prompts';
+
+// Middleware guarantees Astro.locals.user is set here.
+const user = Astro.locals.user!;
+const categories = await getAllCategories();
+---
+
+<Layout title="Submit a prompt — Free Prompt Base" noindex={true}>
+	<Header />
+	<section class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+		<header class="mb-6 sm:mb-8">
+			<h1 class="text-2xl sm:text-3xl font-semibold text-text-primary">Submit a prompt</h1>
+			<p class="mt-2 text-sm text-gray-600">
+				Share a prompt with the community. Submissions are reviewed by an admin before they go
+				live. You'll see it on your profile as <span class="font-medium">Pending review</span>
+				until it's approved.
+			</p>
+			{user.username ? (
+				<p class="mt-2 text-xs text-gray-500">
+					Submitting as <span class="font-medium text-text-primary">{user.name}</span>
+					· will appear on <a href={`/author/${user.username}`} class="underline">/author/{user.username}</a>
+				</p>
+			) : null}
+		</header>
+
+		<form id="submit-form" class="space-y-5">
+			<div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-title">Title</label>
+					<input id="f-title" name="title" type="text" required maxlength="120" placeholder="Cinematic Portrait Photography"
+						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+				</div>
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-slug">Slug (optional)</label>
+					<input id="f-slug" name="slug" type="text" placeholder="auto-generated from title" maxlength="80"
+						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" />
+					<p class="text-xs text-gray-500 mt-1">URL: <span class="font-mono">/your-slug</span>. Leave blank to auto-generate.</p>
+				</div>
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-description">Description</label>
+					<textarea id="f-description" name="description" rows="2" maxlength="280"
+						placeholder="One-line hook shown on cards and search."
+						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+				</div>
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-prompt-text">Prompt text</label>
+					<textarea id="f-prompt-text" name="promptText" rows="10" required
+						placeholder="The full prompt body the user will copy."
+						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+				</div>
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-how-to-use">How to use (optional)</label>
+					<textarea id="f-how-to-use" name="howToUse" rows="3"
+						placeholder="Tips on substituting placeholders, tuning, etc."
+						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+				</div>
+			</div>
+
+			<div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-category">Category</label>
+					<select id="f-category" name="category" required
+						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+						<option value="">Select category…</option>
+						{categories.map((c) => (
+							<option value={c.slug}>{c.emoji} {c.name}</option>
+						))}
+					</select>
+				</div>
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-tags">Tags</label>
+					<input id="f-tags" name="tags" type="text" placeholder="copywriting, social media, hooks"
+						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+					<p class="text-xs text-gray-500 mt-1">Comma-separated.</p>
+				</div>
+				<div>
+					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-cover">Cover image URL (optional)</label>
+					<input id="f-cover" name="coverImage" type="url" placeholder="https://…"
+						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+					<p class="text-xs text-gray-500 mt-1">Paste a direct image URL. Upload support coming later.</p>
+				</div>
+			</div>
+
+			<div id="submit-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2"></div>
+
+			<div class="flex items-center justify-between gap-3">
+				<a href="/" class="text-sm text-gray-600 hover:text-text-primary">Cancel</a>
+				<button id="submit-btn" type="button"
+					class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity">
+					Submit for review
+				</button>
+			</div>
+		</form>
+	</section>
+	<Footer />
+</Layout>
+
+<script>
+	function v(id: string): string {
+		return (document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).value;
+	}
+
+	const titleInput = document.getElementById('f-title') as HTMLInputElement;
+	const slugInput = document.getElementById('f-slug') as HTMLInputElement;
+	let slugTouched = false;
+	slugInput.addEventListener('input', () => { slugTouched = true; });
+	titleInput.addEventListener('input', () => {
+		if (slugTouched) return;
+		slugInput.value = titleInput.value
+			.toLowerCase()
+			.replace(/[^a-z0-9\s-]/g, '')
+			.replace(/\s+/g, '-')
+			.replace(/-+/g, '-')
+			.replace(/^-|-$/g, '');
+	});
+
+	async function submit() {
+		const btn = document.getElementById('submit-btn') as HTMLButtonElement;
+		const errBox = document.getElementById('submit-error')!;
+		errBox.classList.add('hidden');
+		errBox.textContent = '';
+		btn.disabled = true;
+		btn.textContent = 'Submitting…';
+
+		const tags = v('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
+		const body = {
+			title: v('f-title').trim(),
+			slug: v('f-slug').trim() || undefined,
+			description: v('f-description').trim(),
+			promptText: v('f-prompt-text'),
+			category: v('f-category'),
+			tags,
+			coverImage: v('f-cover').trim() || undefined,
+			howToUse: v('f-how-to-use').trim() || undefined,
+		};
+
+		if (!body.title || !body.promptText || !body.category) {
+			errBox.textContent = 'Title, prompt text and category are required.';
+			errBox.classList.remove('hidden');
+			btn.disabled = false;
+			btn.textContent = 'Submit for review';
+			return;
+		}
+
+		const res = await fetch('/api/submit-prompt', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(body),
+		});
+
+		if (res.ok) {
+			const data = await res.json();
+			window.location.href = data.redirect || '/';
+		} else {
+			const err = await res.json().catch(() => ({}));
+			errBox.textContent = err.error || `Submission failed (${res.status}).`;
+			errBox.classList.remove('hidden');
+			btn.disabled = false;
+			btn.textContent = 'Submit for review';
+		}
+	}
+
+	document.getElementById('submit-btn')!.addEventListener('click', submit);
+</script>

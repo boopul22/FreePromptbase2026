@@ -164,8 +164,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     .prepare(
       `INSERT INTO prompts
         (slug, title, description, prompt_text, category, tags, author, date,
-         cover_image, images, featured, liked, popularity, how_to_use, created_by)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         cover_image, images, featured, liked, popularity, how_to_use, created_by, status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')`,
     )
     .bind(
       slug,

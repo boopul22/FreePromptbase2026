@@ -1,0 +1,155 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import PromptGrid from '../../components/PromptGrid.astro';
+import { getAllCategories, getPromptsByAuthor } from '../../lib/prompts';
+import { getUserByUsername } from '../../lib/users';
+
+const username = Astro.params.username!;
+const profileUser = await getUserByUsername(username);
+if (!profileUser) {
+	return Astro.rewrite('/404');
+}
+
+const viewer = Astro.locals.user;
+const isOwner = viewer?.id === profileUser.id;
+
+const [allPromptsByAuthor, categories] = await Promise.all([
+	getPromptsByAuthor(profileUser.id, { includeAll: isOwner }),
+	getAllCategories(),
+]);
+
+const approved = allPromptsByAuthor.filter((p) => (p.status ?? 'approved') === 'approved');
+const pending = isOwner ? allPromptsByAuthor.filter((p) => p.status === 'pending') : [];
+const rejected = isOwner ? allPromptsByAuthor.filter((p) => p.status === 'rejected') : [];
+
+const justSubmittedSlug = Astro.url.searchParams.get('submitted') || '';
+
+const noindex = approved.length === 0;
+
+const personSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'Person',
+	name: profileUser.name,
+	image: profileUser.avatarUrl || undefined,
+	description: profileUser.bio || undefined,
+	url: `${(Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '')}/author/${profileUser.username}`,
+};
+
+const title = `${profileUser.name} — prompts on Free Prompt Base`;
+const description = profileUser.bio
+	? profileUser.bio
+	: `Prompts by ${profileUser.name} on Free Prompt Base.`;
+---
+
+<Layout title={title} description={description} schema={personSchema} noindex={noindex}>
+	<Header />
+	<main class="max-w-7xl mx-auto px-4 w-full py-10">
+		{justSubmittedSlug && isOwner ? (
+			<div class="mb-6 bg-amber-50 border border-amber-200 text-amber-900 rounded-md px-4 py-3 text-sm">
+				<p class="font-semibold">Submitted — pending review</p>
+				<p class="mt-0.5">Your prompt is in the moderation queue. We'll publish it as soon as an admin approves it.</p>
+			</div>
+		) : null}
+
+		<header class="flex flex-col sm:flex-row sm:items-center gap-5 mb-10">
+			{profileUser.avatarUrl ? (
+				<img src={profileUser.avatarUrl} alt="" class="w-20 h-20 rounded-full object-cover bg-gray-100" referrerpolicy="no-referrer" />
+			) : (
+				<div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-semibold text-gray-500">
+					{profileUser.name.slice(0, 1).toUpperCase()}
+				</div>
+			)}
+			<div class="flex-1 min-w-0">
+				<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary">{profileUser.name}</h1>
+				<p class="text-sm text-gray-500 mt-1">@{profileUser.username}</p>
+				{profileUser.bio ? <p class="text-gray-700 mt-3 max-w-2xl">{profileUser.bio}</p> : null}
+				{profileUser.twitter ? (
+					<p class="text-sm text-gray-600 mt-2">𝕏 @{profileUser.twitter}</p>
+				) : null}
+			</div>
+			{isOwner ? (
+				<div class="flex gap-2 shrink-0">
+					<a href="/submit" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity">
+						Submit a prompt
+					</a>
+					<a href="/account" class="px-4 py-2 rounded-md text-sm font-semibold text-text-primary border border-gray-200 hover:border-primary transition-colors">
+						Edit profile
+					</a>
+				</div>
+			) : null}
+		</header>
+
+		<section class="mb-12">
+			<div class="flex items-baseline justify-between mb-5">
+				<h2 class="text-xl font-semibold text-text-primary">
+					{approved.length === 1 ? 'Prompt' : 'Prompts'}
+					<span class="text-gray-400 font-normal ml-2">{approved.length}</span>
+				</h2>
+			</div>
+			{approved.length > 0 ? (
+				<PromptGrid prompts={approved} categories={categories} />
+			) : (
+				<p class="text-gray-500 py-8">
+					{isOwner
+						? "You haven't had any prompts approved yet. Submit one to get started."
+						: `${profileUser.name} hasn't published any prompts yet.`}
+				</p>
+			)}
+		</section>
+
+		{isOwner && (pending.length > 0 || rejected.length > 0) ? (
+			<section class="border-t border-gray-200 pt-10 space-y-10">
+				<p class="text-xs uppercase tracking-wide text-gray-400 font-semibold">Only you can see this section</p>
+
+				{pending.length > 0 && (
+					<div>
+						<h2 class="text-lg font-semibold text-text-primary mb-4">
+							Pending review
+							<span class="text-gray-400 font-normal ml-2">{pending.length}</span>
+						</h2>
+						<ul class="space-y-3">
+							{pending.map((p) => (
+								<li class="border border-amber-200 bg-amber-50/40 rounded-md px-4 py-3 flex items-center justify-between gap-3">
+									<div class="min-w-0">
+										<p class="font-medium text-text-primary truncate">{p.title}</p>
+										<p class="text-xs text-gray-500 mt-0.5">Submitted {p.submittedAt?.slice(0, 10) ?? ''}</p>
+									</div>
+									<span class="text-xs font-semibold uppercase tracking-wide text-amber-700 shrink-0">Awaiting review</span>
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
+
+				{rejected.length > 0 && (
+					<div>
+						<h2 class="text-lg font-semibold text-text-primary mb-4">
+							Rejected
+							<span class="text-gray-400 font-normal ml-2">{rejected.length}</span>
+						</h2>
+						<ul class="space-y-3">
+							{rejected.map((p) => (
+								<li class="border border-gray-200 rounded-md px-4 py-3">
+									<div class="flex items-center justify-between gap-3">
+										<p class="font-medium text-text-primary truncate">{p.title}</p>
+										<span class="text-xs font-semibold uppercase tracking-wide text-gray-500 shrink-0">Rejected</span>
+									</div>
+									{p.rejectionReason ? (
+										<p class="text-sm text-gray-600 mt-2">
+											<span class="font-semibold">Reason:</span> {p.rejectionReason}
+										</p>
+									) : null}
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
+			</section>
+		) : null}
+	</main>
+	<Footer />
+</Layout>

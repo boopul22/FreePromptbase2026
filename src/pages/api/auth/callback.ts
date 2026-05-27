@@ -6,6 +6,7 @@ import { createSession } from '../../../lib/session';
 import { generateId } from '../../../lib/crypto';
 import { getDB } from '../../../lib/db';
 import { getEnv } from '../../../lib/env';
+import { ensureUsername } from '../../../lib/users';
 
 export const GET: APIRoute = async ({ request, url, cookies, redirect, locals }) => {
   const code = url.searchParams.get('code');
@@ -88,6 +89,15 @@ export const GET: APIRoute = async ({ request, url, cookies, redirect, locals })
 
     if (!user) {
       return new Response('Failed to create user', { status: 500 });
+    }
+
+    // Assign a profile slug if this user doesn't have one yet.
+    try {
+      await ensureUsername(db, user.id, googleUser.name);
+    } catch (err) {
+      console.error('ensureUsername failed:', err);
+      // Non-fatal — the user can still sign in; they just won't have a profile URL
+      // until they pick one at /account.
     }
 
     // Create session

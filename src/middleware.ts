@@ -64,8 +64,17 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     locals.likedSlugs = new Set();
   }
 
-  // /dashboard — any authenticated user
-  if ((path.startsWith('/dashboard') || path.startsWith('/api/dashboard/')) && !locals.user) {
+  // /dashboard, /submit, /account — any authenticated user
+  const requiresAuth =
+    path.startsWith('/dashboard') ||
+    path.startsWith('/api/dashboard/') ||
+    path === '/submit' ||
+    path.startsWith('/submit/') ||
+    path === '/api/submit-prompt' ||
+    path === '/account' ||
+    path.startsWith('/account/') ||
+    path === '/api/account';
+  if (requiresAuth && !locals.user) {
     if (path.startsWith('/api/')) {
       return new Response(JSON.stringify({ error: 'Authentication required' }), {
         status: 401, headers: { 'Content-Type': 'application/json' },
@@ -114,6 +123,10 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     !path.startsWith('/api/') &&
     !path.startsWith('/admin') &&
     !path.startsWith('/dashboard') &&
+    path !== '/submit' &&
+    !path.startsWith('/submit/') &&
+    path !== '/account' &&
+    !path.startsWith('/account/') &&
     response.headers.get('content-type')?.includes('text/html')
   ) {
     const hasPersonalization =
