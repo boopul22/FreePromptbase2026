@@ -71,6 +71,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     path === '/submit' ||
     path.startsWith('/submit/') ||
     path === '/api/submit-prompt' ||
+    path.startsWith('/api/submit-prompt/') ||
     path === '/account' ||
     path.startsWith('/account/') ||
     path === '/api/account';

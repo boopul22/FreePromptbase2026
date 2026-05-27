@@ -5,109 +5,284 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { getAllCategories } from '../lib/prompts';
+import { issueCaptcha } from '../lib/captcha';
 
 // Middleware guarantees Astro.locals.user is set here.
 const user = Astro.locals.user!;
 const categories = await getAllCategories();
+const captcha = await issueCaptcha();
+
+const MAX_IMAGES = 3;
+const MAX_FILE_MB = 5;
 ---
 
 <Layout title="Submit a prompt — Free Prompt Base" noindex={true}>
 	<Header />
+
 	<section class="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-		<header class="mb-6 sm:mb-8">
-			<h1 class="text-2xl sm:text-3xl font-semibold text-text-primary">Submit a prompt</h1>
-			<p class="mt-2 text-sm text-gray-600">
-				Share a prompt with the community. Submissions are reviewed by an admin before they go
-				live. You'll see it on your profile as <span class="font-medium">Pending review</span>
-				until it's approved.
+		<!-- Intro -->
+		<header class="mb-8">
+			<p class="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Submit a prompt</p>
+			<h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
+				Share a prompt with the community
+			</h1>
+			<p class="mt-3 text-gray-600 leading-relaxed">
+				Your submission is reviewed by an admin before it goes live. You'll see it on
+				{user.username ? (
+					<a href={`/author/${user.username}`} class="underline hover:text-primary">your profile</a>
+				) : <span>your profile</span>}
+				as <span class="font-medium">Pending review</span> until approved.
 			</p>
-			{user.username ? (
-				<p class="mt-2 text-xs text-gray-500">
-					Submitting as <span class="font-medium text-text-primary">{user.name}</span>
-					· will appear on <a href={`/author/${user.username}`} class="underline">/author/{user.username}</a>
-				</p>
-			) : null}
 		</header>
 
-		<form id="submit-form" class="space-y-5">
-			<div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
-				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-title">Title</label>
-					<input id="f-title" name="title" type="text" required maxlength="120" placeholder="Cinematic Portrait Photography"
-						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
-				</div>
-				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-slug">Slug (optional)</label>
-					<input id="f-slug" name="slug" type="text" placeholder="auto-generated from title" maxlength="80"
-						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" />
-					<p class="text-xs text-gray-500 mt-1">URL: <span class="font-mono">/your-slug</span>. Leave blank to auto-generate.</p>
-				</div>
-				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-description">Description</label>
-					<textarea id="f-description" name="description" rows="2" maxlength="280"
-						placeholder="One-line hook shown on cards and search."
-						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
-				</div>
-				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-prompt-text">Prompt text</label>
-					<textarea id="f-prompt-text" name="promptText" rows="10" required
-						placeholder="The full prompt body the user will copy."
-						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
-				</div>
-				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-how-to-use">How to use (optional)</label>
-					<textarea id="f-how-to-use" name="howToUse" rows="3"
-						placeholder="Tips on substituting placeholders, tuning, etc."
-						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
-				</div>
-			</div>
+		<!-- Helpful checklist -->
+		<aside class="mb-6 bg-amber-50/60 border border-amber-200 rounded-lg p-4">
+			<p class="text-xs font-semibold uppercase tracking-wide text-amber-900 mb-2">Before you submit</p>
+			<ul class="text-sm text-amber-900/90 space-y-1 list-disc list-inside">
+				<li>Write a clear title and a one-line hook.</li>
+				<li>Paste the full prompt body — exactly what you'd want to copy.</li>
+				<li>Add up to {MAX_IMAGES} preview images (≤ {MAX_FILE_MB} MB each, JPG/PNG/WEBP/GIF).</li>
+			</ul>
+		</aside>
 
-			<div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+		<form id="submit-form" class="space-y-6">
+
+			<!-- ───────── Step 1: The prompt itself ───────── -->
+			<fieldset class="bg-white border border-gray-200 rounded-lg p-5 sm:p-6 space-y-5">
+				<legend class="px-2 -ml-2 text-xs font-semibold uppercase tracking-wider text-gray-500">1 · The prompt</legend>
+
 				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-category">Category</label>
-					<select id="f-category" name="category" required
-						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
-						<option value="">Select category…</option>
+					<div class="flex items-baseline justify-between mb-1.5">
+						<label class="text-sm font-medium text-text-primary" for="f-title">Title</label>
+						<span id="title-counter" class="text-[11px] text-gray-400 tabular-nums">0 / 120</span>
+					</div>
+					<input
+						id="f-title"
+						name="title"
+						type="text"
+						required
+						maxlength="120"
+						placeholder="e.g. Cinematic Portrait Photography"
+						class="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow" />
+					<p data-error="title" class="hidden mt-1.5 text-xs text-red-600"></p>
+				</div>
+
+				<div>
+					<label class="block text-sm font-medium text-text-primary mb-1.5" for="f-slug">
+						URL slug <span class="text-gray-400 font-normal">(optional)</span>
+					</label>
+					<div class="flex items-stretch border border-gray-200 rounded-md overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-shadow">
+						<span class="px-3 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono border-r border-gray-200">freepromptbase.com/</span>
+						<input
+							id="f-slug"
+							name="slug"
+							type="text"
+							maxlength="80"
+							placeholder="auto-generated"
+							class="flex-1 min-w-0 px-3 py-2.5 text-sm font-mono focus:outline-none" />
+					</div>
+				</div>
+
+				<div>
+					<div class="flex items-baseline justify-between mb-1.5">
+						<label class="text-sm font-medium text-text-primary" for="f-description">Short description</label>
+						<span id="desc-counter" class="text-[11px] text-gray-400 tabular-nums">0 / 280</span>
+					</div>
+					<textarea
+						id="f-description"
+						name="description"
+						rows="2"
+						maxlength="280"
+						placeholder="One sentence that hooks readers — shown on cards and in search."
+						class="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow resize-y"></textarea>
+				</div>
+
+				<div>
+					<label class="block text-sm font-medium text-text-primary mb-1.5" for="f-prompt-text">
+						Prompt text <span class="text-red-500">*</span>
+					</label>
+					<textarea
+						id="f-prompt-text"
+						name="promptText"
+						rows="10"
+						required
+						placeholder="The full prompt body people will copy."
+						class="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm font-mono leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow resize-y"></textarea>
+					<p data-error="promptText" class="hidden mt-1.5 text-xs text-red-600"></p>
+				</div>
+
+				<div>
+					<label class="block text-sm font-medium text-text-primary mb-1.5" for="f-how-to-use">
+						How to use <span class="text-gray-400 font-normal">(optional)</span>
+					</label>
+					<textarea
+						id="f-how-to-use"
+						name="howToUse"
+						rows="3"
+						placeholder="Tips on substituting placeholders, tuning parameters, etc."
+						class="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow resize-y"></textarea>
+				</div>
+			</fieldset>
+
+			<!-- ───────── Step 2: Category + tags ───────── -->
+			<fieldset class="bg-white border border-gray-200 rounded-lg p-5 sm:p-6 space-y-5">
+				<legend class="px-2 -ml-2 text-xs font-semibold uppercase tracking-wider text-gray-500">2 · Where it fits</legend>
+
+				<div>
+					<label class="block text-sm font-medium text-text-primary mb-1.5" for="f-category">
+						Category <span class="text-red-500">*</span>
+					</label>
+					<select
+						id="f-category"
+						name="category"
+						required
+						class="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow">
+						<option value="">Select a category…</option>
 						{categories.map((c) => (
 							<option value={c.slug}>{c.emoji} {c.name}</option>
 						))}
 					</select>
+					<p data-error="category" class="hidden mt-1.5 text-xs text-red-600"></p>
 				</div>
-				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-tags">Tags</label>
-					<input id="f-tags" name="tags" type="text" placeholder="copywriting, social media, hooks"
-						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
-					<p class="text-xs text-gray-500 mt-1">Comma-separated.</p>
-				</div>
-				<div>
-					<label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-cover">Cover image URL (optional)</label>
-					<input id="f-cover" name="coverImage" type="url" placeholder="https://…"
-						class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
-					<p class="text-xs text-gray-500 mt-1">Paste a direct image URL. Upload support coming later.</p>
-				</div>
-			</div>
 
-			<div id="submit-error" class="hidden text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2"></div>
+				<div>
+					<label class="block text-sm font-medium text-text-primary mb-1.5" for="f-tags">
+						Tags <span class="text-gray-400 font-normal">(comma-separated, up to 12)</span>
+					</label>
+					<input
+						id="f-tags"
+						name="tags"
+						type="text"
+						placeholder="e.g. copywriting, social media, hooks"
+						class="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow" />
+				</div>
+			</fieldset>
 
-			<div class="flex items-center justify-between gap-3">
-				<a href="/" class="text-sm text-gray-600 hover:text-text-primary">Cancel</a>
-				<button id="submit-btn" type="button"
-					class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity">
+			<!-- ───────── Step 3: Preview images ───────── -->
+			<fieldset class="bg-white border border-gray-200 rounded-lg p-5 sm:p-6 space-y-4">
+				<legend class="px-2 -ml-2 text-xs font-semibold uppercase tracking-wider text-gray-500">3 · Preview images</legend>
+
+				<p class="text-sm text-gray-600">
+					Add up to <span class="font-medium text-text-primary">{MAX_IMAGES}</span> images that show what the prompt produces. The first image becomes the card cover.
+					Max {MAX_FILE_MB} MB each — JPG, PNG, WEBP or GIF.
+				</p>
+
+				<label
+					id="dropzone"
+					for="image-input"
+					class="block border-2 border-dashed border-gray-300 hover:border-primary hover:bg-amber-50/40 rounded-lg px-6 py-8 text-center cursor-pointer transition-colors"
+				>
+					<svg class="w-8 h-8 mx-auto text-gray-400 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+						<polyline points="17 8 12 3 7 8"/>
+						<line x1="12" y1="3" x2="12" y2="15"/>
+					</svg>
+					<p class="text-sm font-medium text-text-primary">Click to upload, or drag and drop</p>
+					<p class="text-xs text-gray-500 mt-1">
+						<span id="image-count">0</span> / {MAX_IMAGES} images
+					</p>
+					<input
+						id="image-input"
+						type="file"
+						accept="image/jpeg,image/png,image/webp,image/gif"
+						multiple
+						class="hidden" />
+				</label>
+
+				<div id="image-status" class="hidden text-xs text-gray-500"></div>
+				<p data-error="images" class="hidden text-xs text-red-600"></p>
+
+				<div id="image-strip" class="grid grid-cols-2 sm:grid-cols-3 gap-3 empty:hidden"></div>
+			</fieldset>
+
+			<!-- ───────── Step 4: CAPTCHA ───────── -->
+			<fieldset class="bg-white border border-gray-200 rounded-lg p-5 sm:p-6 space-y-3">
+				<legend class="px-2 -ml-2 text-xs font-semibold uppercase tracking-wider text-gray-500">4 · Quick check</legend>
+
+				<p class="text-sm text-gray-600">A tiny math problem to confirm you're human — no third-party trackers.</p>
+
+				<div class="flex items-center gap-3 flex-wrap">
+					<div class="bg-gray-50 border border-gray-200 rounded-md px-4 py-2.5 font-mono text-base text-text-primary">
+						<span id="captcha-question">{captcha.question}</span>
+						<span class="text-gray-400 mx-1">=</span>
+						<span class="text-gray-400">?</span>
+					</div>
+					<input
+						id="f-captcha"
+						name="captcha"
+						type="text"
+						inputmode="numeric"
+						autocomplete="off"
+						required
+						maxlength="4"
+						placeholder="Answer"
+						class="w-28 border border-gray-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow" />
+					<button
+						id="captcha-refresh"
+						type="button"
+						aria-label="New question"
+						class="text-xs text-gray-500 hover:text-primary inline-flex items-center gap-1 transition-colors">
+						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<polyline points="23 4 23 10 17 10"/>
+							<path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+						</svg>
+						New question
+					</button>
+				</div>
+				<input id="f-captcha-token" type="hidden" value={captcha.token} />
+				<p data-error="captcha" class="hidden text-xs text-red-600"></p>
+			</fieldset>
+
+			<!-- Global error -->
+			<div id="submit-error" class="hidden text-sm text-red-700 bg-red-50 border border-red-200 rounded-md px-4 py-3"></div>
+
+			<!-- Sticky actions -->
+			<div class="sticky bottom-0 bg-white/95 backdrop-blur border-t border-gray-200 -mx-4 sm:mx-0 sm:rounded-lg sm:border sm:shadow-sm px-4 sm:px-5 py-3 flex items-center justify-between gap-3">
+				<a href="/" class="text-sm text-gray-600 hover:text-text-primary transition-colors">Cancel</a>
+				<button
+					id="submit-btn"
+					type="button"
+					class="bg-primary text-link px-5 py-2.5 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity inline-flex items-center gap-2">
 					Submit for review
+					<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<line x1="5" y1="12" x2="19" y2="12"/>
+						<polyline points="12 5 19 12 12 19"/>
+					</svg>
 				</button>
 			</div>
+
 		</form>
 	</section>
+
 	<Footer />
 </Layout>
 
-<script>
-	function v(id: string): string {
-		return (document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).value;
+<script is:inline define:vars={{ MAX_IMAGES, MAX_FILE_MB }}>
+	const MAX_FILE_BYTES = MAX_FILE_MB * 1024 * 1024;
+	const ALLOWED = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+	function $(id) { return document.getElementById(id); }
+	function setError(field, msg) {
+		const el = document.querySelector(`[data-error="${field}"]`);
+		if (!el) return;
+		if (msg) { el.textContent = msg; el.classList.remove('hidden'); }
+		else { el.textContent = ''; el.classList.add('hidden'); }
+	}
+	function clearErrors() {
+		document.querySelectorAll('[data-error]').forEach((el) => { el.textContent = ''; el.classList.add('hidden'); });
+		const g = $('submit-error'); g.textContent = ''; g.classList.add('hidden');
 	}
 
-	const titleInput = document.getElementById('f-title') as HTMLInputElement;
-	const slugInput = document.getElementById('f-slug') as HTMLInputElement;
+	// --- Char counters ---
+	const titleInput = $('f-title');
+	const titleCounter = $('title-counter');
+	titleInput.addEventListener('input', () => { titleCounter.textContent = `${titleInput.value.length} / 120`; });
+	const descInput = $('f-description');
+	const descCounter = $('desc-counter');
+	descInput.addEventListener('input', () => { descCounter.textContent = `${descInput.value.length} / 280`; });
+
+	// --- Auto-slug from title ---
+	const slugInput = $('f-slug');
 	let slugTouched = false;
 	slugInput.addEventListener('input', () => { slugTouched = true; });
 	titleInput.addEventListener('input', () => {
@@ -120,51 +295,169 @@ const categories = await getAllCategories();
 			.replace(/^-|-$/g, '');
 	});
 
-	async function submit() {
-		const btn = document.getElementById('submit-btn') as HTMLButtonElement;
-		const errBox = document.getElementById('submit-error')!;
-		errBox.classList.add('hidden');
-		errBox.textContent = '';
-		btn.disabled = true;
-		btn.textContent = 'Submitting…';
+	// --- Image dropzone ---
+	const imageInput = $('image-input');
+	const dropzone = $('dropzone');
+	const strip = $('image-strip');
+	const status = $('image-status');
+	const countLabel = $('image-count');
+	let images = []; // array of {url, name}
 
-		const tags = v('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
+	function renderStrip() {
+		countLabel.textContent = String(images.length);
+		strip.innerHTML = images.map((img, i) => `
+			<figure class="relative group rounded-md overflow-hidden border border-gray-200 aspect-square bg-gray-50">
+				<img src="${img.url}" alt="" class="w-full h-full object-cover" />
+				${i === 0 ? '<figcaption class="absolute top-1.5 left-1.5 bg-primary text-link text-[10px] font-semibold px-1.5 py-0.5 rounded-md uppercase tracking-wide">Cover</figcaption>' : ''}
+				<button type="button" data-remove="${i}" aria-label="Remove image" class="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-white/95 hover:bg-white text-gray-700 hover:text-red-600 flex items-center justify-center shadow-sm transition-colors">
+					<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+				</button>
+			</figure>
+		`).join('');
+		strip.querySelectorAll('button[data-remove]').forEach((btn) => {
+			btn.addEventListener('click', () => {
+				const idx = parseInt(btn.dataset.remove || '0', 10);
+				images.splice(idx, 1);
+				renderStrip();
+			});
+		});
+	}
+
+	async function uploadFile(file) {
+		if (!ALLOWED.includes(file.type)) {
+			return { error: `Unsupported file: ${file.name} (${file.type || 'unknown'}).` };
+		}
+		if (file.size > MAX_FILE_BYTES) {
+			return { error: `${file.name} is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Max ${MAX_FILE_MB} MB.` };
+		}
+		const fd = new FormData();
+		fd.append('file', file);
+		const res = await fetch('/api/submit-prompt/upload', { method: 'POST', body: fd });
+		const data = await res.json().catch(() => ({}));
+		if (!res.ok) return { error: data.error || `Upload failed (${res.status}).` };
+		return { url: data.url, name: file.name };
+	}
+
+	async function handleFiles(files) {
+		setError('images', '');
+		const remaining = MAX_IMAGES - images.length;
+		const list = Array.from(files).slice(0, remaining);
+		if (files.length > remaining) {
+			setError('images', `You can attach up to ${MAX_IMAGES} images. The first ${remaining} will be uploaded.`);
+		}
+		const total = list.length;
+		let done = 0;
+		for (const file of list) {
+			done++;
+			status.classList.remove('hidden');
+			status.textContent = `Uploading ${done} of ${total}: ${file.name}…`;
+			const r = await uploadFile(file);
+			if (r.error) {
+				setError('images', r.error);
+				break;
+			}
+			images.push({ url: r.url, name: r.name });
+			renderStrip();
+		}
+		status.classList.add('hidden');
+		imageInput.value = '';
+	}
+
+	imageInput.addEventListener('change', (e) => {
+		const t = e.target;
+		if (t.files && t.files.length) handleFiles(t.files);
+	});
+
+	['dragenter', 'dragover'].forEach((ev) => {
+		dropzone.addEventListener(ev, (e) => {
+			e.preventDefault(); e.stopPropagation();
+			dropzone.classList.add('border-primary', 'bg-amber-50/60');
+		});
+	});
+	['dragleave', 'drop'].forEach((ev) => {
+		dropzone.addEventListener(ev, (e) => {
+			e.preventDefault(); e.stopPropagation();
+			dropzone.classList.remove('border-primary', 'bg-amber-50/60');
+		});
+	});
+	dropzone.addEventListener('drop', (e) => {
+		const files = e.dataTransfer?.files;
+		if (files && files.length) handleFiles(files);
+	});
+
+	// --- CAPTCHA refresh ---
+	$('captcha-refresh').addEventListener('click', async () => {
+		setError('captcha', '');
+		const res = await fetch('/api/captcha');
+		if (!res.ok) return;
+		const data = await res.json();
+		$('captcha-question').textContent = data.question;
+		$('f-captcha-token').value = data.token;
+		$('f-captcha').value = '';
+		$('f-captcha').focus();
+	});
+
+	async function refreshCaptcha() {
+		const res = await fetch('/api/captcha');
+		if (!res.ok) return;
+		const data = await res.json();
+		$('captcha-question').textContent = data.question;
+		$('f-captcha-token').value = data.token;
+		$('f-captcha').value = '';
+	}
+
+	// --- Submit ---
+	async function submit() {
+		clearErrors();
+		const btn = $('submit-btn');
+		btn.disabled = true;
+		btn.innerHTML = '<span class="opacity-70">Submitting…</span>';
+
+		const tags = $('f-tags').value.split(',').map((t) => t.trim()).filter(Boolean);
 		const body = {
-			title: v('f-title').trim(),
-			slug: v('f-slug').trim() || undefined,
-			description: v('f-description').trim(),
-			promptText: v('f-prompt-text'),
-			category: v('f-category'),
+			title: titleInput.value.trim(),
+			slug: slugInput.value.trim() || undefined,
+			description: descInput.value.trim(),
+			promptText: $('f-prompt-text').value,
+			category: $('f-category').value,
 			tags,
-			coverImage: v('f-cover').trim() || undefined,
-			howToUse: v('f-how-to-use').trim() || undefined,
+			howToUse: $('f-how-to-use').value.trim() || undefined,
+			images: images.map((i) => i.url),
+			captchaToken: $('f-captcha-token').value,
+			captchaAnswer: $('f-captcha').value,
 		};
 
-		if (!body.title || !body.promptText || !body.category) {
-			errBox.textContent = 'Title, prompt text and category are required.';
-			errBox.classList.remove('hidden');
-			btn.disabled = false;
-			btn.textContent = 'Submit for review';
-			return;
-		}
+		if (!body.title) { setError('title', 'Title is required.'); btn.disabled = false; btn.textContent = 'Submit for review'; titleInput.focus(); return; }
+		if (!body.promptText.trim()) { setError('promptText', 'Prompt text is required.'); btn.disabled = false; btn.textContent = 'Submit for review'; return; }
+		if (!body.category) { setError('category', 'Pick a category.'); btn.disabled = false; btn.textContent = 'Submit for review'; return; }
+		if (!body.captchaAnswer) { setError('captcha', 'Answer the math question.'); btn.disabled = false; btn.textContent = 'Submit for review'; $('f-captcha').focus(); return; }
 
 		const res = await fetch('/api/submit-prompt', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(body),
 		});
+		const data = await res.json().catch(() => ({}));
 
 		if (res.ok) {
-			const data = await res.json();
 			window.location.href = data.redirect || '/';
-		} else {
-			const err = await res.json().catch(() => ({}));
-			errBox.textContent = err.error || `Submission failed (${res.status}).`;
-			errBox.classList.remove('hidden');
-			btn.disabled = false;
-			btn.textContent = 'Submit for review';
+			return;
 		}
+
+		if (data.field) {
+			setError(data.field, data.error || 'Invalid value.');
+		} else {
+			const g = $('submit-error');
+			g.textContent = data.error || `Submission failed (${res.status}).`;
+			g.classList.remove('hidden');
+		}
+		// Captcha tokens are single-use semantics — rotate after any failure so the
+		// next attempt starts clean.
+		await refreshCaptcha();
+
+		btn.disabled = false;
+		btn.innerHTML = 'Submit for review <svg class="w-4 h-4 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
 	}
 
-	document.getElementById('submit-btn')!.addEventListener('click', submit);
+	$('submit-btn').addEventListener('click', submit);
 </script>
