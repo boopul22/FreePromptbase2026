@@ -801,6 +801,11 @@ const user = Astro.locals.user!;
  const result = await res.json();
  if (result.success) {
  setSaveStatus(status === 'published' ? 'Published!' : 'Draft saved!');
+ // Stop auto-save and drop the unsaved-changes guard so neither can
+ // resurrect this post in the "New Post" form after we leave.
+ navigatingAway = true;
+ clearInterval(autoSaveTimer);
+ window.removeEventListener('beforeunload', beforeUnloadHandler);
  localStorage.removeItem('cms-new-post');
  setTimeout(() => { window.location.href = `/admin/cms/posts/edit/${result.id}`; }, 500);
  } else {
@@ -819,8 +824,10 @@ const user = Astro.locals.user!;
  if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); savePost('draft'); }
  });
 
- // Auto-save to localStorage
- setInterval(() => {
+ // Auto-save to localStorage (paused once we start navigating away after a save)
+ let navigatingAway = false;
+ const autoSaveTimer = setInterval(() => {
+ if (navigatingAway) return;
  const data = collectPostData('draft');
  localStorage.setItem('cms-new-post', JSON.stringify(data));
  setSaveStatus('Auto-saved');
@@ -854,8 +861,19 @@ const user = Astro.locals.user!;
  }
 
  // Unsaved changes warning
- window.addEventListener('beforeunload', (e) => {
+ function beforeUnloadHandler(e: BeforeUnloadEvent) {
+ if (navigatingAway) return;
  if (titleInput.value || editor.getText().length > 0) e.preventDefault();
+ }
+ window.addEventListener('beforeunload', beforeUnloadHandler);
+
+ // If this page is restored from the browser's back-forward cache (e.g. the
+ // user published, landed on the edit page, then hit Back), the in-memory
+ // form still holds the old post. Reload to get a genuine blank "New Post".
+ window.addEventListener('pageshow', (e) => {
+ if (e.persisted && !localStorage.getItem('cms-new-post')) {
+ window.location.reload();
+ }
  });
 
  // Init
