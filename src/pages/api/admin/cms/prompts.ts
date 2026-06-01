@@ -21,6 +21,7 @@ interface PromptRow {
   popularity: number;
   how_to_use: string | null;
   created_by: string | null;
+  status: string;
   created_at: string;
   category_name?: string | null;
   category_emoji?: string | null;
@@ -47,6 +48,7 @@ function mapRow(r: PromptRow) {
     liked: !!r.liked,
     popularity: r.popularity,
     howToUse: r.how_to_use ?? null,
+    status: r.status ?? 'approved',
     createdBy: r.created_by ?? null,
     createdByName: r.creator_name ?? null,
     createdByAvatar: r.creator_avatar ?? null,
@@ -80,6 +82,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
   const category = url.searchParams.get('category');
   const featured = url.searchParams.get('featured');
   const search = url.searchParams.get('search');
+  const status = url.searchParams.get('status');
 
   const params: any[] = [];
   let where = 'WHERE 1=1';
@@ -87,6 +90,10 @@ export const GET: APIRoute = async ({ locals, url }) => {
   if (category && category !== 'all') {
     where += ' AND p.category = ?';
     params.push(category);
+  }
+  if (status && status !== 'all') {
+    where += ' AND p.status = ?';
+    params.push(status);
   }
   if (featured === '1') {
     where += ' AND p.featured = 1';
@@ -145,6 +152,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
     );
   }
 
+  // Admins may create either a draft (work-in-progress) or publish directly
+  // (approved). They can never mint a 'pending'/'rejected' row here — that
+  // state belongs to the user-submission review flow.
+  const status = body.status === 'draft' ? 'draft' : 'approved';
+  if (body.status !== undefined && body.status !== 'draft' && body.status !== 'approved') {
+    return new Response(
+      JSON.stringify({ error: "Invalid status. Use 'draft' or 'approved'." }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
   let slug = body.slug ? generateSlug(body.slug) : generateSlug(body.title);
   if (!slug) slug = 'prompt-' + generateId(8).toLowerCase();
 
@@ -185,7 +203,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       `INSERT INTO prompts
         (slug, title, description, prompt_text, category, tags, author, date,
          cover_image, images, featured, liked, popularity, how_to_use, created_by, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       slug,
@@ -203,6 +221,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       Number.isFinite(body.popularity) ? body.popularity : 0,
       body.howToUse || null,
       createdById,
+      status,
     )
     .run();
 
@@ -213,6 +232,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     entityType: 'prompt',
     entityId: slug,
     entityTitle: body.title,
+    details: status === 'draft' ? 'draft' : undefined,
   });
 
   return new Response(JSON.stringify({ success: true, slug }), {

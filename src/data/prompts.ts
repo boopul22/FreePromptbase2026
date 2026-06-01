@@ -40,8 +40,14 @@ export interface Prompt {
 	images?: string[];
 	/** users.id of the admin who added this prompt (null for seed entries). */
 	createdBy?: string;
-	/** Submission workflow status. Public lists only show 'approved'. */
-	status?: 'pending' | 'approved' | 'rejected';
+	/**
+	 * Lifecycle status. Public lists only show 'approved'.
+	 * - 'draft'    — admin work-in-progress; private, not in the review queue.
+	 * - 'pending'  — user submission awaiting admin review.
+	 * - 'approved' — live / published.
+	 * - 'rejected' — reviewed submission that was declined.
+	 */
+	status?: 'draft' | 'pending' | 'approved' | 'rejected';
 	/** users.id of the submitter (user-submitted only; NULL for admin-created). */
 	submittedBy?: string;
 	submittedAt?: string;

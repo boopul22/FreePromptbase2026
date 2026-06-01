@@ -20,6 +20,7 @@ interface PromptRow {
   popularity: number;
   how_to_use: string | null;
   created_by: string | null;
+  status: string;
   created_at: string;
   category_name?: string | null;
   category_emoji?: string | null;
@@ -46,6 +47,7 @@ function mapRow(r: PromptRow) {
     liked: !!r.liked,
     popularity: r.popularity,
     howToUse: r.how_to_use ?? null,
+    status: r.status ?? 'approved',
     createdBy: r.created_by ?? null,
     createdByName: r.creator_name ?? null,
     createdByAvatar: r.creator_avatar ?? null,
@@ -167,12 +169,32 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     finalAuthor = body.author;
   }
 
+  // Resolve status. Admins may only flip between 'draft' and 'approved' here;
+  // omitting status preserves the existing value so editing a 'pending'/
+  // 'rejected' submission never silently changes its review state.
+  let finalStatus = existing.status;
+  let finalDate = body.date ?? existing.date;
+  if (body.status !== undefined) {
+    if (body.status !== 'draft' && body.status !== 'approved') {
+      return new Response(
+        JSON.stringify({ error: "Invalid status. Use 'draft' or 'approved'." }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+    finalStatus = body.status;
+    // Publishing a draft → refresh the date so it sorts into "Newest" at the
+    // publish moment (mirrors the approve flow).
+    if (body.status === 'approved' && existing.status === 'draft') {
+      finalDate = new Date().toISOString().slice(0, 10);
+    }
+  }
+
   await db
     .prepare(
       `UPDATE prompts SET
         slug = ?, title = ?, description = ?, prompt_text = ?, category = ?,
         tags = ?, author = ?, date = ?, cover_image = ?, images = ?,
-        featured = ?, popularity = ?, how_to_use = ?, created_by = ?
+        featured = ?, popularity = ?, how_to_use = ?, created_by = ?, status = ?
        WHERE slug = ?`,
     )
     .bind(
@@ -183,13 +205,14 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       body.category ?? existing.category,
       JSON.stringify(Array.isArray(body.tags) ? body.tags : safeJsonArray(existing.tags)),
       finalAuthor,
-      body.date ?? existing.date,
+      finalDate,
       finalCover,
       JSON.stringify(finalImages),
       body.featured !== undefined ? (body.featured ? 1 : 0) : existing.featured,
       Number.isFinite(body.popularity) ? body.popularity : existing.popularity,
       body.howToUse !== undefined ? body.howToUse || null : existing.how_to_use,
       finalCreatedBy,
+      finalStatus,
       currentSlug,
     )
     .run();

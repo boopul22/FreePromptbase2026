@@ -21,7 +21,10 @@ const slug = Astro.params.slug!;
 
  <header class="flex items-center justify-between gap-4">
  <div>
+ <div class="flex items-center gap-2.5">
  <h1 class="text-xl sm:text-2xl font-semibold text-text-primary" id="page-title">Edit prompt</h1>
+ <span id="status-badge" class="hidden"></span>
+ </div>
  <div class="flex items-center gap-3 mt-1">
  <a id="live-link" href="#" target="_blank" rel="noopener" class="text-xs text-primary hover:underline inline-flex items-center gap-1">
  <span class="material-symbols-outlined text-sm">open_in_new</span>
@@ -35,12 +38,8 @@ const slug = Astro.params.slug!;
  </span>
  </div>
  </div>
- <div class="flex gap-2">
+ <div id="actions" class="flex gap-2">
  <a href="/admin/cms/prompts" class="px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>
- <button id="save-btn" type="button" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
- <span class="material-symbols-outlined text-base">save</span>
- Save changes
- </button>
  </div>
  </header>
 
@@ -144,6 +143,8 @@ const slug = Astro.params.slug!;
 <script define:vars={{ slug }}>
  // --- Image gallery state ---
  let images = [];
+ // Current lifecycle status of this prompt; drives the badge + action buttons.
+ let currentStatus = 'approved';
 
  function renderStrip() {
  const strip = document.getElementById('image-strip');
@@ -275,15 +276,60 @@ const slug = Astro.params.slug!;
  document.getElementById('f-date').value = p.date || '';
  document.getElementById('f-popularity').value = String(p.popularity ?? 0);
  document.getElementById('f-featured').checked = !!p.featured;
+
+ currentStatus = p.status || 'approved';
+ renderStatus();
+ renderActions();
+ }
+
+ const STATUS_BADGES = {
+ draft: { label: 'Draft', cls: 'bg-amber-50 text-amber-900 border-tertiary' },
+ approved: { label: 'Published', cls: 'bg-blue-50 text-blue-900 border-secondary' },
+ pending: { label: 'Pending review', cls: 'bg-purple-50 text-purple-900 border-purple-300' },
+ rejected: { label: 'Rejected', cls: 'bg-red-50 text-red-900 border-red-300' },
+ };
+
+ function renderStatus() {
+ const el = document.getElementById('status-badge');
+ const b = STATUS_BADGES[currentStatus] || STATUS_BADGES.approved;
+ el.className = `px-2.5 py-1 rounded-full text-xs font-bold uppercase border ${b.cls}`;
+ el.textContent = b.label;
+ }
+
+ function renderActions() {
+ const el = document.getElementById('actions');
+ const cancel = '<a href="/admin/cms/prompts" class="px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>';
+ const secondary = (id, icon, label) =>
+ `<button id="${id}" type="button" class="bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 transition-colors flex items-center gap-2"><span class="material-symbols-outlined text-base">${icon}</span>${label}</button>`;
+ const primary = (id, icon, label) =>
+ `<button id="${id}" type="button" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2"><span class="material-symbols-outlined text-base">${icon}</span>${label}</button>`;
+
+ let buttons = '';
+ if (currentStatus === 'draft') {
+ buttons = secondary('draft-btn', 'draft', 'Save draft') + primary('publish-btn', 'publish', 'Publish');
+ } else if (currentStatus === 'approved') {
+ buttons = secondary('unpublish-btn', 'unpublished', 'Unpublish') + primary('save-btn', 'save', 'Save changes');
+ } else {
+ // pending / rejected — managed by the review queue; editing keeps state.
+ buttons = primary('save-btn', 'save', 'Save changes');
+ }
+ el.innerHTML = cancel + buttons;
+
+ document.getElementById('draft-btn')?.addEventListener('click', () => save('draft', true));
+ document.getElementById('publish-btn')?.addEventListener('click', () => save('approved', false));
+ document.getElementById('unpublish-btn')?.addEventListener('click', () => save('draft', true));
+ document.getElementById('save-btn')?.addEventListener('click', () => save(undefined, false));
  }
 
  function v(id) { return document.getElementById(id).value; }
  function b(id) { return document.getElementById(id).checked; }
 
- async function save() {
- const btn = document.getElementById('save-btn');
- btn.disabled = true;
- btn.textContent = 'Saving…';
+ // status: 'draft' | 'approved' | undefined (undefined = keep current state).
+ // stay: true → reload the editor after saving (Save draft / Unpublish);
+ //       false → return to the list (Publish / Save changes).
+ async function save(status, stay) {
+ const actionBtns = document.querySelectorAll('#actions button');
+ actionBtns.forEach((btn) => { btn.disabled = true; });
 
  const tags = v('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
  const body = {
@@ -301,6 +347,7 @@ const slug = Astro.params.slug!;
  popularity: parseInt(v('f-popularity') || '0', 10),
  howToUse: v('f-how-to-use') || null,
  };
+ if (status) body.status = status;
 
  const res = await fetch(`/api/admin/cms/prompts/${encodeURIComponent(slug)}`, {
  method: 'PUT',
@@ -310,17 +357,18 @@ const slug = Astro.params.slug!;
 
  if (res.ok) {
  const data = await res.json();
- // If slug changed, redirect to the new edit URL; otherwise back to list.
+ // If slug changed, the edit URL moved — go there regardless.
  if (data.slug && data.slug !== slug) {
  window.location.href = `/admin/cms/prompts/edit/${encodeURIComponent(data.slug)}`;
+ } else if (stay) {
+ window.location.reload();
  } else {
  window.location.href = '/admin/cms/prompts';
  }
  } else {
  const err = await res.json().catch(() => ({}));
  alert(`Save failed: ${err.error || res.statusText}`);
- btn.disabled = false;
- btn.textContent = 'Save changes';
+ actionBtns.forEach((btn) => { btn.disabled = false; });
  }
  }
 
@@ -336,7 +384,6 @@ const slug = Astro.params.slug!;
  }
  }
 
- document.getElementById('save-btn').addEventListener('click', save);
  document.getElementById('delete-btn').addEventListener('click', del);
  boot();
 </script>

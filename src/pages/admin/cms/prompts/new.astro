@@ -24,9 +24,13 @@ const today = new Date().toISOString().slice(0, 10);
  <h1 class="text-xl sm:text-2xl font-semibold text-text-primary">New prompt</h1>
  <div class="flex gap-2">
  <a href="/admin/cms/prompts" class="px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>
- <button id="save-btn" type="button" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
- <span class="material-symbols-outlined text-base">save</span>
- Save prompt
+ <button id="draft-btn" type="button" class="bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 transition-colors flex items-center gap-2">
+ <span class="material-symbols-outlined text-base">draft</span>
+ Save draft
+ </button>
+ <button id="publish-btn" type="button" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
+ <span class="material-symbols-outlined text-base">publish</span>
+ Publish
  </button>
  </div>
  </header>
@@ -222,10 +226,22 @@ const today = new Date().toISOString().slice(0, 10);
  if (target.files && target.files.length > 0) uploadFiles(target.files);
  });
 
- async function save() {
- const btn = document.getElementById('save-btn') as HTMLButtonElement;
- btn.disabled = true;
- btn.textContent = 'Saving…';
+ const draftBtn = document.getElementById('draft-btn') as HTMLButtonElement;
+ const publishBtn = document.getElementById('publish-btn') as HTMLButtonElement;
+
+ async function save(status: 'draft' | 'approved') {
+ const activeBtn = status === 'draft' ? draftBtn : publishBtn;
+ const activeLabel = status === 'draft' ? 'Save draft' : 'Publish';
+ draftBtn.disabled = true;
+ publishBtn.disabled = true;
+ activeBtn.textContent = status === 'draft' ? 'Saving…' : 'Publishing…';
+
+ const resetButtons = () => {
+ draftBtn.disabled = false;
+ publishBtn.disabled = false;
+ draftBtn.textContent = 'Save draft';
+ publishBtn.textContent = 'Publish';
+ };
 
  const tags = val('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
  const body = {
@@ -242,12 +258,12 @@ const today = new Date().toISOString().slice(0, 10);
  featured: bool('f-featured'),
  popularity: parseInt(val('f-popularity') || '0', 10),
  howToUse: val('f-how-to-use') || null,
+ status,
  };
 
  if (!body.title || !body.promptText || !body.category) {
  alert('Title, prompt text and category are required.');
- btn.disabled = false;
- btn.textContent = 'Save prompt';
+ resetButtons();
  return;
  }
 
@@ -258,16 +274,23 @@ const today = new Date().toISOString().slice(0, 10);
  });
 
  if (res.ok) {
+ const data = await res.json().catch(() => ({}));
+ // Drafts return to the editor so the admin can keep refining; published
+ // prompts go back to the list.
+ if (status === 'draft' && data.slug) {
+ window.location.href = `/admin/cms/prompts/edit/${encodeURIComponent(data.slug)}`;
+ } else {
  window.location.href = '/admin/cms/prompts';
+ }
  } else {
  const err = await res.json().catch(() => ({}));
  alert(`Save failed: ${err.error || res.statusText}`);
- btn.disabled = false;
- btn.textContent = 'Save prompt';
+ resetButtons();
  }
  }
 
- document.getElementById('save-btn')!.addEventListener('click', save);
+ draftBtn.addEventListener('click', () => save('draft'));
+ publishBtn.addEventListener('click', () => save('approved'));
 
  // Auto-slug from title (only when slug field is empty)
  const titleInput = document.getElementById('f-title') as HTMLInputElement;

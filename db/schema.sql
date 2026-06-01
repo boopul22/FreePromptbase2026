@@ -52,9 +52,14 @@ CREATE TABLE prompts (
 	share_count      INTEGER NOT NULL DEFAULT 0,    -- denormalized count of 'share' rows in prompt_events
 	how_to_use       TEXT,
 	created_by       TEXT,                           -- FK to users.id of admin who created via CMS (nullable)
-	-- Submission workflow: user-submitted prompts start as 'pending' and require admin approval.
-	-- Admin-created prompts are inserted directly as 'approved'. Existing seed rows default to 'approved'.
-	status           TEXT NOT NULL DEFAULT 'approved',  -- 'pending' | 'approved' | 'rejected'
+	-- Lifecycle status (free-text; no CHECK so new values need no migration):
+	--   'draft'    — admin work-in-progress; private, NOT in the review queue.
+	--   'pending'  — user submission awaiting admin review.
+	--   'approved' — live / published (the only status public lists show).
+	--   'rejected' — reviewed submission that was declined.
+	-- Admin-created prompts are saved as 'draft' or published straight to 'approved'.
+	-- User submissions start 'pending'. Existing seed rows default to 'approved'.
+	status           TEXT NOT NULL DEFAULT 'approved',  -- 'draft' | 'pending' | 'approved' | 'rejected'
 	submitted_by     TEXT,                           -- FK to users.id of submitter; NULL for admin-created
 	submitted_at     TEXT,
 	reviewed_by      TEXT,                           -- FK to users.id of admin who approved/rejected
