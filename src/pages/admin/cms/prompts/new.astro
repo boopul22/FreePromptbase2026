@@ -12,7 +12,7 @@ const today = new Date().toISOString().slice(0, 10);
  <div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 md:overflow-y-auto md:h-screen">
+ <main class="flex-1 min-w-0 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 md:overflow-y-auto md:h-screen">
  <!-- Breadcrumb -->
  <nav class="flex items-center gap-2 text-xs text-gray-500">
  <a href="/admin/cms/prompts" class="hover:text-text-primary transition-colors">Prompts</a>
@@ -64,17 +64,16 @@ const today = new Date().toISOString().slice(0, 10);
 
  <!-- Images -->
  <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
- <div class="flex items-center justify-between gap-3">
  <div>
  <p class="text-sm font-semibold text-text-primary">Images</p>
- <p class="text-xs text-gray-500 mt-0.5">Upload multiple images — they'll render as a carousel on the prompt page. First image is used as the card cover.</p>
+ <p class="text-xs text-gray-500 mt-0.5">Drag &amp; drop or click to upload. They render as a carousel on the prompt page. Click a thumbnail to set it as the cover (featured) image.</p>
  </div>
- <label class="bg-white text-text-primary px-3 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:border-primary transition-colors flex items-center gap-2 cursor-pointer shrink-0">
- <span class="material-symbols-outlined text-base">add_photo_alternate</span>
- Upload
+ <label id="dropzone" class="block border-2 border-dashed border-gray-300 rounded-md px-4 py-8 text-center cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors">
  <input id="image-input" type="file" accept="image/*" multiple class="hidden" />
+ <span class="material-symbols-outlined text-3xl text-gray-400">cloud_upload</span>
+ <p class="text-sm font-medium text-text-primary mt-1">Drop images here, or click to browse</p>
+ <p class="text-xs text-gray-500 mt-0.5">PNG, JPG or WebP — multiple allowed</p>
  </label>
- </div>
  <div id="image-status" class="text-xs text-gray-500 hidden"></div>
  <div id="image-strip" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 empty:hidden"></div>
  </div>
@@ -176,21 +175,48 @@ const today = new Date().toISOString().slice(0, 10);
  // --- Image gallery state ---
  let images: string[] = [];
 
+ function coverField(): HTMLInputElement {
+ return document.getElementById('f-cover') as HTMLInputElement;
+ }
+
+ // The cover (featured) image: an explicit pick wins, else the first upload.
+ function currentCover(): string {
+ return coverField().value.trim() || images[0] || '';
+ }
+
  function renderStrip() {
  const strip = document.getElementById('image-strip')!;
- strip.innerHTML = images.map((url, i) => `
- <div class="relative group rounded-md overflow-hidden border border-gray-200 aspect-square bg-gray-50">
+ const cover = currentCover();
+ strip.innerHTML = images.map((url, i) => {
+ const isCover = url === cover;
+ return `
+ <div class="relative group rounded-md overflow-hidden border ${isCover ? 'border-primary ring-2 ring-primary' : 'border-gray-200'} aspect-square bg-gray-50 cursor-pointer" data-cover="${url}" title="${isCover ? 'Cover image' : 'Click to set as cover'}">
  <img src="${url}" alt="" class="w-full h-full object-cover" />
- ${i === 0 ? '<span class="absolute top-1 left-1 bg-primary text-link text-[10px] font-semibold px-1.5 py-0.5 rounded-md uppercase tracking-wide">Cover</span>' : ''}
- <button type="button" data-remove="${i}" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-white/90 hover:bg-white text-gray-700 hover:text-red-600 flex items-center justify-center shadow-sm transition-colors" title="Remove">
+ ${isCover
+ ? '<span class="absolute top-1 left-1 bg-primary text-link text-[10px] font-semibold px-1.5 py-0.5 rounded-md uppercase tracking-wide">Cover</span>'
+ : '<span class="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-colors"><span class="opacity-0 group-hover:opacity-100 text-white text-[10px] font-semibold uppercase tracking-wide bg-black/60 px-2 py-1 rounded-md transition-opacity">Set as cover</span></span>'}
+ <button type="button" data-remove="${i}" class="absolute top-1 right-1 z-10 w-6 h-6 rounded-full bg-white/90 hover:bg-white text-gray-700 hover:text-red-600 flex items-center justify-center shadow-sm transition-colors" title="Remove">
  <span class="material-symbols-outlined text-sm">close</span>
  </button>
  </div>
- `).join('');
+ `;
+ }).join('');
+ // Click a thumbnail → make it the cover.
+ strip.querySelectorAll('[data-cover]').forEach((el) => {
+ el.addEventListener('click', () => {
+ coverField().value = (el as HTMLElement).dataset.cover || '';
+ renderStrip();
+ });
+ });
+ // Remove button (stop the click from also setting the cover).
  strip.querySelectorAll('button[data-remove]').forEach((btn) => {
- btn.addEventListener('click', () => {
+ btn.addEventListener('click', (e) => {
+ e.stopPropagation();
  const idx = parseInt((btn as HTMLElement).dataset.remove || '0', 10);
+ const removed = images[idx];
  images.splice(idx, 1);
+ // If the removed image was the explicit cover, clear it so it falls back.
+ if (coverField().value.trim() === removed) coverField().value = '';
  renderStrip();
  });
  });
@@ -225,6 +251,28 @@ const today = new Date().toISOString().slice(0, 10);
  const target = e.target as HTMLInputElement;
  if (target.files && target.files.length > 0) uploadFiles(target.files);
  });
+
+ // Drag & drop onto the dropzone.
+ const dropzone = document.getElementById('dropzone')!;
+ ['dragenter', 'dragover'].forEach((ev) => {
+ dropzone.addEventListener(ev, (e) => {
+ e.preventDefault();
+ dropzone.classList.add('border-primary', 'bg-gray-50');
+ });
+ });
+ ['dragleave', 'drop'].forEach((ev) => {
+ dropzone.addEventListener(ev, (e) => {
+ e.preventDefault();
+ dropzone.classList.remove('border-primary', 'bg-gray-50');
+ });
+ });
+ dropzone.addEventListener('drop', (e) => {
+ const dt = (e as DragEvent).dataTransfer;
+ if (dt && dt.files && dt.files.length > 0) uploadFiles(dt.files);
+ });
+
+ // Keep the thumbnail highlight in sync when the cover URL is typed/pasted.
+ coverField().addEventListener('input', renderStrip);
 
  const draftBtn = document.getElementById('draft-btn') as HTMLButtonElement;
  const publishBtn = document.getElementById('publish-btn') as HTMLButtonElement;
