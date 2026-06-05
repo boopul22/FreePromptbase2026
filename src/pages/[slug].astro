@@ -139,14 +139,15 @@ const breadcrumb = breadcrumbSchema([
 			<span class="text-text-primary truncate max-w-[60%]">{prompt.title}</span>
 		</nav>
 
-		<!-- Title + lead (full width, line-length capped for readability) -->
+		<!-- Heading (full width, line-length capped for readability).
+		     The slug is the visible H1; the real title is kept in the DOM but
+		     visually hidden so SEO/schema and assistive tech still see it. The
+		     description is intentionally not rendered on the frontend. -->
 		<header class="mb-8 max-w-3xl">
 			<h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-text-primary leading-[1.15]">
-				{prompt.title}
+				{prompt.slug}
 			</h1>
-			<p class="text-gray-600 text-lg sm:text-xl leading-relaxed mt-4">
-				{prompt.description}
-			</p>
+			<span class="sr-only">{prompt.title}</span>
 		</header>
 
 		<!-- Two-column body: image left (sticky), prompt content right.
@@ -368,7 +369,7 @@ const breadcrumb = breadcrumbSchema([
 		{
 			prompt.tags.length > 0 && (
 				<section class="mt-10 pt-6 border-t border-gray-200">
-					<p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">Tags</p>
+					<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">Tags</h3>
 					<div class="flex flex-wrap gap-1.5">
 						{prompt.tags.map((tag) => (
 							<span class="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-md">

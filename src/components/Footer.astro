@@ -24,12 +24,6 @@ const siteLinks = [
 	{ href: '/privacy', label: 'Privacy' },
 	{ href: '/terms', label: 'Terms' },
 ];
-
-// Sister sites in the network — surface a few cross-promo links.
-const sisterSites = [
-	{ href: 'https://imagetourl.cloud', label: 'ImageToURL', emoji: '☁️' },
-	{ href: 'https://bipul.online', label: 'bipul.online', emoji: '🌐' },
-];
 ---
 
 <footer class="mt-20 bg-link text-gray-300" data-purpose="site-footer">
@@ -102,37 +96,22 @@ const sisterSites = [
 		<!-- Divider -->
 		<div class="h-px bg-white/10 my-10"></div>
 
-		<!-- Bottom grid: resources inline + sister sites -->
-		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-			<div>
-				<p class="text-[11px] font-semibold uppercase tracking-widest text-white mb-3">Resources</p>
-				<div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
-					<a href="/privacy" class="hover:text-primary transition-colors">Privacy</a>
-					<a href="/terms" class="hover:text-primary transition-colors">Terms</a>
-					<a href="/about" class="hover:text-primary transition-colors">About</a>
-					<a href="/categories" class="hover:text-primary transition-colors">Categories</a>
-					<a href="/blog" class="hover:text-primary transition-colors">Blog</a>
-					<a href="/sitemap.xml" class="hover:text-primary transition-colors">Sitemap</a>
-				</div>
-			</div>
-
-			<div>
-				<p class="text-[11px] font-semibold uppercase tracking-widest text-white mb-3">Our network</p>
-				<div class="flex flex-wrap gap-x-6 gap-y-3 items-center">
-					{sisterSites.map((s) => (
-						<a href={s.href} target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-sm text-gray-300 hover:text-primary transition-colors">
-							<span class="text-base" aria-hidden="true">{s.emoji}</span>
-							<span class="font-medium">{s.label}</span>
-						</a>
-					))}
-				</div>
+		<!-- Bottom: resources inline -->
+		<div>
+			<p class="text-[11px] font-semibold uppercase tracking-widest text-white mb-3">Resources</p>
+			<div class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
+				<a href="/privacy" class="hover:text-primary transition-colors">Privacy</a>
+				<a href="/terms" class="hover:text-primary transition-colors">Terms</a>
+				<a href="/about" class="hover:text-primary transition-colors">About</a>
+				<a href="/categories" class="hover:text-primary transition-colors">Categories</a>
+				<a href="/blog" class="hover:text-primary transition-colors">Blog</a>
+				<a href="/sitemap.xml" class="hover:text-primary transition-colors">Sitemap</a>
 			</div>
 		</div>
 
 		<!-- Copyright -->
 		<div class="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-gray-500">
 			<p>© {year} Free Prompt Base. Designed by Bipul.</p>
-			<p>Built with care · Hosted on Cloudflare</p>
 		</div>
 	</div>
 </footer>
