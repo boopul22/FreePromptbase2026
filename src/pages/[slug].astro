@@ -145,7 +145,7 @@ const breadcrumb = breadcrumbSchema([
 		     description is intentionally not rendered on the frontend. -->
 		<header class="mb-8 max-w-3xl">
 			<h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-text-primary leading-[1.15]">
-				{prompt.slug}
+				{prompt.slug.replace(/-/g, ' ')}
 			</h1>
 			<span class="sr-only">{prompt.title}</span>
 		</header>
