@@ -23,11 +23,17 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <h1 class="text-xl sm:text-2xl font-bold text-text-primary">Media Library</h1>
  <p class="text-gray-600 mt-1" id="media-count">Manage uploaded images for your content.</p>
  </div>
- <label class="bg-primary text-link px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wide border border-gray-200 transition-all cursor-pointer flex items-center gap-2 self-start sm:self-auto">
+ <div class="flex items-center gap-2 self-start sm:self-auto">
+ <button id="migrate-webp-btn" type="button" class="bg-white text-text-primary px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wide border border-gray-200 hover:bg-gray-100 transition-all cursor-pointer flex items-center gap-2" title="Re-encode existing JPG/PNG images to WebP (URLs stay the same)">
+ <span class="material-symbols-outlined text-lg">bolt</span>
+ <span id="migrate-webp-label">Convert existing to WebP</span>
+ </button>
+ <label class="bg-primary text-link px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wide border border-gray-200 transition-all cursor-pointer flex items-center gap-2">
  <span class="material-symbols-outlined text-lg">upload</span>
  Upload Media
  <input type="file" accept="image/*" multiple class="hidden" id="media-upload-input" />
  </label>
+ </div>
  </div>
 
  <!-- Folder Filters -->
@@ -171,6 +177,53 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  await fetch('/api/admin/cms/media', { method: 'POST', body: form });
  }
  loadMedia(1);
+ });
+
+ // Migrate existing images → WebP. Loops the batched endpoint with its cursor
+ // until done, converting JPG/PNG in place (URLs unchanged). Idempotent.
+ document.getElementById('migrate-webp-btn')?.addEventListener('click', async () => {
+ const btn = document.getElementById('migrate-webp-btn') as HTMLButtonElement;
+ const label = document.getElementById('migrate-webp-label')!;
+ if (btn.disabled) return;
+ if (!confirm('Convert all existing JPG/PNG images in storage to WebP? URLs stay the same. This is safe to run again later.')) return;
+
+ btn.disabled = true;
+ btn.classList.add('opacity-60', 'cursor-not-allowed');
+ const originalLabel = label.textContent;
+
+ let prefixIndex = 0;
+ let cursor: string | null = null;
+ let totalConverted = 0;
+ let guard = 0; // hard stop against an unexpected non-terminating loop
+
+ try {
+ while (guard++ < 10000) {
+ const res = await fetch('/api/admin/cms/media-migrate', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ prefixIndex, cursor }),
+ });
+ if (!res.ok) {
+ const err = await res.json().catch(() => ({}));
+ throw new Error(err.error || `Request failed (${res.status})`);
+ }
+ const data = await res.json();
+ totalConverted += data.converted || 0;
+ label.textContent = `Converting… ${totalConverted} done`;
+
+ if (data.done) break;
+ prefixIndex = data.prefixIndex;
+ cursor = data.cursor;
+ }
+ showToast(totalConverted > 0 ? `Converted ${totalConverted} image(s) to WebP` : 'All images already WebP');
+ loadMedia(currentPage);
+ } catch (err: any) {
+ showToast(`Migration failed: ${err.message || 'error'}`);
+ } finally {
+ label.textContent = originalLabel;
+ btn.disabled = false;
+ btn.classList.remove('opacity-60', 'cursor-not-allowed');
+ }
  });
 
  loadMedia(1);

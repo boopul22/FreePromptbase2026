@@ -5,6 +5,7 @@ import { getDB } from '../../../../lib/db';
 import { getEnv } from '../../../../lib/env';
 import { generateId } from '../../../../lib/crypto';
 import { logActivity } from '../../../../lib/cms';
+import { convertToWebp, toWebpFilename } from '../../../../lib/image';
 // @ts-ignore - cloudflare:workers is a Workers-only built-in module
 import { env as cfEnv } from 'cloudflare:workers';
 
@@ -95,12 +96,31 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const env = getEnv(locals);
   const id = generateId();
-  const ext = getExtension(file.type);
+  const original = await file.arrayBuffer();
+
+  // Auto-convert JPEG/PNG → WebP (near-lossless). GIF/SVG/WebP pass through
+  // untouched; any conversion failure falls back to the original bytes so an
+  // upload never breaks because of image processing.
+  const result = await convertToWebp(original, file.type);
+
+  let body: ArrayBuffer | Uint8Array = original;
+  let contentType = file.type;
+  let filename = file.name;
+  let sizeBytes = file.size;
+  let ext = getExtension(file.type);
+
+  if (result.converted) {
+    body = result.bytes;
+    contentType = result.contentType; // image/webp
+    filename = toWebpFilename(file.name);
+    sizeBytes = result.bytes.byteLength;
+    ext = 'webp';
+  }
+
   const key = `cms/${folder}/${id}.${ext}`;
-  const body = await file.arrayBuffer();
 
   // R2 binding upload — no API token, no SigV4. Worker has direct access via env.R2.
-  await (cfEnv as any).R2.put(key, body, { httpMetadata: { contentType: file.type } });
+  await (cfEnv as any).R2.put(key, body, { httpMetadata: { contentType } });
 
   const publicUrl = `${env.R2_PUBLIC_URL}/${key}`;
 
@@ -109,7 +129,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     .prepare(
       'INSERT INTO media (id, r2_key, url, filename, alt_text, size_bytes, mime_type, folder, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
     )
-    .bind(id, key, publicUrl, file.name, altText, file.size, file.type, folder, locals.user.id)
+    .bind(id, key, publicUrl, filename, altText, sizeBytes, contentType, folder, locals.user.id)
     .run();
 
   await logActivity(db, {
@@ -118,11 +138,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
     action: 'upload_media',
     entityType: 'media',
     entityId: id,
-    entityTitle: file.name,
+    entityTitle: filename,
   });
 
   return new Response(
-    JSON.stringify({ success: true, id, url: publicUrl, filename: file.name }),
+    JSON.stringify({ success: true, id, url: publicUrl, filename }),
     { status: 201, headers: { 'Content-Type': 'application/json' } },
   );
 };
