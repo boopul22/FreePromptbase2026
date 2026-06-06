@@ -117,8 +117,12 @@ const organizationSchema = {
 		<link rel="canonical" href={canonical} />
 		<link rel="alternate" type="application/rss+xml" title="Free Prompt Base — Blog" href="/blog/rss.xml" />
 
-		<!-- Preconnect to Google's CDN since signed-in user avatars come from there. -->
-		<link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin />
+		{/* Preconnect to Google's CDN only for signed-in users (avatars load from
+		   there). Anonymous pages don't request it, so omitting avoids an
+		   "unused preconnect" warning. */}
+		{Astro.locals.user && (
+			<link rel="preconnect" href="https://lh3.googleusercontent.com" crossorigin />
+		)}
 
 		<!-- Open Graph -->
 		<meta property="og:type" content={ogType} />

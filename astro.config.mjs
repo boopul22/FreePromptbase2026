@@ -24,7 +24,9 @@ export default defineConfig({
 	// `/slug.html` (not `/slug/index.html`) so Cloudflare Workers static assets
 	// serve `/slug` with a 200 instead of a 307 trailing-slash redirect.
 	trailingSlash: 'never',
-	build: { format: 'file' },
+	// inlineStylesheets:'always' emits the (small) CSS as an inline <style> instead
+	// of a render-blocking <link>, removing it from the critical request chain.
+	build: { format: 'file', inlineStylesheets: 'always' },
 
 	// Sitemap is generated dynamically from D1 at /sitemap.xml (see
 	// src/pages/sitemap.xml.ts) so it always reflects current prompts.
