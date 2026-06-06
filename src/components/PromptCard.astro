@@ -64,7 +64,7 @@ function fmt(n: number): string {
 			prompt.coverImage ? (
 				<img
 					src={prompt.coverImage}
-					srcset={cfSrcset(prompt.coverImage, [320, 480, 640, 720, 960])}
+					srcset={cfSrcset(prompt.coverImage, [300, 400, 520, 660], 68)}
 					sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
 					alt={prompt.title}
 					class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
