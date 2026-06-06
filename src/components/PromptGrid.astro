@@ -40,6 +40,7 @@ const aspects = [
 				prompt={prompt}
 				category={categoryBySlug.get(prompt.category)}
 				aspectClass={aspects[i % aspects.length]}
+				priority={!hidden && i < 4}
 			/>
 		))
 	}

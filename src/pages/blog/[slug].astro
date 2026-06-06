@@ -66,7 +66,11 @@ function buildToc(html: string): { html: string; toc: TocEntry[] } {
 }
 
 const rawBody = post.htmlContent || post.content.intro || '';
-const { html: bodyHtml, toc } = buildToc(rawBody);
+const { html: builtHtml, toc } = buildToc(rawBody);
+// Lazy-load + async-decode every in-body image (they're below the fold) so the
+// page doesn't eagerly fetch 20 MB of images on load. Only images without an
+// explicit loading attr are touched.
+const bodyHtml = builtHtml.replace(/<img(?![^>]*\bloading=)/gi, '<img loading="lazy" decoding="async"');
 
 // Strip HTML to plain text for articleBody + wordCount. Truncate body so the
 // JSON-LD payload stays small while still giving AI engines enough to cite.
@@ -175,7 +179,9 @@ const breadcrumb = breadcrumbSchema([
 							src={post.coverImage}
 							alt={post.title}
 							class="w-full rounded-base mb-10 object-cover"
-							loading="lazy"
+							loading="eager"
+							fetchpriority="high"
+							decoding="async"
 						/>
 					)
 				}

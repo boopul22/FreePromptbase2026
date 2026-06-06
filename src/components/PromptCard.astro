@@ -8,9 +8,12 @@ interface Props {
 	category?: Category;
 	/** Tailwind aspect class for the cover, e.g. "aspect-[3/4]" (masonry variety). */
 	aspectClass?: string;
+	/** Above-the-fold cards (first row) eager-load + prioritise their cover so it
+	    can be the LCP element instead of being deferred by lazy-loading. */
+	priority?: boolean;
 }
 
-const { prompt, category, aspectClass = 'aspect-[4/3]' } = Astro.props;
+const { prompt, category, aspectClass = 'aspect-[4/3]', priority = false } = Astro.props;
 
 const searchIndex = [prompt.title, prompt.description, ...prompt.tags]
 	.join(' ')
@@ -62,7 +65,8 @@ function fmt(n: number): string {
 					src={prompt.coverImage}
 					alt={prompt.title}
 					class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-					loading="lazy"
+					loading={priority ? 'eager' : 'lazy'}
+					fetchpriority={priority ? 'high' : undefined}
 					decoding="async"
 				/>
 			) : (
