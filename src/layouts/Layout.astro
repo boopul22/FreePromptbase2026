@@ -99,10 +99,8 @@ const organizationSchema = {
 <!doctype html>
 <html lang="en">
 	<head>
-		<!-- Google tag (gtag.js) — deferred until first user interaction so it
-		     stays off the critical path (no render/CPU cost on initial load).
-		     The config is queued in dataLayer now and processed (page_view fires)
-		     the moment gtag.js loads on the first scroll/click/key/touch. -->
+		<meta charset="utf-8" />
+		<!-- gtag.js deferred to first interaction; charset must stay first (<1024B). -->
 		<script is:inline>
 			window.dataLayer = window.dataLayer || [];
 			function gtag(){dataLayer.push(arguments);}
@@ -124,7 +122,6 @@ const organizationSchema = {
 			})();
 		</script>
 
-		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/logo.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="theme-color" content="#e0a82e" />

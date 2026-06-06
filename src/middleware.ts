@@ -125,6 +125,12 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   // Origin isolation. allow-popups keeps share/OAuth popups working while still
   // isolating this document from cross-origin openers.
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  // Ensure the charset is declared in the header (not just a <meta>), so it's
+  // never "too late" regardless of head size.
+  const ct = response.headers.get('content-type');
+  if (ct && ct.startsWith('text/html') && !ct.includes('charset')) {
+    response.headers.set('content-type', 'text/html; charset=utf-8');
+  }
 
   // Public HTML caching — skip API/admin/dashboard. Logged-in users get private,
   // no-cache so personalized nav isn't served from the CDN.
