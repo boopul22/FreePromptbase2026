@@ -147,7 +147,7 @@ function fmt(n: number): string {
 				>
 					<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
 				</svg>
-				<span class="like-count tabular-nums" data-like-count-text data-raw={likeCount}>
+				<span class="like-count tabular-nums" data-like-count-text data-raw={likeCount} aria-hidden="true">
 					{likeCount > 0 ? fmt(likeCount) : ''}
 				</span>
 			</button>
@@ -156,9 +156,9 @@ function fmt(n: number): string {
 
 	<!-- Caption -->
 	<div class="space-y-1">
-		<h3 class="font-bold text-sm text-text-primary group-hover:text-primary transition-colors">
+		<h2 class="font-bold text-sm text-text-primary group-hover:text-primary transition-colors">
 			{prompt.title}
-		</h3>
+		</h2>
 		{prompt.description && <p class="text-xs text-gray-500 line-clamp-2">{prompt.description}</p>}
 	</div>
 
@@ -174,7 +174,12 @@ function fmt(n: number): string {
 	.card-action {
 		display: inline-flex;
 		align-items: center;
+		justify-content: center;
 		gap: 0.3rem;
+		/* >=24x24 tap target for WCAG 2.5.8; icon stays 18px, padding grows the
+		   tappable area. */
+		min-width: 24px;
+		min-height: 24px;
 		padding: 0;
 		background: none;
 		border: 0;
