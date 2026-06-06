@@ -9,11 +9,7 @@ export default defineConfig({
 	// pages. Static pages (about, privacy, terms, 404) stay prerendered; only
 	// pages with `export const prerender = false` render at request time.
 	// platformProxy exposes Cloudflare bindings (D1) during `astro dev`.
-	// wasmModuleImports lets us `import x from '*.wasm'` as a build-time
-	// WebAssembly.Module — required by the jsquash image codecs used for
-	// server-side WebP conversion (src/lib/image.ts), since the Workers runtime
-	// can't fetch/compile wasm at request time.
-	adapter: cloudflare({ platformProxy: { enabled: true }, wasmModuleImports: true }),
+	adapter: cloudflare({ platformProxy: { enabled: true } }),
 
 	// SSR everywhere — the CMS middleware resolves sessions for every request,
 	// so we need request-time rendering. Pages that don't need it (about/privacy/

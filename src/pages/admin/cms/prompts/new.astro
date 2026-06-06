@@ -127,6 +127,8 @@ const today = new Date().toISOString().slice(0, 10);
 </Layout>
 
 <script>
+ import { imageToWebp } from '../../../../scripts/image-to-webp';
+
  async function loadCategories() {
  const res = await fetch('/api/admin/cms/prompt-categories');
  const data = await res.json();
@@ -265,8 +267,9 @@ const today = new Date().toISOString().slice(0, 10);
  for (const file of Array.from(files)) {
  done++;
  status.textContent = `Uploading ${done} of ${total}…`;
+ const webp = await imageToWebp(file);
  const fd = new FormData();
- fd.append('file', file);
+ fd.append('file', webp);
  fd.append('folder', 'prompts');
  const res = await fetch('/api/admin/cms/media', { method: 'POST', body: fd });
  if (!res.ok) {

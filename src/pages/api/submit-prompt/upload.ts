@@ -5,7 +5,6 @@ import { getEnv } from '../../../lib/env';
 import { getDB } from '../../../lib/db';
 import { generateId } from '../../../lib/crypto';
 import { logActivity } from '../../../lib/cms';
-import { convertToWebp } from '../../../lib/image';
 // @ts-ignore - cloudflare:workers is a Workers-only built-in module
 import { env as cfEnv } from 'cloudflare:workers';
 
@@ -79,25 +78,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
 	}
 
 	const id = generateId(16);
-	const original = await file.arrayBuffer();
-
-	// Auto-convert JPEG/PNG → WebP (near-lossless); GIF passes through untouched.
-	// On any failure we keep the original bytes so the upload still succeeds.
-	const result = await convertToWebp(original, file.type);
-	const body: ArrayBuffer | Uint8Array = result.converted ? result.bytes : original;
-	const contentType = result.converted ? result.contentType : file.type;
-	const ext = result.converted ? 'webp' : extFor(file.type);
+	const ext = extFor(file.type);
 	const key = `submissions/${locals.user.id}/${id}.${ext}`;
+	const body = await file.arrayBuffer();
 
 	try {
-		await (cfEnv as any).R2.put(key, body, { httpMetadata: { contentType } });
+		await (cfEnv as any).R2.put(key, body, { httpMetadata: { contentType: file.type } });
 	} catch (err) {
 		console.error('R2 upload failed:', err);
 		return jsonError('Upload failed — please try again.', 500);
 	}
 
 	const publicUrl = `${env.R2_PUBLIC_URL}/${key}`;
-	const finalSize = result.converted ? result.bytes.byteLength : file.size;
 
 	try {
 		await logActivity(db, {
@@ -107,14 +99,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
 			entityType: 'media',
 			entityId: id,
 			entityTitle: file.name,
-			details: String(finalSize),
+			details: String(file.size),
 		});
 	} catch {
 		// Don't block the upload response on logging.
 	}
 
 	return new Response(
-		JSON.stringify({ success: true, url: publicUrl, size: finalSize, type: contentType }),
+		JSON.stringify({ success: true, url: publicUrl, size: file.size, type: file.type }),
 		{ status: 201, headers: { 'Content-Type': 'application/json' } },
 	);
 };

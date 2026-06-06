@@ -412,6 +412,7 @@ const user = Astro.locals.user!;
 />
 
 <script>
+ import { imageToWebp } from '../../../../scripts/image-to-webp';
  import { Editor } from '@tiptap/core';
  import StarterKit from '@tiptap/starter-kit';
  import Link from '@tiptap/extension-link';
@@ -608,8 +609,9 @@ const user = Astro.locals.user!;
  imageInput.addEventListener('change', async (e) => {
  const file = (e.target as HTMLInputElement).files?.[0];
  if (!file) return;
+ const webp = await imageToWebp(file);
  const form = new FormData();
- form.append('file', file);
+ form.append('file', webp);
  form.append('folder', 'blog');
  try {
  const res = await fetch('/api/admin/cms/media', { method: 'POST', body: form });
@@ -656,8 +658,9 @@ const user = Astro.locals.user!;
  coverUploadInput.addEventListener('change', async (e) => {
  const file = (e.target as HTMLInputElement).files?.[0];
  if (!file) return;
+ const webp = await imageToWebp(file);
  const form = new FormData();
- form.append('file', file);
+ form.append('file', webp);
  form.append('folder', 'blog');
  const res = await fetch('/api/admin/cms/media', { method: 'POST', body: form });
  const data = await res.json();
