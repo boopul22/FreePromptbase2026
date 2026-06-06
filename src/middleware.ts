@@ -122,6 +122,9 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  // Origin isolation. allow-popups keeps share/OAuth popups working while still
+  // isolating this document from cross-origin openers.
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
 
   // Public HTML caching — skip API/admin/dashboard. Logged-in users get private,
   // no-cache so personalized nav isn't served from the CDN.

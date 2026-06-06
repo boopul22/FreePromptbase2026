@@ -1,6 +1,7 @@
 ---
 import type { Prompt, Category } from '../lib/prompts';
 import CategoryIcon from './CategoryIcon.astro';
+import { cfSrcset } from '../lib/cfImage';
 
 interface Props {
 	prompt: Prompt;
@@ -63,6 +64,8 @@ function fmt(n: number): string {
 			prompt.coverImage ? (
 				<img
 					src={prompt.coverImage}
+					srcset={cfSrcset(prompt.coverImage, [300, 400, 600, 800, 1080])}
+					sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
 					alt={prompt.title}
 					class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 					loading={priority ? 'eager' : 'lazy'}

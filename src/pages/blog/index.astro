@@ -4,6 +4,7 @@ import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import { getAllPosts, postReadTime } from '../../lib/posts';
 import { itemListSchema, breadcrumbSchema } from '../../lib/seo';
+import { cfSrcset } from '../../lib/cfImage';
 
 // On-demand: read posts from D1 at request time.
 export const prerender = false;
@@ -51,6 +52,8 @@ const crumb = breadcrumbSchema([
 								{post.coverImage ? (
 									<img
 										src={post.coverImage}
+										srcset={cfSrcset(post.coverImage, [320, 480, 768, 1024])}
+										sizes="(min-width: 768px) 33vw, 92vw"
 										alt={post.title}
 										class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 										loading={i === 0 ? 'eager' : 'lazy'}

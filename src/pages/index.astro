@@ -93,7 +93,7 @@ const homeList = itemListSchema(
 		'after:h-1',
 		'after:bg-primary',
 	];
-	const INACTIVE_TAB = ['text-gray-500', 'hover:text-primary'];
+	const INACTIVE_TAB = ['text-gray-600', 'hover:text-primary'];
 
 	function activeGrid(): HTMLElement | null {
 		return grids.find((g) => !g.classList.contains('hidden')) ?? null;
