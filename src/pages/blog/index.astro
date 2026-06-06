@@ -54,7 +54,6 @@ const crumb = breadcrumbSchema([
 										alt={post.title}
 										class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
 										loading={i === 0 ? 'eager' : 'lazy'}
-										fetchpriority={i === 0 ? 'high' : undefined}
 										decoding="async"
 									/>
 								) : (
