@@ -111,6 +111,11 @@ const breadcrumb = breadcrumbSchema([
 	...(category ? [{ name: category.name, path: `/category/${category.slug}` }] : []),
 	{ name: prompt.title, path: `/${prompt.slug}` },
 ]);
+
+// Visible H1 is derived from the slug; render it sentence-case (capitalise the
+// first letter, keep the rest lowercase) rather than all-lowercase.
+const slugWords = prompt.slug.replace(/-/g, ' ');
+const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 ---
 
 <Layout
@@ -146,7 +151,7 @@ const breadcrumb = breadcrumbSchema([
 		     description is intentionally not rendered on the frontend. -->
 		<header class="mb-8 max-w-3xl">
 			<h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-text-primary leading-[1.15]">
-				{prompt.slug.replace(/-/g, ' ')}
+				{heading}
 			</h1>
 			<span class="sr-only">{prompt.title}</span>
 		</header>
