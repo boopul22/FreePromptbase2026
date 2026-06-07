@@ -128,12 +128,21 @@ export function wireSave() {
 function setLikedVisual(btn: HTMLElement, liked: boolean, count?: number) {
 	btn.dataset.liked = String(liked);
 	btn.setAttribute('aria-pressed', String(liked));
-	btn.setAttribute('aria-label', liked ? 'Unlike prompt' : 'Like prompt');
 
-	if (btn.classList.contains('detail-like-btn')) {
+	const isDetail = btn.classList.contains('detail-like-btn');
+	if (isDetail) {
+		// Detail button shows a visible "Like"/"Liked" text label + count, which
+		// already forms the accessible name — an aria-label would clash with the
+		// visible text (axe: label-content-name-mismatch).
+		btn.removeAttribute('aria-label');
 		btn.classList.remove(...PILL_LIKED, ...PILL_UNLIKED);
 		btn.classList.add(...(liked ? PILL_LIKED : PILL_UNLIKED));
 	} else {
+		// Card pill only shows the count, so fold it into the accessible name so
+		// the visible "1" is contained in the label (axe: label-content-name-mismatch).
+		const verb = liked ? 'Unlike prompt' : 'Like prompt';
+		const n = count ?? Number(btn.querySelector<HTMLElement>('[data-like-count-text]')?.dataset.raw ?? 0);
+		btn.setAttribute('aria-label', n > 0 ? `${verb}, ${fmt(n)} likes` : verb);
 		btn.classList.toggle('is-liked', liked);
 	}
 

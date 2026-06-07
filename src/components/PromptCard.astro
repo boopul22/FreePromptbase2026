@@ -132,7 +132,7 @@ function fmt(n: number): string {
 				class={`card-action card-like ${liked ? 'is-liked' : ''}`}
 				data-like
 				data-liked={liked ? 'true' : 'false'}
-				aria-label={liked ? 'Unlike prompt' : 'Like prompt'}
+				aria-label={`${liked ? 'Unlike prompt' : 'Like prompt'}${likeCount > 0 ? `, ${fmt(likeCount)} likes` : ''}`}
 				aria-pressed={liked ? 'true' : 'false'}
 			>
 				<svg
