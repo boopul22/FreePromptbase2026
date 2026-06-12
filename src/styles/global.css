@@ -97,12 +97,13 @@
 }
 
 /* ----------------------------------------------------------------------------
-   Masonry gallery — CSS multi-column layout (original design). Cards carry
-   varied cover aspect ratios so columns stagger like a magazine spread.
+   Masonry gallery — CSS multi-column layout. Covers render at their natural
+   aspect ratio, so columns stagger from the real image heights. Gutters are
+   equal on both axes so the white cards sit on an even grid of background.
    -------------------------------------------------------------------------- */
 .masonry-grid {
 	column-count: 1;
-	column-gap: 1.5rem;
+	column-gap: 1.25rem;
 }
 
 @media (min-width: 640px) {
@@ -119,7 +120,15 @@
 
 .masonry-item {
 	break-inside: avoid;
-	margin-bottom: 2rem;
+	margin-bottom: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.masonry-item,
+	.masonry-item * {
+		transition-duration: 0.01ms !important;
+		animation-duration: 0.01ms !important;
+	}
 }
 
 /* Like button affordance */

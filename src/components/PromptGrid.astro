@@ -15,17 +15,6 @@ interface Props {
 
 const { prompts, categories, tab, hidden = false, emptyMessage } = Astro.props;
 const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
-
-// Vary cover aspect ratios so the masonry columns stagger like the original.
-const aspects = [
-	'aspect-[3/4]',
-	'aspect-[4/3]',
-	'aspect-square',
-	'aspect-[4/5]',
-	'aspect-[5/4]',
-	'aspect-[3/4]',
-	'aspect-[16/10]',
-];
 ---
 
 <section
@@ -39,7 +28,6 @@ const aspects = [
 			<PromptCard
 				prompt={prompt}
 				category={categoryBySlug.get(prompt.category)}
-				aspectClass={aspects[i % aspects.length]}
 				priority={!hidden && i === 0}
 			/>
 		))

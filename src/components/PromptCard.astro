@@ -7,14 +7,12 @@ interface Props {
 	prompt: Prompt;
 	/** Resolved category (for the badge emoji + gradient fallback). */
 	category?: Category;
-	/** Tailwind aspect class for the cover, e.g. "aspect-[3/4]" (masonry variety). */
-	aspectClass?: string;
 	/** Above-the-fold cards (first row) eager-load + prioritise their cover so it
 	    can be the LCP element instead of being deferred by lazy-loading. */
 	priority?: boolean;
 }
 
-const { prompt, category, aspectClass = 'aspect-[4/3]', priority = false } = Astro.props;
+const { prompt, category, priority = false } = Astro.props;
 
 const searchIndex = [prompt.title, prompt.description, ...prompt.tags]
 	.join(' ')
@@ -34,7 +32,7 @@ function fmt(n: number): string {
 ---
 
 <article
-	class="masonry-item group relative"
+	class="masonry-item group relative bg-white overflow-hidden border border-black/10"
 	data-prompt
 	data-slug={prompt.slug}
 	data-save-count={saveCount}
@@ -43,8 +41,8 @@ function fmt(n: number): string {
 	data-date={prompt.date}
 	data-search={searchIndex}
 >
-	<!-- Cover -->
-	<div class={`relative overflow-hidden rounded-lg mb-3 ${aspectClass}`}>
+	<!-- Cover (natural aspect ratio — the image sets its own height) -->
+	<div class="relative overflow-hidden">
 		{
 			prompt.featured && (
 				<>
@@ -67,13 +65,13 @@ function fmt(n: number): string {
 					srcset={cfSrcset(prompt.coverImage, [300, 400, 520, 660], 68)}
 					sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
 					alt={prompt.title}
-					class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+					class="block w-full h-auto group-hover:scale-105 transition-transform duration-500"
 					loading={priority ? 'eager' : 'lazy'}
 					fetchpriority={priority ? 'high' : undefined}
 					decoding="async"
 				/>
 			) : (
-				<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/30 via-primary/10 to-link/15 text-text-primary group-hover:scale-105 transition-transform duration-500">
+				<div class="w-full aspect-[4/3] flex items-center justify-center bg-gradient-to-br from-primary/30 via-primary/10 to-link/15 text-text-primary group-hover:scale-105 transition-transform duration-500">
 					{category ? (
 						<CategoryIcon slug={category.slug} class="w-14 h-14" />
 					) : (
@@ -85,81 +83,76 @@ function fmt(n: number): string {
 			)
 		}
 
-		<!--
-			Action cluster (sits above the stretched link).
-			Layout: [share][bookmark][♥ count] — flat icons floating on the image
-			(no chip backgrounds), kept legible by a soft drop-shadow so they
-			read on any cover. Heart + count always visible; share + bookmark
-			fade in on hover.
-		-->
-		<div class="action-cluster absolute bottom-3 right-3 z-20 flex items-center gap-3">
-			<button
-				type="button"
-				class="card-action opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
-				data-share
-				aria-label="Share prompt"
-			>
-				<svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-					<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-				</svg>
-			</button>
-
-			<button
-				type="button"
-				class={`card-action opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity ${saved ? 'is-saved' : ''}`}
-				data-save
-				data-saved={saved ? 'true' : 'false'}
-				aria-label={saved ? 'Remove from saved' : 'Save prompt'}
-				aria-pressed={saved ? 'true' : 'false'}
-			>
-				<svg
-					class="save-icon w-[18px] h-[18px]"
-					viewBox="0 0 24 24"
-					fill={saved ? 'currentColor' : 'none'}
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					aria-hidden="true"
-				>
-					<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-				</svg>
-			</button>
-
-			<button
-				type="button"
-				class={`card-action card-like ${liked ? 'is-liked' : ''}`}
-				data-like
-				data-liked={liked ? 'true' : 'false'}
-				aria-label={`${liked ? 'Unlike prompt' : 'Like prompt'}${likeCount > 0 ? `, ${fmt(likeCount)} likes` : ''}`}
-				aria-pressed={liked ? 'true' : 'false'}
-			>
-				<svg
-					class="like-icon w-[18px] h-[18px]"
-					viewBox="0 0 24 24"
-					fill={liked ? 'currentColor' : 'none'}
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-					aria-hidden="true"
-				>
-					<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-				</svg>
-				<span class="like-count tabular-nums" data-like-count-text data-raw={likeCount} aria-hidden="true">
-					{likeCount > 0 ? fmt(likeCount) : ''}
-				</span>
-			</button>
-		</div>
 	</div>
 
 	<!-- Caption -->
-	<div class="space-y-1">
+	<div class="px-4 pt-3 pb-3 space-y-1">
 		<h2 class="font-bold text-sm text-text-primary group-hover:text-primary transition-colors">
 			{prompt.title}
 		</h2>
 		{prompt.description && <p class="text-xs text-gray-500 line-clamp-2">{prompt.description}</p>}
+	</div>
+
+	<!--
+		Action row: [♥ count] ........ [bookmark][share]
+		Lives below the caption behind a hairline divider so the actions are
+		always visible (no hover-reveal, no blending into the cover) and sits
+		above the stretched link (z-[2] > z-[1]).
+	-->
+	<div class="relative z-[2] flex items-center gap-1 border-t border-black/5 px-2.5 py-1">
+		<button
+			type="button"
+			class={`card-action card-like ${liked ? 'is-liked' : ''}`}
+			data-like
+			data-liked={liked ? 'true' : 'false'}
+			aria-label={`${liked ? 'Unlike prompt' : 'Like prompt'}${likeCount > 0 ? `, ${fmt(likeCount)} likes` : ''}`}
+			aria-pressed={liked ? 'true' : 'false'}
+		>
+			<svg
+				class="like-icon w-[18px] h-[18px]"
+				viewBox="0 0 24 24"
+				fill={liked ? 'currentColor' : 'none'}
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				aria-hidden="true"
+			>
+				<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+			</svg>
+			<span class="like-count tabular-nums" data-like-count-text data-raw={likeCount} aria-hidden="true">
+				{likeCount > 0 ? fmt(likeCount) : ''}
+			</span>
+		</button>
+
+		<button
+			type="button"
+			class={`card-action ml-auto ${saved ? 'is-saved' : ''}`}
+			data-save
+			data-saved={saved ? 'true' : 'false'}
+			aria-label={saved ? 'Remove from saved' : 'Save prompt'}
+			aria-pressed={saved ? 'true' : 'false'}
+		>
+			<svg
+				class="save-icon w-[18px] h-[18px]"
+				viewBox="0 0 24 24"
+				fill={saved ? 'currentColor' : 'none'}
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				aria-hidden="true"
+			>
+				<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+			</svg>
+		</button>
+
+		<button type="button" class="card-action" data-share aria-label="Share prompt">
+			<svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+				<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+			</svg>
+		</button>
 	</div>
 
 	<!-- Stretched link: makes the whole card open the prompt (except the actions) -->
@@ -167,10 +160,10 @@ function fmt(n: number): string {
 </article>
 
 <style is:global>
-	/* Flat action buttons on prompt cards — no chip/pill background, just the
-	   icon (and a count for the like). A soft drop-shadow on the SVG keeps the
-	   stroke readable on any cover image. Lives in :global so it applies to
-	   every PromptCard without scope collisions. */
+	/* Card action buttons — quiet gray icons in the action row under the
+	   caption (and a count for the like). State carries the color: rose when
+	   liked, ink when saved. Lives in :global so it applies to every
+	   PromptCard without scope collisions. */
 	.card-action {
 		display: inline-flex;
 		align-items: center;
@@ -178,34 +171,30 @@ function fmt(n: number): string {
 		gap: 0.3rem;
 		/* >=24x24 tap target for WCAG 2.5.8; icon stays 18px, padding grows the
 		   tappable area. */
-		min-width: 24px;
-		min-height: 24px;
-		padding: 0;
+		min-width: 32px;
+		min-height: 32px;
+		padding: 0 6px;
 		background: none;
 		border: 0;
-		color: #fff;
+		color: #6b7280;
 		font-size: 12px;
 		font-weight: 700;
 		line-height: 1;
 		cursor: pointer;
-		filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
-		transition: color 150ms ease, transform 150ms ease;
+		transition: color 150ms ease, background-color 150ms ease;
 	}
 	.card-action:hover {
-		transform: scale(1.1);
+		color: var(--color-text-primary, #333);
+		background-color: rgba(0, 0, 0, 0.04);
 	}
 	.card-action.is-saved {
-		color: var(--color-primary, #f97316);
-		opacity: 1 !important;
-	}
-	.card-action .like-count {
-		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+		color: var(--color-link, #181830);
 	}
 	.card-action .like-count:empty {
 		display: none;
 	}
 	.card-like.is-liked {
-		color: #fb7185;
+		color: #e11d48;
 	}
 	.card-like.is-liked .like-icon {
 		fill: currentColor;
