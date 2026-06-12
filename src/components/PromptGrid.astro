@@ -29,6 +29,7 @@ const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
 				prompt={prompt}
 				category={categoryBySlug.get(prompt.category)}
 				priority={!hidden && i === 0}
+				index={i}
 			/>
 		))
 	}

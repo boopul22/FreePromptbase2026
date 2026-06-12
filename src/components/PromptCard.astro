@@ -10,9 +10,13 @@ interface Props {
 	/** Above-the-fold cards (first row) eager-load + prioritise their cover so it
 	    can be the LCP element instead of being deferred by lazy-loading. */
 	priority?: boolean;
+	/** Position in the parent grid; drives the rotating edge tint so adjacent
+	    cards never share a border color. Falls back to a slug hash when the
+	    card renders outside a grid. */
+	index?: number;
 }
 
-const { prompt, category, priority = false } = Astro.props;
+const { prompt, category, priority = false, index } = Astro.props;
 
 const searchIndex = [prompt.title, prompt.description, ...prompt.tags]
 	.join(' ')
@@ -29,10 +33,26 @@ function fmt(n: number): string {
 	if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, '') + 'k';
 	return String(n);
 }
+
+// Quiet tinted edge per card so white cards lift off the gray page instead of
+// blending in. Grid position rotates through the palette (masonry columns fill
+// in DOM order, so consecutive indices = vertical neighbors = always distinct);
+// a slug hash covers cards rendered without an index.
+const EDGE_TINTS = [
+	'#d3ab62', // gold (brand-adjacent)
+	'#d0a18a', // clay
+	'#cf9da9', // rose
+	'#a8bd97', // sage
+	'#8fbeb3', // teal
+	'#a3b0cf', // slate
+];
+const slugHash = [...prompt.slug].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0, 7);
+const edgeTint = EDGE_TINTS[(index ?? slugHash) % EDGE_TINTS.length];
 ---
 
 <article
-	class="masonry-item group relative bg-white overflow-hidden border border-black/10"
+	class="masonry-item group relative bg-white overflow-hidden border"
+	style={`--card-edge: ${edgeTint}`}
 	data-prompt
 	data-slug={prompt.slug}
 	data-save-count={saveCount}
@@ -160,6 +180,16 @@ function fmt(n: number): string {
 </article>
 
 <style is:global>
+	/* Per-card tinted edge (set via --card-edge inline). Deepens slightly on
+	   hover so the lift reads as interactive, not decorative. */
+	.masonry-item[data-prompt] {
+		border-color: var(--card-edge, rgba(0, 0, 0, 0.1));
+		transition: border-color 150ms ease;
+	}
+	.masonry-item[data-prompt]:hover {
+		border-color: color-mix(in oklab, var(--card-edge, #999), var(--color-text-primary, #333) 25%);
+	}
+
 	/* Card action buttons — quiet gray icons in the action row under the
 	   caption (and a count for the like). State carries the color: rose when
 	   liked, ink when saved. Lives in :global so it applies to every
