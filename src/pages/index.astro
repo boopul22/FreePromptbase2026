@@ -10,6 +10,7 @@ import {
 	getAllCategories,
 	getPopularPrompts,
 	getTrendingPrompts,
+	getPromptOfTheDaySlug,
 } from '../lib/prompts';
 import { itemListSchema } from '../lib/seo';
 
@@ -17,25 +18,39 @@ import { itemListSchema } from '../lib/seo';
 // and so save/share counts stay fresh across requests.
 export const prerender = false;
 
-const [allPrompts, categories, popularPrompts, trendingFromEvents] = await Promise.all([
+const [allPrompts, categories, popularPrompts, trendingFromEvents, potdSlug] = await Promise.all([
 	getAllPrompts(),
 	getAllCategories(),
 	getPopularPrompts(),
 	getTrendingPrompts(),
+	getPromptOfTheDaySlug(),
 ]);
 
+// Float the Prompt of the Day to the first card of every tab so it leads the
+// page. If it isn't already in a list, prepend it from the full set.
+function withPotdFirst(list: typeof allPrompts) {
+	if (!potdSlug) return list;
+	const idx = list.findIndex((p) => p.slug === potdSlug);
+	if (idx === 0) return list;
+	if (idx > 0) return [list[idx], ...list.slice(0, idx), ...list.slice(idx + 1)];
+	const pod = allPrompts.find((p) => p.slug === potdSlug);
+	return pod ? [pod, ...list] : list;
+}
+
 // Recent = newest first (getAllPrompts already orders by date DESC).
-const recentPrompts = allPrompts;
+const recentPrompts = withPotdFirst(allPrompts);
 
 // Trending leads with the past-7-day winners, then pads from Popular so a
 // quiet week doesn't leave the default tab looking thin. Dedup by slug.
 const MIN_TRENDING = 12;
 const trendingSlugs = new Set(trendingFromEvents.map((p) => p.slug));
 const padding = popularPrompts.filter((p) => !trendingSlugs.has(p.slug));
-const trendingPrompts =
+const trendingPrompts = withPotdFirst(
 	trendingFromEvents.length >= MIN_TRENDING
 		? trendingFromEvents
-		: [...trendingFromEvents, ...padding].slice(0, MIN_TRENDING);
+		: [...trendingFromEvents, ...padding].slice(0, MIN_TRENDING),
+);
+const popularFirst = withPotdFirst(popularPrompts);
 
 // ItemList for the homepage collection (cap to 30 so the JSON-LD stays small).
 const homeList = itemListSchema(
@@ -56,7 +71,7 @@ const homeList = itemListSchema(
 			emptyMessage="No trending prompts yet — heart a few to get this section moving."
 		/>
 		<PromptGrid
-			prompts={popularPrompts}
+			prompts={popularFirst}
 			categories={categories}
 			tab="popular"
 			hidden
