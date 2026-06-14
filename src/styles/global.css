@@ -84,11 +84,18 @@
    Base layer — applies the light color scheme and Rubik to the document.
    -------------------------------------------------------------------------- */
 @layer base {
+	html {
+		/* Kill the elastic overscroll "bounce" past the top/bottom edges so the
+		   page doesn't read as having extra scroll room. */
+		overscroll-behavior-y: none;
+	}
+
 	body {
 		background-color: var(--color-background);
 		color: var(--color-text-primary);
 		font-family: var(--font-sans);
 		font-size: var(--text-body);
+		overscroll-behavior-y: none;
 	}
 
 	h1,
@@ -126,6 +133,19 @@
 .masonry-item {
 	break-inside: avoid;
 	margin-bottom: 1.25rem;
+}
+
+/* On phones a single column makes portrait covers stretch the whole screen
+   width, producing very tall cards. Cap the cover height and crop the overflow
+   (object-cover) so each card stays compact. The cap clears a 4:3 landscape
+   cover, so only square/portrait images get trimmed; multi-column screens keep
+   the full natural masonry. */
+@media (max-width: 639px) {
+	.masonry-item[data-prompt] .card-cover img {
+		max-height: 75vw;
+		object-fit: cover;
+		object-position: center;
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {
