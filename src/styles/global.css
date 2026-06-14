@@ -157,56 +157,50 @@
 }
 
 /* ----------------------------------------------------------------------------
-   Sort tabs (home: Trending / Popular / Recent). The whole row shares one
-   hairline baseline; the active tab grows a gold underline that sits on it.
-   Active state is driven by [data-active] so the JS only flips that attribute.
+   Sort tabs (home: Trending / Popular / Recent). A bordered, grid-based
+   segmented control: three equal columns split by divider lines, the active
+   segment filled solid gold. Active state is driven by [data-active] so the JS
+   only flips that attribute.
    -------------------------------------------------------------------------- */
 .sort-tabs {
-	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.12);
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 .sort-tab {
 	position: relative;
-	padding: 0.5rem 0.625rem 0.75rem;
+	padding: 0.6875rem 0.5rem;
 	font-size: 0.9375rem;
 	font-weight: 700;
 	line-height: 1;
 	color: #6b7280; /* gray-500 */
 	cursor: pointer;
-	background: none;
+	background: #fff;
 	border: 0;
-	transition: color 150ms ease;
+	border-left: 1px solid rgba(0, 0, 0, 0.1); /* distinct column divider */
+	transition: color 150ms ease, background-color 150ms ease;
+}
+.sort-tab:first-child {
+	border-left: 0;
 }
 .sort-tab:hover {
 	color: var(--color-text-primary, #333);
+	background: rgba(0, 0, 0, 0.025);
 }
 .sort-tab:focus-visible {
-	outline: 2px solid var(--color-primary);
-	outline-offset: 2px;
-	border-radius: 6px;
-}
-.sort-tab::after {
-	content: '';
-	position: absolute;
-	left: 0.625rem;
-	right: 0.625rem;
-	bottom: -1px; /* overlap the nav's baseline border */
-	height: 2.5px;
-	border-radius: 3px 3px 0 0;
-	background: var(--color-primary);
-	transform: scaleX(0);
-	transform-origin: left center;
-	transition: transform 220ms var(--ease-out-quart, ease);
+	outline: 2px solid var(--color-link, #181830);
+	outline-offset: -2px;
 }
 .sort-tab[data-active='true'] {
-	color: var(--color-text-primary, #333);
+	color: var(--color-link, #181830);
+	background: var(--color-primary);
 }
-.sort-tab[data-active='true']::after {
-	transform: scaleX(1);
-}
-@media (prefers-reduced-motion: reduce) {
-	.sort-tab::after {
-		transition-duration: 0.01ms;
-	}
+.sort-tab[data-active='true']:hover {
+	background: var(--color-primary);
 }
 
 /* Like button affordance */
