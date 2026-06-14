@@ -26,11 +26,17 @@ if (!prompt) {
 	return Astro.rewrite('/404');
 }
 
-const category = await getCategoryBySlug(prompt.category);
-const related = await getRelatedPrompts(prompt);
-const categories = await getAllCategories();
+// Fan out the remaining reads in parallel — they only depend on `prompt`, so the
+// serial awaits here were the main server-response-time (TTFB) cost on detail pages.
+const authorUserId = prompt.submittedBy || prompt.createdBy;
+const [category, related, categories, potdSlug, authorProfile] = await Promise.all([
+	getCategoryBySlug(prompt.category),
+	getRelatedPrompts(prompt),
+	getAllCategories(),
+	getPromptOfTheDaySlug(),
+	authorUserId ? getUserById(authorUserId) : Promise.resolve(null),
+]);
 const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
-const potdSlug = await getPromptOfTheDaySlug();
 
 const isSaved = Astro.locals.savedSlugs?.has(prompt.slug) ?? false;
 const isLiked = Astro.locals.likedSlugs?.has(prompt.slug) ?? false;
@@ -62,9 +68,8 @@ const heroImage =
 	`/og/${prompt.slug}.svg`;
 
 // Prefer the real creator name (from createdBy join) over the static author
-// string for E-E-A-T signal; fall back to the author string.
-const authorUserId = prompt.submittedBy || prompt.createdBy;
-const authorProfile = authorUserId ? await getUserById(authorUserId) : null;
+// string for E-E-A-T signal; fall back to the author string. (authorProfile is
+// resolved in the parallel batch above.)
 const authorName =
 	authorProfile?.name ||
 	(prompt as unknown as { createdByName?: string }).createdByName ||
@@ -141,7 +146,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 	<Header />
 	<main class="flex-grow max-w-6xl mx-auto px-4 w-full py-8 sm:py-12">
 		<!-- Breadcrumb -->
-		<nav class="text-xs text-gray-500 mb-6 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
+		<nav class="text-xs text-gray-600 mb-6 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
 			<a href="/" class="hover:text-primary transition-colors">Home</a>
 			<span class="text-gray-300" aria-hidden="true">/</span>
 			{
@@ -193,6 +198,8 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 										srcset={cfSrcset(src, [480, 768, 1080])}
 										sizes="(min-width: 1024px) 700px, 92vw"
 										alt={`${prompt.title} — image ${i + 1}`}
+										width={i === 0 ? prompt.coverW : undefined}
+										height={i === 0 ? prompt.coverH : undefined}
 										class="snap-center shrink-0 w-full rounded-base object-contain h-auto bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
 										loading={i === 0 ? 'eager' : 'lazy'}
 										fetchpriority={i === 0 ? 'high' : undefined}
@@ -265,7 +272,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			<div class="min-w-0" data-prompt-detail={prompt.slug}>
 
 		<!-- Meta strip -->
-		<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500 mb-5">
+		<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-600 mb-5">
 			{
 				category && (
 					<a

@@ -49,8 +49,13 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   // hearts/bookmarks in their correct initial state on SSR (no client-fetch
   // flicker). Skip for API routes and the admin/CMS area — neither renders
   // PromptCard, so these two D1 queries would be pure overhead there.
+  // A brand-new anonymous visitor (no prior anon_id cookie) can't have any
+  // saves/likes yet, so skip the two D1 queries entirely — this is the common
+  // first-visit / crawler / Lighthouse case and the queries were adding to TTFB
+  // on every public page.
   const isAdmin = path.startsWith('/admin');
-  if (db && !path.startsWith('/api/') && !isStaticProxy && !isAdmin) {
+  const freshAnon = !locals.user && setAnonCookie;
+  if (db && !path.startsWith('/api/') && !isStaticProxy && !isAdmin && !freshAnon) {
     try {
       const [savedRes, likedRes] = await db.batch<{ prompt_slug: string }>([
         db
