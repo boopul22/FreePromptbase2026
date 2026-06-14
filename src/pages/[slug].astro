@@ -63,6 +63,7 @@ const mins = readTime(prompt);
 // Use the gallery as og:image when present, otherwise the cover. When the
 // prompt has no image at all, fall back to the dynamically-generated branded
 // OG card so social shares don't default to /og-default.png.
+const hasHeroImage = (prompt.images && prompt.images.length > 0) || !!prompt.coverImage;
 const heroImage =
 	(prompt.images && prompt.images.length > 0 ? prompt.images[0] : prompt.coverImage) ??
 	`/og/${prompt.slug}.svg`;
@@ -142,6 +143,9 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 	extraSchemas={[breadcrumb]}
 	ogType="article"
 	ogImage={heroImage}
+	preloadImage={hasHeroImage ? heroImage : undefined}
+	preloadImageSrcset={hasHeroImage ? cfSrcset(heroImage, [480, 768, 1080]) : undefined}
+	preloadImageSizes="(min-width: 1024px) 700px, 92vw"
 >
 	<Header />
 	<main class="flex-grow max-w-6xl mx-auto px-4 w-full py-8 sm:py-12">

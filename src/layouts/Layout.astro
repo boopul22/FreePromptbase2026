@@ -15,6 +15,10 @@ interface Props {
 	ogType?: 'website' | 'article';
 	/** Set to true on admin/CMS pages to add a noindex meta + load Material Symbols. */
 	noindex?: boolean;
+	/** LCP image to preload (href fallback). Pair with the srcset/sizes below. */
+	preloadImage?: string;
+	preloadImageSrcset?: string;
+	preloadImageSizes?: string;
 }
 
 const {
@@ -25,6 +29,9 @@ const {
 	ogImage = '/og-default.png',
 	ogType = 'website',
 	noindex = false,
+	preloadImage,
+	preloadImageSrcset,
+	preloadImageSizes,
 } = Astro.props;
 
 const siteUrl = (Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '');
@@ -155,6 +162,18 @@ const organizationSchema = {
 		{absoluteOgImage && <meta name="twitter:image" content={absoluteOgImage} />}
 
 		<Font cssVariable="--font-rubik" preload />
+		{
+			preloadImage && (
+				<link
+					rel="preload"
+					as="image"
+					href={preloadImage}
+					imagesrcset={preloadImageSrcset}
+					imagesizes={preloadImageSizes}
+					fetchpriority="high"
+				/>
+			)
+		}
 		<title>{title}</title>
 
 		{noindex && <meta name="robots" content="noindex, nofollow" />}

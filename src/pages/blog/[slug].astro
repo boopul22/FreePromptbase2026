@@ -125,11 +125,14 @@ const breadcrumb = breadcrumbSchema([
 	extraSchemas={[breadcrumb, ...(faqSchema ? [faqSchema] : [])]}
 	ogType="article"
 	ogImage={post.coverImage ?? `/og/${post.slug}.svg`}
+	preloadImage={post.coverImage ?? undefined}
+	preloadImageSrcset={post.coverImage ? cfSrcset(post.coverImage, [400, 768, 1200, 1600]) : undefined}
+	preloadImageSizes="(min-width: 1024px) 768px, 92vw"
 >
 	<Header />
 	<main class="flex-grow max-w-6xl mx-auto px-4 w-full py-8 sm:py-12">
 		<!-- Breadcrumb -->
-		<nav class="text-xs text-gray-500 mb-6 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
+		<nav class="text-xs text-gray-600 mb-6 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
 			<a href="/" class="hover:text-primary transition-colors">Home</a>
 			<span class="text-gray-300" aria-hidden="true">/</span>
 			<a href="/blog" class="hover:text-primary transition-colors">Blog</a>

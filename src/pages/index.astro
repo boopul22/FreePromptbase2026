@@ -13,6 +13,7 @@ import {
 	getPromptOfTheDaySlug,
 } from '../lib/prompts';
 import { itemListSchema } from '../lib/seo';
+import { cfSrcset } from '../lib/cfImage';
 
 // Rendered on-demand (SSR) so new prompts added to D1 appear without a rebuild
 // and so save/share counts stay fresh across requests.
@@ -57,9 +58,17 @@ const homeList = itemListSchema(
 	trendingPrompts.slice(0, 30).map((p) => ({ name: p.title, url: `/${p.slug}` })),
 	'Trending prompts',
 );
+
+// Preload the first card's cover — it's the LCP element on the home grid.
+const firstCover = trendingPrompts[0]?.coverImage;
 ---
 
-<Layout extraSchemas={[homeList]}>
+<Layout
+	extraSchemas={[homeList]}
+	preloadImage={firstCover}
+	preloadImageSrcset={firstCover ? cfSrcset(firstCover, [300, 400, 520, 660], 68) : undefined}
+	preloadImageSizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
+>
 	<Header />
 	<main class="max-w-7xl mx-auto px-4 py-12">
 		<Hero promptCount={allPrompts.length} categoryCount={categories.length} />
