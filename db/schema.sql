@@ -50,6 +50,7 @@ CREATE TABLE prompts (
 	save_count       INTEGER NOT NULL DEFAULT 0,    -- denormalized count of prompt_saves rows for this slug
 	like_count       INTEGER NOT NULL DEFAULT 0,    -- denormalized count of prompt_likes rows for this slug
 	share_count      INTEGER NOT NULL DEFAULT 0,    -- denormalized count of 'share' rows in prompt_events
+	view_count       INTEGER NOT NULL DEFAULT 0,    -- denormalized count of 'view' rows in prompt_events (deduped per actor/day)
 	how_to_use       TEXT,
 	created_by       TEXT,                           -- FK to users.id of admin who created via CMS (nullable)
 	-- Lifecycle status (free-text; no CHECK so new values need no migration):
@@ -72,6 +73,7 @@ CREATE INDEX idx_prompts_category     ON prompts(category);
 CREATE INDEX idx_prompts_date         ON prompts(date);
 CREATE INDEX idx_prompts_popularity   ON prompts(popularity);
 CREATE INDEX idx_prompts_save_count   ON prompts(save_count);
+CREATE INDEX idx_prompts_view_count   ON prompts(view_count);
 CREATE INDEX idx_prompts_status_date  ON prompts(status, date);
 CREATE INDEX idx_prompts_submitted_by ON prompts(submitted_by);
 
@@ -102,7 +104,7 @@ CREATE TABLE prompt_events (
 	id          INTEGER PRIMARY KEY AUTOINCREMENT,
 	prompt_slug TEXT NOT NULL REFERENCES prompts(slug) ON DELETE CASCADE,
 	actor_id    TEXT NOT NULL,
-	kind        TEXT NOT NULL,            -- 'save' | 'unsave' | 'share'
+	kind        TEXT NOT NULL,            -- 'save' | 'unsave' | 'share' | 'view'
 	created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX idx_events_prompt_created ON prompt_events(prompt_slug, created_at);

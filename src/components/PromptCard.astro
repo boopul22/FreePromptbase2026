@@ -14,9 +14,11 @@ interface Props {
 	    cards never share a border color. Falls back to a slug hash when the
 	    card renders outside a grid. */
 	index?: number;
+	/** Whether this prompt is the current (view-driven) Prompt of the Day. */
+	isPotd?: boolean;
 }
 
-const { prompt, category, priority = false, index } = Astro.props;
+const { prompt, category, priority = false, index, isPotd = false } = Astro.props;
 
 const searchIndex = [prompt.title, prompt.description, ...prompt.tags]
 	.join(' ')
@@ -64,7 +66,7 @@ const edgeTint = EDGE_TINTS[(index ?? slugHash) % EDGE_TINTS.length];
 	<!-- Cover (natural aspect ratio — the image sets its own height) -->
 	<div class="relative overflow-hidden">
 		{
-			prompt.featured && (
+			isPotd && (
 				<>
 					<span class="absolute top-4 right-4 z-10 bg-primary text-link text-[10px] font-bold px-2 py-1 rounded">
 						Prompt of the Day

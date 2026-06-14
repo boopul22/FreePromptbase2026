@@ -11,6 +11,7 @@ import {
 	getCategoryBySlug,
 	getRelatedPrompts,
 	getAllCategories,
+	getPromptOfTheDaySlug,
 	readTime,
 } from '../lib/prompts';
 import { getUserById } from '../lib/users';
@@ -29,6 +30,7 @@ const category = await getCategoryBySlug(prompt.category);
 const related = await getRelatedPrompts(prompt);
 const categories = await getAllCategories();
 const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
+const potdSlug = await getPromptOfTheDaySlug();
 
 const isSaved = Astro.locals.savedSlugs?.has(prompt.slug) ?? false;
 const isLiked = Astro.locals.likedSlugs?.has(prompt.slug) ?? false;
@@ -248,7 +250,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			</aside>
 
 			<!-- RIGHT: meta, actions, prompt body, how-to-use, tags -->
-			<div class="min-w-0">
+			<div class="min-w-0" data-prompt-detail={prompt.slug}>
 
 		<!-- Meta strip -->
 		<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500 mb-5">
@@ -271,6 +273,14 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
 				{mins} min read
 			</span>
+			{
+				(prompt.viewCount ?? 0) > 0 && (
+					<span class="inline-flex items-center gap-1.5">
+						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+						{(prompt.viewCount ?? 0).toLocaleString()} {(prompt.viewCount ?? 0) === 1 ? 'view' : 'views'}
+					</span>
+				)
+			}
 			<span class="inline-flex items-center gap-1.5">
 				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
 				by {authorHref ? (
@@ -398,10 +408,11 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 		</div><!-- /two-column grid -->
 
 		<script>
-			import { wireSave, wireShare, wireLike } from '../scripts/social';
+			import { wireSave, wireShare, wireLike, recordView } from '../scripts/social';
 			wireSave();
 			wireShare();
 			wireLike();
+			recordView();
 
 			// Image carousel: prev/next buttons + live counter, driven by the
 			// snap-scroll container's scrollLeft. Buttons disable at the ends.
@@ -463,7 +474,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					</header>
 					<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 						{related.map((rel) => (
-							<PromptCard prompt={rel} category={categoryBySlug.get(rel.category)} />
+							<PromptCard prompt={rel} category={categoryBySlug.get(rel.category)} isPotd={rel.slug === potdSlug} />
 						))}
 					</div>
 				</section>

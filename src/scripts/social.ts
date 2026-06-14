@@ -241,3 +241,19 @@ export function wireShare() {
 		});
 	});
 }
+
+// ---------------------------------------------------------------------------
+// View — fire-and-forget beacon from the detail page. The server dedupes to one
+// counted view per actor per prompt per 24h, so calling it on every load is safe.
+// Reads the slug from the detail container's [data-prompt-detail] marker.
+// ---------------------------------------------------------------------------
+
+export function recordView() {
+	const slug = document.querySelector<HTMLElement>('[data-prompt-detail]')?.dataset.promptDetail;
+	if (!slug) return;
+	// Idempotent per tab: never POST twice for the same load.
+	const key = `__viewed:${slug}`;
+	if ((window as any)[key]) return;
+	(window as any)[key] = true;
+	fetch(`/api/prompts/${slug}/view`, { method: 'POST', keepalive: true }).catch(() => {});
+}

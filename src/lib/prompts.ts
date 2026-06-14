@@ -44,6 +44,7 @@ interface PromptRow {
 	save_count: number;
 	like_count: number;
 	share_count: number;
+	view_count: number;
 	how_to_use: string | null;
 	created_by: string | null;
 	status?: string;
@@ -77,6 +78,7 @@ function rowToPrompt(r: PromptRow): Prompt {
 		saveCount: r.save_count,
 		likeCount: r.like_count,
 		shareCount: r.share_count,
+		viewCount: r.view_count,
 		howToUse: r.how_to_use ?? undefined,
 		createdBy: r.created_by ?? undefined,
 		status: (r.status as Prompt['status']) ?? 'approved',
@@ -89,7 +91,7 @@ function rowToPrompt(r: PromptRow): Prompt {
 }
 
 const PROMPT_COLS =
-	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, how_to_use, created_by, status, submitted_by, submitted_at, reviewed_by, reviewed_at, rejection_reason';
+	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, view_count, how_to_use, created_by, status, submitted_by, submitted_at, reviewed_by, reviewed_at, rejection_reason';
 
 const APPROVED = "status = 'approved'";
 
@@ -241,6 +243,47 @@ export async function getTrendingPrompts(limit = 60): Promise<Prompt[]> {
 		.bind(limit)
 		.all<PromptRow>();
 	return results.map(rowToPrompt);
+}
+
+// ---------------------------------------------------------------------------
+// Prompt of the Day — the approved prompt with the most views in the trailing
+// window, falling back to all-time views then newest so it always resolves to
+// exactly one. Cached in-process so the badge is stable across a request burst
+// and we don't re-run the GROUP BY for every grid/card on a page.
+// ---------------------------------------------------------------------------
+
+/** How many days of views feed the "of the day" ranking. */
+const POTD_WINDOW_DAYS = 7;
+/** How long a computed winner is reused before recomputing (ms). */
+const POTD_CACHE_MS = 10 * 60 * 1000;
+
+let potdCache: { slug: string | null; at: number } | null = null;
+
+/**
+ * Slug of the current Prompt of the Day, or null when there are no approved
+ * prompts. View-driven and self-rotating; result is memoized for POTD_CACHE_MS.
+ */
+export async function getPromptOfTheDaySlug(now = Date.now()): Promise<string | null> {
+	if (potdCache && now - potdCache.at < POTD_CACHE_MS) return potdCache.slug;
+
+	const row = await getDB()
+		.prepare(
+			`SELECT p.slug AS slug, COUNT(e.id) AS recent_views
+			 FROM prompts p
+			 LEFT JOIN prompt_events e
+			   ON e.prompt_slug = p.slug
+			  AND e.kind = 'view'
+			  AND e.created_at > datetime('now', ?)
+			 WHERE p.${APPROVED}
+			 GROUP BY p.slug
+			 ORDER BY recent_views DESC, p.view_count DESC, p.date DESC
+			 LIMIT 1`,
+		)
+		.bind(`-${POTD_WINDOW_DAYS} days`)
+		.first<{ slug: string }>();
+
+	potdCache = { slug: row?.slug ?? null, at: now };
+	return potdCache.slug;
 }
 
 /** Approved prompts saved by a given actor, most recently saved first. */

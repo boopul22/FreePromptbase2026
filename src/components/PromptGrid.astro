@@ -1,6 +1,7 @@
 ---
 import PromptCard from './PromptCard.astro';
 import type { Prompt, Category } from '../lib/prompts';
+import { getPromptOfTheDaySlug } from '../lib/prompts';
 
 interface Props {
 	prompts: Prompt[];
@@ -15,6 +16,9 @@ interface Props {
 
 const { prompts, categories, tab, hidden = false, emptyMessage } = Astro.props;
 const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
+// View-driven Prompt of the Day — memoized in the data layer, so multiple grids
+// on one page resolve to the same winner without re-querying.
+const potdSlug = await getPromptOfTheDaySlug();
 ---
 
 <section
@@ -30,6 +34,7 @@ const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
 				category={categoryBySlug.get(prompt.category)}
 				priority={!hidden && i === 0}
 				index={i}
+				isPotd={prompt.slug === potdSlug}
 			/>
 		))
 	}

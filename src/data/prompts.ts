@@ -34,6 +34,8 @@ export interface Prompt {
 	likeCount?: number;
 	/** Number of shares (denormalized from prompt_events kind='share'). */
 	shareCount?: number;
+	/** Number of views (denormalized from prompt_events kind='view', deduped per actor/day). */
+	viewCount?: number;
 	/** Optional extra guidance rendered on the detail page. */
 	howToUse?: string;
 	/** Image gallery rendered as a carousel on the detail page. cover_image is used for cards. */
