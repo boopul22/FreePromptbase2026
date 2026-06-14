@@ -215,6 +215,16 @@ const today = new Date().toISOString().slice(0, 10);
  return coverField().value.trim() || images[0] || '';
  }
 
+ // Intrinsic pixel size of the current cover, read from its loaded thumbnail in
+ // the strip — sent with the prompt so the public <img> can reserve space (no CLS).
+ function coverDims(): { coverW?: number; coverH?: number } {
+ const cover = currentCover();
+ if (!cover) return {};
+ const img = document.querySelector<HTMLImageElement>(`#image-strip img[src="${CSS.escape(cover)}"]`);
+ if (img && img.naturalWidth > 0) return { coverW: img.naturalWidth, coverH: img.naturalHeight };
+ return {};
+ }
+
  function renderStrip() {
  const strip = document.getElementById('image-strip')!;
  const cover = currentCover();
@@ -396,6 +406,7 @@ const today = new Date().toISOString().slice(0, 10);
  howToUse: val('f-how-to-use') || null,
  status,
  publishAt,
+ ...coverDims(),
  };
 
  if (!body.title || !body.promptText || !body.category) {

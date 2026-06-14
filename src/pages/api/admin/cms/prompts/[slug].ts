@@ -23,6 +23,8 @@ interface PromptRow {
   status: string;
   publish_at: string | null;
   updated_at: string | null;
+  cover_w: number | null;
+  cover_h: number | null;
   created_at: string;
   category_name?: string | null;
   category_emoji?: string | null;
@@ -52,6 +54,8 @@ function mapRow(r: PromptRow) {
     status: r.status ?? 'approved',
     publishAt: r.publish_at ?? null,
     updatedAt: r.updated_at ?? null,
+    coverW: r.cover_w ?? null,
+    coverH: r.cover_h ?? null,
     createdBy: r.created_by ?? null,
     createdByName: r.creator_name ?? null,
     createdByAvatar: r.creator_avatar ?? null,
@@ -211,7 +215,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
         slug = ?, title = ?, description = ?, prompt_text = ?, category = ?,
         tags = ?, author = ?, date = ?, cover_image = ?, images = ?,
         featured = ?, popularity = ?, how_to_use = ?, created_by = ?, status = ?,
-        publish_at = ?, updated_at = datetime('now')
+        publish_at = ?, updated_at = datetime('now'), cover_w = ?, cover_h = ?
        WHERE slug = ?`,
     )
     .bind(
@@ -231,6 +235,8 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       finalCreatedBy,
       finalStatus,
       finalPublishAt,
+      Number.isFinite(body.coverW) ? body.coverW : existing.cover_w,
+      Number.isFinite(body.coverH) ? body.coverH : existing.cover_h,
       currentSlug,
     )
     .run();

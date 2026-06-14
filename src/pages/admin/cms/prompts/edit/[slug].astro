@@ -266,6 +266,16 @@ const slug = Astro.params.slug!;
  return coverField().value.trim() || images[0] || '';
  }
 
+ // Intrinsic pixel size of the current cover, from its loaded thumbnail — sent
+ // with the prompt so the public <img> reserves space (no layout shift).
+ function coverDims() {
+ const cover = currentCover();
+ if (!cover) return {};
+ const img = document.querySelector(`#image-strip img[src="${CSS.escape(cover)}"]`);
+ if (img && img.naturalWidth > 0) return { coverW: img.naturalWidth, coverH: img.naturalHeight };
+ return {};
+ }
+
  function renderStrip() {
  const strip = document.getElementById('image-strip');
  const cover = currentCover();
@@ -643,6 +653,7 @@ const slug = Astro.params.slug!;
  featured: b('f-featured'),
  popularity: parseInt(v('f-popularity') || '0', 10),
  howToUse: v('f-how-to-use') || null,
+ ...coverDims(),
  };
  if (status) body.status = status;
  // Only send publishAt when explicitly changing it; 'keep' preserves server-side.

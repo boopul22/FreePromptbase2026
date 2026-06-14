@@ -73,7 +73,11 @@ CREATE TABLE prompts (
 	created_at       TEXT NOT NULL DEFAULT (datetime('now')),
 	-- Last time the prompt was created/edited/published (UTC). Surfaced as the
 	-- "Updated" date + dateModified in structured data. Bumped on every write.
-	updated_at       TEXT
+	updated_at       TEXT,
+	-- Intrinsic pixel size of cover_image, used to render width/height on the
+	-- card/detail <img> so the browser reserves the box (no layout shift).
+	cover_w          INTEGER,
+	cover_h          INTEGER
 );
 
 CREATE INDEX idx_prompts_category     ON prompts(category);

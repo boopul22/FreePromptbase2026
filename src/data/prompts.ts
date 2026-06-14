@@ -40,6 +40,9 @@ export interface Prompt {
 	publishAt?: string;
 	/** Last create/edit/publish time (UTC). Drives the "Updated" date + dateModified. */
 	updatedAt?: string;
+	/** Intrinsic cover image pixel dimensions — emitted as width/height to prevent CLS. */
+	coverW?: number;
+	coverH?: number;
 	/** Optional extra guidance rendered on the detail page. */
 	howToUse?: string;
 	/** Image gallery rendered as a carousel on the detail page. cover_image is used for cards. */
