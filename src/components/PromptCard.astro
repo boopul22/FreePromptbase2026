@@ -29,6 +29,7 @@ const liked = Astro.locals.likedSlugs?.has(prompt.slug) ?? false;
 const saved = Astro.locals.savedSlugs?.has(prompt.slug) ?? false;
 const likeCount = prompt.likeCount ?? 0;
 const saveCount = prompt.saveCount ?? prompt.popularity ?? 0;
+const viewCount = prompt.viewCount ?? 0;
 
 // Human-friendly count (1.2k instead of 1234) for the pill.
 function fmt(n: number): string {
@@ -149,6 +150,27 @@ const edgeTint = EDGE_TINTS[(index ?? slugHash) % EDGE_TINTS.length];
 			</span>
 		</button>
 
+		{
+			viewCount > 0 && (
+				<span class="card-action card-views" aria-label={`${fmt(viewCount)} views`}>
+					<svg
+						class="w-[18px] h-[18px]"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						aria-hidden="true"
+					>
+						<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+						<circle cx="12" cy="12" r="3" />
+					</svg>
+					<span class="tabular-nums">{fmt(viewCount)}</span>
+				</span>
+			)
+		}
+
 		<button
 			type="button"
 			class={`card-action ml-auto ${saved ? 'is-saved' : ''}`}
@@ -226,6 +248,17 @@ const edgeTint = EDGE_TINTS[(index ?? slugHash) % EDGE_TINTS.length];
 	}
 	.card-action .like-count:empty {
 		display: none;
+	}
+	/* Views is a passive stat, not a button: no hover affordance, and clicks
+	   fall through to the stretched card link instead of dead-ending here. */
+	.card-views {
+		cursor: default;
+		pointer-events: none;
+		font-weight: 600;
+	}
+	.card-views:hover {
+		color: #6b7280;
+		background: none;
 	}
 	.card-like.is-liked {
 		color: #e11d48;
