@@ -26,6 +26,7 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <div class="flex flex-wrap gap-1" id="status-filters">
  <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-text-primary text-surface transition-all" data-status="all">All</button>
  <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="approved">Published</button>
+ <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="scheduled">Scheduled</button>
  <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="draft">Drafts</button>
  </div>
 
@@ -106,14 +107,23 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  return;
  }
 
- const statusBadge = (s: string) => {
+ // Approved but not yet live → "scheduled" (a derived state, not a real status).
+ const isScheduledRow = (p: any) => {
+ if (p.status !== 'approved' || !p.publishAt) return false;
+ const t = new Date(String(p.publishAt).replace(' ', 'T') + 'Z').getTime();
+ return !isNaN(t) && t > Date.now();
+ };
+
+ const statusBadge = (p: any) => {
  const map: Record<string, string> = {
  draft: 'bg-amber-50 text-amber-900 border-tertiary',
  approved: 'bg-blue-50 text-blue-900 border-secondary',
+ scheduled: 'bg-indigo-50 text-indigo-900 border-indigo-300',
  pending: 'bg-purple-50 text-purple-900 border-purple-300',
  rejected: 'bg-red-50 text-red-900 border-red-300',
  };
- const label: Record<string, string> = { draft: 'Draft', approved: 'Published', pending: 'Pending', rejected: 'Rejected' };
+ const label: Record<string, string> = { draft: 'Draft', approved: 'Published', scheduled: 'Scheduled', pending: 'Pending', rejected: 'Rejected' };
+ const s = isScheduledRow(p) ? 'scheduled' : p.status;
  const cls = map[s] || map.approved;
  return `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase border ${cls} shrink-0">${label[s] || s}</span>`;
  };
@@ -121,10 +131,13 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  // Publish/Unpublish quick action, depending on status. Pending/rejected
  // submissions are managed in the review queue, so they get no toggle here.
  const toggleBtn = (p: any, variant: 'card' | 'icon') => {
- if (p.status === 'draft') {
+ // Drafts and scheduled prompts both get a "Publish (now)" quick action that
+ // clears any schedule and goes live immediately.
+ if (p.status === 'draft' || isScheduledRow(p)) {
+ const title = isScheduledRow(p) ? 'Publish now' : 'Publish';
  return variant === 'card'
- ? `<button onclick="promptAction('${esc(p.slug)}', 'publish')" class="px-3 py-2 rounded-md text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">Publish</button>`
- : `<button onclick="promptAction('${esc(p.slug)}', 'publish')" class="inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-blue-50 text-gray-500 hover:text-blue-700 transition-colors" title="Publish"><span class="material-symbols-outlined text-base">publish</span></button>`;
+ ? `<button onclick="promptAction('${esc(p.slug)}', 'publish')" class="px-3 py-2 rounded-md text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">${title}</button>`
+ : `<button onclick="promptAction('${esc(p.slug)}', 'publish')" class="inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-blue-50 text-gray-500 hover:text-blue-700 transition-colors" title="${title}"><span class="material-symbols-outlined text-base">publish</span></button>`;
  }
  if (p.status === 'approved') {
  return variant === 'card'
@@ -144,7 +157,7 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <div class="flex items-center gap-2 flex-wrap">
  ${p.featured ? '<span class="material-symbols-outlined text-primary text-base shrink-0" title="Featured">star</span>' : ''}
  <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="font-semibold text-text-primary leading-snug">${esc(p.title)}</a>
- ${statusBadge(p.status)}
+ ${statusBadge(p)}
  </div>
  ${p.description ? `<p class="text-xs text-gray-500 mt-1 line-clamp-2">${esc(p.description)}</p>` : ''}
  <div class="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs text-gray-500">
@@ -204,7 +217,7 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <div class="flex items-center gap-2 min-w-0">
  ${p.featured ? '<span class="material-symbols-outlined text-primary text-base shrink-0" title="Featured">star</span>' : ''}
  <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="font-medium text-text-primary hover:text-primary truncate">${esc(p.title)}</a>
- ${statusBadge(p.status)}
+ ${statusBadge(p)}
  </div>
  <p class="text-xs text-gray-500 mt-0.5 truncate">${esc(p.description || '')}</p>
  </td>

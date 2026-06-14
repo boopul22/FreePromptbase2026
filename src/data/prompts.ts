@@ -36,6 +36,8 @@ export interface Prompt {
 	shareCount?: number;
 	/** Number of views (denormalized from prompt_events kind='view', deduped per actor/day). */
 	viewCount?: number;
+	/** Scheduled publish time (UTC). Future = scheduled (hidden); null/past = live. */
+	publishAt?: string;
 	/** Optional extra guidance rendered on the detail page. */
 	howToUse?: string;
 	/** Image gallery rendered as a carousel on the detail page. cover_image is used for cards. */

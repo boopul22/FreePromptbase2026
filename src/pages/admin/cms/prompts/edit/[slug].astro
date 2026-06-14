@@ -125,6 +125,11 @@ const slug = Astro.params.slug!;
  <input id="f-date" type="date" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
  </div>
  <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-publish-at">Schedule publish</label>
+ <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <p id="schedule-note" class="text-xs text-gray-500 mt-1">Pick a future time, then click <strong>Schedule</strong>. Your local timezone.</p>
+ </div>
+ <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-popularity">Popularity</label>
  <input id="f-popularity" type="number" min="0" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
  </div>
@@ -191,9 +196,45 @@ const slug = Astro.params.slug!;
  let pending = 0; // skeleton tiles shown while uploads are in flight
  // Current lifecycle status of this prompt; drives the badge + action buttons.
  let currentStatus = 'approved';
+ // Current scheduled publish time (UTC string) or null. Future = "scheduled".
+ let currentPublishAt = null;
 
  function coverField() {
  return document.getElementById('f-cover');
+ }
+
+ // --- Schedule helpers ---
+ // Is the prompt approved but not yet live?
+ function isScheduled() {
+ if (currentStatus !== 'approved' || !currentPublishAt) return false;
+ const t = new Date(String(currentPublishAt).replace(' ', 'T') + 'Z').getTime();
+ return !isNaN(t) && t > Date.now();
+ }
+ // UTC 'YYYY-MM-DD HH:MM:SS' (or ISO) → local 'YYYY-MM-DDTHH:MM' for the input.
+ function toLocalInput(utc) {
+ if (!utc) return '';
+ const d = new Date(String(utc).replace(' ', 'T') + (String(utc).endsWith('Z') ? '' : 'Z'));
+ if (isNaN(d.getTime())) return '';
+ const p = (n) => String(n).padStart(2, '0');
+ return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+ }
+ // The schedule field's local value → UTC ISO, or null if empty/invalid.
+ function scheduleIso() {
+ const val = document.getElementById('f-publish-at').value;
+ if (!val) return null;
+ const d = new Date(val);
+ return isNaN(d.getTime()) ? null : d.toISOString();
+ }
+ // Reflect the scheduled state in the helper note under the field.
+ function renderScheduleNote() {
+ const note = document.getElementById('schedule-note');
+ if (!note) return;
+ if (isScheduled()) {
+ const when = new Date(String(currentPublishAt).replace(' ', 'T') + 'Z').toLocaleString();
+ note.innerHTML = `Scheduled for <strong>${when}</strong> (your time). Use <strong>Publish now</strong> to go live immediately, or pick a new time and <strong>Reschedule</strong>.`;
+ } else {
+ note.innerHTML = 'Pick a future time, then click <strong>Schedule</strong>. Your local timezone.';
+ }
  }
 
  // The cover (featured) image: an explicit pick wins, else the first upload.
@@ -422,6 +463,10 @@ const slug = Astro.params.slug!;
  document.getElementById('f-featured').checked = !!p.featured;
 
  currentStatus = p.status || 'approved';
+ currentPublishAt = p.publishAt || null;
+ // Prefill the schedule picker only while the prompt is actually scheduled.
+ document.getElementById('f-publish-at').value = isScheduled() ? toLocalInput(currentPublishAt) : '';
+ renderScheduleNote();
  renderStatus();
  renderActions();
  }
@@ -435,7 +480,9 @@ const slug = Astro.params.slug!;
 
  function renderStatus() {
  const el = document.getElementById('status-badge');
- const b = STATUS_BADGES[currentStatus] || STATUS_BADGES.approved;
+ const b = isScheduled()
+ ? { label: 'Scheduled', cls: 'bg-indigo-50 text-indigo-900 border-indigo-300' }
+ : (STATUS_BADGES[currentStatus] || STATUS_BADGES.approved);
  el.className = `px-2.5 py-1 rounded-full text-xs font-bold uppercase border ${b.cls}`;
  el.textContent = b.label;
  }
@@ -450,19 +497,35 @@ const slug = Astro.params.slug!;
 
  let buttons = '';
  if (currentStatus === 'draft') {
- buttons = secondary('draft-btn', 'draft', 'Save draft') + primary('publish-btn', 'publish', 'Publish');
+ buttons = secondary('draft-btn', 'draft', 'Save draft')
+ + secondary('schedule-btn', 'schedule', 'Schedule')
+ + primary('publish-btn', 'publish', 'Publish');
  } else if (currentStatus === 'approved') {
- buttons = secondary('unpublish-btn', 'unpublished', 'Unpublish') + primary('save-btn', 'save', 'Save changes');
+ const scheduled = isScheduled();
+ buttons = secondary('unpublish-btn', 'unpublished', 'Unpublish')
+ + (scheduled ? secondary('publishnow-btn', 'publish', 'Publish now') : '')
+ + secondary('schedule-btn', 'schedule', scheduled ? 'Reschedule' : 'Schedule')
+ + primary('save-btn', 'save', 'Save changes');
  } else {
  // pending / rejected — managed by the review queue; editing keeps state.
  buttons = primary('save-btn', 'save', 'Save changes');
  }
  el.innerHTML = cancel + buttons;
 
- document.getElementById('draft-btn')?.addEventListener('click', () => save('draft', true, 'draft-btn', 'Saving…'));
- document.getElementById('publish-btn')?.addEventListener('click', () => save('approved', false, 'publish-btn', 'Publishing…'));
- document.getElementById('unpublish-btn')?.addEventListener('click', () => save('draft', true, 'unpublish-btn', 'Unpublishing…'));
- document.getElementById('save-btn')?.addEventListener('click', () => save(undefined, false, 'save-btn', 'Saving…'));
+ // status, stay, btnId, loadingLabel, publishArg ('keep' | null | ISO string)
+ document.getElementById('draft-btn')?.addEventListener('click', () => save('draft', true, 'draft-btn', 'Saving…', 'keep'));
+ document.getElementById('publish-btn')?.addEventListener('click', () => save('approved', false, 'publish-btn', 'Publishing…', null));
+ document.getElementById('publishnow-btn')?.addEventListener('click', () => save('approved', false, 'publishnow-btn', 'Publishing…', null));
+ document.getElementById('unpublish-btn')?.addEventListener('click', () => save('draft', true, 'unpublish-btn', 'Unpublishing…', 'keep'));
+ document.getElementById('save-btn')?.addEventListener('click', () => save(undefined, false, 'save-btn', 'Saving…', 'keep'));
+ document.getElementById('schedule-btn')?.addEventListener('click', () => {
+ const iso = scheduleIso();
+ if (!iso || new Date(iso) <= new Date()) {
+ notify('Pick a future date & time to schedule.', 'error');
+ return;
+ }
+ save('approved', false, 'schedule-btn', 'Scheduling…', iso);
+ });
  }
 
  function v(id) { return document.getElementById(id).value; }
@@ -471,7 +534,8 @@ const slug = Astro.params.slug!;
  // status: 'draft' | 'approved' | undefined (undefined = keep current state).
  // stay: true → reload the editor after saving (Save draft / Unpublish);
  //       false → return to the list (Publish / Save changes).
- async function save(status, stay, activeBtnId, loadingLabel) {
+ // publishArg: 'keep' (preserve existing schedule) | null (clear → live now) | ISO string (schedule)
+ async function save(status, stay, activeBtnId, loadingLabel, publishArg = 'keep') {
  const actionBtns = document.querySelectorAll('#actions button');
  actionBtns.forEach((btn) => { btn.disabled = true; });
  const activeBtn = activeBtnId ? document.getElementById(activeBtnId) : null;
@@ -494,6 +558,9 @@ const slug = Astro.params.slug!;
  howToUse: v('f-how-to-use') || null,
  };
  if (status) body.status = status;
+ // Only send publishAt when explicitly changing it; 'keep' preserves server-side.
+ if (publishArg !== 'keep') body.publishAt = publishArg;
+ const scheduling = typeof publishArg === 'string';
 
  const res = await fetch(`/api/admin/cms/prompts/${encodeURIComponent(slug)}`, {
  method: 'PUT',
@@ -503,7 +570,7 @@ const slug = Astro.params.slug!;
 
  if (res.ok) {
  const data = await res.json();
- notify(status === 'approved' ? 'Prompt published' : 'Changes saved', 'success');
+ notify(scheduling ? 'Prompt scheduled' : status === 'approved' ? 'Prompt published' : 'Changes saved', 'success');
  // If slug changed, the edit URL moved — go there regardless.
  const go = () => {
  if (data.slug && data.slug !== slug) {

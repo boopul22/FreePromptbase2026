@@ -90,6 +90,20 @@ export function generateSlug(title: string): string {
     .replace(/^-|-$/g, '');
 }
 
+/**
+ * Normalize a client-supplied schedule time (any Date-parseable string, e.g. an
+ * ISO instant) into canonical UTC 'YYYY-MM-DD HH:MM:SS' for storage, so it
+ * compares correctly against SQLite's datetime('now'). Returns null for empty,
+ * unparseable, or past times — i.e. "publish now, not scheduled".
+ */
+export function toScheduleUtc(input: unknown): string | null {
+  if (typeof input !== 'string' || !input.trim()) return null;
+  const ms = Date.parse(input);
+  if (Number.isNaN(ms)) return null;
+  if (ms <= Date.now()) return null; // past/now → publish immediately
+  return new Date(ms).toISOString().slice(0, 19).replace('T', ' ');
+}
+
 export function calculateReadTime(content: PostContent): string {
   let words = 0;
   const countWords = (text: string) => text.split(/\s+/).filter(Boolean).length;

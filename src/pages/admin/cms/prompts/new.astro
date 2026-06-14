@@ -28,6 +28,10 @@ const today = new Date().toISOString().slice(0, 10);
  <span class="material-symbols-outlined text-base">draft</span>
  Save draft
  </button>
+ <button id="schedule-btn" type="button" class="btn-feedback bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 flex items-center gap-2">
+ <span class="material-symbols-outlined text-base">schedule</span>
+ Schedule
+ </button>
  <button id="publish-btn" type="button" class="btn-feedback bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 flex items-center gap-2">
  <span class="material-symbols-outlined text-base">publish</span>
  Publish
@@ -110,6 +114,11 @@ const today = new Date().toISOString().slice(0, 10);
  <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-date">Date</label>
  <input id="f-date" name="date" type="date" value={today} class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-publish-at">Schedule publish</label>
+ <input id="f-publish-at" name="publishAt" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <p class="text-xs text-gray-500 mt-1">Pick a future time, then click <strong>Schedule</strong>. It stays hidden until then. Your local timezone.</p>
  </div>
  <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-popularity">Popularity</label>
@@ -330,11 +339,29 @@ const today = new Date().toISOString().slice(0, 10);
  coverField().addEventListener('input', renderStrip);
 
  const draftBtn = document.getElementById('draft-btn') as HTMLButtonElement;
+ const scheduleBtn = document.getElementById('schedule-btn') as HTMLButtonElement;
  const publishBtn = document.getElementById('publish-btn') as HTMLButtonElement;
+ const actionBtns = [draftBtn, scheduleBtn, publishBtn];
 
- async function save(status: 'draft' | 'approved') {
- const activeBtn = status === 'draft' ? draftBtn : publishBtn;
- const otherBtn = status === 'draft' ? publishBtn : draftBtn;
+ // The local datetime-local value → UTC ISO, or null if empty/invalid.
+ function scheduleIso(): string | null {
+ const v = (document.getElementById('f-publish-at') as HTMLInputElement).value;
+ if (!v) return null;
+ const d = new Date(v); // parsed in the admin's local timezone
+ return isNaN(d.getTime()) ? null : d.toISOString();
+ }
+
+ // mode: 'draft' (hidden) | 'publish' (live now) | 'schedule' (live later)
+ async function save(mode: 'draft' | 'publish' | 'schedule', activeBtn: HTMLButtonElement) {
+ const status = mode === 'draft' ? 'draft' : 'approved';
+ let publishAt: string | null = null;
+ if (mode === 'schedule') {
+ publishAt = scheduleIso();
+ if (!publishAt || new Date(publishAt) <= new Date()) {
+ toast('Pick a future date & time to schedule.', 'error');
+ return;
+ }
+ }
 
  const tags = val('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
  const body = {
@@ -352,6 +379,7 @@ const today = new Date().toISOString().slice(0, 10);
  popularity: parseInt(val('f-popularity') || '0', 10),
  howToUse: val('f-how-to-use') || null,
  status,
+ publishAt,
  };
 
  if (!body.title || !body.promptText || !body.category) {
@@ -359,7 +387,8 @@ const today = new Date().toISOString().slice(0, 10);
  return;
  }
 
- otherBtn.disabled = true;
+ actionBtns.forEach((b) => { if (b !== activeBtn) b.disabled = true; });
+ const loadingLabel = mode === 'draft' ? 'Saving…' : mode === 'schedule' ? 'Scheduling…' : 'Publishing…';
  try {
  await withButtonLoading(activeBtn, async () => {
  const res = await fetch('/api/admin/cms/prompts', {
@@ -372,22 +401,23 @@ const today = new Date().toISOString().slice(0, 10);
  throw new Error(err.error || res.statusText);
  }
  const data = await res.json().catch(() => ({}));
- toast(status === 'draft' ? 'Draft saved' : 'Prompt published', 'success');
- // Drafts return to the editor so the admin can keep refining; published
- // prompts go back to the list.
- const dest = status === 'draft' && data.slug
+ toast(mode === 'draft' ? 'Draft saved' : mode === 'schedule' ? 'Prompt scheduled' : 'Prompt published', 'success');
+ // Drafts return to the editor so the admin can keep refining; published /
+ // scheduled prompts go back to the list.
+ const dest = mode === 'draft' && data.slug
  ? `/admin/cms/prompts/edit/${encodeURIComponent(data.slug)}`
  : '/admin/cms/prompts';
  setTimeout(() => { window.location.href = dest; }, 450);
- }, { loadingLabel: status === 'draft' ? 'Saving…' : 'Publishing…' });
+ }, { loadingLabel });
  } catch (err: any) {
  toast(`Save failed: ${err.message || 'try again'}`, 'error');
- otherBtn.disabled = false;
+ actionBtns.forEach((b) => { if (b !== activeBtn) b.disabled = false; });
  }
  }
 
- draftBtn.addEventListener('click', () => save('draft'));
- publishBtn.addEventListener('click', () => save('approved'));
+ draftBtn.addEventListener('click', () => save('draft', draftBtn));
+ scheduleBtn.addEventListener('click', () => save('schedule', scheduleBtn));
+ publishBtn.addEventListener('click', () => save('publish', publishBtn));
 
  // Auto-slug from title (only when slug field is empty)
  const titleInput = document.getElementById('f-title') as HTMLInputElement;

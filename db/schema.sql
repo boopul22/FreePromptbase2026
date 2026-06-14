@@ -61,6 +61,10 @@ CREATE TABLE prompts (
 	-- Admin-created prompts are saved as 'draft' or published straight to 'approved'.
 	-- User submissions start 'pending'. Existing seed rows default to 'approved'.
 	status           TEXT NOT NULL DEFAULT 'approved',  -- 'draft' | 'pending' | 'approved' | 'rejected'
+	-- Scheduled publish time (UTC 'YYYY-MM-DD HH:MM:SS'). NULL = live as soon as
+	-- approved. A future value = "scheduled": approved but hidden from the public
+	-- until publish_at <= now (gate evaluated per request; no cron).
+	publish_at       TEXT,
 	submitted_by     TEXT,                           -- FK to users.id of submitter; NULL for admin-created
 	submitted_at     TEXT,
 	reviewed_by      TEXT,                           -- FK to users.id of admin who approved/rejected
@@ -74,6 +78,7 @@ CREATE INDEX idx_prompts_date         ON prompts(date);
 CREATE INDEX idx_prompts_popularity   ON prompts(popularity);
 CREATE INDEX idx_prompts_save_count   ON prompts(save_count);
 CREATE INDEX idx_prompts_view_count   ON prompts(view_count);
+CREATE INDEX idx_prompts_publish_at    ON prompts(publish_at);
 CREATE INDEX idx_prompts_status_date  ON prompts(status, date);
 CREATE INDEX idx_prompts_submitted_by ON prompts(submitted_by);
 

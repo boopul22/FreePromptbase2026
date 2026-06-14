@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { getDB } from '../../../../lib/db';
-import { generateSlug, logActivity } from '../../../../lib/cms';
+import { generateSlug, logActivity, toScheduleUtc } from '../../../../lib/cms';
 import { generateId } from '../../../../lib/crypto';
 
 interface PromptRow {
@@ -22,6 +22,7 @@ interface PromptRow {
   how_to_use: string | null;
   created_by: string | null;
   status: string;
+  publish_at: string | null;
   created_at: string;
   category_name?: string | null;
   category_emoji?: string | null;
@@ -49,6 +50,7 @@ function mapRow(r: PromptRow) {
     popularity: r.popularity,
     howToUse: r.how_to_use ?? null,
     status: r.status ?? 'approved',
+    publishAt: r.publish_at ?? null,
     createdBy: r.created_by ?? null,
     createdByName: r.creator_name ?? null,
     createdByAvatar: r.creator_avatar ?? null,
@@ -91,7 +93,10 @@ export const GET: APIRoute = async ({ locals, url }) => {
     where += ' AND p.category = ?';
     params.push(category);
   }
-  if (status && status !== 'all') {
+  if (status === 'scheduled') {
+    // Derived state: approved but not yet live.
+    where += " AND p.status = 'approved' AND p.publish_at IS NOT NULL AND p.publish_at > datetime('now')";
+  } else if (status && status !== 'all') {
     where += ' AND p.status = ?';
     params.push(status);
   }
@@ -174,6 +179,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const today = new Date().toISOString().slice(0, 10);
 
+  // Schedule: a future publish time only makes sense for an approved prompt.
+  // For drafts we still persist it so it survives until the admin schedules.
+  const publishAt = toScheduleUtc(body.publishAt);
+  // When scheduling, sort by the scheduled date so it lands in "Newest" on go-live.
+  const effectiveDate = publishAt ? publishAt.slice(0, 10) : body.date || today;
+
   const images: string[] = Array.isArray(body.images) ? body.images.filter((s: any) => typeof s === 'string' && s.trim()) : [];
   // Auto-cover: if no explicit cover_image given but images were uploaded, use the first.
   const coverImage = body.coverImage || (images.length > 0 ? images[0] : null);
@@ -202,8 +213,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     .prepare(
       `INSERT INTO prompts
         (slug, title, description, prompt_text, category, tags, author, date,
-         cover_image, images, featured, liked, popularity, how_to_use, created_by, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         cover_image, images, featured, liked, popularity, how_to_use, created_by, status, publish_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       slug,
@@ -213,7 +224,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       body.category,
       JSON.stringify(Array.isArray(body.tags) ? body.tags : []),
       authorName,
-      body.date || today,
+      effectiveDate,
       coverImage,
       JSON.stringify(images),
       body.featured ? 1 : 0,
@@ -222,6 +233,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       body.howToUse || null,
       createdById,
       status,
+      publishAt,
     )
     .run();
 

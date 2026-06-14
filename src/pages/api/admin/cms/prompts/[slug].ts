@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { getDB } from '../../../../../lib/db';
-import { generateSlug, logActivity } from '../../../../../lib/cms';
+import { generateSlug, logActivity, toScheduleUtc } from '../../../../../lib/cms';
 
 interface PromptRow {
   slug: string;
@@ -21,6 +21,7 @@ interface PromptRow {
   how_to_use: string | null;
   created_by: string | null;
   status: string;
+  publish_at: string | null;
   created_at: string;
   category_name?: string | null;
   category_emoji?: string | null;
@@ -48,6 +49,7 @@ function mapRow(r: PromptRow) {
     popularity: r.popularity,
     howToUse: r.how_to_use ?? null,
     status: r.status ?? 'approved',
+    publishAt: r.publish_at ?? null,
     createdBy: r.created_by ?? null,
     createdByName: r.creator_name ?? null,
     createdByAvatar: r.creator_avatar ?? null,
@@ -189,12 +191,25 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     }
   }
 
+  // Resolve schedule. Only touched when the client sends publishAt (Schedule /
+  // Publish-now); otherwise the existing value is preserved.
+  let finalPublishAt =
+    body.publishAt !== undefined ? toScheduleUtc(body.publishAt) : existing.publish_at ?? null;
+  if (finalPublishAt) {
+    // Scheduled for the future → sort by that date so it lands in "Newest" live.
+    finalDate = finalPublishAt.slice(0, 10);
+  } else if (body.publishAt !== undefined && existing.publish_at && finalStatus === 'approved') {
+    // Was scheduled, now publishing immediately → refresh the date to today.
+    finalDate = new Date().toISOString().slice(0, 10);
+  }
+
   await db
     .prepare(
       `UPDATE prompts SET
         slug = ?, title = ?, description = ?, prompt_text = ?, category = ?,
         tags = ?, author = ?, date = ?, cover_image = ?, images = ?,
-        featured = ?, popularity = ?, how_to_use = ?, created_by = ?, status = ?
+        featured = ?, popularity = ?, how_to_use = ?, created_by = ?, status = ?,
+        publish_at = ?
        WHERE slug = ?`,
     )
     .bind(
@@ -213,6 +228,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       body.howToUse !== undefined ? body.howToUse || null : existing.how_to_use,
       finalCreatedBy,
       finalStatus,
+      finalPublishAt,
       currentSlug,
     )
     .run();
