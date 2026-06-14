@@ -200,7 +200,8 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 										alt={`${prompt.title} — image ${i + 1}`}
 										width={i === 0 ? prompt.coverW : undefined}
 										height={i === 0 ? prompt.coverH : undefined}
-										class="snap-center shrink-0 w-full rounded-base object-contain h-auto bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
+										style={prompt.coverW && prompt.coverH ? `aspect-ratio:${prompt.coverW}/${prompt.coverH}` : undefined}
+										class="snap-center shrink-0 w-full rounded-base object-contain bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
 										loading={i === 0 ? 'eager' : 'lazy'}
 										fetchpriority={i === 0 ? 'high' : undefined}
 										decoding="async"
@@ -411,7 +412,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 		{
 			prompt.tags.length > 0 && (
 				<section class="mt-10 pt-6 border-t border-gray-200">
-					<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">Tags</h3>
+					<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-600 mb-3">Tags</h3>
 					<div class="flex flex-wrap gap-1.5">
 						{prompt.tags.map((tag) => (
 							<span class="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-md">
@@ -488,7 +489,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			related.length > 0 && (
 				<section class="mt-16 pt-10 border-t border-gray-200">
 					<header class="mb-6">
-						<p class="text-xs font-semibold uppercase tracking-wide text-gray-500">More like this</p>
+						<p class="text-xs font-semibold uppercase tracking-wide text-gray-600">More like this</p>
 						<h2 class="text-2xl font-bold text-text-primary mt-1">Related prompts</h2>
 					</header>
 					<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
