@@ -116,9 +116,12 @@ export const GET: APIRoute = async ({ locals, url }) => {
     .first<{ count: number }>();
   const total = countResult?.count || 0;
 
+  // List view only needs these columns — skip the heavy text fields
+  // (prompt_text, images, how_to_use) so the payload + read stay small.
   const rows = await db
     .prepare(
-      `SELECT p.*,
+      `SELECT p.slug, p.title, p.description, p.status, p.featured, p.date, p.publish_at,
+              p.author, p.category, p.created_by, p.created_at,
               c.name AS category_name, c.emoji AS category_emoji,
               u.name AS creator_name, u.avatar_url AS creator_avatar, u.email AS creator_email
        FROM prompts p

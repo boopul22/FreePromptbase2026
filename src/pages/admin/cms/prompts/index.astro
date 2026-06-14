@@ -3,6 +3,43 @@ export const prerender = false;
 
 import Layout from '../../../../layouts/Layout.astro';
 import AdminSidebar from '../../../../components/AdminSidebar.astro';
+import { getDB } from '../../../../lib/db';
+
+// SSR the first page of data + categories so the list paints instantly with no
+// client fetch waterfall. The client renderer consumes this island and only
+// re-fetches on filter / search / pagination.
+const LIMIT = 20;
+let initial = { prompts: [] as any[], total: 0, page: 1, totalPages: 1, categories: [] as any[] };
+try {
+	const db = getDB(Astro.locals);
+	const [listRes, countRes, catRes] = await db.batch<any>([
+		db.prepare(
+			`SELECT p.slug, p.title, p.description, p.status, p.featured, p.date, p.publish_at, p.author, p.category,
+			        c.name AS category_name, c.emoji AS category_emoji,
+			        u.name AS creator_name, u.avatar_url AS creator_avatar
+			 FROM prompts p
+			 LEFT JOIN prompt_categories c ON p.category = c.slug
+			 LEFT JOIN users u ON p.created_by = u.id
+			 ORDER BY p.date DESC, p.created_at DESC LIMIT ${LIMIT}`,
+		),
+		db.prepare('SELECT COUNT(*) AS n FROM prompts'),
+		db.prepare('SELECT slug, name, emoji FROM prompt_categories ORDER BY sort_order'),
+	]);
+	const total = (countRes.results?.[0]?.n as number) ?? 0;
+	initial = {
+		prompts: (listRes.results || []).map((r: any) => ({
+			slug: r.slug, title: r.title, description: r.description, status: r.status,
+			publishAt: r.publish_at ?? null, featured: !!r.featured, date: r.date,
+			category: r.category, categoryName: r.category_name, categoryEmoji: r.category_emoji,
+			createdByName: r.creator_name, createdByAvatar: r.creator_avatar, author: r.author,
+		})),
+		total, page: 1, totalPages: Math.max(1, Math.ceil(total / LIMIT)),
+		categories: catRes.results || [],
+	};
+} catch {
+	// Fall through with empty initial — the client will fetch as a fallback.
+}
+const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
 ---
 
 <Layout title="Prompts - CMS - Free Prompt Base" noindex={true}>
@@ -59,6 +96,9 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <div id="pagination" class="flex items-center justify-between text-sm text-gray-500"></div>
  </main>
  </div>
+
+ <!-- Server-rendered first page + categories (consumed for instant first paint). -->
+ <script type="application/json" id="cms-initial" set:html={initialJson}></script>
 </Layout>
 
 <script>
@@ -71,23 +111,29 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  return d.innerHTML;
  }
 
- async function loadCategories() {
- const res = await fetch('/api/admin/cms/prompt-categories');
- const data = await res.json();
+ function renderCategories(categories: any[]) {
  const sel = document.getElementById('category-filter') as HTMLSelectElement;
- for (const c of data.categories || []) {
+ for (const c of categories || []) {
  const opt = document.createElement('option');
  opt.value = c.slug;
  opt.textContent = `${c.emoji} ${c.name}`;
  sel.appendChild(opt);
  }
  }
+ async function loadCategories() {
+ const res = await fetch('/api/admin/cms/prompt-categories');
+ const data = await res.json();
+ renderCategories(data.categories || []);
+ }
 
- async function loadPrompts(page = 1) {
+ async function loadPrompts(page = 1, preloaded?: any) {
  currentPage = page;
+ let data = preloaded;
+ if (!data) {
  const params = new URLSearchParams({ page: String(page), limit: '20', ...currentFilters });
  const res = await fetch(`/api/admin/cms/prompts?${params}`);
- const data = await res.json();
+ data = await res.json();
+ }
  const list = document.getElementById('prompts-list')!;
 
  (document.getElementById('prompt-subtitle')!).textContent =
@@ -321,9 +367,17 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  searchTimer = setTimeout(applyFilters, 250);
  });
 
- // Boot
+ // Boot — use the server-rendered island for instant first paint; fall back to
+ // fetching only if it's missing.
  (async () => {
+ let initial: any = null;
+ try { initial = JSON.parse(document.getElementById('cms-initial')?.textContent || 'null'); } catch {}
+ if (initial && initial.prompts) {
+ renderCategories(initial.categories || []);
+ loadPrompts(1, initial);
+ } else {
  await loadCategories();
  loadPrompts(1);
+ }
  })();
 </script>

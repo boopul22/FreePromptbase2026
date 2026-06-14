@@ -159,10 +159,24 @@ const organizationSchema = {
 
 		{noindex && <meta name="robots" content="noindex, nofollow" />}
 		{noindex && (
-			<link
-				href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
-				rel="stylesheet"
-			/>
+			<>
+				{/* Admin icon font — loaded non-blocking so it never delays first paint.
+				    media="print" + onload swap is the standard async-CSS trick. */}
+				<link rel="preconnect" href="https://fonts.googleapis.com" />
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+				<link
+					href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+					rel="stylesheet"
+					media="print"
+					onload="this.media='all'"
+				/>
+				<noscript>
+					<link
+						href="https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined"
+						rel="stylesheet"
+					/>
+				</noscript>
+			</>
 		)}
 
 		<!-- Structured data -->

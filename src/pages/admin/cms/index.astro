@@ -3,6 +3,41 @@ export const prerender = false;
 
 import Layout from '../../../layouts/Layout.astro';
 import AdminSidebar from '../../../components/AdminSidebar.astro';
+import { getDB } from '../../../lib/db';
+
+// SSR the dashboard (counts + recent posts + activity) in one batched D1 call so
+// it paints instantly instead of firing 6 client fetches after JS parse.
+let dash: any = { counts: { prompts: 0, posts: 0, published: 0, categories: 0, media: 0 }, posts: [], activity: [] };
+try {
+	const db = getDB(Astro.locals);
+	const [pc, poc, pubc, cc, mc, posts, act] = await db.batch<any>([
+		db.prepare('SELECT COUNT(*) AS n FROM prompts'),
+		db.prepare('SELECT COUNT(*) AS n FROM posts'),
+		db.prepare("SELECT COUNT(*) AS n FROM posts WHERE status = 'published'"),
+		db.prepare('SELECT COUNT(*) AS n FROM categories'),
+		db.prepare('SELECT COUNT(*) AS n FROM media'),
+		db.prepare(
+			`SELECT p.id, p.title, p.status, p.read_time, c.name AS category_name
+			 FROM posts p LEFT JOIN categories c ON p.category_id = c.id
+			 ORDER BY p.updated_at DESC LIMIT 5`,
+		),
+		db.prepare('SELECT user_name, action, entity_title, created_at FROM activity_log ORDER BY created_at DESC LIMIT 10'),
+	]);
+	dash = {
+		counts: {
+			prompts: pc.results?.[0]?.n ?? 0,
+			posts: poc.results?.[0]?.n ?? 0,
+			published: pubc.results?.[0]?.n ?? 0,
+			categories: cc.results?.[0]?.n ?? 0,
+			media: mc.results?.[0]?.n ?? 0,
+		},
+		posts: (posts.results || []).map((p: any) => ({ id: p.id, title: p.title, status: p.status, readTime: p.read_time, categoryName: p.category_name })),
+		activity: (act.results || []).map((a: any) => ({ userName: a.user_name, action: a.action, entityTitle: a.entity_title, createdAt: a.created_at })),
+	};
+} catch {
+	// Fall through with empties — the client fetches as a fallback.
+}
+const dashJson = JSON.stringify(dash).replace(/</g, '\\u003c');
 ---
 
 <Layout title="Content Management - Admin - Free Prompt Base" noindex={true}>
@@ -97,6 +132,8 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  </div>
  </main>
  </div>
+
+ <script type="application/json" id="cms-dash" set:html={dashJson}></script>
 </Layout>
 
 <script>
@@ -106,8 +143,11 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  return d.innerHTML;
  }
 
- async function loadDashboard() {
- // Load stats
+ async function loadDashboard(preloaded?: any) {
+ let counts: any, posts: any[], activity: any[];
+ if (preloaded) {
+ counts = preloaded.counts; posts = preloaded.posts; activity = preloaded.activity;
+ } else {
  const [promptsRes, postsRes, publishedRes, categoriesRes, mediaRes, activityRes] = await Promise.all([
  fetch('/api/admin/cms/prompts?limit=5'),
  fetch('/api/admin/cms/posts?limit=5'),
@@ -116,25 +156,32 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  fetch('/api/admin/cms/media?limit=1'),
  fetch('/api/admin/cms/activity?limit=10'),
  ]);
-
  const promptsData = await promptsRes.json();
  const postsData = await postsRes.json();
  const publishedData = await publishedRes.json();
  const categoriesData = await categoriesRes.json();
  const mediaData = await mediaRes.json();
  const activityData = await activityRes.json();
+ counts = {
+ prompts: promptsData.total || 0, posts: postsData.total || 0,
+ published: publishedData.total || 0, categories: categoriesData.categories?.length || 0,
+ media: mediaData.total || 0,
+ };
+ posts = postsData.posts || [];
+ activity = activityData.activity || [];
+ }
 
  // Stats
- document.getElementById('stat-prompts')!.textContent = String(promptsData.total || 0);
- document.getElementById('stat-posts')!.textContent = String(postsData.total || 0);
- document.getElementById('stat-published')!.textContent = String(publishedData.total || 0);
- document.getElementById('stat-categories')!.textContent = String(categoriesData.categories?.length || 0);
- document.getElementById('stat-media')!.textContent = String(mediaData.total || 0);
+ document.getElementById('stat-prompts')!.textContent = String(counts.prompts || 0);
+ document.getElementById('stat-posts')!.textContent = String(counts.posts || 0);
+ document.getElementById('stat-published')!.textContent = String(counts.published || 0);
+ document.getElementById('stat-categories')!.textContent = String(counts.categories || 0);
+ document.getElementById('stat-media')!.textContent = String(counts.media || 0);
 
  // Recent posts
  const recentPosts = document.getElementById('recent-posts')!;
- if (postsData.posts?.length) {
- recentPosts.innerHTML = postsData.posts.map((p: any) => `
+ if (posts?.length) {
+ recentPosts.innerHTML = posts.map((p: any) => `
  <a href="/admin/cms/posts/edit/${esc(p.id)}" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
  <div class="flex-1 min-w-0">
  <p class="font-semibold text-sm truncate">${esc(p.title)}</p>
@@ -165,8 +212,8 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  };
 
  const recentActivity = document.getElementById('recent-activity')!;
- if (activityData.activity?.length) {
- recentActivity.innerHTML = activityData.activity.map((a: any) => `
+ if (activity?.length) {
+ recentActivity.innerHTML = activity.map((a: any) => `
  <div class="flex items-center gap-3 p-4">
  <span class="material-symbols-outlined text-primary text-xl">${actionIcons[a.action] || 'info'}</span>
  <div class="flex-1 min-w-0">
@@ -180,5 +227,8 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  }
  }
 
- loadDashboard();
+ // Use the server-rendered island for instant paint; fetch only as a fallback.
+ let dashInitial: any = null;
+ try { dashInitial = JSON.parse(document.getElementById('cms-dash')?.textContent || 'null'); } catch {}
+ loadDashboard(dashInitial && dashInitial.counts ? dashInitial : undefined);
 </script>

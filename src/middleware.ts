@@ -47,8 +47,10 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
 
   // Preload the current actor's liked + saved slugs so PromptCard renders the
   // hearts/bookmarks in their correct initial state on SSR (no client-fetch
-  // flicker). Skip for API routes that don't render cards.
-  if (db && !path.startsWith('/api/') && !isStaticProxy) {
+  // flicker). Skip for API routes and the admin/CMS area — neither renders
+  // PromptCard, so these two D1 queries would be pure overhead there.
+  const isAdmin = path.startsWith('/admin');
+  if (db && !path.startsWith('/api/') && !isStaticProxy && !isAdmin) {
     try {
       const [savedRes, likedRes] = await db.batch<{ prompt_slug: string }>([
         db
