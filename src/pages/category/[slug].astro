@@ -11,6 +11,7 @@ import {
 	getPromptsByCategory,
 } from '../../lib/prompts';
 import { itemListSchema, breadcrumbSchema } from '../../lib/seo';
+import { cfSrcset } from '../../lib/cfImage';
 
 // On-demand: resolve the category + its prompts from D1 at request time.
 export const prerender = false;
@@ -41,6 +42,9 @@ const crumb = breadcrumbSchema([
 	title={`${category.name} prompts — Free Prompt Base`}
 	description={category.description}
 	extraSchemas={[list, crumb]}
+	preloadImage={prompts[0]?.coverImage}
+	preloadImageSrcset={prompts[0]?.coverImage ? cfSrcset(prompts[0].coverImage, [300, 400, 520, 660], 68) : undefined}
+	preloadImageSizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
 >
 	<Header />
 	<main class="flex-grow max-w-7xl mx-auto px-4 w-full py-10">

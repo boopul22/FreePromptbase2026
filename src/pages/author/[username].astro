@@ -7,6 +7,7 @@ import Footer from '../../components/Footer.astro';
 import PromptGrid from '../../components/PromptGrid.astro';
 import { getAllCategories, getPromptsByAuthor } from '../../lib/prompts';
 import { getUserByUsername } from '../../lib/users';
+import { cfSrcset } from '../../lib/cfImage';
 
 const username = Astro.params.username!;
 const profileUser = await getUserByUsername(username);
@@ -48,7 +49,15 @@ const description = profileUser.bio
 	: `Prompts by ${profileUser.name} on Free Prompt Base.`;
 ---
 
-<Layout title={title} description={description} schema={personSchema} noindex={noindex}>
+<Layout
+	title={title}
+	description={description}
+	schema={personSchema}
+	noindex={noindex}
+	preloadImage={approved[0]?.coverImage}
+	preloadImageSrcset={approved[0]?.coverImage ? cfSrcset(approved[0].coverImage, [300, 400, 520, 660], 68) : undefined}
+	preloadImageSizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
+>
 	<Header />
 	<main class="max-w-7xl mx-auto px-4 w-full py-10">
 		{justSubmittedSlug && isOwner ? (
