@@ -125,26 +125,26 @@ const today = new Date().toISOString().slice(0, 10);
 
  <!-- Publish / schedule date picker (shared by both actions) -->
  <dialog id="schedule-dialog" class="fpb-modal">
- <div class="p-5 sm:p-6 space-y-4">
- <div class="flex items-start gap-3">
- <span class="material-symbols-outlined text-primary text-2xl leading-none shrink-0">schedule</span>
- <div class="min-w-0">
- <h2 id="schedule-dialog-title" class="text-base font-semibold text-text-primary">Publish</h2>
- <p id="schedule-dialog-hint" class="text-xs text-gray-500 mt-0.5 leading-relaxed">Choose when this prompt goes live. Your local timezone.</p>
+ <div class="p-4 space-y-3">
+ <div class="flex items-center gap-2">
+ <span class="material-symbols-outlined text-primary text-lg leading-none shrink-0">schedule</span>
+ <h2 id="schedule-dialog-title" class="text-sm font-semibold text-text-primary">Publish</h2>
  </div>
- </div>
- <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-publish-at">Publish date &amp; time</label>
- <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
- <div id="schedule-presets" class="flex flex-wrap gap-1.5 mt-2.5">
+ <p id="schedule-dialog-hint" class="text-xs text-gray-500 leading-snug">Choose when this prompt goes live. Your local timezone.</p>
+ <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <div id="schedule-presets" class="flex flex-wrap gap-1.5">
  <button type="button" class="fpb-preset" data-preset="1h">In 1 hour</button>
  <button type="button" class="fpb-preset" data-preset="tom9">Tomorrow 9 AM</button>
  <button type="button" class="fpb-preset" data-preset="week">Next week</button>
  </div>
- </div>
- <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1">
- <button id="schedule-cancel" type="button" class="btn-feedback px-4 py-2.5 rounded-md text-sm font-semibold text-gray-600 border border-gray-200 hover:bg-gray-100">Cancel</button>
- <button id="schedule-confirm" type="button" class="btn-feedback bg-primary text-link px-4 py-2.5 rounded-md text-sm font-semibold hover:opacity-90">Confirm</button>
+ <p id="schedule-summary" class="hidden items-center gap-1.5 text-xs font-medium text-text-primary bg-gray-50 border border-gray-200 rounded-md px-2.5 py-1.5">
+ <span class="material-symbols-outlined text-sm text-primary">event_available</span>
+ <span data-summary-text></span>
+ <button type="button" id="schedule-change" class="ml-auto text-primary font-semibold hover:underline">Change</button>
+ </p>
+ <div class="flex justify-end gap-2 pt-0.5">
+ <button id="schedule-cancel" type="button" class="btn-feedback px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">Cancel</button>
+ <button id="schedule-confirm" type="button" class="btn-feedback bg-primary text-link px-3.5 py-1.5 rounded-md text-sm font-semibold hover:opacity-90">Confirm</button>
  </div>
  </div>
  </dialog>
@@ -438,10 +438,29 @@ const today = new Date().toISOString().slice(0, 10);
  const confirmBtn = document.getElementById('schedule-confirm') as HTMLButtonElement;
  const cancelBtn = document.getElementById('schedule-cancel') as HTMLButtonElement;
  const publishAtInput = document.getElementById('f-publish-at') as HTMLInputElement;
+ const presetsEl = document.getElementById('schedule-presets')!;
+ const summaryEl = document.getElementById('schedule-summary')!;
+ const summaryTextEl = summaryEl.querySelector('[data-summary-text]') as HTMLElement;
 
  function localInputValue(d: Date): string {
  const p = (n: number) => String(n).padStart(2, '0');
  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+ }
+ function friendly(d: Date): string {
+ return d.toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+ }
+ // Once a time is chosen, collapse the presets into a one-line confirmation.
+ function showPresets() {
+ presetsEl.classList.remove('hidden');
+ summaryEl.classList.remove('flex'); summaryEl.classList.add('hidden');
+ }
+ function showSummary() {
+ const iso = scheduleIso();
+ if (!iso) return;
+ const d = new Date(iso);
+ summaryTextEl.textContent = d > new Date() ? `Goes live ${friendly(d)}` : 'Publishes immediately';
+ presetsEl.classList.add('hidden');
+ summaryEl.classList.remove('hidden'); summaryEl.classList.add('flex');
  }
  function requiredOk(): boolean {
  if (!val('f-title') || !val('f-prompt-text') || !val('f-category')) {
@@ -464,6 +483,7 @@ const today = new Date().toISOString().slice(0, 10);
  dlgHint.textContent = 'Pick a future date & time. It stays hidden until then. Your local timezone.';
  confirmBtn.textContent = 'Schedule';
  }
+ showPresets(); // each open starts with the quick options visible
  dialog.showModal();
  }
 
@@ -474,11 +494,15 @@ const today = new Date().toISOString().slice(0, 10);
  if (kind === 'tom9') { d.setDate(d.getDate() + 1); d.setHours(9, 0, 0, 0); return d; }
  d.setDate(d.getDate() + 7); d.setHours(9, 0, 0, 0); return d; // 'week'
  }
- document.getElementById('schedule-presets')?.addEventListener('click', (e) => {
+ presetsEl.addEventListener('click', (e) => {
  const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-preset]');
  if (!btn) return;
  publishAtInput.value = localInputValue(presetDate(btn.dataset.preset || 'week'));
+ showSummary(); // collapse presets after a pick
  });
+ // Manually editing the field also counts as a pick.
+ publishAtInput.addEventListener('change', () => showSummary());
+ document.getElementById('schedule-change')!.addEventListener('click', () => { showPresets(); publishAtInput.focus(); });
 
  draftBtn.addEventListener('click', () => save('draft', draftBtn));
  publishBtn.addEventListener('click', () => openDialog('publish'));
