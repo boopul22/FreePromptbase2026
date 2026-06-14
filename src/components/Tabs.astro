@@ -1,6 +1,8 @@
 ---
 // Sort tabs for the prompt grid. The homepage SSRs three grids (one per tab)
 // and the tab click toggles which grid is visible — no client-side reorder.
+// Active styling is driven entirely by the [data-active] attribute (see the
+// .sort-tab rules in global.css), so the click handler only flips that flag.
 const tabs = [
 	{ id: 'trending', label: 'Trending' },
 	{ id: 'popular', label: 'Popular' },
@@ -8,18 +10,14 @@ const tabs = [
 ] as const;
 ---
 
-<nav class="flex gap-6 sm:gap-8 mb-10 border-b border-gray-300 pb-4" data-purpose="content-tabs">
+<nav class="sort-tabs flex items-center gap-1 mb-8" data-purpose="content-tabs">
 	{
 		tabs.map((tab, i) => (
 			<button
+				type="button"
 				data-sort={tab.id}
 				data-active={i === 0 ? 'true' : 'false'}
-				class:list={[
-					'sort-tab font-bold transition-colors relative',
-					i === 0
-						? "text-text-primary after:content-[''] after:absolute after:-bottom-4 after:left-0 after:w-full after:h-1 after:bg-primary"
-						: 'text-gray-600 hover:text-primary',
-				]}
+				class="sort-tab"
 			>
 				{tab.label}
 			</button>

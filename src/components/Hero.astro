@@ -9,33 +9,59 @@ interface Props {
 const { promptCount, categoryCount } = Astro.props;
 ---
 
-<section class="mb-12" data-purpose="collection-hero">
+<section class="mb-7" data-purpose="collection-hero">
 	<!-- Title + description are kept in the DOM (the H1 anchors the homepage
 	     for SEO) but visually hidden per request — nothing textual shows. -->
 	<h1 class="sr-only">{collection.title}</h1>
 	<p class="sr-only">{collection.description}</p>
 
-	<div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-4">
-		<div class="flex items-center gap-4 flex-wrap">
-			<div class="flex gap-2">
-				<button
-					data-follow-btn
-					data-following="false"
-					class="bg-primary text-link px-6 py-1.5 rounded-lg text-sm font-bold hover:opacity-90 transition-opacity"
-				>
-					Follow
-				</button>
-				<a
-					href="/categories"
-					class="bg-white text-text-primary border border-gray-200 px-6 py-1.5 rounded-lg text-sm font-semibold hover:bg-gray-50 transition-colors"
-				>
-					Browse
-				</a>
-			</div>
-		</div>
-	</div>
+	<div class="flex flex-wrap items-center gap-x-4 gap-y-3">
+		<!-- Actions -->
+		<div class="flex items-center gap-2">
+			<button
+				data-follow-btn
+				data-following="false"
+				class="follow-btn inline-flex items-center gap-1.5 bg-primary text-link px-5 py-2 rounded-full text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-px active:translate-y-0 transition-all"
+			>
+				<svg class="follow-plus w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+				</svg>
+				<svg class="follow-check w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<polyline points="20 6 9 17 4 12" />
+				</svg>
+				<span data-follow-label>Follow</span>
+			</button>
 
-	<div class="flex items-center gap-3 text-sm text-gray-600 flex-wrap">
-		<span>{promptCount} prompts across {categoryCount} categories.</span>
+			<a
+				href="/categories"
+				class="inline-flex items-center gap-1.5 bg-white text-text-primary border border-black/10 px-5 py-2 rounded-full text-sm font-semibold shadow-sm hover:border-black/20 hover:bg-gray-50 hover:-translate-y-px transition-all"
+			>
+				<svg class="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
+					<rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
+				</svg>
+				Browse
+			</a>
+		</div>
+
+		<!-- Collection stats — pushed into the otherwise-empty right side. Wraps
+		     under the buttons on narrow screens. -->
+		<dl class="ml-auto flex items-center gap-3.5 text-sm text-gray-500">
+			<div class="inline-flex items-center gap-1.5">
+				<svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+				</svg>
+				<dt class="sr-only">Prompts</dt>
+				<dd><span class="font-bold text-text-primary tabular-nums">{promptCount}</span> prompts</dd>
+			</div>
+			<span class="w-px h-4 bg-black/10" aria-hidden="true"></span>
+			<div class="inline-flex items-center gap-1.5">
+				<svg class="w-4 h-4 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+				</svg>
+				<dt class="sr-only">Categories</dt>
+				<dd><span class="font-bold text-text-primary tabular-nums">{categoryCount}</span> categories</dd>
+			</div>
+		</dl>
 	</div>
 </section>

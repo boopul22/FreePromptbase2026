@@ -156,6 +156,59 @@
 	}
 }
 
+/* ----------------------------------------------------------------------------
+   Sort tabs (home: Trending / Popular / Recent). The whole row shares one
+   hairline baseline; the active tab grows a gold underline that sits on it.
+   Active state is driven by [data-active] so the JS only flips that attribute.
+   -------------------------------------------------------------------------- */
+.sort-tabs {
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.sort-tab {
+	position: relative;
+	padding: 0.5rem 0.625rem 0.75rem;
+	font-size: 0.9375rem;
+	font-weight: 700;
+	line-height: 1;
+	color: #6b7280; /* gray-500 */
+	cursor: pointer;
+	background: none;
+	border: 0;
+	transition: color 150ms ease;
+}
+.sort-tab:hover {
+	color: var(--color-text-primary, #333);
+}
+.sort-tab:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+	border-radius: 6px;
+}
+.sort-tab::after {
+	content: '';
+	position: absolute;
+	left: 0.625rem;
+	right: 0.625rem;
+	bottom: -1px; /* overlap the nav's baseline border */
+	height: 2.5px;
+	border-radius: 3px 3px 0 0;
+	background: var(--color-primary);
+	transform: scaleX(0);
+	transform-origin: left center;
+	transition: transform 220ms var(--ease-out-quart, ease);
+}
+.sort-tab[data-active='true'] {
+	color: var(--color-text-primary, #333);
+}
+.sort-tab[data-active='true']::after {
+	transform: scaleX(1);
+}
+@media (prefers-reduced-motion: reduce) {
+	.sort-tab::after {
+		transition-duration: 0.01ms;
+	}
+}
+
 /* Like button affordance */
 .like-btn {
 	cursor: pointer;

@@ -107,18 +107,6 @@ const firstCover = trendingPrompts[0]?.coverImage;
 	const sortTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.sort-tab'));
 	const followBtn = document.querySelector<HTMLButtonElement>('[data-follow-btn]');
 
-	const ACTIVE_TAB = [
-		'text-text-primary',
-		"after:content-['']",
-		'after:absolute',
-		'after:-bottom-4',
-		'after:left-0',
-		'after:w-full',
-		'after:h-1',
-		'after:bg-primary',
-	];
-	const INACTIVE_TAB = ['text-gray-600', 'hover:text-primary'];
-
 	function activeGrid(): HTMLElement | null {
 		return grids.find((g) => !g.classList.contains('hidden')) ?? null;
 	}
@@ -132,11 +120,9 @@ const firstCover = trendingPrompts[0]?.coverImage;
 
 	sortTabs.forEach((tab) => {
 		tab.addEventListener('click', () => {
+			// Styling is attribute-driven (.sort-tab[data-active]); just flip it.
 			sortTabs.forEach((t) => {
-				const isActive = t === tab;
-				t.dataset.active = String(isActive);
-				t.classList.remove(...ACTIVE_TAB, ...INACTIVE_TAB);
-				t.classList.add(...(isActive ? ACTIVE_TAB : INACTIVE_TAB));
+				t.dataset.active = String(t === tab);
 			});
 			showTab(tab.dataset.sort ?? 'trending');
 		});
@@ -175,7 +161,13 @@ const firstCover = trendingPrompts[0]?.coverImage;
 		const following = followBtn.dataset.following === 'true';
 		const next = !following;
 		followBtn.dataset.following = String(next);
-		followBtn.textContent = next ? 'Following' : 'Follow';
+		// Update only the label span so the icons survive (textContent would
+		// wipe them); swap the plus/check icon to match the state.
+		const label = followBtn.querySelector('[data-follow-label]');
+		if (label) label.textContent = next ? 'Following' : 'Follow';
+		followBtn.querySelector('.follow-plus')?.classList.toggle('hidden', next);
+		followBtn.querySelector('.follow-check')?.classList.toggle('hidden', !next);
+		// Following = muted/confirmed; not-following = gold call-to-action.
 		followBtn.classList.toggle('bg-primary', !next);
 		followBtn.classList.toggle('text-link', !next);
 		followBtn.classList.toggle('bg-gray-200', next);
