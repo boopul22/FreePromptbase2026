@@ -181,7 +181,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 										srcset={cfSrcset(src, [480, 768, 1080])}
 										sizes="(min-width: 1024px) 700px, 92vw"
 										alt={`${prompt.title} — image ${i + 1}`}
-										class="snap-center shrink-0 w-full rounded-base object-cover aspect-[4/5] bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
+										class="snap-center shrink-0 w-full rounded-base object-contain h-auto bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
 										loading={i === 0 ? 'eager' : 'lazy'}
 										fetchpriority={i === 0 ? 'high' : undefined}
 										decoding="async"
@@ -224,7 +224,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 							srcset={cfSrcset(prompt.coverImage, [480, 768, 1080])}
 							sizes="(min-width: 1024px) 700px, 92vw"
 							alt={prompt.title}
-							class="w-full rounded-base object-cover aspect-[4/5] bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
+							class="w-full rounded-base object-contain h-auto bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
 							loading="eager"
 							fetchpriority="high"
 							decoding="async"

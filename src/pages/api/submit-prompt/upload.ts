@@ -3,7 +3,6 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getEnv } from '../../../lib/env';
 import { getDB } from '../../../lib/db';
-import { generateId } from '../../../lib/crypto';
 import { logActivity } from '../../../lib/cms';
 // @ts-ignore - cloudflare:workers is a Workers-only built-in module
 import { env as cfEnv } from 'cloudflare:workers';
@@ -22,6 +21,16 @@ function extFor(mime: string): string {
 	if (mime === 'image/webp') return 'webp';
 	if (mime === 'image/gif') return 'gif';
 	return 'bin';
+}
+
+// Content hash of the file bytes — used as the object key so that re-uploading
+// the same image (e.g. the user removes it and picks the same file again)
+// resolves to the same R2 object instead of storing a duplicate.
+async function sha256Hex(body: ArrayBuffer): Promise<string> {
+	const digest = await crypto.subtle.digest('SHA-256', body);
+	return Array.from(new Uint8Array(digest))
+		.map((b) => b.toString(16).padStart(2, '0'))
+		.join('');
 }
 
 function jsonError(error: string, status = 400) {
@@ -77,13 +86,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
 		return jsonError('Empty file.');
 	}
 
-	const id = generateId(16);
 	const ext = extFor(file.type);
-	const key = `submissions/${locals.user.id}/${id}.${ext}`;
 	const body = await file.arrayBuffer();
+	// Content-addressed key: same bytes → same key, so re-uploading an image the
+	// user just removed reuses the existing object instead of duplicating it.
+	const id = await sha256Hex(body);
+	const key = `submissions/${locals.user.id}/${id}.${ext}`;
 
 	try {
-		await (cfEnv as any).R2.put(key, body, { httpMetadata: { contentType: file.type } });
+		// Skip the write if this exact object already exists (dedup). head() is
+		// cheap; only PUT when it's genuinely new.
+		const existing = await (cfEnv as any).R2.head(key);
+		if (!existing) {
+			await (cfEnv as any).R2.put(key, body, { httpMetadata: { contentType: file.type } });
+		}
 	} catch (err) {
 		console.error('R2 upload failed:', err);
 		return jsonError('Upload failed — please try again.', 500);

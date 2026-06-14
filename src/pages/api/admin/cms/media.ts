@@ -22,6 +22,16 @@ function getExtension(mimeType: string): string {
   return map[mimeType] || 'bin';
 }
 
+// Content hash of the file bytes — used as the object key so re-uploading the
+// same image (e.g. removed then picked again) reuses the existing object/record
+// instead of storing a duplicate in the bucket.
+async function sha256Hex(body: ArrayBuffer): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', body);
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 export const GET: APIRoute = async ({ locals, url }) => {
   if (!locals.user || locals.user.role !== 'admin') {
     return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
@@ -94,17 +104,39 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const env = getEnv(locals);
-  const id = generateId();
   const ext = getExtension(file.type);
-  const key = `cms/${folder}/${id}.${ext}`;
   const body = await file.arrayBuffer();
-
-  // R2 binding upload — no API token, no SigV4. Worker has direct access via env.R2.
-  await (cfEnv as any).R2.put(key, body, { httpMetadata: { contentType: file.type } });
-
+  // Content-addressed key: identical bytes always map to the same object, so an
+  // accidental remove + re-upload of the same image is deduped automatically.
+  const hash = await sha256Hex(body);
+  const key = `cms/${folder}/${hash}.${ext}`;
   const publicUrl = `${env.R2_PUBLIC_URL}/${key}`;
 
   const db = getDB(locals);
+
+  // If this exact object is already registered, return the existing record
+  // instead of re-uploading and inserting a duplicate row.
+  const existing = await db
+    .prepare('SELECT id, url, filename FROM media WHERE r2_key = ?')
+    .bind(key)
+    .first<{ id: string; url: string; filename: string }>();
+  if (existing) {
+    return new Response(
+      JSON.stringify({ success: true, id: existing.id, url: existing.url, filename: existing.filename, deduped: true }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
+
+  const id = generateId();
+
+  // R2 binding upload — no API token, no SigV4. Worker has direct access via env.R2.
+  // Skip the PUT if the object is already in the bucket (e.g. row was pruned but
+  // the object lingered) — the bytes are identical, so the URL stays valid.
+  const head = await (cfEnv as any).R2.head(key);
+  if (!head) {
+    await (cfEnv as any).R2.put(key, body, { httpMetadata: { contentType: file.type } });
+  }
+
   await db
     .prepare(
       'INSERT INTO media (id, r2_key, url, filename, alt_text, size_bytes, mime_type, folder, uploaded_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
