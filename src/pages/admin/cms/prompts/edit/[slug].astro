@@ -134,19 +134,27 @@ const slug = Astro.params.slug!;
  </form>
 
  <!-- Publish / schedule date picker (shared by both actions) -->
- <dialog id="schedule-dialog" class="rounded-lg border border-gray-200 shadow-xl p-0 w-[min(92vw,24rem)] backdrop:bg-black/40">
- <div class="p-5 space-y-4">
- <div>
+ <dialog id="schedule-dialog" class="fpb-modal">
+ <div class="p-5 sm:p-6 space-y-4">
+ <div class="flex items-start gap-3">
+ <span class="material-symbols-outlined text-primary text-2xl leading-none shrink-0">schedule</span>
+ <div class="min-w-0">
  <h2 id="schedule-dialog-title" class="text-base font-semibold text-text-primary">Publish</h2>
- <p id="schedule-dialog-hint" class="text-xs text-gray-500 mt-0.5">Choose when this prompt goes live. Your local timezone.</p>
+ <p id="schedule-dialog-hint" class="text-xs text-gray-500 mt-0.5 leading-relaxed">Choose when this prompt goes live. Your local timezone.</p>
+ </div>
  </div>
  <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-publish-at">Publish date &amp; time</label>
- <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <div id="schedule-presets" class="flex flex-wrap gap-1.5 mt-2.5">
+ <button type="button" class="fpb-preset" data-preset="1h">In 1 hour</button>
+ <button type="button" class="fpb-preset" data-preset="tom9">Tomorrow 9 AM</button>
+ <button type="button" class="fpb-preset" data-preset="week">Next week</button>
  </div>
- <div class="flex justify-end gap-2 pt-1">
- <button id="schedule-cancel" type="button" class="btn-feedback px-4 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100">Cancel</button>
- <button id="schedule-confirm" type="button" class="btn-feedback bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90">Confirm</button>
+ </div>
+ <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-1">
+ <button id="schedule-cancel" type="button" class="btn-feedback px-4 py-2.5 rounded-md text-sm font-semibold text-gray-600 border border-gray-200 hover:bg-gray-100">Cancel</button>
+ <button id="schedule-confirm" type="button" class="btn-feedback bg-primary text-link px-4 py-2.5 rounded-md text-sm font-semibold hover:opacity-90">Confirm</button>
  </div>
  </div>
  </dialog>
@@ -561,7 +569,22 @@ const slug = Astro.params.slug!;
  }
  dialog.showModal();
  }
+ // Quick presets → fill the datetime input with a friendly future time.
+ function presetDate(kind) {
+ const d = new Date();
+ if (kind === '1h') { d.setHours(d.getHours() + 1); return d; }
+ if (kind === 'tom9') { d.setDate(d.getDate() + 1); d.setHours(9, 0, 0, 0); return d; }
+ d.setDate(d.getDate() + 7); d.setHours(9, 0, 0, 0); return d; // 'week'
+ }
+ document.getElementById('schedule-presets')?.addEventListener('click', (e) => {
+ const btn = e.target.closest('[data-preset]');
+ if (!btn) return;
+ document.getElementById('f-publish-at').value = localInputValue(presetDate(btn.dataset.preset || 'week'));
+ });
  document.getElementById('schedule-cancel').addEventListener('click', () => document.getElementById('schedule-dialog').close());
+ // Click outside the card (on the backdrop) closes the dialog.
+ const scheduleDialog = document.getElementById('schedule-dialog');
+ scheduleDialog.addEventListener('click', (e) => { if (e.target === scheduleDialog) scheduleDialog.close(); });
  document.getElementById('schedule-confirm').addEventListener('click', () => {
  const iso = scheduleIso();
  if (!iso) { notify('Pick a date & time.', 'error'); return; }
