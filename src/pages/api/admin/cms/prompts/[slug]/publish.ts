@@ -34,7 +34,7 @@ export const POST: APIRoute = async ({ params, locals }) => {
   // scheduled prompt published from the list isn't left hidden by a future time.
   const today = new Date().toISOString().slice(0, 10);
   await db
-    .prepare("UPDATE prompts SET status = 'approved', date = ?, publish_at = NULL WHERE slug = ?")
+    .prepare("UPDATE prompts SET status = 'approved', date = ?, publish_at = NULL, updated_at = datetime('now') WHERE slug = ?")
     .bind(today, slug)
     .run();
 

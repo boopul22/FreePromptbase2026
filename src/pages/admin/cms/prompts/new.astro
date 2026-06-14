@@ -112,15 +112,6 @@ const today = new Date().toISOString().slice(0, 10);
  <p class="text-xs text-gray-500 mt-1">Pick the user this prompt should be credited to. Their display name becomes the byline.</p>
  </div>
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-date">Date</label>
- <input id="f-date" name="date" type="date" value={today} class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
- </div>
- <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-publish-at">Schedule publish</label>
- <input id="f-publish-at" name="publishAt" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
- <p class="text-xs text-gray-500 mt-1">Pick a future time, then click <strong>Schedule</strong>. It stays hidden until then. Your local timezone.</p>
- </div>
- <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-popularity">Popularity</label>
  <input id="f-popularity" name="popularity" type="number" min="0" value="0" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
  </div>
@@ -131,6 +122,24 @@ const today = new Date().toISOString().slice(0, 10);
  </div>
  </aside>
  </form>
+
+ <!-- Publish / schedule date picker (shared by both actions) -->
+ <dialog id="schedule-dialog" class="rounded-lg border border-gray-200 shadow-xl p-0 w-[min(92vw,24rem)] backdrop:bg-black/40">
+ <div class="p-5 space-y-4">
+ <div>
+ <h2 id="schedule-dialog-title" class="text-base font-semibold text-text-primary">Publish</h2>
+ <p id="schedule-dialog-hint" class="text-xs text-gray-500 mt-0.5">Choose when this prompt goes live. Your local timezone.</p>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-publish-at">Publish date &amp; time</label>
+ <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <div class="flex justify-end gap-2 pt-1">
+ <button id="schedule-cancel" type="button" class="btn-feedback px-4 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100">Cancel</button>
+ <button id="schedule-confirm" type="button" class="btn-feedback bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90">Confirm</button>
+ </div>
+ </div>
+ </dialog>
  </main>
  </div>
 </Layout>
@@ -372,7 +381,6 @@ const today = new Date().toISOString().slice(0, 10);
  category: val('f-category'),
  tags,
  createdBy: val('f-author'),
- date: val('f-date'),
  coverImage: val('f-cover') || null,
  images,
  featured: bool('f-featured'),
@@ -415,9 +423,53 @@ const today = new Date().toISOString().slice(0, 10);
  }
  }
 
+ // --- Publish / schedule dialog (the single date picker) ---
+ const dialog = document.getElementById('schedule-dialog') as HTMLDialogElement;
+ const dlgTitle = document.getElementById('schedule-dialog-title')!;
+ const dlgHint = document.getElementById('schedule-dialog-hint')!;
+ const confirmBtn = document.getElementById('schedule-confirm') as HTMLButtonElement;
+ const cancelBtn = document.getElementById('schedule-cancel') as HTMLButtonElement;
+ const publishAtInput = document.getElementById('f-publish-at') as HTMLInputElement;
+
+ function localInputValue(d: Date): string {
+ const p = (n: number) => String(n).padStart(2, '0');
+ return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+ }
+ function requiredOk(): boolean {
+ if (!val('f-title') || !val('f-prompt-text') || !val('f-category')) {
+ toast('Title, prompt text and category are required.', 'error');
+ return false;
+ }
+ return true;
+ }
+ function openDialog(mode: 'publish' | 'schedule') {
+ if (!requiredOk()) return;
+ const now = new Date();
+ if (mode === 'publish') {
+ publishAtInput.value = localInputValue(now);
+ dlgTitle.textContent = 'Publish';
+ dlgHint.textContent = 'Publishes immediately. Or pick a future time to schedule it instead.';
+ confirmBtn.textContent = 'Publish now';
+ } else {
+ publishAtInput.value = localInputValue(new Date(now.getTime() + 60 * 60 * 1000));
+ dlgTitle.textContent = 'Schedule';
+ dlgHint.textContent = 'Pick a future date & time. It stays hidden until then. Your local timezone.';
+ confirmBtn.textContent = 'Schedule';
+ }
+ dialog.showModal();
+ }
+
  draftBtn.addEventListener('click', () => save('draft', draftBtn));
- scheduleBtn.addEventListener('click', () => save('schedule', scheduleBtn));
- publishBtn.addEventListener('click', () => save('publish', publishBtn));
+ publishBtn.addEventListener('click', () => openDialog('publish'));
+ scheduleBtn.addEventListener('click', () => openDialog('schedule'));
+ cancelBtn.addEventListener('click', () => dialog.close());
+ confirmBtn.addEventListener('click', () => {
+ const iso = scheduleIso();
+ if (!iso) { toast('Pick a date & time.', 'error'); return; }
+ // Future → schedule (hidden until then); now/past → publish live.
+ const mode = new Date(iso) > new Date() ? 'schedule' : 'publish';
+ save(mode, confirmBtn);
+ });
 
  // Auto-slug from title (only when slug field is empty)
  const titleInput = document.getElementById('f-title') as HTMLInputElement;

@@ -38,7 +38,16 @@ const saveCount = prompt.saveCount ?? prompt.popularity ?? 0;
 const likeCount = prompt.likeCount ?? 0;
 const shareCount = prompt.shareCount ?? 0;
 
-const dateLabel = new Date(prompt.date).toLocaleDateString('en-US', {
+// D1 stores dates as 'YYYY-MM-DD' or UTC 'YYYY-MM-DD HH:MM:SS'. Parse both as UTC.
+function parseDbDate(s: string): Date {
+	if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return new Date(s + 'T00:00:00Z');
+	return new Date(s.endsWith('Z') ? s : s.replace(' ', 'T') + 'Z');
+}
+const publishedAt = parseDbDate(prompt.date);
+const updatedAt = parseDbDate(prompt.updatedAt ?? prompt.date);
+// The visible meta date is the last-updated date (freshness signal for readers
+// and search engines); datePublished is still emitted in the structured data.
+const dateLabel = updatedAt.toLocaleDateString('en-US', {
 	month: 'short',
 	day: 'numeric',
 	year: 'numeric',
@@ -88,7 +97,8 @@ const promptSchema: Record<string, unknown> = {
 	name: prompt.title,
 	headline: prompt.title,
 	description: prompt.description,
-	datePublished: new Date(prompt.date).toISOString(),
+	datePublished: publishedAt.toISOString(),
+	dateModified: updatedAt.toISOString(),
 	author: {
 		'@type': 'Person',
 		name: authorName,
@@ -267,7 +277,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			}
 			<span class="inline-flex items-center gap-1.5">
 				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-				{dateLabel}
+				Updated <time datetime={updatedAt.toISOString()}>{dateLabel}</time>
 			</span>
 			<span class="inline-flex items-center gap-1.5">
 				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>

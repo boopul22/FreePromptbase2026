@@ -46,6 +46,7 @@ interface PromptRow {
 	share_count: number;
 	view_count: number;
 	publish_at: string | null;
+	updated_at: string | null;
 	how_to_use: string | null;
 	created_by: string | null;
 	status?: string;
@@ -81,6 +82,7 @@ function rowToPrompt(r: PromptRow): Prompt {
 		shareCount: r.share_count,
 		viewCount: r.view_count,
 		publishAt: r.publish_at ?? undefined,
+		updatedAt: r.updated_at ?? undefined,
 		howToUse: r.how_to_use ?? undefined,
 		createdBy: r.created_by ?? undefined,
 		status: (r.status as Prompt['status']) ?? 'approved',
@@ -93,7 +95,7 @@ function rowToPrompt(r: PromptRow): Prompt {
 }
 
 const PROMPT_COLS =
-	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, view_count, publish_at, how_to_use, created_by, status, submitted_by, submitted_at, reviewed_by, reviewed_at, rejection_reason';
+	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, view_count, publish_at, updated_at, how_to_use, created_by, status, submitted_by, submitted_at, reviewed_by, reviewed_at, rejection_reason';
 
 // Public visibility gate. A prompt is live only when it's approved AND either
 // has no scheduled time or that time has passed. Centralized here so every

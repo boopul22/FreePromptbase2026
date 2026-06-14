@@ -23,6 +23,7 @@ interface PromptRow {
   created_by: string | null;
   status: string;
   publish_at: string | null;
+  updated_at: string | null;
   created_at: string;
   category_name?: string | null;
   category_emoji?: string | null;
@@ -51,6 +52,7 @@ function mapRow(r: PromptRow) {
     howToUse: r.how_to_use ?? null,
     status: r.status ?? 'approved',
     publishAt: r.publish_at ?? null,
+    updatedAt: r.updated_at ?? null,
     createdBy: r.created_by ?? null,
     createdByName: r.creator_name ?? null,
     createdByAvatar: r.creator_avatar ?? null,
@@ -213,8 +215,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     .prepare(
       `INSERT INTO prompts
         (slug, title, description, prompt_text, category, tags, author, date,
-         cover_image, images, featured, liked, popularity, how_to_use, created_by, status, publish_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         cover_image, images, featured, liked, popularity, how_to_use, created_by, status, publish_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
     )
     .bind(
       slug,

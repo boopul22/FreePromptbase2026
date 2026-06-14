@@ -29,7 +29,7 @@ export const POST: APIRoute = async ({ params, locals }) => {
   }
 
   await db
-    .prepare("UPDATE prompts SET status = 'draft' WHERE slug = ?")
+    .prepare("UPDATE prompts SET status = 'draft', updated_at = datetime('now') WHERE slug = ?")
     .bind(slug)
     .run();
 

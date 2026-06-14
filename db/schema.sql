@@ -70,7 +70,10 @@ CREATE TABLE prompts (
 	reviewed_by      TEXT,                           -- FK to users.id of admin who approved/rejected
 	reviewed_at      TEXT,
 	rejection_reason TEXT,
-	created_at       TEXT NOT NULL DEFAULT (datetime('now'))
+	created_at       TEXT NOT NULL DEFAULT (datetime('now')),
+	-- Last time the prompt was created/edited/published (UTC). Surfaced as the
+	-- "Updated" date + dateModified in structured data. Bumped on every write.
+	updated_at       TEXT
 );
 
 CREATE INDEX idx_prompts_category     ON prompts(category);
@@ -79,6 +82,7 @@ CREATE INDEX idx_prompts_popularity   ON prompts(popularity);
 CREATE INDEX idx_prompts_save_count   ON prompts(save_count);
 CREATE INDEX idx_prompts_view_count   ON prompts(view_count);
 CREATE INDEX idx_prompts_publish_at    ON prompts(publish_at);
+CREATE INDEX idx_prompts_updated_at    ON prompts(updated_at);
 CREATE INDEX idx_prompts_status_date  ON prompts(status, date);
 CREATE INDEX idx_prompts_submitted_by ON prompts(submitted_by);
 

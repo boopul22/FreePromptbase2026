@@ -38,6 +38,8 @@ export interface Prompt {
 	viewCount?: number;
 	/** Scheduled publish time (UTC). Future = scheduled (hidden); null/past = live. */
 	publishAt?: string;
+	/** Last create/edit/publish time (UTC). Drives the "Updated" date + dateModified. */
+	updatedAt?: string;
 	/** Optional extra guidance rendered on the detail page. */
 	howToUse?: string;
 	/** Image gallery rendered as a carousel on the detail page. cover_image is used for cards. */

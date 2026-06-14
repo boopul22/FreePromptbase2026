@@ -120,15 +120,7 @@ const slug = Astro.params.slug!;
  </select>
  <p class="text-xs text-gray-500 mt-1">Pick the user this prompt is credited to. Their display name becomes the byline.</p>
  </div>
- <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-date">Date</label>
- <input id="f-date" type="date" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
- </div>
- <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-publish-at">Schedule publish</label>
- <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
- <p id="schedule-note" class="text-xs text-gray-500 mt-1">Pick a future time, then click <strong>Schedule</strong>. Your local timezone.</p>
- </div>
+ <div id="schedule-state" class="hidden rounded-md bg-indigo-50 border border-indigo-200 px-3 py-2 text-xs text-indigo-900"></div>
  <div>
  <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-popularity">Popularity</label>
  <input id="f-popularity" type="number" min="0" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
@@ -140,6 +132,24 @@ const slug = Astro.params.slug!;
  </div>
  </aside>
  </form>
+
+ <!-- Publish / schedule date picker (shared by both actions) -->
+ <dialog id="schedule-dialog" class="rounded-lg border border-gray-200 shadow-xl p-0 w-[min(92vw,24rem)] backdrop:bg-black/40">
+ <div class="p-5 space-y-4">
+ <div>
+ <h2 id="schedule-dialog-title" class="text-base font-semibold text-text-primary">Publish</h2>
+ <p id="schedule-dialog-hint" class="text-xs text-gray-500 mt-0.5">Choose when this prompt goes live. Your local timezone.</p>
+ </div>
+ <div>
+ <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-publish-at">Publish date &amp; time</label>
+ <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ </div>
+ <div class="flex justify-end gap-2 pt-1">
+ <button id="schedule-cancel" type="button" class="btn-feedback px-4 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100">Cancel</button>
+ <button id="schedule-confirm" type="button" class="btn-feedback bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90">Confirm</button>
+ </div>
+ </div>
+ </dialog>
  </main>
  </div>
 </Layout>
@@ -218,22 +228,28 @@ const slug = Astro.params.slug!;
  const p = (n) => String(n).padStart(2, '0');
  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
  }
- // The schedule field's local value → UTC ISO, or null if empty/invalid.
+ // Local Date → 'YYYY-MM-DDTHH:MM' for the datetime-local input.
+ function localInputValue(d) {
+ const p = (n) => String(n).padStart(2, '0');
+ return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+ }
+ // The dialog field's local value → UTC ISO, or null if empty/invalid.
  function scheduleIso() {
  const val = document.getElementById('f-publish-at').value;
  if (!val) return null;
  const d = new Date(val);
  return isNaN(d.getTime()) ? null : d.toISOString();
  }
- // Reflect the scheduled state in the helper note under the field.
- function renderScheduleNote() {
- const note = document.getElementById('schedule-note');
- if (!note) return;
+ // Show the "Scheduled for…" banner when the prompt is queued.
+ function renderScheduleState() {
+ const el = document.getElementById('schedule-state');
+ if (!el) return;
  if (isScheduled()) {
  const when = new Date(String(currentPublishAt).replace(' ', 'T') + 'Z').toLocaleString();
- note.innerHTML = `Scheduled for <strong>${when}</strong> (your time). Use <strong>Publish now</strong> to go live immediately, or pick a new time and <strong>Reschedule</strong>.`;
+ el.innerHTML = `<span class="material-symbols-outlined text-sm align-middle">schedule</span> Scheduled for <strong>${when}</strong> (your time). Use <strong>Publish now</strong> to go live, or <strong>Reschedule</strong>.`;
+ el.classList.remove('hidden');
  } else {
- note.innerHTML = 'Pick a future time, then click <strong>Schedule</strong>. Your local timezone.';
+ el.classList.add('hidden');
  }
  }
 
@@ -458,15 +474,12 @@ const slug = Astro.params.slug!;
  renderStrip();
  // f-author is populated above. If the prompt has no createdBy yet (e.g. seed
  // rows), leave the first option selected so the admin makes an explicit pick.
- document.getElementById('f-date').value = p.date || '';
  document.getElementById('f-popularity').value = String(p.popularity ?? 0);
  document.getElementById('f-featured').checked = !!p.featured;
 
  currentStatus = p.status || 'approved';
  currentPublishAt = p.publishAt || null;
- // Prefill the schedule picker only while the prompt is actually scheduled.
- document.getElementById('f-publish-at').value = isScheduled() ? toLocalInput(currentPublishAt) : '';
- renderScheduleNote();
+ renderScheduleState();
  renderStatus();
  renderActions();
  }
@@ -514,19 +527,48 @@ const slug = Astro.params.slug!;
 
  // status, stay, btnId, loadingLabel, publishArg ('keep' | null | ISO string)
  document.getElementById('draft-btn')?.addEventListener('click', () => save('draft', true, 'draft-btn', 'Saving…', 'keep'));
- document.getElementById('publish-btn')?.addEventListener('click', () => save('approved', false, 'publish-btn', 'Publishing…', null));
  document.getElementById('publishnow-btn')?.addEventListener('click', () => save('approved', false, 'publishnow-btn', 'Publishing…', null));
  document.getElementById('unpublish-btn')?.addEventListener('click', () => save('draft', true, 'unpublish-btn', 'Unpublishing…', 'keep'));
  document.getElementById('save-btn')?.addEventListener('click', () => save(undefined, false, 'save-btn', 'Saving…', 'keep'));
- document.getElementById('schedule-btn')?.addEventListener('click', () => {
+ // Publish & Schedule both go through the shared date dialog.
+ document.getElementById('publish-btn')?.addEventListener('click', () => openDialog('publish'));
+ document.getElementById('schedule-btn')?.addEventListener('click', () => openDialog('schedule'));
+ }
+
+ // --- Publish / schedule dialog (the single date picker) ---
+ function requiredOk() {
+ if (!v('f-title') || !v('f-prompt-text') || !v('f-category')) {
+ notify('Title, prompt text and category are required.', 'error');
+ return false;
+ }
+ return true;
+ }
+ function openDialog(mode) {
+ if (!requiredOk()) return;
+ const dialog = document.getElementById('schedule-dialog');
+ const now = new Date();
+ if (mode === 'publish') {
+ document.getElementById('f-publish-at').value = localInputValue(now);
+ document.getElementById('schedule-dialog-title').textContent = 'Publish';
+ document.getElementById('schedule-dialog-hint').textContent = 'Publishes immediately. Or pick a future time to schedule it instead.';
+ document.getElementById('schedule-confirm').textContent = 'Publish now';
+ } else {
+ const prefill = isScheduled() ? new Date(String(currentPublishAt).replace(' ', 'T') + 'Z') : new Date(now.getTime() + 60 * 60 * 1000);
+ document.getElementById('f-publish-at').value = localInputValue(prefill);
+ document.getElementById('schedule-dialog-title').textContent = 'Schedule';
+ document.getElementById('schedule-dialog-hint').textContent = 'Pick a future date & time. It stays hidden until then. Your local timezone.';
+ document.getElementById('schedule-confirm').textContent = 'Schedule';
+ }
+ dialog.showModal();
+ }
+ document.getElementById('schedule-cancel').addEventListener('click', () => document.getElementById('schedule-dialog').close());
+ document.getElementById('schedule-confirm').addEventListener('click', () => {
  const iso = scheduleIso();
- if (!iso || new Date(iso) <= new Date()) {
- notify('Pick a future date & time to schedule.', 'error');
- return;
- }
- save('approved', false, 'schedule-btn', 'Scheduling…', iso);
+ if (!iso) { notify('Pick a date & time.', 'error'); return; }
+ // Future → schedule (hidden until then); now/past → publish live now.
+ const future = new Date(iso) > new Date();
+ save('approved', false, 'schedule-confirm', future ? 'Scheduling…' : 'Publishing…', future ? iso : null);
  });
- }
 
  function v(id) { return document.getElementById(id).value; }
  function b(id) { return document.getElementById(id).checked; }
@@ -550,7 +592,6 @@ const slug = Astro.params.slug!;
  category: v('f-category'),
  tags,
  createdBy: v('f-author'),
- date: v('f-date'),
  coverImage: v('f-cover') || null,
  images,
  featured: b('f-featured'),
