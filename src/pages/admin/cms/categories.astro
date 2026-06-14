@@ -35,7 +35,7 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <option value="secondary">Teal (Secondary)</option>
  <option value="tertiary">Olive (Tertiary)</option>
  </select>
- <button id="add-cat-btn" class="bg-primary text-link px-6 py-2 rounded-lg text-xs font-semibold uppercase tracking-wide border border-gray-200 transition-all">
+ <button id="add-cat-btn" class="btn-feedback bg-primary text-link px-6 py-2 rounded-lg text-xs font-semibold uppercase tracking-wide border border-gray-200">
  Add
  </button>
  </div>
@@ -53,6 +53,9 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
 </Layout>
 
 <script>
+ import { toast } from '../../../scripts/toast';
+ import { withButtonLoading } from '../../../scripts/button-loading';
+
  function esc(s: string): string {
  const d = document.createElement('div');
  d.textContent = s;
@@ -99,8 +102,8 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <td class="px-6 py-4 text-sm font-bold">${c.postCount}</td>
  <td class="px-6 py-4">
  <div class="flex gap-2">
- <button onclick="saveCat('${esc(c.id)}')" class="px-3 py-1 rounded-full text-xs font-bold uppercase border border-primary text-primary hover:bg-primary hover:text-link transition-colors">Save</button>
- <button onclick="deleteCat('${esc(c.id)}')" class="px-3 py-1 rounded-full text-xs font-bold uppercase border border-red-300 text-red-600 hover:bg-red-50 hover:text-red-900 transition-colors">Delete</button>
+ <button onclick="saveCat('${esc(c.id)}', this)" class="btn-feedback px-3 py-1 rounded-full text-xs font-bold uppercase border border-primary text-primary hover:bg-primary hover:text-link">Save</button>
+ <button onclick="deleteCat('${esc(c.id)}', this)" class="btn-feedback px-3 py-1 rounded-full text-xs font-bold uppercase border border-red-300 text-red-600 hover:bg-red-50 hover:text-red-900">Delete</button>
  </div>
  </td>
  </tr>
@@ -110,45 +113,68 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  `;
  }
 
- (window as any).saveCat = async (id: string) => {
+ (window as any).saveCat = async (id: string, btn: HTMLButtonElement) => {
  const row = document.querySelector(`tr[data-id="${id}"]`)!;
  const name = (row.querySelector('.cat-name') as HTMLInputElement).value;
  const color = (row.querySelector('.cat-color') as HTMLSelectElement).value;
 
- await fetch('/api/admin/cms/categories', {
+ try {
+ await withButtonLoading(btn, async () => {
+ const res = await fetch('/api/admin/cms/categories', {
  method: 'PUT',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ id, name, color }),
  });
+ const data = await res.json().catch(() => ({}));
+ if (!res.ok || data.error) throw new Error(data.error || res.statusText);
+ });
+ toast('Category saved', 'success');
  loadCategories();
+ } catch (err: any) {
+ toast(`Save failed: ${err.message || 'try again'}`, 'error');
+ }
  };
 
- (window as any).deleteCat = async (id: string) => {
+ (window as any).deleteCat = async (id: string, btn: HTMLButtonElement) => {
  if (!confirm('Delete this category?')) return;
+ try {
+ await withButtonLoading(btn, async () => {
  const res = await fetch('/api/admin/cms/categories', {
  method: 'DELETE',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ id }),
  });
- const data = await res.json();
- if (data.error) alert(data.error);
+ const data = await res.json().catch(() => ({}));
+ if (!res.ok || data.error) throw new Error(data.error || res.statusText);
+ });
+ toast('Category deleted', 'success');
  loadCategories();
+ } catch (err: any) {
+ toast(err.message || 'Delete failed', 'error');
+ }
  };
 
- document.getElementById('add-cat-btn')!.addEventListener('click', async () => {
+ document.getElementById('add-cat-btn')!.addEventListener('click', async (e) => {
  const name = (document.getElementById('new-cat-name') as HTMLInputElement).value.trim();
  const color = (document.getElementById('new-cat-color') as HTMLSelectElement).value;
  if (!name) return;
 
+ try {
+ await withButtonLoading(e.currentTarget as HTMLButtonElement, async () => {
  const res = await fetch('/api/admin/cms/categories', {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ name, color }),
  });
- const data = await res.json();
- if (data.error) { alert(data.error); return; }
+ const data = await res.json().catch(() => ({}));
+ if (!res.ok || data.error) throw new Error(data.error || res.statusText);
+ });
  (document.getElementById('new-cat-name') as HTMLInputElement).value = '';
+ toast('Category added', 'success');
  loadCategories();
+ } catch (err: any) {
+ toast(err.message || 'Could not add category', 'error');
+ }
  });
 
  loadCategories();

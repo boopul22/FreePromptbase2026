@@ -336,6 +336,7 @@ const { id } = Astro.params;
 
 <script>
  import { imageToWebp } from '../../../../../scripts/image-to-webp';
+ import { toast } from '../../../../../scripts/toast';
  import { Editor } from '@tiptap/core';
  import StarterKit from '@tiptap/starter-kit';
  import Link from '@tiptap/extension-link';
@@ -530,7 +531,7 @@ const { id } = Astro.params;
  const res = await fetch('/api/admin/cms/media', { method: 'POST', body: form });
  const data = await res.json();
  if (data.url) editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
- } catch (err: any) { alert(`Upload failed: ${err.message}`); }
+ } catch (err: any) { toast(`Upload failed: ${err.message}`, 'error'); }
  imageInput.value = '';
  });
 
@@ -738,6 +739,7 @@ const { id } = Astro.params;
  });
  const result = await res.json();
  setSaveStatus(result.success ? 'Saved!' : `Error: ${result.error}`);
+ if (!result.success) toast(`Save failed: ${result.error}`, 'error');
  setTimeout(() => { setSaveStatus(''); }, 3000);
  }
 
@@ -778,7 +780,7 @@ const { id } = Astro.params;
  setTimeout(() => { label.textContent = 'Translate'; }, 4000);
  } catch (err: any) {
  label.textContent = 'Failed';
- alert('Translation failed: ' + (err?.message ?? err));
+ toast('Translation failed: ' + (err?.message ?? err), 'error');
  setTimeout(() => { label.textContent = 'Translate'; }, 4000);
  } finally {
  btn.disabled = false;
@@ -804,7 +806,7 @@ const { id } = Astro.params;
  async function loadPost() {
  const res = await fetch(`/api/admin/cms/posts/${postId}`);
  const data = await res.json();
- if (!data.success) { alert('Post not found'); window.location.href = '/admin/cms/posts'; return; }
+ if (!data.success) { toast('Post not found', 'error'); window.location.href = '/admin/cms/posts'; return; }
 
  const p = data.post;
  currentPostStatus = p.status;

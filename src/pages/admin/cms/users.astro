@@ -195,6 +195,10 @@ const currentUserId = Astro.locals.user?.id ?? '';
  list.innerHTML = cards + table;
  }
 
+ function notify(msg, type) {
+ if (window.__toast) window.__toast(msg, type || 'info');
+ }
+
  async function setRole(id, role) {
  const verb = role === 'admin' ? 'promote to admin' : 'demote to user';
  if (!confirm(`Are you sure you want to ${verb}?`)) return;
@@ -204,10 +208,11 @@ const currentUserId = Astro.locals.user?.id ?? '';
  body: JSON.stringify({ role }),
  });
  if (res.ok) {
+ notify(role === 'admin' ? 'User promoted to admin' : 'User demoted', 'success');
  loadUsers();
  } else {
  const err = await res.json().catch(() => ({}));
- alert(`Update failed: ${err.error || res.statusText}`);
+ notify(`Update failed: ${err.error || res.statusText}`, 'error');
  }
  }
 
@@ -220,10 +225,11 @@ const currentUserId = Astro.locals.user?.id ?? '';
  body: JSON.stringify({ isBanned }),
  });
  if (res.ok) {
+ notify(isBanned ? 'User banned' : 'User unbanned', 'success');
  loadUsers();
  } else {
  const err = await res.json().catch(() => ({}));
- alert(`Update failed: ${err.error || res.statusText}`);
+ notify(`Update failed: ${err.error || res.statusText}`, 'error');
  }
  }
 
@@ -231,10 +237,11 @@ const currentUserId = Astro.locals.user?.id ?? '';
  if (!confirm(`Delete user ${email}? This removes their account and active sessions. Activity history stays.`)) return;
  const res = await fetch(`/api/admin/cms/users/${encodeURIComponent(id)}`, { method: 'DELETE' });
  if (res.ok) {
+ notify('User deleted', 'success');
  loadUsers();
  } else {
  const err = await res.json().catch(() => ({}));
- alert(`Delete failed: ${err.error || res.statusText}`);
+ notify(`Delete failed: ${err.error || res.statusText}`, 'error');
  }
  }
 
@@ -259,4 +266,10 @@ const currentUserId = Astro.locals.user?.id ?? '';
  });
 
  loadUsers();
+</script>
+
+<!-- Bundled module: exposes the shared toast to the inline script above. -->
+<script>
+ import { toast } from '../../../scripts/toast';
+ (window as any).__toast = toast;
 </script>

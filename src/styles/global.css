@@ -47,6 +47,11 @@
 :root {
 	color-scheme: light;
 
+	/* Motion easing — natural deceleration, no bounce/elastic. */
+	--ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+	--ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-overlay: cubic-bezier(0.32, 0.72, 0, 1); /* matches the drawer */
+
 	/* Input */
 	--input-bg: #ffffff;
 	--input-text: #333333;
@@ -197,4 +202,146 @@
 	word-wrap: normal;
 	direction: ltr;
 	font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* ============================================================================
+   Feedback system — shared spinner, button states, upload skeleton, toast.
+   State-only motion (120–250ms), transform/opacity, reduced-motion safe.
+   Consumed by src/scripts/toast.ts and src/scripts/button-loading.ts.
+   ========================================================================== */
+
+/* --- Inline spinner (button-loading.ts + dropzones) ----------------------- */
+@keyframes spin {
+	to { transform: rotate(360deg); }
+}
+.spinner {
+	animation: spin 0.7s linear infinite;
+	transform-origin: center;
+}
+
+/* A loading button keeps a steady width and centres the spinner + label. */
+button.is-loading {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4em;
+}
+
+/* --- Shared interactive button states ------------------------------------- */
+/* Press + disabled vocabulary, applied to the site's action buttons. Opt-in
+   via .btn-feedback so we don't override unrelated controls. */
+.btn-feedback {
+	transition:
+		transform 120ms var(--ease-out-quart),
+		opacity 150ms var(--ease-out-quart),
+		background-color 150ms ease,
+		border-color 150ms ease,
+		box-shadow 150ms ease;
+}
+.btn-feedback:active:not(:disabled) {
+	transform: scale(0.97);
+}
+.btn-feedback:disabled,
+button:disabled.is-loading {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+/* --- Upload skeleton tile ------------------------------------------------- */
+/* Placeholder shown the instant a file is picked, before its thumbnail loads. */
+.upload-skeleton {
+	position: relative;
+	overflow: hidden;
+	background: #ececec;
+	border-radius: var(--radius-base);
+}
+.upload-skeleton::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	transform: translateX(-100%);
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		rgba(224, 168, 46, 0.18) 50%,
+		transparent 100%
+	);
+	animation: upload-shimmer 1.2s ease-in-out infinite;
+}
+@keyframes upload-shimmer {
+	100% { transform: translateX(100%); }
+}
+
+/* A real thumbnail that fades in once loaded (crossfades over the skeleton). */
+.upload-thumb {
+	opacity: 0;
+	transition: opacity 220ms var(--ease-out-quart);
+}
+.upload-thumb.is-ready {
+	opacity: 1;
+}
+
+/* --- Toast (toast.ts) ----------------------------------------------------- */
+.app-toast {
+	position: fixed;
+	bottom: 1.5rem;
+	left: 50%;
+	z-index: 100;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	max-width: min(92vw, 30rem);
+	padding: 0.55rem 1rem;
+	border-radius: 9999px;
+	background: var(--color-text-primary);
+	color: #ffffff;
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1.3;
+	box-shadow: 0 8px 24px rgba(24, 24, 48, 0.22);
+	pointer-events: none;
+	opacity: 0;
+	transform: translate(-50%, 8px);
+	transition:
+		opacity 200ms var(--ease-out-quart),
+		transform 200ms var(--ease-out-quart);
+}
+.app-toast.is-visible {
+	opacity: 1;
+	transform: translate(-50%, 0);
+}
+.app-toast__icon {
+	display: inline-flex;
+	flex: 0 0 auto;
+	width: 1.05rem;
+	height: 1.05rem;
+}
+.app-toast__icon svg {
+	width: 100%;
+	height: 100%;
+}
+
+/* ============================================================================
+   Global reduced-motion — collapses all non-essential motion to a crossfade.
+   The spinner is the one allowed exception (it's the loading signal itself).
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+	.upload-skeleton::after {
+		display: none;
+	}
+	.app-toast {
+		transform: translate(-50%, 0);
+	}
+	/* Keep the spinner rotating — it conveys ongoing work. */
+	.spinner {
+		animation: spin 0.7s linear infinite !important;
+	}
 }

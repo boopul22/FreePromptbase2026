@@ -107,6 +107,8 @@ const categoryName = new Map(categories.map((c) => [c.slug, `${c.emoji} ${c.name
 </Layout>
 
 <script>
+	import { toast } from '../../../scripts/toast';
+
 	async function review(action: 'approve' | 'reject', slug: string, reason?: string) {
 		const res = await fetch(`/api/admin/cms/submissions/${encodeURIComponent(slug)}`, {
 			method: 'PATCH',
@@ -139,13 +141,16 @@ const categoryName = new Map(categories.map((c) => [c.slug, `${c.emoji} ${c.name
 
 			const res = await review(action, slug, reason);
 			if (res.ok) {
+				toast(action === 'approve' ? 'Submission approved' : 'Submission rejected', 'success');
 				if (row) {
 					row.classList.add('opacity-50');
 					setTimeout(() => row.remove(), 300);
 				}
 			} else {
 				const err = await res.json().catch(() => ({}));
-				if (feedback) feedback.textContent = err.error || `Failed (${res.status})`;
+				const msg = err.error || `Failed (${res.status})`;
+				if (feedback) feedback.textContent = msg;
+				toast(msg, 'error');
 				button.disabled = false;
 			}
 		});

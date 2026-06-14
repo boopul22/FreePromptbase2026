@@ -280,9 +280,12 @@ const MAX_FILE_MB = 5;
 							<button
 								id="submit-btn"
 								type="button"
-								class="block w-full bg-primary text-link font-semibold text-sm px-4 py-3 rounded-lg hover:opacity-90 active:opacity-95 transition-opacity inline-flex items-center justify-center gap-2">
+								class="btn-feedback block w-full bg-primary text-link font-semibold text-sm px-4 py-3 rounded-lg hover:opacity-90 inline-flex items-center justify-center gap-2">
+								<svg data-btn-spinner class="spinner hidden w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+									<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="42" stroke-dashoffset="14"/>
+								</svg>
 								<span data-btn-label>Submit for review</span>
-								<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<svg data-btn-arrow class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 									<line x1="5" y1="12" x2="19" y2="12"/>
 									<polyline points="12 5 19 12 12 19"/>
 								</svg>
@@ -329,6 +332,12 @@ const MAX_FILE_MB = 5;
 
 	const $ = (id) => document.getElementById(id);
 
+	// Shared toast (loaded by the module script below). Falls back silently if
+	// it hasn't attached yet — toasts only fire on user actions, well after load.
+	function notify(msg, type) {
+		if (window.__toast) window.__toast(msg, type || 'info');
+	}
+
 	// ──────────────── Inline error helpers ────────────────
 	function setError(field, msg) {
 		const el = document.querySelector(`[data-error="${field}"]`);
@@ -372,18 +381,28 @@ const MAX_FILE_MB = 5;
 	const statusText = statusEl.querySelector('[data-status-text]');
 	const countBadge = $('image-count-badge');
 	let images = []; // {url, name}
+	let pending = 0; // skeleton tiles shown while uploads are in flight
 
 	function renderStrip() {
 		countBadge.textContent = `${images.length} / ${MAX_IMAGES}`;
-		strip.innerHTML = images.map((img, i) => `
+		const tiles = images.map((img, i) => `
 			<figure class="relative group rounded-lg overflow-hidden border border-gray-200 aspect-square bg-gray-50">
-				<img src="${img.url}" alt="" class="w-full h-full object-cover" />
+				<img src="${img.url}" alt="" class="upload-thumb w-full h-full object-cover" />
 				${i === 0 ? '<figcaption class="absolute top-2 left-2 bg-primary text-link text-[10px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wide shadow-sm">Cover</figcaption>' : ''}
-				<button type="button" data-remove="${i}" aria-label="Remove image" class="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/95 hover:bg-white text-gray-700 hover:text-red-600 flex items-center justify-center shadow-sm transition-colors">
+				<button type="button" data-remove="${i}" aria-label="Remove image" class="btn-feedback absolute top-2 right-2 w-7 h-7 rounded-full bg-white/95 hover:bg-white text-gray-700 hover:text-red-600 flex items-center justify-center shadow-sm">
 					<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
 				</button>
 			</figure>
-		`).join('');
+		`);
+		for (let p = 0; p < pending; p++) {
+			tiles.push('<div class="upload-skeleton aspect-square rounded-lg border border-gray-200" aria-hidden="true"></div>');
+		}
+		strip.innerHTML = tiles.join('');
+		// Crossfade each thumbnail in once it has decoded.
+		strip.querySelectorAll('img.upload-thumb').forEach((img) => {
+			if (img.complete) img.classList.add('is-ready');
+			else img.addEventListener('load', () => img.classList.add('is-ready'), { once: true });
+		});
 		strip.querySelectorAll('button[data-remove]').forEach((btn) => {
 			btn.addEventListener('click', () => {
 				const idx = parseInt(btn.dataset.remove || '0', 10);
@@ -422,18 +441,25 @@ const MAX_FILE_MB = 5;
 			setError('images', `Only ${remaining} more image${remaining === 1 ? '' : 's'} allowed — extras were ignored.`);
 		}
 		statusEl.classList.remove('hidden');
+		// Show placeholder tiles immediately so the upload feels instant.
+		pending = list.length;
+		renderStrip();
 		let done = 0;
 		for (const file of list) {
 			done++;
 			statusText.textContent = `Uploading ${done} of ${list.length} — ${file.name}`;
 			const r = await uploadOne(file);
+			pending = list.length - done; // one fewer tile in flight
 			if (r.error) {
-				setError('images', r.error);
-				break;
+				// Keep any successful uploads; surface this one and carry on.
+				notify(r.error, 'error');
+				renderStrip();
+				continue;
 			}
 			images.push({ url: r.url, name: r.name });
 			renderStrip();
 		}
+		pending = 0;
 		statusEl.classList.add('hidden');
 		imageInput.value = '';
 	}
@@ -479,8 +505,10 @@ const MAX_FILE_MB = 5;
 	function setBusy(busy) {
 		const btn = $('submit-btn');
 		btn.disabled = busy;
-		btn.style.opacity = busy ? '0.7' : '';
+		btn.setAttribute('aria-busy', busy ? 'true' : 'false');
 		btn.querySelector('[data-btn-label]').textContent = busy ? 'Submitting…' : 'Submit for review';
+		btn.querySelector('[data-btn-spinner]').classList.toggle('hidden', !busy);
+		btn.querySelector('[data-btn-arrow]').classList.toggle('hidden', busy);
 	}
 
 	async function submit() {
@@ -515,7 +543,9 @@ const MAX_FILE_MB = 5;
 		const data = await res.json().catch(() => ({}));
 
 		if (res.ok) {
-			window.location.href = data.redirect || '/';
+			notify('Submitted for review', 'success');
+			// Brief beat so the toast registers before the redirect.
+			setTimeout(() => { window.location.href = data.redirect || '/'; }, 500);
 			return;
 		}
 
@@ -526,6 +556,7 @@ const MAX_FILE_MB = 5;
 			g.textContent = data.error || `Submission failed (${res.status}).`;
 			g.classList.remove('hidden');
 		}
+		notify(data.error || 'Submission failed — please check the form.', 'error');
 		// Token is one-shot semantically — rotate after any failure.
 		await refreshCaptcha(false);
 		setBusy(false);
@@ -540,4 +571,10 @@ const MAX_FILE_MB = 5;
 			submit();
 		}
 	});
+</script>
+
+<!-- Bundled module: exposes the shared toast to the inline script above. -->
+<script>
+	import { toast } from '../scripts/toast';
+	(window as any).__toast = toast;
 </script>

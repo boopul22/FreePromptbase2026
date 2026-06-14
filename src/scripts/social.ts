@@ -16,6 +16,8 @@
 //   [data-prompt][data-slug] → ancestor card
 // ---------------------------------------------------------------------------
 
+import { toast } from './toast';
+
 const PILL_SAVED = ['bg-primary', 'text-link', 'border-primary'];
 const PILL_UNSAVED = [
 	'bg-white',
@@ -115,6 +117,7 @@ export function wireSave() {
 					card.dataset.saveCount = String(startCount);
 					card.dataset.popularity = String(startCount);
 				}
+				toast("Couldn't update saved — try again", 'error');
 			}
 		});
 	});
@@ -194,6 +197,7 @@ export function wireLike() {
 			} catch {
 				setLikedVisual(btn, previous, startCount);
 				if (card) card.dataset.likeCount = String(startCount);
+				toast("Couldn't update like — try again", 'error');
 			}
 		});
 	});
@@ -230,27 +234,10 @@ export function wireShare() {
 				} catch {
 					prompt('Copy this link:', url);
 				}
-				showToast('Link copied');
+				toast('Link copied', 'success');
 			}
 
 			fetch(`/api/prompts/${slug}/share`, { method: 'POST' }).catch(() => {});
 		});
 	});
-}
-
-function showToast(message: string) {
-	let toast = document.getElementById('social-toast');
-	if (!toast) {
-		toast = document.createElement('div');
-		toast.id = 'social-toast';
-		toast.className =
-			'fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] bg-text-primary text-white text-sm font-medium px-4 py-2 rounded-full shadow-lg opacity-0 transition-opacity duration-200 pointer-events-none';
-		document.body.appendChild(toast);
-	}
-	toast.textContent = message;
-	requestAnimationFrame(() => toast!.classList.replace('opacity-0', 'opacity-100'));
-	clearTimeout((toast as HTMLElement & { _t?: number })._t);
-	(toast as HTMLElement & { _t?: number })._t = window.setTimeout(() => {
-		toast!.classList.replace('opacity-100', 'opacity-0');
-	}, 1800);
 }

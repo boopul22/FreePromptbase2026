@@ -43,7 +43,7 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <input id="page-meta-title" type="text" placeholder="Meta title (optional)" class="flex-1 border border-gray-200 rounded-lg px-4 py-2 bg-white text-sm" />
  </div>
  <div class="flex gap-3">
- <button id="save-page-btn" class="bg-primary text-link px-6 py-2 rounded-lg text-xs font-semibold uppercase tracking-wide border border-gray-200">Save Page</button>
+ <button id="save-page-btn" class="btn-feedback bg-primary text-link px-6 py-2 rounded-lg text-xs font-semibold uppercase tracking-wide border border-gray-200">Save Page</button>
  <button id="cancel-page-btn" class="bg-white px-6 py-2 rounded-lg text-xs font-semibold uppercase tracking-wide border border-gray-200">Cancel</button>
  </div>
  </div>
@@ -60,6 +60,9 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
 </Layout>
 
 <script>
+ import { toast } from '../../../../scripts/toast';
+ import { withButtonLoading } from '../../../../scripts/button-loading';
+
  function esc(s: string): string {
  const d = document.createElement('div');
  d.textContent = s;
@@ -102,8 +105,8 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <td class="px-6 py-4 text-sm text-gray-500">${new Date(p.updatedAt).toLocaleDateString()}</td>
  <td class="px-6 py-4">
  <div class="flex gap-2">
- <button onclick="editPage('${esc(p.id)}')" class="px-3 py-1 rounded-full text-xs font-bold uppercase border border-primary text-primary hover:bg-primary hover:text-link transition-colors">Edit</button>
- <button onclick="deletePage('${esc(p.id)}')" class="px-3 py-1 rounded-full text-xs font-bold uppercase border border-red-300 text-red-600 hover:bg-red-50 hover:text-red-900 transition-colors">Delete</button>
+ <button onclick="editPage('${esc(p.id)}')" class="btn-feedback px-3 py-1 rounded-full text-xs font-bold uppercase border border-primary text-primary hover:bg-primary hover:text-link">Edit</button>
+ <button onclick="deletePage('${esc(p.id)}', this)" class="btn-feedback px-3 py-1 rounded-full text-xs font-bold uppercase border border-red-300 text-red-600 hover:bg-red-50 hover:text-red-900">Delete</button>
  </div>
  </td>
  </tr>
@@ -136,32 +139,39 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  });
 
  // Save page
- document.getElementById('save-page-btn')!.addEventListener('click', async () => {
+ document.getElementById('save-page-btn')!.addEventListener('click', async (e) => {
  const title = (document.getElementById('page-title') as HTMLInputElement).value;
  const slug = (document.getElementById('page-slug') as HTMLInputElement).value;
  const content = (document.getElementById('page-content') as HTMLTextAreaElement).value;
  const status = (document.getElementById('page-status') as HTMLSelectElement).value;
  const metaTitle = (document.getElementById('page-meta-title') as HTMLInputElement).value;
 
- if (!title) return;
+ if (!title) { toast('Title is required.', 'error'); return; }
 
- if (editingPageId) {
- await fetch(`/api/admin/cms/pages/${editingPageId}`, {
+ const wasEditing = !!editingPageId;
+ try {
+ await withButtonLoading(e.currentTarget as HTMLButtonElement, async () => {
+ const res = editingPageId
+ ? await fetch(`/api/admin/cms/pages/${editingPageId}`, {
  method: 'PUT',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ title, slug, content, status, metaTitle: metaTitle || null }),
- });
- } else {
- await fetch('/api/admin/cms/pages', {
+ })
+ : await fetch('/api/admin/cms/pages', {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ title, slug, content, status, metaTitle: metaTitle || null }),
  });
- }
-
+ const data = await res.json().catch(() => ({}));
+ if (!res.ok || data.error) throw new Error(data.error || res.statusText);
+ }, { loadingLabel: 'Saving…' });
  document.getElementById('new-page-form')!.classList.add('hidden');
  editingPageId = null;
+ toast(wasEditing ? 'Page saved' : 'Page created', 'success');
  loadPages();
+ } catch (err: any) {
+ toast(`Save failed: ${err.message || 'try again'}`, 'error');
+ }
  });
 
  (window as any).editPage = async (id: string) => {
@@ -178,14 +188,23 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  (document.getElementById('page-meta-title') as HTMLInputElement).value = data.page.metaTitle || '';
  };
 
- (window as any).deletePage = async (id: string) => {
+ (window as any).deletePage = async (id: string, btn: HTMLButtonElement) => {
  if (!confirm('Delete this page permanently?')) return;
- await fetch('/api/admin/cms/pages', {
+ try {
+ await withButtonLoading(btn, async () => {
+ const res = await fetch('/api/admin/cms/pages', {
  method: 'DELETE',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ id }),
  });
+ const data = await res.json().catch(() => ({}));
+ if (!res.ok || data.error) throw new Error(data.error || res.statusText);
+ });
+ toast('Page deleted', 'success');
  loadPages();
+ } catch (err: any) {
+ toast(err.message || 'Delete failed', 'error');
+ }
  };
 
  loadPages();

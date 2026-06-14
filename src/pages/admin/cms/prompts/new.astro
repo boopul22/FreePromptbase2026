@@ -24,11 +24,11 @@ const today = new Date().toISOString().slice(0, 10);
  <h1 class="text-xl sm:text-2xl font-semibold text-text-primary">New prompt</h1>
  <div class="flex gap-2">
  <a href="/admin/cms/prompts" class="px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>
- <button id="draft-btn" type="button" class="bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 transition-colors flex items-center gap-2">
+ <button id="draft-btn" type="button" class="btn-feedback bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 flex items-center gap-2">
  <span class="material-symbols-outlined text-base">draft</span>
  Save draft
  </button>
- <button id="publish-btn" type="button" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
+ <button id="publish-btn" type="button" class="btn-feedback bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 flex items-center gap-2">
  <span class="material-symbols-outlined text-base">publish</span>
  Publish
  </button>
@@ -128,6 +128,8 @@ const today = new Date().toISOString().slice(0, 10);
 
 <script>
  import { imageToWebp } from '../../../../scripts/image-to-webp';
+ import { toast } from '../../../../scripts/toast';
+ import { withButtonLoading } from '../../../../scripts/button-loading';
 
  async function loadCategories() {
  const res = await fetch('/api/admin/cms/prompt-categories');
@@ -176,6 +178,7 @@ const today = new Date().toISOString().slice(0, 10);
 
  // --- Image gallery state ---
  let images: string[] = [];
+ let pending = 0; // skeleton tiles shown while uploads are in flight
 
  function coverField(): HTMLInputElement {
  return document.getElementById('f-cover') as HTMLInputElement;
@@ -204,6 +207,10 @@ const today = new Date().toISOString().slice(0, 10);
  </div>
  `;
  }).join('');
+ // Placeholder tiles for uploads still in flight.
+ for (let p = 0; p < pending; p++) {
+ strip.insertAdjacentHTML('beforeend', '<div class="upload-skeleton aspect-square rounded-md border border-gray-200" aria-hidden="true"></div>');
+ }
  // Click a thumbnail → make it the cover.
  strip.querySelectorAll('[data-cover]').forEach((el) => {
  el.addEventListener('click', () => {
@@ -262,11 +269,15 @@ const today = new Date().toISOString().slice(0, 10);
  async function uploadFiles(files: FileList) {
  const status = document.getElementById('image-status')!;
  status.classList.remove('hidden');
- const total = files.length;
+ const list = Array.from(files);
+ const total = list.length;
+ pending = total;
+ renderStrip();
  let done = 0;
- for (const file of Array.from(files)) {
+ for (const file of list) {
  done++;
  status.textContent = `Uploading ${done} of ${total}…`;
+ try {
  const webp = await imageToWebp(file);
  const fd = new FormData();
  fd.append('file', webp);
@@ -274,14 +285,20 @@ const today = new Date().toISOString().slice(0, 10);
  const res = await fetch('/api/admin/cms/media', { method: 'POST', body: fd });
  if (!res.ok) {
  const err = await res.json().catch(() => ({}));
- status.textContent = `Upload failed: ${err.error || res.statusText}`;
- return;
+ throw new Error(err.error || res.statusText);
  }
  const data = await res.json();
  if (data.url) images.push(data.url);
+ } catch (err: any) {
+ // Keep earlier uploads; report this one and continue.
+ toast(`${file.name}: ${err.message || 'upload failed'}`, 'error');
+ }
+ pending = total - done;
  renderStrip();
  }
+ pending = 0;
  status.classList.add('hidden');
+ renderStrip();
  (document.getElementById('image-input') as HTMLInputElement).value = '';
  }
 
@@ -317,17 +334,7 @@ const today = new Date().toISOString().slice(0, 10);
 
  async function save(status: 'draft' | 'approved') {
  const activeBtn = status === 'draft' ? draftBtn : publishBtn;
- const activeLabel = status === 'draft' ? 'Save draft' : 'Publish';
- draftBtn.disabled = true;
- publishBtn.disabled = true;
- activeBtn.textContent = status === 'draft' ? 'Saving…' : 'Publishing…';
-
- const resetButtons = () => {
- draftBtn.disabled = false;
- publishBtn.disabled = false;
- draftBtn.textContent = 'Save draft';
- publishBtn.textContent = 'Publish';
- };
+ const otherBtn = status === 'draft' ? publishBtn : draftBtn;
 
  const tags = val('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
  const body = {
@@ -348,30 +355,34 @@ const today = new Date().toISOString().slice(0, 10);
  };
 
  if (!body.title || !body.promptText || !body.category) {
- alert('Title, prompt text and category are required.');
- resetButtons();
+ toast('Title, prompt text and category are required.', 'error');
  return;
  }
 
+ otherBtn.disabled = true;
+ try {
+ await withButtonLoading(activeBtn, async () => {
  const res = await fetch('/api/admin/cms/prompts', {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify(body),
  });
-
- if (res.ok) {
+ if (!res.ok) {
+ const err = await res.json().catch(() => ({}));
+ throw new Error(err.error || res.statusText);
+ }
  const data = await res.json().catch(() => ({}));
+ toast(status === 'draft' ? 'Draft saved' : 'Prompt published', 'success');
  // Drafts return to the editor so the admin can keep refining; published
  // prompts go back to the list.
- if (status === 'draft' && data.slug) {
- window.location.href = `/admin/cms/prompts/edit/${encodeURIComponent(data.slug)}`;
- } else {
- window.location.href = '/admin/cms/prompts';
- }
- } else {
- const err = await res.json().catch(() => ({}));
- alert(`Save failed: ${err.error || res.statusText}`);
- resetButtons();
+ const dest = status === 'draft' && data.slug
+ ? `/admin/cms/prompts/edit/${encodeURIComponent(data.slug)}`
+ : '/admin/cms/prompts';
+ setTimeout(() => { window.location.href = dest; }, 450);
+ }, { loadingLabel: status === 'draft' ? 'Saving…' : 'Publishing…' });
+ } catch (err: any) {
+ toast(`Save failed: ${err.message || 'try again'}`, 'error');
+ otherBtn.disabled = false;
  }
  }
 

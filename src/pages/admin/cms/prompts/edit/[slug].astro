@@ -89,7 +89,7 @@ const slug = Astro.params.slug!;
  <div class="bg-white border border-red-200 rounded-md p-5">
  <h2 class="text-sm font-semibold text-red-700">Danger zone</h2>
  <p class="text-xs text-gray-500 mt-1 mb-3">Deleting a prompt is permanent. The public URL will 404 immediately.</p>
- <button id="delete-btn" type="button" class="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold border border-red-300 text-red-700 hover:bg-red-50 transition-colors">
+ <button id="delete-btn" type="button" class="btn-feedback inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold border border-red-300 text-red-700 hover:bg-red-50">
  <span class="material-symbols-outlined text-base">delete</span>
  Delete prompt
  </button>
@@ -163,8 +163,32 @@ const slug = Astro.params.slug!;
  } catch (e) { return file; }
  }
 
+ // Shared toast (attached by the module script at the end of the file).
+ function notify(msg, type) {
+ if (window.__toast) window.__toast(msg, type || 'info');
+ }
+
+ // Inline spinner markup (this is a define:vars script — no module imports).
+ const SPINNER_SVG = '<svg class="spinner w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="42" stroke-dashoffset="14"/></svg>';
+
+ function setBtnLoading(btn, loading, label) {
+ if (!btn) return;
+ if (loading) {
+ if (!btn.dataset.original) btn.dataset.original = btn.innerHTML;
+ btn.disabled = true;
+ btn.setAttribute('aria-busy', 'true');
+ btn.innerHTML = SPINNER_SVG + (label ? `<span>${label}</span>` : '');
+ } else {
+ if (btn.dataset.original) btn.innerHTML = btn.dataset.original;
+ delete btn.dataset.original;
+ btn.disabled = false;
+ btn.removeAttribute('aria-busy');
+ }
+ }
+
  // --- Image gallery state ---
  let images = [];
+ let pending = 0; // skeleton tiles shown while uploads are in flight
  // Current lifecycle status of this prompt; drives the badge + action buttons.
  let currentStatus = 'approved';
 
@@ -195,6 +219,10 @@ const slug = Astro.params.slug!;
  </div>
  `;
  }).join('');
+ // Placeholder tiles for uploads still in flight.
+ for (let p = 0; p < pending; p++) {
+ strip.insertAdjacentHTML('beforeend', '<div class="upload-skeleton aspect-square rounded-md border border-gray-200" aria-hidden="true"></div>');
+ }
  // Click a thumbnail → make it the cover.
  strip.querySelectorAll('[data-cover]').forEach((el) => {
  el.addEventListener('click', () => {
@@ -249,11 +277,15 @@ const slug = Astro.params.slug!;
  async function uploadFiles(files) {
  const status = document.getElementById('image-status');
  status.classList.remove('hidden');
- const total = files.length;
+ const list = Array.from(files);
+ const total = list.length;
+ pending = total;
+ renderStrip();
  let done = 0;
- for (const file of Array.from(files)) {
+ for (const file of list) {
  done++;
  status.textContent = `Uploading ${done} of ${total}…`;
+ try {
  const webp = await imageToWebp(file);
  const fd = new FormData();
  fd.append('file', webp);
@@ -261,14 +293,20 @@ const slug = Astro.params.slug!;
  const res = await fetch('/api/admin/cms/media', { method: 'POST', body: fd });
  if (!res.ok) {
  const err = await res.json().catch(() => ({}));
- status.textContent = `Upload failed: ${err.error || res.statusText}`;
- return;
+ throw new Error(err.error || res.statusText);
  }
  const data = await res.json();
  if (data.url) images.push(data.url);
+ } catch (err) {
+ // Keep earlier uploads; report this one and continue.
+ notify(`${file.name}: ${err.message || 'upload failed'}`, 'error');
+ }
+ pending = total - done;
  renderStrip();
  }
+ pending = 0;
  status.classList.add('hidden');
+ renderStrip();
  document.getElementById('image-input').value = '';
  }
 
@@ -406,9 +444,9 @@ const slug = Astro.params.slug!;
  const el = document.getElementById('actions');
  const cancel = '<a href="/admin/cms/prompts" class="px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>';
  const secondary = (id, icon, label) =>
- `<button id="${id}" type="button" class="bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 transition-colors flex items-center gap-2"><span class="material-symbols-outlined text-base">${icon}</span>${label}</button>`;
+ `<button id="${id}" type="button" class="btn-feedback bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 flex items-center gap-2"><span class="material-symbols-outlined text-base">${icon}</span>${label}</button>`;
  const primary = (id, icon, label) =>
- `<button id="${id}" type="button" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2"><span class="material-symbols-outlined text-base">${icon}</span>${label}</button>`;
+ `<button id="${id}" type="button" class="btn-feedback bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 flex items-center gap-2"><span class="material-symbols-outlined text-base">${icon}</span>${label}</button>`;
 
  let buttons = '';
  if (currentStatus === 'draft') {
@@ -421,10 +459,10 @@ const slug = Astro.params.slug!;
  }
  el.innerHTML = cancel + buttons;
 
- document.getElementById('draft-btn')?.addEventListener('click', () => save('draft', true));
- document.getElementById('publish-btn')?.addEventListener('click', () => save('approved', false));
- document.getElementById('unpublish-btn')?.addEventListener('click', () => save('draft', true));
- document.getElementById('save-btn')?.addEventListener('click', () => save(undefined, false));
+ document.getElementById('draft-btn')?.addEventListener('click', () => save('draft', true, 'draft-btn', 'Saving…'));
+ document.getElementById('publish-btn')?.addEventListener('click', () => save('approved', false, 'publish-btn', 'Publishing…'));
+ document.getElementById('unpublish-btn')?.addEventListener('click', () => save('draft', true, 'unpublish-btn', 'Unpublishing…'));
+ document.getElementById('save-btn')?.addEventListener('click', () => save(undefined, false, 'save-btn', 'Saving…'));
  }
 
  function v(id) { return document.getElementById(id).value; }
@@ -433,9 +471,11 @@ const slug = Astro.params.slug!;
  // status: 'draft' | 'approved' | undefined (undefined = keep current state).
  // stay: true → reload the editor after saving (Save draft / Unpublish);
  //       false → return to the list (Publish / Save changes).
- async function save(status, stay) {
+ async function save(status, stay, activeBtnId, loadingLabel) {
  const actionBtns = document.querySelectorAll('#actions button');
  actionBtns.forEach((btn) => { btn.disabled = true; });
+ const activeBtn = activeBtnId ? document.getElementById(activeBtnId) : null;
+ setBtnLoading(activeBtn, true, loadingLabel);
 
  const tags = v('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
  const body = {
@@ -463,7 +503,9 @@ const slug = Astro.params.slug!;
 
  if (res.ok) {
  const data = await res.json();
+ notify(status === 'approved' ? 'Prompt published' : 'Changes saved', 'success');
  // If slug changed, the edit URL moved — go there regardless.
+ const go = () => {
  if (data.slug && data.slug !== slug) {
  window.location.href = `/admin/cms/prompts/edit/${encodeURIComponent(data.slug)}`;
  } else if (stay) {
@@ -471,9 +513,12 @@ const slug = Astro.params.slug!;
  } else {
  window.location.href = '/admin/cms/prompts';
  }
+ };
+ setTimeout(go, 450);
  } else {
  const err = await res.json().catch(() => ({}));
- alert(`Save failed: ${err.error || res.statusText}`);
+ notify(`Save failed: ${err.error || res.statusText}`, 'error');
+ setBtnLoading(activeBtn, false);
  actionBtns.forEach((btn) => { btn.disabled = false; });
  }
  }
@@ -481,15 +526,28 @@ const slug = Astro.params.slug!;
  async function del() {
  const title = v('f-title') || slug;
  if (!confirm(`Delete prompt "${title}"? This cannot be undone.`)) return;
+ const delBtn = document.getElementById('delete-btn');
+ setBtnLoading(delBtn, true, 'Deleting…');
+ try {
  const res = await fetch(`/api/admin/cms/prompts/${encodeURIComponent(slug)}`, { method: 'DELETE' });
- if (res.ok) {
- window.location.href = '/admin/cms/prompts';
- } else {
+ if (!res.ok) {
  const err = await res.json().catch(() => ({}));
- alert(`Delete failed: ${err.error || res.statusText}`);
+ throw new Error(err.error || res.statusText);
+ }
+ notify('Prompt deleted', 'success');
+ setTimeout(() => { window.location.href = '/admin/cms/prompts'; }, 450);
+ } catch (err) {
+ notify(`Delete failed: ${err.message || 'try again'}`, 'error');
+ setBtnLoading(delBtn, false);
  }
  }
 
  document.getElementById('delete-btn').addEventListener('click', del);
  boot();
+</script>
+
+<!-- Bundled module: exposes the shared toast to the inline script above. -->
+<script>
+ import { toast } from '../../../../../scripts/toast';
+ (window as any).__toast = toast;
 </script>

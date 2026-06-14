@@ -23,9 +23,9 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <h1 class="text-xl sm:text-2xl font-bold text-text-primary">Media Library</h1>
  <p class="text-gray-600 mt-1" id="media-count">Manage uploaded images for your content.</p>
  </div>
- <label class="bg-primary text-link px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wide border border-gray-200 transition-all cursor-pointer flex items-center gap-2 self-start sm:self-auto">
- <span class="material-symbols-outlined text-lg">upload</span>
- Upload Media
+ <label id="media-upload-label" class="btn-feedback bg-primary text-link px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wide border border-gray-200 cursor-pointer flex items-center gap-2 self-start sm:self-auto has-[:disabled]:opacity-55 has-[:disabled]:cursor-not-allowed">
+ <span class="material-symbols-outlined text-lg" data-upload-icon>upload</span>
+ <span data-upload-label>Upload Media</span>
  <input type="file" accept="image/*" multiple class="hidden" id="media-upload-input" />
  </label>
  </div>
@@ -61,6 +61,7 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
 
 <script>
  import { imageToWebp } from '../../../scripts/image-to-webp';
+ import { toast } from '../../../scripts/toast';
 
  function esc(s: string): string {
  const d = document.createElement('div');
@@ -122,27 +123,25 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  }
  }
 
- function showToast(message: string) {
- const existing = document.querySelector('.admin-toast');
- if (existing) existing.remove();
- const toast = document.createElement('div');
- toast.className = 'admin-toast fixed bottom-6 left-1/2 -translate-x-1/2 bg-text-primary text-surface px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wide z-50 border border-gray-200 transition-opacity';
- toast.textContent = message;
- document.body.appendChild(toast);
- setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 2000);
- }
-
  (window as any).copyUrl = (url: string) => {
- navigator.clipboard.writeText(url).then(() => showToast('URL copied!'));
+ navigator.clipboard.writeText(url)
+ .then(() => toast('URL copied', 'success'))
+ .catch(() => toast("Couldn't copy URL", 'error'));
  };
 
  (window as any).deleteMedia = async (id: string) => {
  if (!confirm('Delete this media permanently?')) return;
- await fetch('/api/admin/cms/media', {
+ try {
+ const res = await fetch('/api/admin/cms/media', {
  method: 'DELETE',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({ id }),
  });
+ if (!res.ok) throw new Error(String(res.status));
+ toast('Media deleted', 'success');
+ } catch {
+ toast('Delete failed — try again', 'error');
+ }
  loadMedia(currentPage);
  };
 
@@ -162,17 +161,54 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  });
 
  // Upload
- document.getElementById('media-upload-input')?.addEventListener('change', async (e) => {
+ const uploadInput = document.getElementById('media-upload-input') as HTMLInputElement;
+ const uploadIcon = document.querySelector('[data-upload-icon]') as HTMLElement;
+ const uploadLabel = document.querySelector('[data-upload-label]') as HTMLElement;
+
+ function setUploadBusy(busy: boolean, text?: string) {
+ uploadInput.disabled = busy;
+ if (uploadIcon) uploadIcon.textContent = busy ? 'progress_activity' : 'upload';
+ if (uploadIcon) uploadIcon.classList.toggle('spinner', busy);
+ if (uploadLabel) uploadLabel.textContent = busy ? (text || 'Uploading…') : 'Upload Media';
+ }
+
+ function showGridSkeletons(n: number) {
+ const grid = document.getElementById('media-grid')!;
+ const tiles = Array.from({ length: n }, () =>
+ '<div class="upload-skeleton h-[212px] rounded-md border border-gray-200"></div>').join('');
+ grid.insertAdjacentHTML('afterbegin', tiles);
+ }
+
+ uploadInput?.addEventListener('change', async (e) => {
  const files = (e.target as HTMLInputElement).files;
  if (!files?.length) return;
  const folder = (document.getElementById('upload-folder') as HTMLSelectElement).value;
- for (const file of files) {
+ const list = Array.from(files);
+ setUploadBusy(true);
+ showGridSkeletons(list.length);
+ let ok = 0;
+ let done = 0;
+ for (const file of list) {
+ done++;
+ setUploadBusy(true, `Uploading ${done} of ${list.length}…`);
+ try {
  const webp = await imageToWebp(file);
  const form = new FormData();
  form.append('file', webp);
  form.append('folder', folder);
- await fetch('/api/admin/cms/media', { method: 'POST', body: form });
+ const res = await fetch('/api/admin/cms/media', { method: 'POST', body: form });
+ if (!res.ok) {
+ const err = await res.json().catch(() => ({}));
+ throw new Error(err.error || `Upload failed (${res.status})`);
  }
+ ok++;
+ } catch (err: any) {
+ toast(`${file.name}: ${err.message || 'upload failed'}`, 'error');
+ }
+ }
+ setUploadBusy(false);
+ uploadInput.value = '';
+ if (ok > 0) toast(`Uploaded ${ok} image${ok === 1 ? '' : 's'}`, 'success');
  loadMedia(1);
  });
 
