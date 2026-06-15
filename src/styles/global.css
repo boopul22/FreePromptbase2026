@@ -135,19 +135,6 @@
 	margin-bottom: 1.25rem;
 }
 
-/* On phones a single column makes portrait covers stretch the whole screen
-   width, producing very tall cards. Cap the cover height and crop the overflow
-   (object-cover) so each card stays compact. The cap clears a 4:3 landscape
-   cover, so only square/portrait images get trimmed; multi-column screens keep
-   the full natural masonry. */
-@media (max-width: 639px) {
-	.masonry-item[data-prompt] .card-cover img {
-		max-height: 75vw;
-		object-fit: cover;
-		object-position: center;
-	}
-}
-
 @media (prefers-reduced-motion: reduce) {
 	.masonry-item,
 	.masonry-item * {
