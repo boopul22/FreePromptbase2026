@@ -50,7 +50,13 @@ function parseDbDate(s: string): Date {
 	return new Date(s.endsWith('Z') ? s : s.replace(' ', 'T') + 'Z');
 }
 const publishedAt = parseDbDate(prompt.date);
-const updatedAt = parseDbDate(prompt.updatedAt ?? prompt.date);
+// A scheduled prompt is created (and its updated_at stamped) BEFORE its publish
+// date, and nothing rewrites updated_at when the schedule fires. So a stored
+// updated_at can predate publication — which would render as "Updated <date it
+// was made>" and emit a dateModified earlier than datePublished (invalid). Floor
+// the effective updated date at the publish date so both stay accurate.
+const rawUpdatedAt = parseDbDate(prompt.updatedAt ?? prompt.date);
+const updatedAt = rawUpdatedAt < publishedAt ? publishedAt : rawUpdatedAt;
 // The visible meta date is the last-updated date (freshness signal for readers
 // and search engines); datePublished is still emitted in the structured data.
 const dateLabel = updatedAt.toLocaleDateString('en-US', {

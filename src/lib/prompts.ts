@@ -109,10 +109,14 @@ const PROMPT_COLS =
 const APPROVED =
 	"status = 'approved' AND (publish_at IS NULL OR publish_at <= datetime('now'))";
 
-/** All approved prompts, newest first. */
+/**
+ * All approved prompts, newest first. `date` is day-granularity, so prompts
+ * published on the same day are tiebroken by created_at (matches the admin list)
+ * to keep the "Recent" feed deterministic and truly newest-first.
+ */
 export async function getAllPrompts(): Promise<Prompt[]> {
 	const { results } = await getDB()
-		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE ${APPROVED} ORDER BY date DESC`)
+		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE ${APPROVED} ORDER BY date DESC, created_at DESC`)
 		.all<PromptRow>();
 	return results.map(rowToPrompt);
 }

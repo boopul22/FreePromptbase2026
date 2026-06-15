@@ -38,8 +38,12 @@ function withPotdFirst(list: typeof allPrompts) {
 	return pod ? [pod, ...list] : list;
 }
 
-// Recent = newest first (getAllPrompts already orders by date DESC).
-const recentPrompts = withPotdFirst(allPrompts);
+// Recent = strictly newest first. Unlike Trending/Popular, we do NOT float the
+// Prompt of the Day here — a tab literally labelled "Recent" must lead with the
+// latest prompt, not a high-view older one. (getAllPrompts orders by date DESC,
+// then created_at DESC as a same-day tiebreaker.) The POTD still gets its badge
+// wherever it naturally falls in the list.
+const recentPrompts = allPrompts;
 
 // Trending leads with the past-7-day winners, then pads from Popular so a
 // quiet week doesn't leave the default tab looking thin. Dedup by slug.
