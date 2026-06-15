@@ -255,5 +255,18 @@ export function recordView() {
 	const key = `__viewed:${slug}`;
 	if ((window as any)[key]) return;
 	(window as any)[key] = true;
-	fetch(`/api/prompts/${slug}/view`, { method: 'POST', keepalive: true }).catch(() => {});
+	fetch(`/api/prompts/${slug}/view`, { method: 'POST', keepalive: true })
+		.then((r) => (r.ok ? r.json() : null))
+		.then((data: { count?: number } | null) => {
+			// Reflect the authoritative server count. The SSR'd number can be stale
+			// (or zero) when this page is served from the CDN cache, so a shared /
+			// direct link would otherwise look like views "aren't counting".
+			if (!data || typeof data.count !== 'number') return;
+			const el = document.querySelector<HTMLElement>('[data-view-count]');
+			const text = el?.querySelector<HTMLElement>('[data-view-count-text]');
+			if (!el || !text) return;
+			text.textContent = `${data.count.toLocaleString()} ${data.count === 1 ? 'view' : 'views'}`;
+			el.hidden = data.count === 0;
+		})
+		.catch(() => {});
 }
