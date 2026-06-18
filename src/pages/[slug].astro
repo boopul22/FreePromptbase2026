@@ -183,21 +183,18 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			<span class="sr-only">{prompt.title}</span>
 		</header>
 
-		<!-- Phone hint: a minimal tooltip nudging toward the copyable prompt, which
-		     sits below the cover image on small screens. Hidden on lg, where the
-		     prompt already sits near the top of the right column. Works without JS
-		     (anchor jump); the chevron gently bobs to draw the eye downward. -->
-		<a
-			href="#the-prompt"
-			data-jump-prompt
-			class="lg:hidden relative -mt-4 mb-8 inline-flex items-center gap-1.5 rounded-lg bg-text-primary py-1.5 pl-3 pr-2.5 text-xs font-medium text-white shadow-sm"
-		>
-			<span aria-hidden="true" class="absolute -top-1 left-5 h-2 w-2 rotate-45 rounded-[1px] bg-text-primary"></span>
-			Scroll to copy the prompt
-			<svg class="jump-chevron h-3.5 w-3.5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+		<!-- Phone hint: plain, non-clickable text nudging readers to scroll down to
+		     the copyable prompt (which sits below the cover image on small screens).
+		     Deliberately NOT a jump link — we want readers to scroll past the page
+		     content rather than skip straight to the prompt. Hidden on lg, where the
+		     prompt already sits near the top of the right column. The chevron gently
+		     bobs to draw the eye downward. -->
+		<p class="lg:hidden -mt-4 mb-8 flex items-center gap-1.5 text-sm font-medium text-text-primary">
+			Scroll down to copy the prompt
+			<svg class="jump-chevron h-4 w-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 				<polyline points="6 9 12 15 18 9" />
 			</svg>
-		</a>
+		</p>
 
 		<!-- Two-column body: image left (sticky), prompt content right.
 		     Grid items default to align-items: stretch — the aside stretches to
@@ -465,13 +462,6 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			wireShare();
 			wireLike();
 			recordView();
-
-			// "Scroll down to copy the prompt" hint → smooth-scroll to the prompt box.
-			// The href anchor already works without JS; this just polishes the jump.
-			document.querySelector<HTMLAnchorElement>('[data-jump-prompt]')?.addEventListener('click', (e) => {
-				e.preventDefault();
-				document.getElementById('the-prompt')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-			});
 
 			// Image carousel: prev/next buttons + live counter, driven by the
 			// snap-scroll container's scrollLeft. Buttons disable at the ends.
