@@ -5,18 +5,23 @@
 // .sort-tab rules in global.css), so the click handler only flips that flag.
 const tabs = [
 	{ id: 'trending', label: 'Trending' },
-	{ id: 'popular', label: 'Popular' },
 	{ id: 'recent', label: 'Recent' },
+	{ id: 'all', label: 'All' },
 ] as const;
 ---
 
-<nav class="sort-tabs mb-8" data-purpose="content-tabs">
+<nav class="sort-tabs mb-8" data-purpose="content-tabs" role="tablist" aria-label="Sort prompts">
+	<!-- Sliding active pill. Width is locked to a third of the track, so switching
+	     tabs only animates translateX (a transform, never a layout property). -->
+	<span class="sort-indicator" data-tab-indicator aria-hidden="true"></span>
 	{
 		tabs.map((tab, i) => (
 			<button
 				type="button"
 				data-sort={tab.id}
 				data-active={i === 0 ? 'true' : 'false'}
+				role="tab"
+				aria-selected={i === 0 ? 'true' : 'false'}
 				class="sort-tab"
 			>
 				{tab.label}

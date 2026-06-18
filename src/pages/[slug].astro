@@ -183,6 +183,22 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			<span class="sr-only">{prompt.title}</span>
 		</header>
 
+		<!-- Phone hint: the copyable prompt sits below the cover image, so nudge
+		     small screens toward it. Hidden on lg where the prompt is already in
+		     the right column near the top. Works without JS (anchor jump). -->
+		<a
+			href="#the-prompt"
+			data-jump-prompt
+			class="lg:hidden -mt-4 mb-8 inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white py-1.5 pl-1.5 pr-3.5 text-sm font-medium text-text-primary shadow-sm transition-colors hover:border-primary"
+		>
+			<span class="jump-chevron inline-flex h-6 w-6 items-center justify-center rounded-full bg-primary text-link">
+				<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<polyline points="6 9 12 15 18 9" />
+				</svg>
+			</span>
+			Scroll down to copy the prompt
+		</a>
+
 		<!-- Two-column body: image left (sticky), prompt content right.
 		     Grid items default to align-items: stretch — the aside stretches to
 		     the row's height (= taller column), giving the inner sticky wrapper
@@ -404,8 +420,10 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			</button>
 		</div>
 
-		<!-- The prompt + copy -->
-		<CopyPromptButton text={prompt.promptText} />
+		<!-- The prompt + copy (scroll target for the phone hint under the title) -->
+		<div id="the-prompt" class="scroll-mt-24">
+			<CopyPromptButton text={prompt.promptText} />
+		</div>
 
 		<!-- How to use (tip card) -->
 		{
@@ -447,6 +465,13 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			wireShare();
 			wireLike();
 			recordView();
+
+			// "Scroll down to copy the prompt" hint → smooth-scroll to the prompt box.
+			// The href anchor already works without JS; this just polishes the jump.
+			document.querySelector<HTMLAnchorElement>('[data-jump-prompt]')?.addEventListener('click', (e) => {
+				e.preventDefault();
+				document.getElementById('the-prompt')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			});
 
 			// Image carousel: prev/next buttons + live counter, driven by the
 			// snap-scroll container's scrollLeft. Buttons disable at the ends.

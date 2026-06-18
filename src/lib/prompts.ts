@@ -121,6 +121,76 @@ export async function getAllPrompts(): Promise<Prompt[]> {
 	return results.map(rowToPrompt);
 }
 
+// Public "newest" ordering for the home Recent/All tabs. Primary key is the
+// publish date (day-granularity `date`); within a day we order by the precise
+// publish time — the scheduled `publish_at` when set, else the row's
+// `created_at` — so same-day prompts (including ones that went live today on a
+// schedule) sort in true publish order instead of an arbitrary/alphabetical
+// fallback. `slug` is the final deterministic tiebreaker (needed for stable
+// keyset pagination).
+const NEWEST_TS = 'COALESCE(publish_at, created_at)';
+const NEWEST_ORDER = `date DESC, ${NEWEST_TS} DESC, slug ASC`;
+
+/** The newest N approved prompts — bounded "what's new" view for the home Recent tab. */
+export async function getRecentPrompts(limit = 24): Promise<Prompt[]> {
+	const { results } = await getDB()
+		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE ${APPROVED} ORDER BY ${NEWEST_ORDER} LIMIT ?`)
+		.bind(limit)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
+}
+
+export interface PromptPage {
+	prompts: Prompt[];
+	/** Opaque cursor for the next page, or null when the last page was returned. */
+	nextCursor: string | null;
+}
+
+/**
+ * Keyset-paginated page of approved prompts in the same order as the Recent tab,
+ * powering the home "All" tab's infinite scroll. The cursor encodes the 3-part
+ * sort key `${date}|${sortTs}|${slug}` of the last row (sortTs = NEWEST_TS).
+ * Pass null for the first page. Stable under inserts (no OFFSET drift); we
+ * over-fetch one row to learn whether a further page exists.
+ */
+export async function getPromptsPage(cursor: string | null, limit = 24): Promise<PromptPage> {
+	const db = getDB();
+	const probe = limit + 1;
+	const SELECT = `SELECT ${PROMPT_COLS}, ${NEWEST_TS} AS sort_ts FROM prompts`;
+	type Row = PromptRow & { sort_ts: string | null };
+
+	let results: Row[];
+	if (cursor) {
+		const parts = cursor.split('|');
+		const date = parts[0];
+		const ts = parts[1];
+		const slug = parts.slice(2).join('|');
+		({ results } = await db
+			.prepare(
+				`${SELECT} WHERE ${APPROVED} AND (
+					date < ?
+					OR (date = ? AND ${NEWEST_TS} < ?)
+					OR (date = ? AND ${NEWEST_TS} = ? AND slug > ?)
+				) ORDER BY ${NEWEST_ORDER} LIMIT ?`,
+			)
+			.bind(date, date, ts, date, ts, slug, probe)
+			.all<Row>());
+	} else {
+		({ results } = await db
+			.prepare(`${SELECT} WHERE ${APPROVED} ORDER BY ${NEWEST_ORDER} LIMIT ?`)
+			.bind(probe)
+			.all<Row>());
+	}
+
+	const hasMore = results.length > limit;
+	const pageRows = hasMore ? results.slice(0, limit) : results;
+	const last = pageRows[pageRows.length - 1];
+	return {
+		prompts: pageRows.map(rowToPrompt),
+		nextCursor: hasMore && last ? `${last.date}|${last.sort_ts ?? ''}|${last.slug}` : null,
+	};
+}
+
 /**
  * A single prompt by slug. By default returns only approved prompts so pending
  * items can't be opened by URL guessing. Pass { includeAll: true } from admin

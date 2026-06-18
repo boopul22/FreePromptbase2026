@@ -1,0 +1,33 @@
+---
+// Lazy-loaded page of prompt cards for the homepage "All" tab. Returns a bare
+// HTML fragment (Astro partial — no <html> shell) that the client appends into
+// the masonry grid. Keyset pagination metadata travels back in response headers
+// so the fragment stays a clean list of <article> cards.
+//
+// Runs through middleware like any SSR route, so Astro.locals.likedSlugs /
+// savedSlugs seed the correct heart/bookmark state on each card (no flicker,
+// identical to the first-page cards rendered in index.astro).
+export const prerender = false;
+export const partial = true;
+
+import PromptCard from '../../components/PromptCard.astro';
+import { getPromptsPage, getAllCategories } from '../../lib/prompts';
+
+const cursor = Astro.url.searchParams.get('cursor');
+const [{ prompts, nextCursor }, categories] = await Promise.all([
+	getPromptsPage(cursor, 24),
+	getAllCategories(),
+]);
+const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
+
+// Next-page cursor for the client; empty string means "no more pages". Keep the
+// fragment itself out of the index.
+Astro.response.headers.set('X-Next-Cursor', nextCursor ?? '');
+Astro.response.headers.set('X-Robots-Tag', 'noindex');
+---
+
+{
+	prompts.map((prompt, i) => (
+		<PromptCard prompt={prompt} category={categoryBySlug.get(prompt.category)} index={i} />
+	))
+}

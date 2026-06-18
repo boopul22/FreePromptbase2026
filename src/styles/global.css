@@ -150,44 +150,78 @@
    only flips that attribute.
    -------------------------------------------------------------------------- */
 .sort-tabs {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	background: #fff;
-	border: 1px solid rgba(0, 0, 0, 0.12);
-	border-radius: 12px;
-	overflow: hidden;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+	position: relative;
+	display: flex;
+	width: 100%;
+	max-width: 26rem; /* tidy on desktop; full-width thirds on phones */
+	padding: 4px;
+	background: #e7e7ec; /* recessed track, tinted toward the navy link color */
+	border-radius: 9999px;
+	box-shadow: inset 0 1px 2px rgba(24, 24, 48, 0.07);
+	isolation: isolate;
+}
+/* The gold pill that slides under the active tab. */
+.sort-indicator {
+	position: absolute;
+	z-index: 0;
+	top: 4px;
+	bottom: 4px;
+	left: 4px;
+	width: calc((100% - 8px) / 3);
+	border-radius: 9999px;
+	background: var(--color-primary);
+	box-shadow: 0 1px 1px rgba(24, 24, 48, 0.16), 0 3px 8px rgba(224, 168, 46, 0.28);
+	transform: translateX(0);
+	transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+	will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+	.sort-indicator {
+		transition: none;
+	}
 }
 .sort-tab {
 	position: relative;
-	padding: 0.6875rem 0.5rem;
+	z-index: 1;
+	flex: 1 1 0%;
+	padding: 0.5625rem 0.5rem;
 	font-size: 0.9375rem;
-	font-weight: 700;
+	font-weight: 600;
 	line-height: 1;
 	color: #6b7280; /* gray-500 */
 	cursor: pointer;
-	background: #fff;
+	background: transparent;
 	border: 0;
-	border-left: 1px solid rgba(0, 0, 0, 0.1); /* distinct column divider */
-	transition: color 150ms ease, background-color 150ms ease;
-}
-.sort-tab:first-child {
-	border-left: 0;
+	border-radius: 9999px;
+	transition: color 200ms ease;
 }
 .sort-tab:hover {
 	color: var(--color-text-primary, #333);
-	background: rgba(0, 0, 0, 0.025);
 }
 .sort-tab:focus-visible {
 	outline: 2px solid var(--color-link, #181830);
-	outline-offset: -2px;
+	outline-offset: 2px;
 }
 .sort-tab[data-active='true'] {
 	color: var(--color-link, #181830);
-	background: var(--color-primary);
+	font-weight: 700;
 }
-.sort-tab[data-active='true']:hover {
-	background: var(--color-primary);
+
+/* Detail-page "scroll down to copy the prompt" hint — the chevron gently bobs
+   to draw the eye toward the prompt below the cover image (motion-safe only). */
+@media (prefers-reduced-motion: no-preference) {
+	.jump-chevron {
+		animation: jump-bob 1.6s ease-in-out infinite;
+	}
+}
+@keyframes jump-bob {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(2px);
+	}
 }
 
 /* Like button affordance */

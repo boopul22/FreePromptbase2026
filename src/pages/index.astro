@@ -6,11 +6,15 @@ import Tabs from '../components/Tabs.astro';
 import PromptGrid from '../components/PromptGrid.astro';
 import Footer from '../components/Footer.astro';
 import {
-	getAllPrompts,
+	getRecentPrompts,
 	getAllCategories,
 	getPopularPrompts,
 	getTrendingPrompts,
 	getPromptOfTheDaySlug,
+	getPromptsPage,
+	getPromptBySlug,
+	getSiteStats,
+	type Prompt,
 } from '../lib/prompts';
 import { itemListSchema } from '../lib/seo';
 import { cfSrcset } from '../lib/cfImage';
@@ -19,31 +23,34 @@ import { cfSrcset } from '../lib/cfImage';
 // and so save/share counts stay fresh across requests.
 export const prerender = false;
 
-const [allPrompts, categories, popularPrompts, trendingFromEvents, potdSlug] = await Promise.all([
-	getAllPrompts(),
-	getAllCategories(),
-	getPopularPrompts(),
-	getTrendingPrompts(),
-	getPromptOfTheDaySlug(),
-]);
+// Only the first page of "All" is fetched up front (keyset-paginated, lazy-loaded
+// on scroll); Recent and Trending are bounded sets. The whole catalog is never
+// loaded into one response.
+const [recentPrompts, allPage, categories, popularPrompts, trendingFromEvents, potdSlug, stats] =
+	await Promise.all([
+		getRecentPrompts(24),
+		getPromptsPage(null, 24),
+		getAllCategories(),
+		getPopularPrompts(),
+		getTrendingPrompts(),
+		getPromptOfTheDaySlug(),
+		getSiteStats(),
+	]);
 
-// Float the Prompt of the Day to the first card of every tab so it leads the
-// page. If it isn't already in a list, prepend it from the full set.
-function withPotdFirst(list: typeof allPrompts) {
+// Fetch the Prompt of the Day directly (one indexed lookup) so we can float it
+// into Trending without loading the entire catalog just to find it.
+const potdPrompt = potdSlug ? await getPromptBySlug(potdSlug) : undefined;
+
+// Float the Prompt of the Day to the first card of Trending so it leads the
+// page. Recent/All stay in strict newest order (no POTD float). The POTD still
+// gets its badge wherever it naturally falls.
+function withPotdFirst(list: Prompt[]): Prompt[] {
 	if (!potdSlug) return list;
 	const idx = list.findIndex((p) => p.slug === potdSlug);
 	if (idx === 0) return list;
 	if (idx > 0) return [list[idx], ...list.slice(0, idx), ...list.slice(idx + 1)];
-	const pod = allPrompts.find((p) => p.slug === potdSlug);
-	return pod ? [pod, ...list] : list;
+	return potdPrompt ? [potdPrompt, ...list] : list;
 }
-
-// Recent = strictly newest first. Unlike Trending/Popular, we do NOT float the
-// Prompt of the Day here — a tab literally labelled "Recent" must lead with the
-// latest prompt, not a high-view older one. (getAllPrompts orders by date DESC,
-// then created_at DESC as a same-day tiebreaker.) The POTD still gets its badge
-// wherever it naturally falls in the list.
-const recentPrompts = allPrompts;
 
 // Trending leads with the past-7-day winners, then pads from Popular so a
 // quiet week doesn't leave the default tab looking thin. Dedup by slug.
@@ -55,7 +62,6 @@ const trendingPrompts = withPotdFirst(
 		? trendingFromEvents
 		: [...trendingFromEvents, ...padding].slice(0, MIN_TRENDING),
 );
-const popularFirst = withPotdFirst(popularPrompts);
 
 // ItemList for the homepage collection (cap to 30 so the JSON-LD stays small).
 const homeList = itemListSchema(
@@ -75,7 +81,7 @@ const firstCover = trendingPrompts[0]?.coverImage;
 >
 	<Header />
 	<main class="max-w-7xl mx-auto px-4 py-12">
-		<Hero promptCount={allPrompts.length} categoryCount={categories.length} />
+		<Hero promptCount={stats.promptCount} categoryCount={categories.length} />
 		<Tabs />
 		<PromptGrid
 			prompts={trendingPrompts}
@@ -84,31 +90,46 @@ const firstCover = trendingPrompts[0]?.coverImage;
 			emptyMessage="No trending prompts yet — heart a few to get this section moving."
 		/>
 		<PromptGrid
-			prompts={popularFirst}
-			categories={categories}
-			tab="popular"
-			hidden
-		/>
-		<PromptGrid
 			prompts={recentPrompts}
 			categories={categories}
 			tab="recent"
 			hidden
+			emptyMessage="Nothing here yet. New prompts show up first."
 		/>
+		<PromptGrid
+			prompts={allPage.prompts}
+			categories={categories}
+			tab="all"
+			hidden
+			emptyMessage="No prompts yet."
+		/>
+		<!-- Infinite-scroll controls for the All tab (shown/hidden with it). The
+		     sentinel carries the keyset cursor; the client fetches the next page
+		     from /partials/prompts as it scrolls into view. -->
+		<div data-load-more data-tab="all" data-cursor={allPage.nextCursor ?? ''} class="hidden h-8" aria-hidden="true"></div>
+		<p data-load-end class="hidden text-center text-gray-500 py-8">You've reached the end.</p>
 	</main>
 	<Footer />
 </Layout>
 
 <script>
-	// Home interactivity: tab switching (show/hide pre-rendered grids), live
-	// search across the active grid, and the collection follow button. Save and
-	// share live inside PromptCard via /scripts/social.ts.
+	// Home interactivity: tab switching (show/hide pre-rendered grids), infinite
+	// scroll for the All tab, live search across the active grid, and the
+	// collection follow button. Like/save/share live inside PromptCard via
+	// /scripts/social.ts; we re-call the (idempotent) wire functions after
+	// appending lazy-loaded cards.
+	import { wireSave, wireLike, wireShare } from '../scripts/social';
+
 	const grids = Array.from(document.querySelectorAll<HTMLElement>('[data-grid][data-tab]'));
 	const emptyTabMessages = Array.from(document.querySelectorAll<HTMLElement>('[data-empty-tab]'));
 	const emptyState = document.querySelector<HTMLElement>('[data-empty]');
 	const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
 	const searchForm = document.querySelector<HTMLFormElement>('[data-search-form]');
 	const sortTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.sort-tab'));
+	const tabIndicator = document.querySelector<HTMLElement>('[data-tab-indicator]');
+	const loadMore = document.querySelector<HTMLElement>('[data-load-more]');
+	const loadEnd = document.querySelector<HTMLElement>('[data-load-end]');
+	const allGrid = grids.find((g) => g.dataset.tab === 'all') ?? null;
 	const followBtn = document.querySelector<HTMLButtonElement>('[data-follow-btn]');
 
 	function activeGrid(): HTMLElement | null {
@@ -118,19 +139,74 @@ const firstCover = trendingPrompts[0]?.coverImage;
 	function showTab(id: string) {
 		grids.forEach((g) => g.classList.toggle('hidden', g.dataset.tab !== id));
 		emptyTabMessages.forEach((p) => p.classList.toggle('hidden', p.dataset.emptyTab !== id));
+		// All-tab-only infinite-scroll controls.
+		const isAll = id === 'all';
+		const hasMore = !!loadMore?.dataset.cursor;
+		loadMore?.classList.toggle('hidden', !isAll || !hasMore);
+		loadEnd?.classList.toggle('hidden', !isAll || hasMore);
 		// Re-run any active search filter against the newly visible grid.
 		if (searchInput?.value) runSearch(searchInput.value);
 	}
 
-	sortTabs.forEach((tab) => {
+	function moveIndicator(index: number) {
+		if (tabIndicator) tabIndicator.style.transform = `translateX(${index * 100}%)`;
+	}
+
+	sortTabs.forEach((tab, i) => {
 		tab.addEventListener('click', () => {
-			// Styling is attribute-driven (.sort-tab[data-active]); just flip it.
+			// Styling is attribute-driven (.sort-tab[data-active]); flip it + slide the pill.
 			sortTabs.forEach((t) => {
-				t.dataset.active = String(t === tab);
+				const on = t === tab;
+				t.dataset.active = String(on);
+				t.setAttribute('aria-selected', String(on));
 			});
+			moveIndicator(i);
 			showTab(tab.dataset.sort ?? 'trending');
 		});
 	});
+
+	// --- Infinite scroll: append the next keyset page of the All grid ----------
+	let loading = false;
+	const observer =
+		loadMore && allGrid
+			? new IntersectionObserver(
+					(entries) => {
+						if (entries.some((e) => e.isIntersecting)) loadNextAllPage();
+					},
+					{ rootMargin: '600px 0px' },
+				)
+			: null;
+
+	async function loadNextAllPage() {
+		const cursor = loadMore?.dataset.cursor;
+		if (loading || !loadMore || !allGrid || !cursor) return;
+		loading = true;
+		try {
+			const res = await fetch(`/partials/prompts?cursor=${encodeURIComponent(cursor)}`);
+			if (!res.ok) throw new Error(String(res.status));
+			const next = res.headers.get('X-Next-Cursor') ?? '';
+			allGrid.insertAdjacentHTML('beforeend', await res.text());
+			// Wire the freshly injected cards (no-ops on already-wired ones).
+			wireSave();
+			wireLike();
+			wireShare();
+			loadMore.dataset.cursor = next;
+			if (!next) {
+				observer?.disconnect();
+				loadMore.classList.add('hidden');
+				if (activeGrid()?.dataset.tab === 'all') loadEnd?.classList.remove('hidden');
+			} else if (loadMore.getBoundingClientRect().top < window.innerHeight) {
+				// Still in view with more to load — keep filling the viewport.
+				requestAnimationFrame(loadNextAllPage);
+			}
+		} catch {
+			// Leave the cursor intact so a later scroll retries.
+		} finally {
+			loading = false;
+		}
+	}
+
+	if (loadMore && observer) observer.observe(loadMore);
 
 	function runSearch(query: string) {
 		const q = query.trim().toLowerCase();
