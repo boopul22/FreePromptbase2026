@@ -488,6 +488,166 @@ button:disabled.is-loading {
 }
 
 /* ============================================================================
+   Blog — editorial "field notes" surfaces.
+   Warm, paper-tinted neutrals (no pure white/gray) + a system serif reading
+   stack. Scoped to the blog index + reading page; the rest of the site keeps
+   its existing tokens. Hues sit around the brand gold (~85) so cards, hairlines
+   and ink all read warm against the #e6e6e6 page.
+   ========================================================================== */
+:root {
+	--paper: oklch(0.985 0.006 85); /* warm off-white card, never #fff */
+	--paper-sunken: oklch(0.965 0.009 85); /* hover wash / recessed wells */
+	--hairline: oklch(0.9 0.01 85); /* warm rule, replaces gray-200 */
+	--hairline-soft: oklch(0.93 0.008 85);
+	--ink-soft: oklch(0.52 0.012 70); /* warm gray for meta + dek */
+	--ink-faint: oklch(0.66 0.01 75); /* fainter meta / leaders */
+	--font-serif: Charter, "Iowan Old Style", "Source Serif 4", "Source Serif Pro",
+		Georgia, Cambria, "Times New Roman", ui-serif, serif;
+}
+
+/* Reading-progress bar — a thin gold fill pinned to the very top of the
+   viewport, above the sticky header (header is z-50). Driven by transform so
+   it never triggers layout; the script flips --read-progress (0..1). */
+.read-progress {
+	position: fixed;
+	inset: 0 0 auto 0;
+	height: 3px;
+	z-index: 60;
+	background: var(--color-primary);
+	transform: scaleX(var(--read-progress, 0));
+	transform-origin: 0 50%;
+	will-change: transform;
+	pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	.read-progress {
+		display: none;
+	}
+}
+
+/* Editorial archive row — shared by the index list and "Keep reading".
+   A full-width row with a leading index/thumb, hairline-divided, warm hover. */
+.entry-row {
+	transition: background-color 180ms var(--ease-out-quart);
+}
+.entry-row:hover {
+	background-color: var(--paper-sunken);
+}
+
+/* Drop cap on the article's first paragraph — editorial signature, serif. */
+.prose-blog > p:first-of-type::first-letter {
+	float: left;
+	font-family: var(--font-serif);
+	font-weight: 700;
+	font-size: 3.4em;
+	line-height: 0.82;
+	padding: 0.06em 0.12em 0 0;
+	color: var(--color-text-primary);
+}
+
+/* Inline prompt block — a standalone quoted prompt lifted out of the prose
+   into a copyable card. Reuses .prompt-box (dark mono body); chrome is warm to
+   match the reading page. Injected as raw HTML inside .prose-blog, so the
+   selectors are scoped tight enough to beat the generic .prose-blog pre rules. */
+.prose-blog .blog-prompt {
+	margin: 2rem 0;
+	border: 1px solid var(--hairline);
+	border-radius: var(--radius-base);
+	background: var(--paper);
+	overflow: hidden;
+}
+.prose-blog .blog-prompt__bar {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0.55rem 0.6rem 0.55rem 1rem;
+	border-bottom: 1px solid var(--hairline);
+}
+.prose-blog .blog-prompt__meta {
+	display: flex;
+	align-items: center;
+	gap: 0.55rem;
+	min-width: 0;
+}
+.prose-blog .blog-prompt__meta svg {
+	width: 1rem;
+	height: 1rem;
+	color: var(--color-primary);
+	flex: 0 0 auto;
+}
+.prose-blog .blog-prompt__label {
+	font-family: var(--font-heading);
+	font-size: 0.6875rem;
+	font-weight: 700;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--color-text-primary);
+	white-space: nowrap;
+}
+.prose-blog .blog-prompt__count {
+	font-family: var(--font-heading);
+	font-size: 0.6875rem;
+	color: var(--ink-faint);
+	white-space: nowrap;
+}
+@media (max-width: 460px) {
+	.prose-blog .blog-prompt__count {
+		display: none;
+	}
+}
+.blog-prompt__btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex: 0 0 auto;
+	min-height: 36px;
+	padding: 0.35rem 0.8rem;
+	background: var(--color-primary);
+	color: var(--color-link);
+	font-family: var(--font-heading);
+	font-size: 0.75rem;
+	font-weight: 700;
+	border: 0;
+	border-radius: 8px;
+	cursor: pointer;
+}
+.blog-prompt__btn:hover {
+	opacity: 0.9;
+}
+.blog-prompt__btn svg {
+	width: 0.9rem;
+	height: 0.9rem;
+}
+.prose-blog .blog-prompt pre.prompt-box {
+	margin: 0;
+	border: 0;
+	border-radius: 0;
+	padding: 0.95rem 1.1rem;
+	font-size: 0.875rem;
+}
+
+/* TOC active marker — a gold dot + weight, not colour alone. */
+[data-toc-link] {
+	position: relative;
+}
+[data-toc-link].is-active {
+	color: var(--color-text-primary);
+	font-weight: 600;
+}
+[data-toc-link].is-active::before {
+	content: "";
+	position: absolute;
+	left: -1.0625rem; /* sit on the rail (pl-4 = 1rem + 1px border) */
+	top: 0.5em;
+	width: 6px;
+	height: 6px;
+	border-radius: 9999px;
+	background: var(--color-primary);
+	transform: translateY(-1px);
+}
+
+/* ============================================================================
    Global reduced-motion — collapses all non-essential motion to a crossfade.
    The spinner is the one allowed exception (it's the loading signal itself).
    ========================================================================== */

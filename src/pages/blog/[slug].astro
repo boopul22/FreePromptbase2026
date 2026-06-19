@@ -24,6 +24,13 @@ const dateLabel = new Date(dateIso).toLocaleDateString('en-US', {
 	year: 'numeric',
 });
 const authorName = post.authorName || 'Admin';
+const authorInitials = authorName
+	.trim()
+	.split(/\s+/)
+	.map((w) => w[0])
+	.slice(0, 2)
+	.join('')
+	.toUpperCase();
 
 // --- Build TOC from h2/h3 in the body HTML, inject anchor ids inline ---
 function slugify(s: string): string {
@@ -66,12 +73,76 @@ function buildToc(html: string): { html: string; toc: TocEntry[] } {
 	return { html: out, toc };
 }
 
+// --- Lift standalone quoted prompts into copyable cards -------------------
+// Authors write example prompts inline as a whole paragraph, e.g.
+//   <p><strong>Template:</strong> <em>"You are a [role]..."</em></p>
+//   <p>Bad: <em>"a fisherman by the sea, beautiful, 8k"</em></p>
+// We turn ONLY those (an optional short label + a single quoted <em> that fills
+// the paragraph) into a copy block. Short inline quotes mid-sentence are left
+// alone. The card mirrors CopyPromptButton's markup so the shared copy script
+// (added below) drives it via the data-copy-* hooks.
+function escapeHtml(s: string): string {
+	return s
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
+}
+function decodeEntities(s: string): string {
+	return s
+		.replace(/&amp;/g, '&')
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&quot;/g, '"')
+		.replace(/&#39;|&apos;/g, "'");
+}
+
+const COPY_ICON =
+	'<svg class="copy-icon-copy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>';
+const DONE_ICON =
+	'<svg class="copy-icon-done hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" points="20 6 9 17 4 12"/></svg>';
+const QUOTE_ICON =
+	'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 6C5.6 6 4 7.6 4 9.5S5.6 13 7.5 13c.2 0 .3 0 .5-.05V13a3 3 0 0 1-3 3 1 1 0 1 0 0 2 5 5 0 0 0 5-5V9.5C10 7.6 9.4 6 7.5 6Zm9 0C14.6 6 13 7.6 13 9.5s1.6 3.5 3.5 3.5c.2 0 .3 0 .5-.05V13a3 3 0 0 1-3 3 1 1 0 1 0 0 2 5 5 0 0 0 5-5V9.5C19 7.6 18.4 6 16.5 6Z"/></svg>';
+
+function promptCard(label: string, text: string): string {
+	const words = text.trim().split(/\s+/).filter(Boolean).length;
+	return (
+		`<div class="blog-prompt not-prose" data-copy-root>` +
+		`<div class="blog-prompt__bar">` +
+		`<div class="blog-prompt__meta">${QUOTE_ICON}` +
+		`<span class="blog-prompt__label">${escapeHtml(label)}</span>` +
+		`<span class="blog-prompt__count">${words} ${words === 1 ? 'word' : 'words'}</span>` +
+		`</div>` +
+		`<button type="button" class="blog-prompt__btn btn-feedback" data-copy-btn aria-live="polite">` +
+		`${COPY_ICON}${DONE_ICON}<span class="copy-label">Copy</span></button>` +
+		`</div>` +
+		`<pre class="prompt-box" data-copy-text>${escapeHtml(text)}</pre>` +
+		`</div>`
+	);
+}
+
+function renderPromptBlocks(html: string): string {
+	// Whole paragraph = [optional short label] + a single quoted <em>.
+	const pattern =
+		/^\s*(?:<strong>\s*([^<:]{1,24}?)\s*:?\s*<\/strong>\s*:?\s*|([A-Za-z][A-Za-z ]{0,20}?)\s*:\s*)?<em>\s*[“"]([\s\S]+?)[”"]\s*<\/em>\s*[.]?\s*$/;
+	return html.replace(/<p>([\s\S]*?)<\/p>/gi, (match, inner) => {
+		const m = pattern.exec(inner);
+		if (!m) return match;
+		const text = decodeEntities(m[3].replace(/<[^>]+>/g, '')).trim();
+		// Skip throwaway fragments; real prompts are a few words at least.
+		if (text.split(/\s+/).filter(Boolean).length < 4) return match;
+		let label = (m[1] || m[2] || 'Prompt').trim();
+		label = label.charAt(0).toUpperCase() + label.slice(1);
+		return promptCard(label, text);
+	});
+}
+
 const rawBody = post.htmlContent || post.content.intro || '';
 const { html: builtHtml, toc } = buildToc(rawBody);
+const withPrompts = renderPromptBlocks(builtHtml);
 // Lazy-load + async-decode every in-body image (they're below the fold) so the
 // page doesn't eagerly fetch 20 MB of images on load. Only images without an
 // explicit loading attr are touched.
-const bodyHtml = builtHtml.replace(/<img(?![^>]*\bloading=)/gi, '<img loading="lazy" decoding="async"');
+const bodyHtml = withPrompts.replace(/<img(?![^>]*\bloading=)/gi, '<img loading="lazy" decoding="async"');
 
 // Strip HTML to plain text for articleBody + wordCount. Truncate body so the
 // JSON-LD payload stays small while still giving AI engines enough to cite.
@@ -130,53 +201,68 @@ const breadcrumb = breadcrumbSchema([
 	preloadImageSizes="(min-width: 1024px) 768px, 92vw"
 >
 	<Header />
+	<div class="read-progress" id="read-progress" aria-hidden="true"></div>
+
 	<main class="flex-grow max-w-6xl mx-auto px-4 w-full py-8 sm:py-12">
 		<!-- Breadcrumb -->
-		<nav class="text-xs text-gray-600 mb-6 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
+		<nav class="text-xs text-[var(--ink-faint)] mb-8 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
 			<a href="/" class="hover:text-primary transition-colors">Home</a>
-			<span class="text-gray-300" aria-hidden="true">/</span>
-			<a href="/blog" class="hover:text-primary transition-colors">Blog</a>
-			<span class="text-gray-300" aria-hidden="true">/</span>
-			<span class="text-text-primary truncate max-w-[60%]">{post.title}</span>
+			<span class="text-[var(--hairline)]" aria-hidden="true">/</span>
+			<a href="/blog" class="hover:text-primary transition-colors">Field Notes</a>
+			<span class="text-[var(--hairline)]" aria-hidden="true">/</span>
+			<span class="text-text-primary truncate max-w-[55%]">{post.title}</span>
 		</nav>
 
-		<div class="lg:flex lg:gap-12 lg:items-start">
+		<div class="lg:flex lg:gap-14 lg:items-start">
 			<!-- Article column -->
-			<article class="lg:flex-1 lg:max-w-3xl">
-				<!-- Title + lead -->
-				<header class="mb-6">
+			<article class="lg:flex-1 lg:max-w-3xl min-w-0">
+				<!-- Title + dek -->
+				<header class="mb-8">
 					{
 						post.categoryName && (
-							<p class="text-xs font-semibold uppercase tracking-wide text-primary mb-3">
+							<p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-4">
 								{post.categoryName}
 							</p>
 						)
 					}
-					<h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-text-primary leading-[1.15]">
+					<h1 class="text-3xl sm:text-4xl md:text-[2.875rem] font-bold tracking-tight text-text-primary leading-[1.1]">
 						{post.title}
 					</h1>
-					<p class="text-gray-600 text-lg sm:text-xl leading-relaxed mt-4 max-w-2xl">
+					<p class="text-[var(--ink-soft)] text-lg sm:text-xl leading-relaxed mt-5 max-w-[44rem]">
 						{post.excerpt}
 					</p>
 				</header>
 
-				<!-- Meta strip -->
-				<div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-500 pb-6 mb-8 border-b border-gray-200">
-					<span class="inline-flex items-center gap-1.5">
-						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-						{dateLabel}
-					</span>
-					<span class="inline-flex items-center gap-1.5">
-						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-						{post.readTime || `${mins} min read`}
-					</span>
-					<span class="inline-flex items-center gap-1.5">
-						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-						by <span class="text-text-primary font-medium">{authorName}</span>
-					</span>
+				<!-- Byline -->
+				<div class="flex items-center gap-3 pb-7 mb-9 border-b border-[var(--hairline)]">
+					{
+						post.authorAvatar ? (
+							<img
+								src={post.authorAvatar}
+								alt={authorName}
+								class="w-11 h-11 rounded-full object-cover shrink-0 ring-1 ring-[var(--hairline)]"
+								width="44"
+								height="44"
+								loading="lazy"
+								decoding="async"
+							/>
+						) : (
+							<div class="w-11 h-11 rounded-full shrink-0 bg-primary/15 text-primary flex items-center justify-center text-sm font-bold ring-1 ring-[var(--hairline)]" aria-hidden="true">
+								{authorInitials}
+							</div>
+						)
+					}
+					<div class="min-w-0">
+						<p class="text-sm font-semibold text-text-primary leading-tight">{authorName}</p>
+						<div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--ink-faint)] mt-0.5">
+							<span>{dateLabel}</span>
+							<span aria-hidden="true">·</span>
+							<span>{post.readTime || `${mins} min read`}</span>
+						</div>
+					</div>
 				</div>
 
-				<!-- Cover -->
+				<!-- Cover (breaks slightly wider than the reading measure) -->
 				{
 					post.coverImage && (
 						<img
@@ -186,7 +272,7 @@ const breadcrumb = breadcrumbSchema([
 							alt={post.title}
 							width="1600"
 							height="900"
-							class="w-full aspect-[16/9] rounded-base mb-10 object-cover"
+							class="w-full aspect-[16/9] rounded-base mb-12 object-cover bg-[var(--paper-sunken)]"
 							loading="eager"
 							fetchpriority="high"
 							decoding="async"
@@ -197,17 +283,17 @@ const breadcrumb = breadcrumbSchema([
 				<!-- Mobile-only TOC (collapsed) -->
 				{
 					toc.length > 1 && (
-						<details class="lg:hidden mb-8 border border-gray-200 rounded-md bg-white group">
+						<details class="lg:hidden mb-10 border border-[var(--hairline)] rounded-md bg-[var(--paper)] group">
 							<summary class="px-4 py-3 cursor-pointer text-sm font-semibold text-text-primary flex items-center gap-2 list-none">
-								<svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+								<svg class="w-4 h-4 text-[var(--ink-faint)] transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 								<span>On this page</span>
-								<span class="ml-auto text-xs font-normal text-gray-500">{toc.length}</span>
+								<span class="ml-auto text-xs font-normal text-[var(--ink-faint)]">{toc.length}</span>
 							</summary>
-							<nav class="border-t border-gray-200 px-4 py-3">
+							<nav class="border-t border-[var(--hairline)] px-4 py-3">
 								<ol class="space-y-1.5 text-sm">
 									{toc.map((h) => (
 										<li class={h.level === 3 ? 'pl-4' : ''}>
-											<a href={`#${h.id}`} class="text-gray-600 hover:text-primary transition-colors block py-0.5">
+											<a href={`#${h.id}`} class="text-[var(--ink-soft)] hover:text-primary transition-colors block py-0.5">
 												{h.text}
 											</a>
 										</li>
@@ -221,20 +307,38 @@ const breadcrumb = breadcrumbSchema([
 				<!-- Body -->
 				<div class="prose-blog" set:html={bodyHtml} />
 
+				<!-- End-of-article CTA — back to the product. -->
+				<aside class="mt-14 rounded-base bg-[var(--paper)] border border-[var(--hairline)] px-6 py-7 sm:px-8 sm:py-8">
+					<p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-2">Now your turn</p>
+					<h2 class="text-xl sm:text-2xl font-bold text-text-primary leading-snug">
+						Stop reading about prompts. Go copy one.
+					</h2>
+					<p class="text-sm text-[var(--ink-soft)] mt-2 leading-relaxed max-w-md">
+						A free, browsable library of ready-to-use prompts for ChatGPT, Claude, Midjourney and more.
+					</p>
+					<a
+						href="/"
+						class="inline-flex items-center gap-2 mt-5 px-5 py-2.5 bg-primary text-link rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity btn-feedback group"
+					>
+						Browse the prompt library
+						<svg class="w-4 h-4 transition-transform duration-300 ease-out group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+					</a>
+				</aside>
+
 				<!-- FAQ (if present) -->
 				{
 					post.faqItems.length > 0 && (
-						<section class="mt-12 pt-10 border-t border-gray-200">
-							<p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">FAQ</p>
+						<section class="mt-14 pt-10 border-t border-[var(--hairline)]">
+							<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">FAQ</p>
 							<h2 class="text-2xl font-bold text-text-primary mb-6">Frequently asked</h2>
 							<div class="space-y-3">
 								{post.faqItems.map((item) => (
-									<details class="border border-gray-200 rounded-md bg-white group">
-										<summary class="px-4 py-3 cursor-pointer text-sm font-semibold text-text-primary flex items-center gap-2 list-none">
-											<svg class="w-4 h-4 text-gray-500 transition-transform group-open:rotate-90 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+									<details class="border border-[var(--hairline)] rounded-md bg-[var(--paper)] group">
+										<summary class="px-4 py-3.5 cursor-pointer text-sm font-semibold text-text-primary flex items-center gap-2.5 list-none">
+											<svg class="w-4 h-4 text-[var(--ink-faint)] transition-transform group-open:rotate-90 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 											<span>{item.question}</span>
 										</summary>
-										<div class="px-4 pb-4 pt-0 text-gray-600 leading-relaxed whitespace-pre-wrap">
+										<div class="px-4 pb-4 pt-0 pl-11 text-[var(--ink-soft)] leading-relaxed whitespace-pre-wrap">
 											{item.answer}
 										</div>
 									</details>
@@ -247,27 +351,50 @@ const breadcrumb = breadcrumbSchema([
 				<!-- Related -->
 				{
 					related.length > 0 && (
-						<section class="mt-16 pt-10 border-t border-gray-200">
-							<p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">More to read</p>
-							<h2 class="text-2xl font-bold text-text-primary mb-6">Keep reading</h2>
-							<div class="grid gap-6 sm:grid-cols-2">
+						<section class="mt-16 pt-10 border-t border-[var(--hairline)]">
+							<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">More to read</p>
+							<h2 class="text-2xl font-bold text-text-primary mb-5">Keep reading</h2>
+							<ol class="border-t border-[var(--hairline)]">
 								{related.map((rel) => (
-									<a
-										href={`/blog/${rel.slug}`}
-										class="block bg-white rounded-base border border-gray-200 p-5 hover:border-primary hover:shadow-sm transition-all"
-									>
-										<div class="text-xs text-gray-500 mb-2">
-											{new Date(rel.publishedAt ?? rel.createdAt).toLocaleDateString('en-US', {
-												month: 'short',
-												day: 'numeric',
-												year: 'numeric',
-											})}
-										</div>
-										<h3 class="font-bold text-text-primary leading-snug">{rel.title}</h3>
-										<p class="text-sm text-gray-600 mt-2">{rel.excerpt}</p>
-									</a>
+									<li>
+										<a
+											href={`/blog/${rel.slug}`}
+											class="entry-row group flex items-center gap-4 py-4 px-3 -mx-3 rounded-lg border-b border-[var(--hairline)]"
+										>
+											<div class="w-14 h-14 shrink-0 overflow-hidden rounded-md bg-[var(--paper-sunken)]">
+												{rel.coverImage ? (
+													<img
+														src={rel.coverImage}
+														srcset={cfSrcset(rel.coverImage, [120, 200])}
+														sizes="56px"
+														alt={rel.title}
+														class="w-full h-full object-cover"
+														loading="lazy"
+														decoding="async"
+													/>
+												) : (
+													<div class="w-full h-full flex items-center justify-center text-text-primary/30">
+														<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8"/></svg>
+													</div>
+												)}
+											</div>
+											<div class="min-w-0 flex-1">
+												<h3 class="text-base font-bold text-text-primary leading-snug group-hover:text-primary transition-colors line-clamp-2">
+													{rel.title}
+												</h3>
+												<div class="text-xs text-[var(--ink-faint)] mt-1">
+													{new Date(rel.publishedAt ?? rel.createdAt).toLocaleDateString('en-US', {
+														month: 'short',
+														day: 'numeric',
+														year: 'numeric',
+													})}
+												</div>
+											</div>
+											<svg class="w-4 h-4 shrink-0 text-[var(--ink-faint)] group-hover:text-primary transition-all duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+										</a>
+									</li>
 								))}
-							</div>
+							</ol>
 						</section>
 					)
 				}
@@ -277,19 +404,19 @@ const breadcrumb = breadcrumbSchema([
 			{
 				toc.length > 1 && (
 					<aside class="hidden lg:block lg:w-56 lg:shrink-0">
-						<div class="sticky top-8">
-							<p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-3">
+						<div class="sticky top-20">
+							<p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-4">
 								On this page
 							</p>
 							<nav aria-label="Table of contents">
-								<ol class="space-y-1.5 text-sm border-l border-gray-200 pl-4">
+								<ol class="space-y-2 text-sm border-l border-[var(--hairline)] pl-4">
 									{toc.map((h) => (
 										<li class:list={[h.level === 3 && 'pl-3']}>
 											<a
 												href={`#${h.id}`}
 												data-toc-link
 												data-target={h.id}
-												class="block py-0.5 text-gray-600 hover:text-primary transition-colors leading-snug"
+												class="block py-0.5 text-[var(--ink-soft)] hover:text-primary transition-colors leading-snug"
 											>
 												{h.text}
 											</a>
@@ -308,52 +435,61 @@ const breadcrumb = breadcrumbSchema([
 
 <style is:global>
 	.prose-blog {
+		max-width: 68ch;
 		color: var(--color-text-primary, #1f2937);
-		font-size: 1rem;
-		line-height: 1.7;
+		font-family: var(--font-serif);
+		font-size: 1.1rem;
+		line-height: 1.75;
 	}
 	@media (min-width: 640px) {
 		.prose-blog {
-			font-size: 1.0625rem;
-			line-height: 1.75;
+			font-size: 1.1875rem;
+			line-height: 1.8;
 		}
 	}
 	.prose-blog > :first-child {
 		margin-top: 0;
 	}
+	/* Headings stay in the brand sans for contrast against the serif body. */
+	.prose-blog h2,
+	.prose-blog h3 {
+		font-family: var(--font-heading);
+	}
 	.prose-blog h2 {
-		font-size: 1.4rem;
+		font-size: 1.5rem;
 		font-weight: 700;
-		margin-top: 2.5rem;
+		margin-top: 2.75rem;
 		margin-bottom: 0.75rem;
 		letter-spacing: -0.015em;
 		scroll-margin-top: 5rem;
-		line-height: 1.25;
+		line-height: 1.2;
+		color: var(--color-text-primary);
 	}
 	@media (min-width: 640px) {
 		.prose-blog h2 {
-			font-size: 1.625rem;
-			margin-top: 3rem;
+			font-size: 1.75rem;
+			margin-top: 3.25rem;
 		}
 	}
 	.prose-blog h3 {
-		font-size: 1.2rem;
+		font-size: 1.25rem;
 		font-weight: 700;
-		margin-top: 2rem;
+		margin-top: 2.25rem;
 		margin-bottom: 0.5rem;
 		scroll-margin-top: 5rem;
 		line-height: 1.3;
+		color: var(--color-text-primary);
 	}
 	.prose-blog p {
-		margin-top: 1rem;
-		margin-bottom: 1rem;
-		color: #374151;
+		margin-top: 1.15rem;
+		margin-bottom: 1.15rem;
+		color: #2b2b2b;
 	}
 	.prose-blog ul,
 	.prose-blog ol {
-		margin: 1rem 0;
+		margin: 1.15rem 0;
 		padding-left: 1.5rem;
-		color: #374151;
+		color: #2b2b2b;
 	}
 	.prose-blog ul {
 		list-style: disc;
@@ -362,72 +498,147 @@ const breadcrumb = breadcrumbSchema([
 		list-style: decimal;
 	}
 	.prose-blog li {
-		margin: 0.25rem 0;
+		margin: 0.35rem 0;
 	}
 	.prose-blog li::marker {
-		color: #9ca3af;
+		color: var(--color-primary);
 	}
 	.prose-blog a {
-		color: var(--color-primary, #d97706);
+		color: var(--color-text-primary);
 		text-decoration: underline;
-		text-underline-offset: 2px;
+		text-decoration-color: var(--color-primary);
+		text-decoration-thickness: 2px;
+		text-underline-offset: 3px;
+		transition: color 150ms ease;
+	}
+	.prose-blog a:hover {
+		color: var(--color-primary);
 	}
 	.prose-blog strong {
 		color: #111827;
-		font-weight: 600;
+		font-weight: 700;
 	}
 	.prose-blog em {
 		font-style: italic;
-		color: #4b5563;
 	}
+	/* Inline code + blocks switch back to mono (serif numerals look wrong in code). */
 	.prose-blog code {
-		background: #f3f4f6;
+		background: var(--paper-sunken);
+		border: 1px solid var(--hairline);
 		border-radius: 4px;
-		padding: 0.1rem 0.35rem;
-		font-size: 0.92em;
+		padding: 0.08rem 0.35rem;
+		font-size: 0.85em;
 		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		color: #1a1a2e;
 	}
 	.prose-blog pre {
-		background: #0f172a;
-		color: #f8fafc;
-		padding: 1rem 1.25rem;
-		border-radius: 8px;
+		background: #1a1a2e;
+		color: #ececf1;
+		padding: 1.1rem 1.25rem;
+		border-radius: 10px;
 		overflow-x: auto;
-		margin: 1.5rem 0;
-		font-size: 0.92rem;
-		line-height: 1.6;
+		margin: 1.75rem 0;
+		font-size: 0.9rem;
+		line-height: 1.65;
 	}
 	.prose-blog pre code {
 		background: transparent;
+		border: 0;
 		padding: 0;
 		color: inherit;
 	}
+	/* Pull-quote: top/bottom hairlines, no side-stripe. */
 	.prose-blog blockquote {
-		border-left: 3px solid var(--color-primary, #d97706);
-		padding-left: 1rem;
-		margin: 1.5rem 0;
-		color: #4b5563;
+		margin: 2.25rem 0;
+		padding: 1.5rem 0;
+		border-top: 1px solid var(--hairline);
+		border-bottom: 1px solid var(--hairline);
+		font-size: 1.3em;
+		line-height: 1.5;
 		font-style: italic;
+		color: var(--color-text-primary);
+	}
+	.prose-blog blockquote p {
+		margin: 0;
+		color: inherit;
 	}
 	.prose-blog img {
-		border-radius: 8px;
-		margin: 1.5rem 0;
+		border-radius: 10px;
+		margin: 1.75rem 0;
 	}
 	.prose-blog hr {
 		border: 0;
-		border-top: 1px solid #e5e7eb;
-		margin: 2.5rem 0;
-	}
-
-	/* TOC active-link highlight */
-	[data-toc-link].is-active {
-		color: var(--color-primary, #d97706);
-		font-weight: 600;
+		border-top: 1px solid var(--hairline);
+		margin: 2.75rem 0;
 	}
 </style>
 
 <script>
-	// Highlight the TOC item whose section is currently visible.
+	// --- Reading-progress bar ---------------------------------------------
+	// Drives --read-progress (0..1) from scroll position; the CSS scales the
+	// bar with a transform. Hidden under prefers-reduced-motion via CSS.
+	const bar = document.getElementById('read-progress');
+	if (bar) {
+		let ticking = false;
+		const update = () => {
+			const doc = document.documentElement;
+			const max = doc.scrollHeight - doc.clientHeight;
+			const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+			bar.style.setProperty('--read-progress', String(ratio));
+			ticking = false;
+		};
+		const onScroll = () => {
+			if (!ticking) {
+				ticking = true;
+				requestAnimationFrame(update);
+			}
+		};
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll, { passive: true });
+		update();
+	}
+
+	// --- Copy buttons on inline prompt cards ------------------------------
+	document.querySelectorAll<HTMLElement>('[data-copy-root]').forEach((root) => {
+		const btn = root.querySelector<HTMLButtonElement>('[data-copy-btn]');
+		const source = root.querySelector<HTMLElement>('[data-copy-text]');
+		const label = root.querySelector<HTMLElement>('.copy-label');
+		const iconCopy = root.querySelector<SVGElement>('.copy-icon-copy');
+		const iconDone = root.querySelector<SVGElement>('.copy-icon-done');
+		if (!btn || !source || !label) return;
+		const text = source.textContent ?? '';
+		let resetTimer: ReturnType<typeof setTimeout> | undefined;
+		const reset = () => {
+			label.textContent = 'Copy';
+			iconDone?.classList.add('hidden');
+			iconCopy?.classList.remove('hidden');
+		};
+		btn.addEventListener('click', async () => {
+			try {
+				if (navigator.clipboard?.writeText) {
+					await navigator.clipboard.writeText(text);
+				} else {
+					const ta = document.createElement('textarea');
+					ta.value = text;
+					ta.style.position = 'fixed';
+					ta.style.opacity = '0';
+					document.body.appendChild(ta);
+					ta.select();
+					document.execCommand('copy');
+					document.body.removeChild(ta);
+				}
+				label.textContent = 'Copied!';
+				iconCopy?.classList.add('hidden');
+				iconDone?.classList.remove('hidden');
+			} catch {
+				label.textContent = 'Press Ctrl/⌘+C';
+			}
+			clearTimeout(resetTimer);
+			resetTimer = setTimeout(reset, 2000);
+		});
+	});
+
+	// --- Highlight the TOC item whose section is currently visible. -------
 	const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
 	if (links.length > 0) {
 		const targets = links

@@ -14,6 +14,17 @@ const posts = await getAllPosts();
 const fmt = (iso: string) =>
 	new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
+const readLabel = (p: (typeof posts)[number]) => p.readTime || `${postReadTime(p)} min read`;
+
+// Three editorial zones: the newest entry leads, the next two are picks, the
+// rest fall into a numbered archive list.
+const lead = posts[0];
+const picks = posts.slice(1, 3);
+const archive = posts.slice(3);
+
+// Issue-style masthead meta.
+const latest = posts.length > 0 ? (posts[0].publishedAt ?? posts[0].createdAt) : null;
+
 const list = itemListSchema(
 	posts.slice(0, 30).map((p) => ({ name: p.title, url: `/blog/${p.slug}` })),
 	'Free Prompt Base blog',
@@ -25,78 +36,191 @@ const crumb = breadcrumbSchema([
 ---
 
 <Layout
-	title="Blog — Free Prompt Base"
+	title="Field Notes — Free Prompt Base"
 	description="Field notes on prompt engineering, AI workflows and what actually works when you build with ChatGPT, Claude, Midjourney and friends."
 	extraSchemas={[list, crumb]}
 >
 	<Header />
-	<main class="flex-grow max-w-5xl mx-auto px-4 w-full py-12">
-		<header class="mb-12">
-			<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary">Blog</h1>
-			<p class="text-gray-600 text-lg mt-3 max-w-2xl">
-				Field notes on prompt engineering, AI workflows and what actually works.
+	<main class="flex-grow max-w-5xl mx-auto px-4 w-full py-10 sm:py-14">
+		<!-- Masthead -->
+		<header class="mb-12 sm:mb-16">
+			<p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-3">
+				The Free Prompt Base journal
 			</p>
+			<h1 class="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight text-text-primary leading-[0.95]">
+				Field Notes
+			</h1>
+			<p class="text-lg text-[var(--ink-soft)] mt-5 max-w-xl leading-relaxed">
+				On prompt engineering, AI workflows and what actually works once you stop
+				guessing and start shipping.
+			</p>
+			{
+				posts.length > 0 && (
+					<div class="flex items-center gap-3 mt-8 pt-5 border-t border-[var(--hairline)] text-xs font-medium text-[var(--ink-faint)] uppercase tracking-wide">
+						<span class="text-text-primary">{posts.length} {posts.length === 1 ? 'entry' : 'entries'}</span>
+						{latest && (
+							<>
+								<span aria-hidden="true">·</span>
+								<span>Updated {fmt(latest)}</span>
+							</>
+						)}
+					</div>
+				)
+			}
 		</header>
 
 		{
 			posts.length === 0 ? (
-				<p class="text-gray-500">No posts yet — check back soon.</p>
-			) : (
-				<div class="grid gap-8 md:grid-cols-2">
-					{posts.map((post, i) => (
-						<a
-							href={`/blog/${post.slug}`}
-							class="group flex flex-col bg-white rounded-base border border-gray-200 overflow-hidden hover:border-primary hover:shadow-sm transition-all"
-						>
-							<div class="aspect-[16/9] overflow-hidden bg-gradient-to-br from-primary/30 via-primary/10 to-link/15 flex items-center justify-center">
-								{post.coverImage ? (
-									<img
-										src={post.coverImage}
-										srcset={cfSrcset(post.coverImage, [320, 480, 768, 1024])}
-										sizes="(min-width: 768px) 33vw, 92vw"
-										alt={post.title}
-										class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-										loading={i === 0 ? 'eager' : 'lazy'}
-										fetchpriority={i === 0 ? 'high' : undefined}
-										decoding="async"
-									/>
-								) : (
-									<svg
-										class="w-14 h-14 text-text-primary/70"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										stroke-width="1.5"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										aria-hidden="true"
-									>
-										<path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z" />
-										<path d="M8 9h8M8 13h8M8 17h5" />
-									</svg>
-								)}
-							</div>
-							<div class="p-6 flex flex-col flex-grow">
-								<div class="flex items-center gap-2 text-xs text-gray-500 mb-3">
-									{post.publishedAt && <span>{fmt(post.publishedAt)}</span>}
-									{post.publishedAt && <span>·</span>}
-									<span>{post.readTime || `${postReadTime(post)} min read`}</span>
-								</div>
-								<h2 class="font-bold text-lg text-text-primary group-hover:text-primary transition-colors leading-snug">
-									{post.title}
-								</h2>
-								<p class="text-sm text-gray-600 mt-2 flex-grow">{post.excerpt}</p>
-								{post.categoryName && (
-									<div class="mt-4">
-										<span class="bg-gray-100 text-gray-600 text-[11px] font-semibold px-2 py-0.5 rounded">
-											{post.categoryName}
-										</span>
-									</div>
-								)}
-							</div>
-						</a>
-					))}
+				<div class="border border-[var(--hairline)] rounded-base bg-[var(--paper)] px-6 py-16 text-center">
+					<p class="text-text-primary font-semibold">The notebook is open, the page is blank.</p>
+					<p class="text-[var(--ink-soft)] mt-2 text-sm">First field note lands soon. Check back.</p>
 				</div>
+			) : (
+				<>
+					{/* ---- Lead story ---- */}
+					<a
+						href={`/blog/${lead.slug}`}
+						class="group grid lg:grid-cols-5 gap-6 lg:gap-10 items-center mb-14 sm:mb-20"
+					>
+						<div class="lg:col-span-3 aspect-[16/10] overflow-hidden rounded-base bg-[var(--paper-sunken)]">
+							{lead.coverImage ? (
+								<img
+									src={lead.coverImage}
+									srcset={cfSrcset(lead.coverImage, [480, 768, 1024, 1280])}
+									sizes="(min-width: 1024px) 60vw, 92vw"
+									alt={lead.title}
+									class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+									loading="eager"
+									fetchpriority="high"
+									decoding="async"
+								/>
+							) : (
+								<div class="w-full h-full flex items-center justify-center text-text-primary/40">
+									<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+								</div>
+							)}
+						</div>
+						<div class="lg:col-span-2">
+							<div class="flex items-center gap-2.5 text-xs font-medium text-[var(--ink-faint)] uppercase tracking-wide mb-4">
+								<span class="text-primary font-semibold">Latest</span>
+								{lead.categoryName && (
+									<>
+										<span aria-hidden="true">·</span>
+										<span>{lead.categoryName}</span>
+									</>
+								)}
+							</div>
+							<h2 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-text-primary leading-[1.1] group-hover:text-primary transition-colors">
+								{lead.title}
+							</h2>
+							<p class="text-[var(--ink-soft)] mt-4 leading-relaxed">{lead.excerpt}</p>
+							<div class="flex items-center gap-2 mt-5 text-xs text-[var(--ink-faint)]">
+								{lead.publishedAt && <span>{fmt(lead.publishedAt)}</span>}
+								{lead.publishedAt && <span aria-hidden="true">·</span>}
+								<span>{readLabel(lead)}</span>
+								<span class="ml-1 text-primary font-semibold inline-flex items-center gap-1.5">
+									Read
+									<svg class="w-3.5 h-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+								</span>
+							</div>
+						</div>
+					</a>
+
+					{/* ---- Picks (2-up) ---- */}
+					{picks.length > 0 && (
+						<section class="border-t border-[var(--hairline)] pt-10 mb-14 sm:mb-20">
+							<div class="grid gap-8 sm:gap-10 sm:grid-cols-2">
+								{picks.map((post) => (
+									<a href={`/blog/${post.slug}`} class="group block">
+										<div class="aspect-[16/9] overflow-hidden rounded-base bg-[var(--paper-sunken)] mb-4">
+											{post.coverImage ? (
+												<img
+													src={post.coverImage}
+													srcset={cfSrcset(post.coverImage, [320, 480, 768])}
+													sizes="(min-width: 640px) 45vw, 92vw"
+													alt={post.title}
+													class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+													loading="lazy"
+													decoding="async"
+												/>
+											) : (
+												<div class="w-full h-full flex items-center justify-center text-text-primary/40">
+													<svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+												</div>
+											)}
+										</div>
+										<div class="flex items-center gap-2 text-xs text-[var(--ink-faint)] mb-1.5">
+											{post.categoryName && <span class="text-primary font-semibold uppercase tracking-wide">{post.categoryName}</span>}
+											{post.categoryName && <span aria-hidden="true">·</span>}
+											<span>{readLabel(post)}</span>
+										</div>
+										<h3 class="text-lg sm:text-xl font-bold text-text-primary leading-snug group-hover:text-primary transition-colors">
+											{post.title}
+										</h3>
+										<p class="text-sm text-[var(--ink-soft)] mt-2 leading-relaxed">{post.excerpt}</p>
+									</a>
+								))}
+							</div>
+						</section>
+					)}
+
+					{/* ---- Archive (numbered list) ---- */}
+					{archive.length > 0 && (
+						<section>
+							<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">
+								The archive
+							</p>
+							<ol class="border-t border-[var(--hairline)]">
+								{archive.map((post, i) => (
+									<li>
+										<a
+											href={`/blog/${post.slug}`}
+											class="entry-row group flex items-center gap-4 sm:gap-6 py-5 px-3 -mx-3 rounded-lg border-b border-[var(--hairline)]"
+										>
+											<span class="hidden sm:block w-8 shrink-0 text-sm font-semibold tabular-nums text-[var(--ink-faint)] group-hover:text-primary transition-colors">
+												{String(i + 4).padStart(2, '0')}
+											</span>
+											<div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 overflow-hidden rounded-md bg-[var(--paper-sunken)]">
+												{post.coverImage ? (
+													<img
+														src={post.coverImage}
+														srcset={cfSrcset(post.coverImage, [120, 200])}
+														sizes="80px"
+														alt={post.title}
+														class="w-full h-full object-cover"
+														loading="lazy"
+														decoding="async"
+													/>
+												) : (
+													<div class="w-full h-full flex items-center justify-center text-text-primary/30">
+														<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8"/></svg>
+													</div>
+												)}
+											</div>
+											<div class="min-w-0 flex-1">
+												<h3 class="text-base sm:text-lg font-bold text-text-primary leading-snug group-hover:text-primary transition-colors line-clamp-2">
+													{post.title}
+												</h3>
+												<div class="flex items-center gap-2 mt-1 text-xs text-[var(--ink-faint)]">
+													{post.publishedAt && <span>{fmt(post.publishedAt)}</span>}
+													{post.categoryName && (
+														<>
+															<span aria-hidden="true">·</span>
+															<span>{post.categoryName}</span>
+														</>
+													)}
+												</div>
+											</div>
+											<span class="shrink-0 text-xs font-medium text-[var(--ink-faint)] whitespace-nowrap self-center tabular-nums">
+												{readLabel(post)}
+											</span>
+										</a>
+									</li>
+								))}
+							</ol>
+						</section>
+					)}
+				</>
 			)
 		}
 	</main>
