@@ -45,26 +45,26 @@ const dashJson = JSON.stringify(dash).replace(/</g, '\\u003c');
  <div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 min-w-0 p-4 sm:p-6 md:p-6 space-y-4 sm:space-y-6 md:space-y-8 bg-gray-50 md:overflow-y-auto md:h-screen">
+ <main class="flex-1 min-w-0 p-3 sm:p-5 space-y-4 bg-gray-50 md:overflow-y-auto md:h-screen">
  <!-- Header -->
  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
  <div>
- <h1 class="text-xl sm:text-2xl font-semibold text-text-primary">Content Management</h1>
- <p class="text-sm text-gray-500 mt-1">Create, edit, and publish blog posts and pages.</p>
+ <h1 class="text-lg font-semibold text-text-primary">Content Management</h1>
+ <p class="text-xs text-gray-500 mt-0.5">Create, edit, and publish blog posts and pages.</p>
  </div>
  </div>
 
  <!-- Quick Actions -->
  <div class="flex flex-wrap gap-3 sm:gap-4">
- <a href="/admin/cms/prompts/new" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
+ <a href="/admin/cms/prompts/new" class="bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">bolt</span>
  New Prompt
  </a>
- <a href="/admin/cms/posts/new" class="bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:border-primary transition-colors flex items-center gap-2">
+ <a href="/admin/cms/posts/new" class="bg-white text-text-primary px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200 hover:border-primary transition-colors flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">add</span>
  New Post
  </a>
- <a href="/admin/cms/media" class="bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:border-primary transition-colors flex items-center gap-2">
+ <a href="/admin/cms/media" class="bg-white text-text-primary px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200 hover:border-primary transition-colors flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">upload</span>
  Upload Media
  </a>
@@ -110,8 +110,8 @@ const dashJson = JSON.stringify(dash).replace(/</g, '\\u003c');
  </a>
  </div>
  <div id="recent-posts" class="divide-y divide-gray-200/50">
- <div class="p-6 text-center text-gray-500">
- <span class="material-symbols-outlined text-4xl">hourglass_empty</span>
+ <div class="py-10 px-6 text-center text-gray-500">
+ <span class="material-symbols-outlined text-3xl">hourglass_empty</span>
  <p class="text-xs uppercase tracking-wide mt-2">Loading...</p>
  </div>
  </div>
@@ -123,8 +123,8 @@ const dashJson = JSON.stringify(dash).replace(/</g, '\\u003c');
  <h2 class="font-semibold text-base">Recent Activity</h2>
  </div>
  <div id="recent-activity" class="divide-y divide-gray-200/50 max-h-[400px] overflow-y-auto">
- <div class="p-6 text-center text-gray-500">
- <span class="material-symbols-outlined text-4xl">hourglass_empty</span>
+ <div class="py-10 px-6 text-center text-gray-500">
+ <span class="material-symbols-outlined text-3xl">hourglass_empty</span>
  <p class="text-xs uppercase tracking-wide mt-2">Loading...</p>
  </div>
  </div>
@@ -195,7 +195,7 @@ const dashJson = JSON.stringify(dash).replace(/</g, '\\u003c');
  </a>
  `).join('');
  } else {
- recentPosts.innerHTML = '<div class="p-6 text-center text-gray-500"><p class="text-xs uppercase tracking-wide">No posts yet</p></div>';
+ recentPosts.innerHTML = '<div class="py-10 px-6 text-center text-gray-500"><p class="text-xs uppercase tracking-wide">No posts yet</p></div>';
  }
 
  // Activity
@@ -223,7 +223,7 @@ const dashJson = JSON.stringify(dash).replace(/</g, '\\u003c');
  </div>
  `).join('');
  } else {
- recentActivity.innerHTML = '<div class="p-6 text-center text-gray-500"><p class="text-xs uppercase tracking-wide">No activity yet</p></div>';
+ recentActivity.innerHTML = '<div class="py-10 px-6 text-center text-gray-500"><p class="text-xs uppercase tracking-wide">No activity yet</p></div>';
  }
  }
 

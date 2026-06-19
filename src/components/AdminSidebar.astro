@@ -98,12 +98,12 @@ const pageLabel = current?.label ?? 'CMS';
 			</button>
 		</div>
 
-		<nav class="flex-1 overflow-y-auto px-3 py-3 flex flex-col gap-0.5">
+		<nav class="flex-1 overflow-y-auto px-2 py-2 flex flex-col gap-0.5">
 			{items.map((it) => (
 				<a
 					href={it.href}
 					class:list={[
-						'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors',
+						'flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium transition-colors',
 						isActive(it)
 							? 'bg-primary text-link'
 							: 'text-text-primary hover:bg-gray-100',
@@ -156,19 +156,19 @@ const pageLabel = current?.label ?? 'CMS';
 <!-- ============================================================
      Desktop: fixed left rail (md+)
      ============================================================ -->
-<aside class="hidden md:flex flex-col w-52 shrink-0 bg-white border-r border-gray-200 h-screen sticky top-0">
+<aside class="hidden md:flex flex-col w-48 shrink-0 bg-white border-r border-gray-200 h-screen sticky top-0">
 	<!-- Brand band -->
-	<a href="/admin/cms" class="flex items-center gap-2 px-4 py-4 border-b border-gray-200">
+	<a href="/admin/cms" class="flex items-center gap-2 px-3 py-3 border-b border-gray-200">
 		<img src="/logo.svg" alt="" aria-hidden="true" class="w-6 h-6 shrink-0" width="24" height="24" />
 		<span class="text-sm font-semibold text-text-primary leading-tight">Free Prompt Base</span>
 	</a>
 
-	<nav class="flex-1 px-3 py-3 gap-0.5 flex flex-col">
+	<nav class="flex-1 px-2 py-2 gap-0.5 flex flex-col">
 		{items.map((it) => (
 			<a
 				href={it.href}
 				class:list={[
-					'flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+					'flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-sm font-medium transition-colors',
 					isActive(it)
 						? 'bg-primary text-link'
 						: 'text-text-primary hover:bg-gray-100',
@@ -185,16 +185,16 @@ const pageLabel = current?.label ?? 'CMS';
 		))}
 	</nav>
 
-	<div class="border-t border-gray-200 px-3 py-3 space-y-2">
+	<div class="border-t border-gray-200 px-2 py-2 space-y-1.5">
 		{user && (
-			<div class="flex items-center gap-2 px-2">
+			<div class="flex items-center gap-2 px-1.5 py-1">
 				{user.avatarUrl && (
 					<img
 						src={user.avatarUrl}
 						alt={user.name}
-						class="w-8 h-8 rounded-full object-cover shrink-0"
-						width="32"
-						height="32"
+						class="w-7 h-7 rounded-full object-cover shrink-0"
+						width="28"
+						height="28"
 						loading="lazy"
 					/>
 				)}
@@ -205,11 +205,11 @@ const pageLabel = current?.label ?? 'CMS';
 			</div>
 		)}
 		<div class="flex flex-col gap-0.5">
-			<a href="/" class="flex items-center gap-3 px-3 py-1.5 rounded-md text-xs text-gray-500 hover:text-text-primary hover:bg-gray-100 transition-colors">
+			<a href="/" class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs text-gray-500 hover:text-text-primary hover:bg-gray-100 transition-colors">
 				<span class="material-symbols-outlined text-base">arrow_back</span>
 				Back to site
 			</a>
-			<a href="/api/auth/logout" class="flex items-center gap-3 px-3 py-1.5 rounded-md text-xs text-gray-500 hover:text-text-primary hover:bg-gray-100 transition-colors">
+			<a href="/api/auth/logout" class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs text-gray-500 hover:text-text-primary hover:bg-gray-100 transition-colors">
 				<span class="material-symbols-outlined text-base">logout</span>
 				Sign out
 			</a>

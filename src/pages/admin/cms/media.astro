@@ -10,7 +10,7 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 min-w-0 p-4 sm:p-6 md:p-6 space-y-4 sm:space-y-6 bg-gray-50 md:overflow-y-auto md:h-screen">
+ <main class="flex-1 min-w-0 p-3 sm:p-5 space-y-4 bg-gray-50 md:overflow-y-auto md:h-screen">
  <!-- Breadcrumb -->
  <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500" aria-label="Breadcrumb">
  <a href="/admin/cms" class="hover:text-text-primary transition-colors">Content</a>
@@ -20,10 +20,10 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
 
  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
  <div>
- <h1 class="text-xl sm:text-2xl font-bold text-text-primary">Media Library</h1>
- <p class="text-gray-600 mt-1" id="media-count">Manage uploaded images for your content.</p>
+ <h1 class="text-lg font-semibold text-text-primary">Media Library</h1>
+ <p class="text-xs text-gray-500 mt-0.5" id="media-count">Manage uploaded images for your content.</p>
  </div>
- <label id="media-upload-label" class="btn-feedback bg-primary text-link px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wide border border-gray-200 cursor-pointer flex items-center gap-2 self-start sm:self-auto has-[:disabled]:opacity-55 has-[:disabled]:cursor-not-allowed">
+ <label id="media-upload-label" class="btn-feedback bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200 cursor-pointer flex items-center gap-1.5 self-start sm:self-auto has-[:disabled]:opacity-55 has-[:disabled]:cursor-not-allowed">
  <span class="material-symbols-outlined text-lg" data-upload-icon>upload</span>
  <span data-upload-label>Upload Media</span>
  <input type="file" accept="image/*" multiple class="hidden" id="media-upload-input" />
@@ -33,12 +33,12 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <!-- Folder Filters -->
  <div class="flex flex-col sm:flex-row sm:items-center gap-3">
  <div class="flex flex-wrap gap-1" id="folder-filters">
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-text-primary text-surface transition-all" data-folder="all">All</button>
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-white hover:bg-gray-100 transition-all" data-folder="blog">Blog</button>
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-white hover:bg-gray-100 transition-all" data-folder="pages">Pages</button>
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-white hover:bg-gray-100 transition-all" data-folder="general">General</button>
+ <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-text-primary text-surface transition-all" data-folder="all">All</button>
+ <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-folder="blog">Blog</button>
+ <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-folder="pages">Pages</button>
+ <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-folder="general">General</button>
  </div>
- <select id="upload-folder" class="ml-auto border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-xs font-bold">
+ <select id="upload-folder" class="ml-auto border border-gray-200 rounded-md px-3 py-1.5 bg-white text-sm font-semibold">
  <option value="general">Upload to: General</option>
  <option value="blog">Upload to: Blog</option>
  <option value="pages">Upload to: Pages</option>
@@ -46,9 +46,9 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  </div>
 
  <!-- Media Grid -->
- <div id="media-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
- <div class="col-span-full p-12 text-center text-gray-500">
- <span class="material-symbols-outlined text-5xl">hourglass_empty</span>
+ <div id="media-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+ <div class="col-span-full py-10 px-6 text-center text-gray-500">
+ <span class="material-symbols-outlined text-3xl">hourglass_empty</span>
  <p class="text-xs uppercase tracking-wide mt-3">Loading...</p>
  </div>
  </div>
@@ -84,7 +84,7 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
 
  const grid = document.getElementById('media-grid')!;
  if (!data.media?.length) {
- grid.innerHTML = '<div class="col-span-full p-12 text-center text-gray-500"><span class="material-symbols-outlined text-5xl">image</span><p class="text-xs uppercase tracking-wide mt-3">No media found</p></div>';
+ grid.innerHTML = '<div class="col-span-full py-10 px-6 text-center text-gray-500"><span class="material-symbols-outlined text-3xl">image</span><p class="text-xs uppercase tracking-wide mt-3">No media found</p></div>';
  document.getElementById('pagination')!.innerHTML = '';
  return;
  }
@@ -114,9 +114,9 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  const pag = document.getElementById('pagination')!;
  if (data.totalPages > 1) {
  pag.innerHTML = `
- <button onclick="loadPage(${Math.max(1, page - 1)})" class="px-4 py-2.5 border border-gray-200 rounded-md text-xs font-bold bg-white hover:bg-gray-100 active:bg-gray-100 transition-colors ${page === 1 ? 'opacity-30' : ''}">Previous</button>
+ <button onclick="loadPage(${Math.max(1, page - 1)})" class="px-3 py-1.5 border border-gray-200 rounded-md text-xs font-semibold bg-white hover:bg-gray-100 active:bg-gray-100 transition-colors ${page === 1 ? 'opacity-30' : ''}">Previous</button>
  <span class="text-sm text-gray-500">Page ${page} of ${data.totalPages}</span>
- <button onclick="loadPage(${Math.min(data.totalPages, page + 1)})" class="px-4 py-2.5 border border-gray-200 rounded-md text-xs font-bold bg-white hover:bg-gray-100 active:bg-gray-100 transition-colors ${page === data.totalPages ? 'opacity-30' : ''}">Next</button>
+ <button onclick="loadPage(${Math.min(data.totalPages, page + 1)})" class="px-3 py-1.5 border border-gray-200 rounded-md text-xs font-semibold bg-white hover:bg-gray-100 active:bg-gray-100 transition-colors ${page === data.totalPages ? 'opacity-30' : ''}">Next</button>
  `;
  } else {
  pag.innerHTML = '';
@@ -154,8 +154,8 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  currentFolder = btn.dataset.folder || 'all';
  document.querySelectorAll('#folder-filters button').forEach(b => {
  b.className = b === btn
- ? 'px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-text-primary text-surface transition-all'
- : 'px-4 py-2 rounded-full border border-gray-200 text-xs font-bold uppercase bg-white hover:bg-gray-100 transition-all';
+ ? 'px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-text-primary text-surface transition-all'
+ : 'px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all';
  });
  loadMedia(1);
  });

@@ -18,6 +18,12 @@
 	--color-background: #e6e6e6;
 	--color-text-primary: #333333;
 	--color-link: #181830;
+	/* Neutrals tinted toward the gold hue (never pure white/black). Referenced
+	   by admin chrome: text-surface (light text on dark pills / panel fills),
+	   border-outline (hairline borders), border-tertiary (draft badge). */
+	--color-surface: oklch(0.995 0.004 95);
+	--color-outline: oklch(0.916 0.005 95);
+	--color-tertiary: oklch(0.82 0.09 90);
 
 	/* --- Typography ------------------------------------------------------- */
 	/* Rubik is loaded via the Astro Fonts API (--font-rubik). */

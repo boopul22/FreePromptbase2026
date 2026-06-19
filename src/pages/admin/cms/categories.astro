@@ -10,7 +10,7 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 min-w-0 p-4 sm:p-6 md:p-6 space-y-4 sm:space-y-6 bg-gray-50 md:overflow-y-auto md:h-screen">
+ <main class="flex-1 min-w-0 p-3 sm:p-5 space-y-4 bg-gray-50 md:overflow-y-auto md:h-screen">
  <!-- Breadcrumb -->
  <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500" aria-label="Breadcrumb">
  <a href="/admin/cms" class="hover:text-text-primary transition-colors">Content</a>
@@ -20,8 +20,8 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
 
  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
  <div>
- <h1 class="text-xl sm:text-2xl font-bold text-text-primary">Categories</h1>
- <p class="text-gray-600 mt-1">Organize your blog content by topic.</p>
+ <h1 class="text-lg font-semibold text-text-primary">Categories</h1>
+ <p class="text-xs text-gray-500 mt-0.5">Organize your blog content by topic.</p>
  </div>
  </div>
 
@@ -29,13 +29,13 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <div class="bg-white border border-gray-200 rounded-md p-4">
  <h3 class="text-xs font-semibold uppercase tracking-wide mb-4">Add New Category</h3>
  <div class="flex flex-col sm:flex-row gap-3">
- <input id="new-cat-name" type="text" placeholder="Category name..." class="flex-1 border border-gray-200 rounded-lg px-4 py-2 bg-white text-sm" />
- <select id="new-cat-color" class="border border-gray-200 rounded-lg px-4 py-2 bg-white text-sm">
+ <input id="new-cat-name" type="text" placeholder="Category name..." class="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-sm" />
+ <select id="new-cat-color" class="border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-sm">
  <option value="primary">Purple (Primary)</option>
  <option value="secondary">Teal (Secondary)</option>
  <option value="tertiary">Olive (Tertiary)</option>
  </select>
- <button id="add-cat-btn" class="btn-feedback bg-primary text-link px-6 py-2 rounded-lg text-xs font-semibold uppercase tracking-wide border border-gray-200">
+ <button id="add-cat-btn" class="btn-feedback bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200">
  Add
  </button>
  </div>
@@ -43,8 +43,8 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
 
  <!-- Categories List -->
  <div id="categories-list" class="bg-white border border-gray-200 rounded-md overflow-hidden">
- <div class="p-6 text-center text-gray-500">
- <span class="material-symbols-outlined text-4xl">hourglass_empty</span>
+ <div class="py-10 px-6 text-center text-gray-500">
+ <span class="material-symbols-outlined text-3xl">hourglass_empty</span>
  <p class="text-xs uppercase tracking-wide mt-2">Loading...</p>
  </div>
  </div>
@@ -68,7 +68,7 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  const container = document.getElementById('categories-list')!;
 
  if (!data.categories?.length) {
- container.innerHTML = '<div class="p-6 text-center text-gray-500"><span class="material-symbols-outlined text-4xl">category</span><p class="text-xs uppercase tracking-wide mt-2">No categories yet</p></div>';
+ container.innerHTML = '<div class="py-10 px-6 text-center text-gray-500"><span class="material-symbols-outlined text-3xl">category</span><p class="text-xs uppercase tracking-wide mt-2">No categories yet</p></div>';
  return;
  }
 
@@ -78,32 +78,32 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <div class="overflow-x-auto"><table class="w-full text-left min-w-[600px]">
  <thead>
  <tr class="border-b border-gray-200">
- <th class="px-6 py-4 text-xs uppercase tracking-wide font-bold text-gray-500 tracking-wider">Name</th>
- <th class="px-6 py-4 text-xs uppercase tracking-wide font-bold text-gray-500 tracking-wider">Slug</th>
- <th class="px-6 py-4 text-xs uppercase tracking-wide font-bold text-gray-500 tracking-wider">Color</th>
- <th class="px-6 py-4 text-xs uppercase tracking-wide font-bold text-gray-500 tracking-wider">Posts</th>
- <th class="px-6 py-4 text-xs uppercase tracking-wide font-bold text-gray-500 tracking-wider">Actions</th>
+ <th class="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Name</th>
+ <th class="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Slug</th>
+ <th class="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Color</th>
+ <th class="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Posts</th>
+ <th class="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Actions</th>
  </tr>
  </thead>
  <tbody class="divide-y divide-gray-200/50">
  ${data.categories.map((c: any) => `
  <tr class="hover:bg-gray-50 transition-colors" data-id="${esc(c.id)}">
- <td class="px-6 py-4">
+ <td class="px-3 py-2.5 text-sm">
  <input type="text" value="${esc(c.name)}" class="cat-name bg-transparent border-b border-transparent hover:border-gray-200 focus:border-primary focus:outline-none font-bold text-sm w-full" />
  </td>
- <td class="px-6 py-4 text-sm text-gray-500">${esc(c.slug)}</td>
- <td class="px-6 py-4">
+ <td class="px-3 py-2.5 text-sm text-gray-500">${esc(c.slug)}</td>
+ <td class="px-3 py-2.5 text-sm">
  <select class="cat-color border border-gray-200 rounded px-2 py-1 bg-white text-xs">
  <option value="primary" ${c.color === 'primary' ? 'selected' : ''}>Purple</option>
  <option value="secondary" ${c.color === 'secondary' ? 'selected' : ''}>Teal</option>
  <option value="tertiary" ${c.color === 'tertiary' ? 'selected' : ''}>Olive</option>
  </select>
  </td>
- <td class="px-6 py-4 text-sm font-bold">${c.postCount}</td>
- <td class="px-6 py-4">
+ <td class="px-3 py-2.5 text-sm font-bold">${c.postCount}</td>
+ <td class="px-3 py-2.5 text-sm">
  <div class="flex gap-2">
- <button onclick="saveCat('${esc(c.id)}', this)" class="btn-feedback px-3 py-1 rounded-full text-xs font-bold uppercase border border-primary text-primary hover:bg-primary hover:text-link">Save</button>
- <button onclick="deleteCat('${esc(c.id)}', this)" class="btn-feedback px-3 py-1 rounded-full text-xs font-bold uppercase border border-red-300 text-red-600 hover:bg-red-50 hover:text-red-900">Delete</button>
+ <button onclick="saveCat('${esc(c.id)}', this)" class="btn-feedback px-3 py-1.5 rounded-full text-xs font-semibold uppercase border border-primary text-primary hover:bg-primary hover:text-link">Save</button>
+ <button onclick="deleteCat('${esc(c.id)}', this)" class="btn-feedback px-3 py-1.5 rounded-full text-xs font-semibold uppercase border border-red-300 text-red-600 hover:bg-red-50 hover:text-red-900">Delete</button>
  </div>
  </td>
  </tr>

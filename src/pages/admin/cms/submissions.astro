@@ -16,10 +16,10 @@ const categoryName = new Map(categories.map((c) => [c.slug, `${c.emoji} ${c.name
 	<div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
 		<AdminSidebar activePage="submissions" />
 
-		<main class="flex-1 min-w-0 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 md:overflow-y-auto md:h-screen">
+		<main class="flex-1 min-w-0 p-3 sm:p-5 space-y-4 bg-gray-50 md:overflow-y-auto md:h-screen">
 			<header class="flex items-center justify-between gap-4">
 				<div>
-					<h1 class="text-xl sm:text-2xl font-semibold text-text-primary">Submissions</h1>
+					<h1 class="text-lg font-semibold text-text-primary">Submissions</h1>
 					<p class="text-xs text-gray-500 mt-0.5">
 						{pending.length === 0
 							? 'Inbox zero. No pending submissions.'
@@ -29,14 +29,14 @@ const categoryName = new Map(categories.map((c) => [c.slug, `${c.emoji} ${c.name
 			</header>
 
 			{pending.length === 0 ? (
-				<div class="bg-white border border-gray-200 rounded-md p-10 text-center text-sm text-gray-500">
+				<div class="bg-white border border-gray-200 rounded-md py-10 px-6 text-center text-sm text-gray-500">
 					Nothing waiting for review right now.
 				</div>
 			) : (
 				<ul class="space-y-3">
 					{pending.map((p) => (
 						<li
-							class="bg-white border border-gray-200 rounded-md p-4 sm:p-5 flex flex-col sm:flex-row gap-4"
+							class="bg-white border border-gray-200 rounded-md p-4 flex flex-col sm:flex-row gap-4"
 							data-slug={p.slug}
 						>
 							<div class="flex items-center gap-3 sm:flex-col sm:items-start sm:w-44 shrink-0">

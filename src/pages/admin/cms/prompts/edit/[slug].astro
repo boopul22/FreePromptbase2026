@@ -11,7 +11,7 @@ const slug = Astro.params.slug!;
  <div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 min-w-0 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 md:overflow-y-auto md:h-screen">
+ <main class="flex-1 min-w-0 p-3 sm:p-5 space-y-4 bg-gray-50 md:overflow-y-auto md:h-screen">
  <!-- Breadcrumb -->
  <nav class="flex items-center gap-2 text-xs text-gray-500">
  <a href="/admin/cms/prompts" class="hover:text-text-primary transition-colors">Prompts</a>
@@ -22,7 +22,7 @@ const slug = Astro.params.slug!;
  <header class="flex items-center justify-between gap-4">
  <div>
  <div class="flex items-center gap-2.5">
- <h1 class="text-xl sm:text-2xl font-semibold text-text-primary" id="page-title">Edit prompt</h1>
+ <h1 class="text-lg font-semibold text-text-primary" id="page-title">Edit prompt</h1>
  <span id="status-badge" class="hidden"></span>
  </div>
  <div class="flex items-center gap-3 mt-1">
@@ -39,38 +39,38 @@ const slug = Astro.params.slug!;
  </div>
  </div>
  <div id="actions" class="flex gap-2">
- <a href="/admin/cms/prompts" class="px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>
+ <a href="/admin/cms/prompts" class="px-3 py-1.5 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>
  </div>
  </header>
 
  <form id="prompt-form" class="grid grid-cols-1 lg:grid-cols-3 gap-5">
- <div class="lg:col-span-2 space-y-4">
- <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div class="lg:col-span-2 space-y-3">
+ <div class="bg-white border border-gray-200 rounded-md p-4 space-y-3">
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-title">Title</label>
- <input id="f-title" type="text" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-title">Title</label>
+ <input id="f-title" type="text" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
  </div>
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-slug">Slug</label>
- <input id="f-slug" type="text" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" />
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-slug">Slug</label>
+ <input id="f-slug" type="text" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" />
  <p class="text-xs text-gray-500 mt-1">Changing the slug changes the public URL.</p>
  </div>
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-description">Description</label>
- <textarea id="f-description" rows="2" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-description">Description</label>
+ <textarea id="f-description" rows="2" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
  </div>
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-prompt-text">Prompt text</label>
- <textarea id="f-prompt-text" rows="12" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-prompt-text">Prompt text</label>
+ <textarea id="f-prompt-text" rows="12" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
  </div>
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-how-to-use">How to use (optional)</label>
- <textarea id="f-how-to-use" rows="3" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-how-to-use">How to use (optional)</label>
+ <textarea id="f-how-to-use" rows="3" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
  </div>
  </div>
 
  <!-- Images -->
- <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div class="bg-white border border-gray-200 rounded-md p-4 space-y-3">
  <div>
  <p class="text-sm font-semibold text-text-primary">Images</p>
  <p class="text-xs text-gray-500 mt-0.5">Drag &amp; drop or click to upload. They render as a carousel on the prompt page. Click a thumbnail to set it as the cover (featured) image, or drag thumbnails to reorder the gallery.</p>
@@ -86,44 +86,44 @@ const slug = Astro.params.slug!;
  </div>
 
  <!-- Danger zone -->
- <div class="bg-white border border-red-200 rounded-md p-5">
+ <div class="bg-white border border-red-200 rounded-md p-4">
  <h2 class="text-sm font-semibold text-red-700">Danger zone</h2>
  <p class="text-xs text-gray-500 mt-1 mb-3">Deleting a prompt is permanent. The public URL will 404 immediately.</p>
- <button id="delete-btn" type="button" class="btn-feedback inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-semibold border border-red-300 text-red-700 hover:bg-red-50">
+ <button id="delete-btn" type="button" class="btn-feedback inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold border border-red-300 text-red-700 hover:bg-red-50">
  <span class="material-symbols-outlined text-base">delete</span>
  Delete prompt
  </button>
  </div>
  </div>
 
- <aside class="space-y-4">
- <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <aside class="space-y-3">
+ <div class="bg-white border border-gray-200 rounded-md p-4 space-y-3">
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-category">Category</label>
- <select id="f-category" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"></select>
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-category">Category</label>
+ <select id="f-category" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"></select>
  </div>
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-tags">Tags</label>
- <input id="f-tags" type="text" placeholder="comma, separated, list" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-tags">Tags</label>
+ <input id="f-tags" type="text" placeholder="comma, separated, list" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
  </div>
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-cover">Cover image URL</label>
- <input id="f-cover" type="url" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-cover">Cover image URL</label>
+ <input id="f-cover" type="url" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
  </div>
  </div>
 
- <div class="bg-white border border-gray-200 rounded-md p-5 space-y-4">
+ <div class="bg-white border border-gray-200 rounded-md p-4 space-y-3">
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-author">Author</label>
- <select id="f-author" required class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-author">Author</label>
+ <select id="f-author" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
  <option value="">Loading users…</option>
  </select>
  <p class="text-xs text-gray-500 mt-1">Pick the user this prompt is credited to. Their display name becomes the byline.</p>
  </div>
  <div id="schedule-state" class="hidden rounded-md bg-indigo-50 border border-indigo-200 px-3 py-2 text-xs text-indigo-900"></div>
  <div>
- <label class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1.5" for="f-popularity">Popularity</label>
- <input id="f-popularity" type="number" min="0" class="w-full border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-popularity">Popularity</label>
+ <input id="f-popularity" type="number" min="0" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
  </div>
  <label class="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
  <input id="f-featured" type="checkbox" class="accent-primary w-4 h-4" />
@@ -520,11 +520,11 @@ const slug = Astro.params.slug!;
 
  function renderActions() {
  const el = document.getElementById('actions');
- const cancel = '<a href="/admin/cms/prompts" class="px-3 py-2 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>';
+ const cancel = '<a href="/admin/cms/prompts" class="px-3 py-1.5 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>';
  const secondary = (id, icon, label) =>
- `<button id="${id}" type="button" class="btn-feedback bg-white text-text-primary px-4 py-2 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 flex items-center gap-2"><span class="material-symbols-outlined text-base">${icon}</span>${label}</button>`;
+ `<button id="${id}" type="button" class="btn-feedback bg-white text-text-primary px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 flex items-center gap-1.5"><span class="material-symbols-outlined text-base">${icon}</span>${label}</button>`;
  const primary = (id, icon, label) =>
- `<button id="${id}" type="button" class="btn-feedback bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 flex items-center gap-2"><span class="material-symbols-outlined text-base">${icon}</span>${label}</button>`;
+ `<button id="${id}" type="button" class="btn-feedback bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold hover:opacity-90 flex items-center gap-1.5"><span class="material-symbols-outlined text-base">${icon}</span>${label}</button>`;
 
  let buttons = '';
  if (currentStatus === 'draft') {

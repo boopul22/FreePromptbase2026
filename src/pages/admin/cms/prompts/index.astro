@@ -61,14 +61,14 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  <div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
  <AdminSidebar activePage="cms" />
 
- <main class="flex-1 min-w-0 p-4 sm:p-6 md:p-6 space-y-5 bg-gray-50 md:overflow-y-auto md:h-screen">
+ <main class="flex-1 min-w-0 p-3 sm:p-5 space-y-4 bg-gray-50 md:overflow-y-auto md:h-screen">
  <!-- Header -->
- <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+ <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
  <div>
- <h1 class="text-xl sm:text-2xl font-semibold text-text-primary">Prompts</h1>
- <p class="text-sm text-gray-500 mt-1" id="prompt-subtitle">Manage the prompt library.</p>
+ <h1 class="text-lg font-semibold text-text-primary">Prompts</h1>
+ <p class="text-xs text-gray-500 mt-0.5" id="prompt-subtitle">Manage the prompt library.</p>
  </div>
- <a href="/admin/cms/prompts/new" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2 self-start sm:self-auto">
+ <a href="/admin/cms/prompts/new" class="bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5 self-start sm:self-auto">
  <span class="material-symbols-outlined text-base">add</span>
  New prompt
  </a>
@@ -76,22 +76,22 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
 
  <!-- Status tabs -->
  <div class="flex flex-wrap gap-1" id="status-filters">
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-text-primary text-surface transition-all" data-status="all">All <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="approved">Live <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="scheduled">Scheduled <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="draft">Drafts <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
+ <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-text-primary text-surface transition-all" data-status="all">All <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
+ <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="approved">Live <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
+ <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="scheduled">Scheduled <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
+ <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="draft">Drafts <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
  </div>
 
  <!-- Filters -->
- <div class="flex flex-col md:flex-row gap-3">
- <select id="category-filter" class="px-3 py-2 border border-gray-200 rounded-md bg-white text-sm">
+ <div class="flex flex-col md:flex-row gap-2">
+ <select id="category-filter" class="px-3 py-1.5 border border-gray-200 rounded-md bg-white text-sm">
  <option value="">All categories</option>
  </select>
- <label class="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-md bg-white text-sm text-text-primary cursor-pointer">
+ <label class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-md bg-white text-sm text-text-primary cursor-pointer">
  <input id="featured-filter" type="checkbox" class="accent-primary" />
  Featured only
  </label>
- <div class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-md flex-1">
+ <div class="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-md flex-1">
  <span class="material-symbols-outlined text-gray-400 text-base">search</span>
  <input id="search-input" type="text" placeholder="Search prompts..." class="bg-transparent border-none focus:outline-none w-full text-sm" />
  </div>
@@ -100,7 +100,7 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  <!-- Table -->
  <div class="bg-white border border-gray-200 rounded-md overflow-hidden">
  <div id="prompts-list">
- <div class="p-8 text-center text-gray-500">
+ <div class="py-10 px-6 text-center text-gray-500">
  <span class="material-symbols-outlined text-3xl">hourglass_empty</span>
  <p class="text-xs uppercase tracking-wide mt-2">Loading...</p>
  </div>
@@ -181,8 +181,8 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
 
  if (!data.prompts?.length) {
  list.innerHTML = `
- <div class="p-12 text-center text-gray-500">
- <span class="material-symbols-outlined text-4xl text-gray-300">inbox</span>
+ <div class="py-10 px-6 text-center text-gray-500">
+ <span class="material-symbols-outlined text-3xl text-gray-300">inbox</span>
  <p class="text-sm mt-2">No prompts match the current filter.</p>
  <a href="/admin/cms/prompts/new" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline mt-3">
  <span class="material-symbols-outlined text-base">add</span>
@@ -290,17 +290,17 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  </colgroup>
  <thead class="bg-gray-50 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
  <tr>
- <th class="text-left px-4 py-2.5">Title</th>
- <th class="text-left px-4 py-2.5 hidden md:table-cell">Category</th>
- <th class="text-left px-4 py-2.5 hidden lg:table-cell">Added by</th>
- <th class="text-left px-4 py-2.5 hidden xl:table-cell">Date</th>
- <th class="text-right px-4 py-2.5">Actions</th>
+ <th class="text-left px-3 py-2">Title</th>
+ <th class="text-left px-3 py-2 hidden md:table-cell">Category</th>
+ <th class="text-left px-3 py-2 hidden lg:table-cell">Added by</th>
+ <th class="text-left px-3 py-2 hidden xl:table-cell">Date</th>
+ <th class="text-right px-3 py-2">Actions</th>
  </tr>
  </thead>
  <tbody class="divide-y divide-gray-200">
  ${data.prompts.map((p: any) => `
  <tr class="hover:bg-gray-50 transition-colors">
- <td class="px-4 py-3 align-top">
+ <td class="px-3 py-2.5 align-top">
  <div class="flex items-center gap-2 min-w-0">
  ${p.featured ? '<span class="material-symbols-outlined text-primary text-base shrink-0" title="Featured">star</span>' : ''}
  <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="font-medium text-text-primary hover:text-primary truncate">${esc(p.title)}</a>
@@ -309,8 +309,8 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  <p class="text-xs text-gray-500 mt-0.5 truncate">${esc(p.description || '')}</p>
  ${isScheduledRow(p) ? `<p class="text-[11px] text-indigo-700 font-semibold mt-1 inline-flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">schedule</span>Goes live ${esc(fmtSchedule(p.publishAt))}</p>` : ''}
  </td>
- <td class="px-4 py-3 hidden md:table-cell text-gray-600 align-middle truncate">${p.categoryEmoji ?? ''} ${esc(p.categoryName ?? p.category)}</td>
- <td class="px-4 py-3 hidden lg:table-cell align-middle">
+ <td class="px-3 py-2.5 hidden md:table-cell text-gray-600 align-middle truncate">${p.categoryEmoji ?? ''} ${esc(p.categoryName ?? p.category)}</td>
+ <td class="px-3 py-2.5 hidden lg:table-cell align-middle">
  ${p.createdByName
  ? `<div class="flex items-center gap-2 min-w-0">
  ${p.createdByAvatar ? `<img src="${esc(p.createdByAvatar)}" alt="" class="w-6 h-6 rounded-full object-cover shrink-0" />` : `<div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-gray-500 shrink-0">${esc(p.createdByName[0].toUpperCase())}</div>`}
@@ -318,8 +318,8 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  </div>`
  : `<span class="text-gray-400 text-xs">${esc(p.author || '—')}</span>`}
  </td>
- <td class="px-4 py-3 hidden xl:table-cell text-gray-500 text-xs align-middle whitespace-nowrap">${esc(p.date)}</td>
- <td class="px-4 py-3 text-right whitespace-nowrap">
+ <td class="px-3 py-2.5 hidden xl:table-cell text-gray-500 text-xs align-middle whitespace-nowrap">${esc(p.date)}</td>
+ <td class="px-3 py-2.5 text-right whitespace-nowrap">
  <a href="/${esc(p.slug)}" target="_blank" rel="noopener" class="inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-100 text-gray-500 hover:text-text-primary transition-colors" title="View live">
  <span class="material-symbols-outlined text-base">open_in_new</span>
  </a>
@@ -394,8 +394,8 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  currentStatus = btn.dataset.status || 'all';
  document.querySelectorAll('#status-filters button').forEach((b) => {
  b.className = b === btn
- ? 'px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-text-primary text-surface transition-all'
- : 'px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all';
+ ? 'px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-text-primary text-surface transition-all'
+ : 'px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all';
  });
  applyFilters();
  });
