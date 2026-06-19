@@ -131,6 +131,21 @@ export async function getAllPrompts(): Promise<Prompt[]> {
 const NEWEST_TS = 'COALESCE(publish_at, created_at)';
 const NEWEST_ORDER = `date DESC, ${NEWEST_TS} DESC, slug ASC`;
 
+/**
+ * Earliest still-pending scheduled go-live time (UTC 'YYYY-MM-DD HH:MM:SS'), or
+ * null when nothing is queued. Lets the CDN cache TTL be shortened so a scheduled
+ * prompt appears promptly at its publish_at instead of lingering behind a stale
+ * cached page. One indexed MIN lookup; runs only on cache misses (in middleware).
+ */
+export async function getNextPublishAt(): Promise<string | null> {
+	const row = await getDB()
+		.prepare(
+			"SELECT MIN(publish_at) AS next FROM prompts WHERE status = 'approved' AND publish_at IS NOT NULL AND publish_at > datetime('now')",
+		)
+		.first<{ next: string | null }>();
+	return row?.next ?? null;
+}
+
 /** The newest N approved prompts — bounded "what's new" view for the home Recent tab. */
 export async function getRecentPrompts(limit = 24): Promise<Prompt[]> {
 	const { results } = await getDB()

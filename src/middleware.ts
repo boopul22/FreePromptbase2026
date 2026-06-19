@@ -1,6 +1,7 @@
 import { defineMiddleware } from 'astro:middleware';
 import { getSession } from './lib/session';
 import { getDB } from './lib/db';
+import { getNextPublishAt } from './lib/prompts';
 
 // Single-language middleware. If you want multi-locale routing, use
 // `middleware.i18n.ts` as a starting point — it adds /{locale}/* prefix
@@ -160,7 +161,35 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       // prompt) must not be shared across visitors via the CDN cache.
       response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
     } else {
-      response.headers.set('Cache-Control', 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400');
+      // Scheduling-aware CDN TTL. Scheduled prompts have no cron — they go live
+      // purely because this SSR gate (`publish_at <= now`) is re-evaluated per
+      // request. A stale cached page would keep hiding a freshly-due prompt, so we
+      // make the cache expire exactly at the next scheduled go-live. This runs only
+      // on cache misses (the worker never executes on CDN hits), so the single
+      // indexed MIN lookup costs nothing on the hot path.
+      //
+      // Default (nothing scheduled within the hour): cache 1h with a long
+      // stale-while-revalidate for best performance.
+      let cacheControl = 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400';
+      try {
+        const nextPublish = await getNextPublishAt();
+        if (nextPublish) {
+          // publish_at is stored UTC but zone-less; append 'Z' so Date.parse reads it as UTC.
+          const secs = Math.floor((Date.parse(nextPublish.replace(' ', 'T') + 'Z') - Date.now()) / 1000);
+          if (Number.isFinite(secs) && secs <= 3600) {
+            // A go-live is imminent. Pin freshness to expire right at publish time
+            // and drop stale-while-revalidate entirely, so the cache hard-expires at
+            // the boundary and the very next request renders the new prompt — no
+            // stale-serve window. Floored at 30s to avoid a thundering herd of
+            // origin renders at the instant of go-live.
+            const ttl = Math.max(30, secs);
+            cacheControl = `public, max-age=${Math.min(300, ttl)}, s-maxage=${ttl}`;
+          }
+        }
+      } catch {
+        // D1 unavailable or query failed — keep the safe 1h default above.
+      }
+      response.headers.set('Cache-Control', cacheControl);
     }
   }
 
