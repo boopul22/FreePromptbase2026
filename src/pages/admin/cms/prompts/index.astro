@@ -9,7 +9,7 @@ import { getDB } from '../../../../lib/db';
 // client fetch waterfall. The client renderer consumes this island and only
 // re-fetches on filter / search / pagination.
 const LIMIT = 20;
-let initial = { prompts: [] as any[], total: 0, page: 1, totalPages: 1, categories: [] as any[] };
+let initial = { prompts: [] as any[], total: 0, counts: { all: 0, published: 0, scheduled: 0, draft: 0 }, page: 1, totalPages: 1, categories: [] as any[] };
 try {
 	const db = getDB(Astro.locals);
 	const [listRes, countRes, catRes] = await db.batch<any>([
@@ -22,10 +22,18 @@ try {
 			 LEFT JOIN users u ON p.created_by = u.id
 			 ORDER BY p.date DESC, p.created_at DESC LIMIT ${LIMIT}`,
 		),
-		db.prepare('SELECT COUNT(*) AS n FROM prompts'),
+		db.prepare(
+			`SELECT
+			   COUNT(*) AS all_n,
+			   SUM(CASE WHEN status = 'approved' AND (publish_at IS NULL OR publish_at <= datetime('now')) THEN 1 ELSE 0 END) AS published_n,
+			   SUM(CASE WHEN status = 'approved' AND publish_at IS NOT NULL AND publish_at > datetime('now') THEN 1 ELSE 0 END) AS scheduled_n,
+			   SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) AS draft_n
+			 FROM prompts`,
+		),
 		db.prepare('SELECT slug, name, emoji FROM prompt_categories ORDER BY sort_order'),
 	]);
-	const total = (countRes.results?.[0]?.n as number) ?? 0;
+	const c = countRes.results?.[0] ?? {};
+	const total = (c.all_n as number) ?? 0;
 	initial = {
 		prompts: (listRes.results || []).map((r: any) => ({
 			slug: r.slug, title: r.title, description: r.description, status: r.status,
@@ -33,7 +41,14 @@ try {
 			category: r.category, categoryName: r.category_name, categoryEmoji: r.category_emoji,
 			createdByName: r.creator_name, createdByAvatar: r.creator_avatar, author: r.author,
 		})),
-		total, page: 1, totalPages: Math.max(1, Math.ceil(total / LIMIT)),
+		total,
+		counts: {
+			all: (c.all_n as number) ?? 0,
+			published: (c.published_n as number) ?? 0,
+			scheduled: (c.scheduled_n as number) ?? 0,
+			draft: (c.draft_n as number) ?? 0,
+		},
+		page: 1, totalPages: Math.max(1, Math.ceil(total / LIMIT)),
 		categories: catRes.results || [],
 	};
 } catch {
@@ -61,10 +76,10 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
 
  <!-- Status tabs -->
  <div class="flex flex-wrap gap-1" id="status-filters">
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-text-primary text-surface transition-all" data-status="all">All</button>
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="approved">Published</button>
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="scheduled">Scheduled</button>
- <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="draft">Drafts</button>
+ <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-text-primary text-surface transition-all" data-status="all">All <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
+ <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="approved">Live <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
+ <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="scheduled">Scheduled <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
+ <button class="px-4 py-2 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="draft">Drafts <span data-count class="ml-0.5 opacity-60 tabular-nums"></span></button>
  </div>
 
  <!-- Filters -->
@@ -111,6 +126,28 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  return d.innerHTML;
  }
 
+ // publish_at is stored UTC but zone-less; render it in the admin's local time.
+ function fmtSchedule(publishAt: string | null): string {
+ if (!publishAt) return '';
+ const d = new Date(String(publishAt).replace(' ', 'T') + 'Z');
+ if (isNaN(d.getTime())) return '';
+ return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+ }
+
+ // Fill the count badge on each status tab. Keys map tab data-status → counts.
+ function renderCounts(counts: any) {
+ if (!counts) return;
+ const map: Record<string, number> = {
+ all: counts.all ?? 0, approved: counts.published ?? 0,
+ scheduled: counts.scheduled ?? 0, draft: counts.draft ?? 0,
+ };
+ document.querySelectorAll('#status-filters button').forEach((b) => {
+ const key = (b as HTMLElement).dataset.status || '';
+ const span = b.querySelector('[data-count]');
+ if (span && map[key] != null) span.textContent = String(map[key]);
+ });
+ }
+
  function renderCategories(categories: any[]) {
  const sel = document.getElementById('category-filter') as HTMLSelectElement;
  for (const c of categories || []) {
@@ -136,8 +173,11 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  }
  const list = document.getElementById('prompts-list')!;
 
- (document.getElementById('prompt-subtitle')!).textContent =
- `${data.total} ${data.total === 1 ? 'prompt' : 'prompts'} in the library.`;
+ renderCounts(data.counts);
+ const c = data.counts;
+ (document.getElementById('prompt-subtitle')!).textContent = c
+ ? `${c.all} total — ${c.published} live, ${c.scheduled} scheduled, ${c.draft} ${c.draft === 1 ? 'draft' : 'drafts'}.`
+ : `${data.total} ${data.total === 1 ? 'prompt' : 'prompts'} in the library.`;
 
  if (!data.prompts?.length) {
  list.innerHTML = `
@@ -210,6 +250,7 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  <span>${p.categoryEmoji ?? ''} ${esc(p.categoryName ?? p.category)}</span>
  <span aria-hidden="true">·</span>
  <span>${esc(p.date)}</span>
+ ${isScheduledRow(p) ? `<span aria-hidden="true">·</span><span class="text-indigo-700 font-semibold inline-flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">schedule</span>Goes live ${esc(fmtSchedule(p.publishAt))}</span>` : ''}
  </div>
  ${p.createdByName ? `
  <div class="flex items-center gap-1.5 mt-2 text-xs text-gray-500">
@@ -266,6 +307,7 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  ${statusBadge(p)}
  </div>
  <p class="text-xs text-gray-500 mt-0.5 truncate">${esc(p.description || '')}</p>
+ ${isScheduledRow(p) ? `<p class="text-[11px] text-indigo-700 font-semibold mt-1 inline-flex items-center gap-0.5"><span class="material-symbols-outlined text-sm">schedule</span>Goes live ${esc(fmtSchedule(p.publishAt))}</p>` : ''}
  </td>
  <td class="px-4 py-3 hidden md:table-cell text-gray-600 align-middle truncate">${p.categoryEmoji ?? ''} ${esc(p.categoryName ?? p.category)}</td>
  <td class="px-4 py-3 hidden lg:table-cell align-middle">

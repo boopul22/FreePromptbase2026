@@ -92,33 +92,65 @@ export const GET: APIRoute = async ({ locals, url }) => {
   const search = url.searchParams.get('search');
   const status = url.searchParams.get('status');
 
-  const params: any[] = [];
-  let where = 'WHERE 1=1';
-
+  // Base filters (everything except the status tab). Reused to scope the
+  // per-status tab counts so they reflect the active category/search/featured.
+  const baseParams: any[] = [];
+  let baseWhere = 'WHERE 1=1';
   if (category && category !== 'all') {
-    where += ' AND p.category = ?';
-    params.push(category);
-  }
-  if (status === 'scheduled') {
-    // Derived state: approved but not yet live.
-    where += " AND p.status = 'approved' AND p.publish_at IS NOT NULL AND p.publish_at > datetime('now')";
-  } else if (status && status !== 'all') {
-    where += ' AND p.status = ?';
-    params.push(status);
+    baseWhere += ' AND p.category = ?';
+    baseParams.push(category);
   }
   if (featured === '1') {
-    where += ' AND p.featured = 1';
+    baseWhere += ' AND p.featured = 1';
   }
   if (search) {
-    where += ' AND (p.title LIKE ? OR p.description LIKE ?)';
-    params.push(`%${search}%`, `%${search}%`);
+    baseWhere += ' AND (p.title LIKE ? OR p.description LIKE ?)';
+    baseParams.push(`%${search}%`, `%${search}%`);
   }
+
+  // Status tab → SQL. "Published" means LIVE NOW (approved AND no future
+  // schedule); "Scheduled" is the derived approved-but-future state. They are
+  // mutually exclusive, so Published + Scheduled + Drafts add up to the total —
+  // no more "40 published but only 32 live" ambiguity.
+  let statusClause = '';
+  const statusParams: any[] = [];
+  if (status === 'scheduled') {
+    statusClause = " AND p.status = 'approved' AND p.publish_at IS NOT NULL AND p.publish_at > datetime('now')";
+  } else if (status === 'approved') {
+    statusClause = " AND p.status = 'approved' AND (p.publish_at IS NULL OR p.publish_at <= datetime('now'))";
+  } else if (status && status !== 'all') {
+    statusClause = ' AND p.status = ?';
+    statusParams.push(status);
+  }
+
+  const where = baseWhere + statusClause;
+  const params = [...baseParams, ...statusParams];
 
   const countResult = await db
     .prepare(`SELECT COUNT(*) as count FROM prompts p ${where}`)
     .bind(...params)
     .first<{ count: number }>();
   const total = countResult?.count || 0;
+
+  // Per-status tab counts (scoped to the base filters, ignoring the status tab
+  // itself) so each tab shows how many rows it holds at a glance.
+  const countsRow = await db
+    .prepare(
+      `SELECT
+         COUNT(*) AS all_n,
+         SUM(CASE WHEN p.status = 'approved' AND (p.publish_at IS NULL OR p.publish_at <= datetime('now')) THEN 1 ELSE 0 END) AS published_n,
+         SUM(CASE WHEN p.status = 'approved' AND p.publish_at IS NOT NULL AND p.publish_at > datetime('now') THEN 1 ELSE 0 END) AS scheduled_n,
+         SUM(CASE WHEN p.status = 'draft' THEN 1 ELSE 0 END) AS draft_n
+       FROM prompts p ${baseWhere}`,
+    )
+    .bind(...baseParams)
+    .first<{ all_n: number; published_n: number; scheduled_n: number; draft_n: number }>();
+  const counts = {
+    all: countsRow?.all_n ?? 0,
+    published: countsRow?.published_n ?? 0,
+    scheduled: countsRow?.scheduled_n ?? 0,
+    draft: countsRow?.draft_n ?? 0,
+  };
 
   // List view only needs these columns — skip the heavy text fields
   // (prompt_text, images, how_to_use) so the payload + read stay small.
@@ -141,6 +173,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
       success: true,
       prompts: (rows.results || []).map(mapRow),
       total,
+      counts,
       page,
       totalPages: Math.ceil(total / limit),
     }),
