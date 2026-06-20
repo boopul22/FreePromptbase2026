@@ -1,0 +1,323 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import PromptGrid from './PromptGrid.astro';
+import { getAllCategories, getAllTags, getPromptsByTag } from '../lib/prompts';
+import type { Tag } from '../lib/prompts';
+import { getTagArticle } from '../lib/tagArticles';
+import { itemListSchema, breadcrumbSchema } from '../lib/seo';
+import { cfSrcset } from '../lib/cfImage';
+
+// Keyword landing page, served at the ROOT URL /<main-keyword>. The prompt grid
+// renders first; an editorial, blog-style article + FAQ render below it. Used by
+// the root [slug] route once a slug resolves to a curated keyword (not a prompt).
+interface Props {
+	tag: Tag;
+}
+const { tag } = Astro.props;
+
+const [{ prompts, matched }, categories] = await Promise.all([
+	getPromptsByTag(tag),
+	getAllCategories(),
+]);
+
+const related = getAllTags()
+	.filter((t) => t.slug !== tag.slug)
+	.slice(0, 14);
+
+const name = tag.name;
+const lower = name.toLowerCase();
+const q = tag.query;
+const blob = `${tag.query} ${tag.matchTerms.join(' ')}`.toLowerCase();
+const isImage = /photo|image|foto|edit|caricature|portrait|retro|pic|art|banana|holi/.test(blob);
+
+// Many keywords already contain "prompt(s)"; keep the noun phrases grammatical.
+function plural(s: string): string {
+	if (/prompts$/.test(s)) return s;
+	if (/prompt$/.test(s)) return `${s}s`;
+	if (/\bprompt\b/.test(s) || /s$/.test(s)) return s;
+	return `${s} prompts`;
+}
+const lowerPl = plural(lower);
+
+// Deterministic per-slug variant so the H1 wording isn't identical across pages.
+function variant(n: number): number {
+	let h = 0;
+	for (const c of tag.slug) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+	return h % n;
+}
+const h1Tails = isImage
+	? ['to Create Stunning AI Photos', 'for Jaw-Dropping AI Edits', 'to Copy, Paste, and Post']
+	: ['You Can Copy and Paste', 'That Actually Work', 'for Better AI Results'];
+const heading = `${name} ${h1Tails[variant(h1Tails.length)]}`;
+const lead = isImage
+	? `Free ${lowerPl} you can copy in one tap. Paste, add your own photo, and create something worth sharing.`
+	: `Free, ready-to-use ${lowerPl}. Copy one, paste it into your favourite AI tool, and get to work.`;
+
+// Written content (authored per keyword). Falls back to a short generic article
+// if a keyword has no JSON file yet, so the page is never thin or broken.
+const article = getTagArticle(tag.slug);
+const bodyHtml =
+	article?.bodyHtml ??
+	`<p>Every ${lowerPl.replace(/\b\w/, (c) => c)} on this page is free to copy. Pick one above, paste it into Gemini, ChatGPT, or your image app, then swap in your own details.</p>`;
+const faqs =
+	article?.faqs ?? [
+		{
+			q: `Are these ${lowerPl} free?`,
+			a: `Yes. Every prompt here is free and there is no signup. Copy any prompt and use it as often as you like.`,
+		},
+	];
+
+const title = `${name} — Free Prompts to Copy & Paste | Free Prompt Base`;
+// Prefer the authored meta description (its opening uses the main keyword);
+// fall back to the keyword's templated description.
+const description = article?.metaDescription ?? tag.description;
+
+const list = itemListSchema(
+	prompts.slice(0, 30).map((p) => ({ name: p.title, url: `/${p.slug}` })),
+	`${name} prompts`,
+);
+const crumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name, path: `/${tag.slug}` },
+]);
+const faqSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'FAQPage',
+	mainEntity: faqs.map((f) => ({
+		'@type': 'Question',
+		name: f.q,
+		acceptedAnswer: { '@type': 'Answer', text: f.a },
+	})),
+};
+---
+
+<Layout
+	title={title}
+	description={description}
+	extraSchemas={[list, crumb, faqSchema]}
+	preloadImage={prompts[0]?.coverImage}
+	preloadImageSrcset={prompts[0]?.coverImage ? cfSrcset(prompts[0].coverImage, [300, 400, 520, 660], 68) : undefined}
+	preloadImageSizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
+>
+	<Header />
+	<main class="flex-grow max-w-7xl mx-auto px-4 w-full py-10">
+		<nav class="text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
+			<a href="/" class="hover:text-primary">Home</a>
+			<span class="mx-1.5">/</span>
+			<span class="text-gray-700">{name}</span>
+		</nav>
+
+		<!-- H1 + lead, then the prompts immediately. The article sits below. -->
+		<header class="mb-8 max-w-3xl">
+			<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary leading-[1.15]">
+				{heading}
+			</h1>
+			<p class="text-gray-600 text-lg mt-3">{lead}</p>
+			<p class="text-sm text-gray-600 mt-2">
+				{prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'}
+			</p>
+		</header>
+
+		{
+			prompts.length > 0 ? (
+				<PromptGrid prompts={prompts} categories={categories} />
+			) : (
+				<p class="text-center text-gray-500 py-16">No prompts here yet. Check back soon!</p>
+			)
+		}
+
+		{
+			!matched && prompts.length > 0 && (
+				<p class="text-sm text-gray-500 mt-6">
+					Showing popular prompts you can adapt for “{q}”.
+				</p>
+			)
+		}
+
+		<!-- ===== Editorial article — same container, font and background as the
+		     prompts above; just a readable text column with warm accents. ===== -->
+		<section class="mt-16 pt-12 border-t border-gray-200 max-w-3xl">
+			<p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary mb-3">
+				<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+				The guide
+			</p>
+			<h2 class="text-2xl md:text-3xl font-bold tracking-tight text-text-primary leading-tight mb-7">
+				Everything about {lowerPl}
+			</h2>
+
+			<div class="kw-article" set:html={bodyHtml} />
+
+			<!-- FAQ -->
+			<div class="mt-16 pt-12 border-t border-gray-200">
+				<p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-primary mb-3">
+					<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+					Questions
+				</p>
+				<h2 class="text-2xl font-bold tracking-tight text-text-primary mb-6">
+					Frequently asked questions
+				</h2>
+				<div class="divide-y divide-gray-200 border-t border-gray-200">
+					{
+						faqs.map((f) => (
+							<details class="group py-1">
+								<summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold text-text-primary hover:text-primary transition-colors">
+									{f.q}
+									<svg class="w-5 h-5 shrink-0 text-gray-400 transition-transform duration-200 group-open:rotate-180 group-open:text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+										<polyline points="6 9 12 15 18 9" />
+									</svg>
+								</summary>
+								<p class="text-gray-700 leading-relaxed pb-4 -mt-1">{f.a}</p>
+							</details>
+						))
+					}
+				</div>
+			</div>
+		</section>
+
+		<!-- Related keywords -->
+		<section class="mt-16 pt-12 border-t border-gray-200">
+			<h2 class="text-xl font-bold tracking-tight text-text-primary mb-4">Related searches</h2>
+			<div class="flex flex-wrap gap-2">
+				{
+					related.map((t) => (
+						<a
+							href={`/${t.slug}`}
+							class="border border-gray-200 bg-white hover:border-primary hover:text-primary text-gray-700 text-sm font-medium px-3 py-1.5 rounded-full transition-colors"
+						>
+							{t.name}
+						</a>
+					))
+				}
+			</div>
+		</section>
+	</main>
+	<Footer />
+</Layout>
+
+<style is:global>
+	/* Keyword article body. Uses the site's own sans typography (inherited Rubik)
+	   so it reads consistently with the prompt cards and the rest of the page —
+	   no separate blog font or boxed background. */
+	.kw-article {
+		color: #2b2b2b;
+		font-size: 1.0625rem;
+		line-height: 1.75;
+	}
+	.kw-article > :first-child {
+		margin-top: 0;
+	}
+	.kw-article h2 {
+		font-size: 1.375rem;
+		font-weight: 700;
+		letter-spacing: -0.015em;
+		line-height: 1.25;
+		margin-top: 2.75rem;
+		margin-bottom: 0.85rem;
+		padding-bottom: 0.55rem;
+		color: var(--color-text-primary, #1f2937);
+		position: relative;
+	}
+	/* Short gold underline accent under every section heading. */
+	.kw-article h2::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 2.25rem;
+		height: 3px;
+		border-radius: 2px;
+		background: var(--color-primary);
+	}
+	.kw-article h3 {
+		font-size: 1.125rem;
+		font-weight: 700;
+		line-height: 1.3;
+		margin-top: 1.85rem;
+		margin-bottom: 0.4rem;
+		color: var(--color-link, #181830);
+	}
+	.kw-article p {
+		margin: 1.1rem 0;
+	}
+	.kw-article ul,
+	.kw-article ol {
+		margin: 1rem 0;
+		padding-left: 1.4rem;
+	}
+	.kw-article ul {
+		list-style: disc;
+	}
+	.kw-article ol {
+		list-style: decimal;
+	}
+	.kw-article li {
+		margin: 0.35rem 0;
+	}
+	.kw-article li::marker {
+		color: var(--color-primary);
+	}
+	.kw-article strong {
+		font-weight: 700;
+		color: #111827;
+	}
+	/* Pull-quote: warm tinted panel, no side stripe. A leading gold quote mark. */
+	.kw-article blockquote {
+		position: relative;
+		margin: 2rem 0;
+		padding: 1.1rem 1.25rem 1.1rem 2.6rem;
+		background: oklch(0.965 0.03 85);
+		border: 1px solid oklch(0.9 0.05 85);
+		border-radius: 12px;
+		color: var(--color-link, #181830);
+		font-style: italic;
+	}
+	.kw-article blockquote::before {
+		content: '\201C';
+		position: absolute;
+		left: 0.7rem;
+		top: 0.35rem;
+		font-size: 2rem;
+		line-height: 1;
+		font-style: normal;
+		color: var(--color-primary);
+	}
+	.kw-article blockquote p {
+		margin: 0;
+	}
+	/* Table: warm header wash, rounded outer frame, zebra rows. */
+	.kw-article table {
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0;
+		margin: 1.85rem 0;
+		font-size: 0.95rem;
+		line-height: 1.5;
+		border: 1px solid var(--hairline, #e7e1d4);
+		border-radius: 12px;
+		overflow: hidden;
+	}
+	.kw-article thead th {
+		background: oklch(0.95 0.035 85);
+		text-align: left;
+		font-weight: 700;
+		color: var(--color-link, #181830);
+	}
+	.kw-article th,
+	.kw-article td {
+		padding: 0.65rem 0.85rem;
+		vertical-align: top;
+		border-bottom: 1px solid var(--hairline, #e7e1d4);
+	}
+	.kw-article th:not(:last-child),
+	.kw-article td:not(:last-child) {
+		border-right: 1px solid var(--hairline, #e7e1d4);
+	}
+	.kw-article tbody tr:last-child td {
+		border-bottom: 0;
+	}
+	.kw-article tbody tr:nth-child(even) {
+		background: var(--paper-sunken, #f7f3ea);
+	}
+</style>

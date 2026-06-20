@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { getAllTags } from '../lib/prompts';
+import { itemListSchema, breadcrumbSchema } from '../lib/seo';
+
+export const prerender = false;
+
+const tags = getAllTags();
+
+const list = itemListSchema(
+	tags.map((t) => ({ name: t.name, url: `/${t.slug}` })),
+	'Prompt keywords',
+);
+const crumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name: 'Tags', path: '/tags' },
+]);
+---
+
+<Layout
+	title="Browse prompts by keyword — Free Prompt Base"
+	description="Explore trending AI prompt keywords — Gemini photo prompts, nano banana prompts, couple prompts and more. Free, copy-paste ready."
+	extraSchemas={[list, crumb]}
+>
+	<Header />
+	<main class="flex-grow max-w-7xl mx-auto px-4 w-full py-12">
+		<header class="text-center mb-12">
+			<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary">
+				Browse by keyword
+			</h1>
+			<p class="text-gray-600 text-lg mt-3">
+				Jump straight to the prompts people are searching for across {tags.length} trending keywords.
+			</p>
+		</header>
+
+		<div class="flex flex-wrap gap-2.5">
+			{
+				tags.map((t) => (
+					<a
+						href={`/${t.slug}`}
+						class="bg-gray-100 hover:bg-gray-200 text-gray-800 text-sm font-medium px-3.5 py-2 rounded-lg transition-colors"
+					>
+						{t.name}
+					</a>
+				))
+			}
+		</div>
+	</main>
+	<Footer />
+</Layout>

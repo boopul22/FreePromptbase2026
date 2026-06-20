@@ -13,9 +13,11 @@
 import { env } from 'cloudflare:workers';
 import type { Prompt } from '../data/prompts';
 import type { Category } from '../data/categories';
+import type { Tag } from '../data/tags';
+import { tags as ALL_TAGS } from '../data/tags';
 import { generateSlug, logActivity } from './cms';
 
-export type { Prompt, Category };
+export type { Prompt, Category, Tag };
 
 function getDB(): D1Database {
 	const db = env.DB;
@@ -271,6 +273,61 @@ export async function getCategoryBySlug(slug: string): Promise<Category | undefi
 		.bind(slug)
 		.first<Category>();
 	return row ?? undefined;
+}
+
+// ---------------------------------------------------------------------------
+// SEO tag pages — keyword landing pages at /tag/<slug>. Tags are static
+// (keyword research from src/data/tags.ts); the prompts shown are matched live
+// from D1 by the tag's significant terms, falling back to popular prompts so a
+// page never renders empty (a keyword may not match any prompt's tags/title).
+// ---------------------------------------------------------------------------
+
+/** All keyword tags, in research order. */
+export function getAllTags(): Tag[] {
+	return ALL_TAGS;
+}
+
+/** A single tag by slug, or undefined when the slug isn't a known keyword. */
+export function getTagBySlug(slug: string): Tag | undefined {
+	return ALL_TAGS.find((t) => t.slug === slug);
+}
+
+/**
+ * Approved prompts relevant to a tag's keyword. A prompt matches when any of the
+ * tag's significant terms appears in its tags, title, or description; results are
+ * ranked by how many distinct terms match, then popularity. When nothing matches
+ * (the keyword has no related prompts yet) we fall back to the most popular
+ * prompts so the page still has content. `matched` reports whether the rows are a
+ * real keyword match (true) or the popular fallback (false).
+ */
+export async function getPromptsByTag(
+	tag: Tag,
+	limit = 60,
+): Promise<{ prompts: Prompt[]; matched: boolean }> {
+	const terms = tag.matchTerms.filter(Boolean);
+	if (terms.length > 0) {
+		// One LIKE-across-fields predicate per term; score = count of matching terms.
+		const cond = (t: string) =>
+			'(LOWER(tags) LIKE ? OR LOWER(title) LIKE ? OR LOWER(description) LIKE ?)';
+		const where = terms.map(cond).join(' OR ');
+		const score = terms.map((t) => `(CASE WHEN ${cond(t)} THEN 1 ELSE 0 END)`).join(' + ');
+		// Binds: score block (3/term) first, then the WHERE block (3/term).
+		const like = terms.map((t) => `%${t.toLowerCase()}%`);
+		const binds = [...like.flatMap((l) => [l, l, l]), ...like.flatMap((l) => [l, l, l]), limit];
+		const { results } = await getDB()
+			.prepare(
+				`SELECT ${PROMPT_COLS}, (${score}) AS rank FROM prompts
+				 WHERE ${APPROVED} AND (${where})
+				 ORDER BY rank DESC, save_count DESC, date DESC
+				 LIMIT ?`,
+			)
+			.bind(...binds)
+			.all<PromptRow>();
+		if (results.length > 0) return { prompts: results.map(rowToPrompt), matched: true };
+	}
+	// Fallback: keyword matched nothing — show popular prompts so the page isn't empty.
+	const popular = await getPopularPrompts(limit);
+	return { prompts: popular, matched: false };
 }
 
 /**

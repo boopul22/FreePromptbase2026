@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getAllPrompts, getAllCategories } from '../lib/prompts';
+import { getAllPrompts, getAllCategories, getAllTags } from '../lib/prompts';
 import { getAllPosts } from '../lib/posts';
 import { getActiveAuthorUsernames } from '../lib/users';
 import { getDB } from '../lib/db';
@@ -9,9 +9,10 @@ import { getDB } from '../lib/db';
 export const prerender = false;
 
 const SITE = (import.meta.env.SITE ?? 'https://freepromptbase.com').replace(/\/$/, '');
-const STATIC_PATHS = ['/', '/categories', '/blog', '/about', '/privacy', '/terms'];
+const STATIC_PATHS = ['/', '/categories', '/tags', '/blog', '/about', '/privacy', '/terms'];
 
 export const GET: APIRoute = async () => {
+	const tags = getAllTags();
 	const [prompts, categories, posts, pageRows, authors] = await Promise.all([
 		getAllPrompts(),
 		getAllCategories(),
@@ -31,6 +32,7 @@ export const GET: APIRoute = async () => {
 	const entries: Entry[] = [
 		...STATIC_PATHS.map((p) => ({ loc: p })),
 		...categories.map((c) => ({ loc: `/category/${c.slug}` })),
+		...tags.map((t) => ({ loc: `/${t.slug}` })),
 		...prompts.map((p) => {
 			const imgs = [...(p.images ?? []), ...(p.coverImage ? [p.coverImage] : [])];
 			return {
