@@ -165,7 +165,12 @@ const postSchema = {
 	mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
 	inLanguage: 'en',
 	...(wordCount > 0 ? { wordCount, articleBody } : {}),
-	...(post.coverImage ? { image: post.coverImage } : {}),
+	// `image` is required for Article/BlogPosting rich results. Always emit one —
+	// fall back to the branded, generated OG card (absolute) when the post has no
+	// cover, mirroring the ogImage fallback below.
+	image: post.coverImage
+		? new URL(post.coverImage, Astro.site).href
+		: new URL(`/og/${post.slug}.svg`, Astro.site).href,
 };
 
 // FAQPage schema gets a separate JSON-LD block (Google's preferred shape).

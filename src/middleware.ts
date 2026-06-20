@@ -156,7 +156,12 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       locals.user ||
       (locals.savedSlugs && locals.savedSlugs.size > 0) ||
       (locals.likedSlugs && locals.likedSlugs.size > 0);
-    if (hasPersonalization) {
+    if (response.status >= 400) {
+      // Don't let the CDN hold an error (esp. a 404 for a slug that's about to be
+      // published) for up to an hour — a freshly-added page would keep serving a
+      // stale 404 to crawlers. Make error responses revalidate immediately.
+      response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+    } else if (hasPersonalization) {
       // Personalized HTML (signed-in user OR an anon who has saved at least one
       // prompt) must not be shared across visitors via the CDN cache.
       response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');

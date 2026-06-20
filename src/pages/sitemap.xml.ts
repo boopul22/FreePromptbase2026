@@ -29,9 +29,36 @@ export const GET: APIRoute = async () => {
 		images?: string[];
 	}
 
+	// Derive freshness signals from content already loaded (no extra queries):
+	// latest prompt/post dates feed the dynamic index pages, and a per-category
+	// max date gives each /category/<slug> a real lastmod.
+	const day = (s?: string | null) => (s ? s.slice(0, 10) : undefined);
+	const maxDay = (a?: string, b?: string) => (!a ? b : !b ? a : a > b ? a : b);
+	const latestPromptDate = prompts.reduce<string | undefined>(
+		(acc, p) => maxDay(acc, day(p.updatedAt ?? p.date)),
+		undefined,
+	);
+	const latestPostDate = posts.reduce<string | undefined>(
+		(acc, p) => maxDay(acc, day(p.publishedAt ?? p.createdAt)),
+		undefined,
+	);
+	const catLastmod = new Map<string, string>();
+	for (const p of prompts) {
+		const d = day(p.updatedAt ?? p.date);
+		if (d) catLastmod.set(p.category, maxDay(catLastmod.get(p.category), d)!);
+	}
+	// lastmod for the static + index pages: content indexes track the newest item,
+	// editorial/legal pages get none (their content rarely changes).
+	const staticLastmod: Record<string, string | undefined> = {
+		'/': maxDay(latestPromptDate, latestPostDate),
+		'/categories': latestPromptDate,
+		'/tags': latestPromptDate,
+		'/blog': latestPostDate,
+	};
+
 	const entries: Entry[] = [
-		...STATIC_PATHS.map((p) => ({ loc: p })),
-		...categories.map((c) => ({ loc: `/category/${c.slug}` })),
+		...STATIC_PATHS.map((p) => ({ loc: p, lastmod: staticLastmod[p] })),
+		...categories.map((c) => ({ loc: `/category/${c.slug}`, lastmod: catLastmod.get(c.slug) })),
 		...tags.map((t) => ({ loc: `/${t.slug}` })),
 		...prompts.map((p) => {
 			const imgs = [...(p.images ?? []), ...(p.coverImage ? [p.coverImage] : [])];
@@ -61,7 +88,9 @@ export const GET: APIRoute = async () => {
 		`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemaps-image/1.1">\n` +
 		entries
 			.map((e) => {
-				const loc = `${SITE}${e.loc === '/' ? '' : e.loc}`;
+				// Match the page's own canonical exactly: the homepage canonical is
+				// `${SITE}/` (with trailing slash), so emit that, not the bare apex.
+				const loc = `${SITE}${e.loc === '/' ? '/' : e.loc}`;
 				const lastmod = e.lastmod ? `<lastmod>${e.lastmod}</lastmod>` : '';
 				const images = (e.images ?? [])
 					.map((u) => `\n    <image:image><image:loc>${escapeXml(u)}</image:loc></image:image>`)
