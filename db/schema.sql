@@ -6,6 +6,7 @@
 -- (SQLite checks FKs on DROP TABLE when foreign_keys=ON.)
 PRAGMA foreign_keys = OFF;
 
+DROP TABLE IF EXISTS subscribers;
 DROP TABLE IF EXISTS activity_log;
 DROP TABLE IF EXISTS pages;
 DROP TABLE IF EXISTS media;
@@ -235,3 +236,30 @@ CREATE TABLE activity_log (
 	created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 CREATE INDEX idx_activity_log_created_at ON activity_log(created_at);
+
+-- ===========================================================================
+-- Newsletter subscribers (double opt-in; synced to Brevo on confirm)
+-- ===========================================================================
+-- Self-managed double opt-in: a signup inserts a 'pending' row + sends a
+-- confirmation email (Brevo transactional). Clicking the link flips the row to
+-- 'confirmed' and pushes the contact to Brevo as a native, consented contact
+-- (so there's no cold "import" to do when you later start sending campaigns).
+-- 'unsubscribed' rows are kept for suppression + audit, never deleted on opt-out.
+CREATE TABLE subscribers (
+	id                TEXT PRIMARY KEY,
+	email             TEXT NOT NULL UNIQUE,             -- stored lowercased + trimmed
+	source_site       TEXT NOT NULL DEFAULT 'freepromptbase',  -- which site captured it
+	status            TEXT NOT NULL DEFAULT 'pending',  -- 'pending' | 'confirmed' | 'unsubscribed'
+	confirm_token     TEXT,                             -- single-use; cleared once confirmed
+	unsubscribe_token TEXT NOT NULL,                    -- long-lived; in every email footer
+	synced_to_brevo   INTEGER NOT NULL DEFAULT 0,       -- 1 once the contact is upserted to Brevo
+	ip                TEXT,                             -- captured at signup for consent audit
+	user_agent        TEXT,
+	created_at        TEXT NOT NULL DEFAULT (datetime('now')),
+	confirmed_at      TEXT,
+	unsubscribed_at   TEXT
+);
+CREATE INDEX idx_subscribers_status        ON subscribers(status);
+CREATE INDEX idx_subscribers_confirm_token ON subscribers(confirm_token);
+CREATE INDEX idx_subscribers_unsub_token   ON subscribers(unsubscribe_token);
+CREATE INDEX idx_subscribers_created_at    ON subscribers(created_at);
