@@ -244,7 +244,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 										width={i === 0 ? prompt.coverW : undefined}
 										height={i === 0 ? prompt.coverH : undefined}
 										style={prompt.coverW && prompt.coverH ? `aspect-ratio:${prompt.coverW}/${prompt.coverH}` : undefined}
-										class="snap-center shrink-0 w-full rounded-base object-contain bg-soft lg:max-h-[calc(100vh-8rem)]"
+										class="snap-center shrink-0 w-full rounded-base object-contain lg:max-h-[calc(100vh-8rem)] border border-text-primary"
 										loading={i === 0 ? 'eager' : 'lazy'}
 										fetchpriority={i === 0 ? 'high' : undefined}
 										decoding="async"
@@ -289,7 +289,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 							alt={prompt.title}
 							width={prompt.coverW}
 							height={prompt.coverH}
-							class="w-full rounded-base object-contain h-auto bg-soft lg:max-h-[calc(100vh-8rem)]"
+							class="w-full rounded-base object-contain h-auto lg:max-h-[calc(100vh-8rem)] border border-text-primary"
 							loading="eager"
 							fetchpriority="high"
 							decoding="async"
