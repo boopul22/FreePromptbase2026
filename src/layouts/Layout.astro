@@ -135,8 +135,11 @@ const organizationSchema = {
 		<meta name="theme-color" content="#e0a82e" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
+		<!-- Pinterest domain claim (HTML-tag method); same hash as the DNS TXT record. -->
+		<meta name="p:domain_verify" content="c4fb2597439177318c1172122d3b49c9" />
 		<link rel="canonical" href={canonical} />
 		<link rel="alternate" type="application/rss+xml" title="Free Prompt Base — Blog" href="/blog/rss.xml" />
+		<link rel="alternate" type="application/rss+xml" title="Free Prompt Base — Prompts" href="/pinterest/rss.xml" />
 
 		{/* Preconnect to Google's CDN only for signed-in users (avatars load from
 		   there). Anonymous pages don't request it, so omitting avoids an
