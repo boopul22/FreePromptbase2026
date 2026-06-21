@@ -26,13 +26,15 @@ function fmt(n: number): string {
 		<!-- Left: logo + desktop nav -->
 		<div class="flex items-center gap-2 md:gap-8">
 			<a href="/" class="flex items-center gap-2 shrink-0" aria-label="Free Prompt Base — home" data-purpose="logo">
-				<img
-					src="/logo.svg"
-					alt="Free Prompt Base"
-					class="w-8 h-8 shrink-0"
-					width="32"
-					height="32"
-				/>
+				<span class="grid place-items-center w-9 h-9 rounded-[8px] bg-text-primary border-2 border-text-primary shadow-[3px_3px_0_0_var(--color-primary)] transition-transform hover:-translate-x-px hover:-translate-y-px">
+					<img
+						src="/logo.svg"
+						alt="Free Prompt Base"
+						class="w-6 h-6 shrink-0"
+						width="24"
+						height="24"
+					/>
+				</span>
 			</a>
 			<nav aria-label="Primary" class="hidden md:flex items-center gap-6 font-medium text-sm text-gray-600">
 				<a class="text-text-primary" href="/">Prompts</a>
@@ -66,7 +68,7 @@ function fmt(n: number): string {
 				isAdmin && (
 					<a
 						href="/admin/cms"
-						class="hidden md:inline-flex btn-dark"
+						class="hidden md:inline-flex shrink-0 whitespace-nowrap btn-primary text-sm"
 					>
 						Admin
 					</a>
