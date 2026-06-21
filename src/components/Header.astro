@@ -66,7 +66,7 @@ function fmt(n: number): string {
 				isAdmin && (
 					<a
 						href="/admin/cms"
-						class="hidden md:inline-flex px-4 py-2 bg-link text-white hover:opacity-90 rounded-lg text-sm font-semibold transition-opacity"
+						class="hidden md:inline-flex btn-dark"
 					>
 						Admin
 					</a>
@@ -250,7 +250,7 @@ function fmt(n: number): string {
 							Account settings
 						</a>
 						{isAdmin && (
-							<a href="/admin/cms" class="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-semibold text-link bg-primary hover:opacity-90 transition-opacity">
+							<a href="/admin/cms" class="btn-primary flex items-center gap-3">
 								<img src="/logo.svg" alt="" aria-hidden="true" class="w-4 h-4" width="16" height="16" />
 								Admin dashboard
 							</a>

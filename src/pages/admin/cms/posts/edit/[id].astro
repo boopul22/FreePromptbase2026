@@ -20,14 +20,14 @@ const { id } = Astro.params;
  </div>
  <div class="flex items-center gap-1.5 sm:gap-2">
  <span id="error-msg" class="text-red-600 text-xs max-w-32 truncate hidden lg:inline"></span>
- <button id="save-btn" type="button" class="px-3 py-1.5 border border-gray-200 rounded-md text-xs font-semibold uppercase tracking-wide hover:bg-gray-100 transition-all">
+ <button id="save-btn" type="button" class="btn-secondary btn-sm">
  Save
  </button>
- <button id="translate-btn" type="button" title="Auto-translate to all languages via OpenRouter" class="px-3 py-1.5 border border-gray-200 rounded-md text-xs font-semibold uppercase tracking-wide hover:bg-gray-100 transition-all flex items-center gap-1.5">
+ <button id="translate-btn" type="button" title="Auto-translate to all languages via OpenRouter" class="btn-secondary btn-sm flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">translate</span>
  <span id="translate-btn-label">Translate</span>
  </button>
- <button id="publish-toggle-btn" type="button" class="px-3 py-1.5 bg-primary text-link border border-gray-200 rounded-md text-xs font-semibold uppercase tracking-wide hover:-translate-y-0.5 transition-all">
+ <button id="publish-toggle-btn" type="button" class="btn-primary btn-sm">
  Publish
  </button>
  <a id="view-post-link" href="#" class="hidden w-9 h-9 flex items-center justify-center rounded-md border border-gray-200 hover:bg-gray-100 transition-colors" title="View post">
@@ -633,7 +633,7 @@ const { id } = Astro.params;
  badgeMobile.textContent = 'Published';
  badgeMobile.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-50 text-blue-900';
  toggleBtn.textContent = 'Unpublish';
- toggleBtn.className = 'px-3 py-1.5 bg-outline text-surface border border-gray-200 rounded-md text-xs font-semibold uppercase tracking-wide hover:opacity-90 transition-all';
+ toggleBtn.className = 'btn-dark btn-sm';
  viewLink.href = `/blog/${currentSlug}`;
  viewLink.classList.remove('hidden');
  } else {
@@ -642,7 +642,7 @@ const { id } = Astro.params;
  badgeMobile.textContent = 'Draft';
  badgeMobile.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-amber-50 text-amber-900';
  toggleBtn.textContent = 'Publish';
- toggleBtn.className = 'px-3 py-1.5 bg-primary text-link border border-gray-200 rounded-md text-xs font-semibold uppercase tracking-wide hover:-translate-y-0.5 transition-all';
+ toggleBtn.className = 'btn-primary btn-sm';
  viewLink.classList.add('hidden');
  }
 

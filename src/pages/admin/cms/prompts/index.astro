@@ -69,11 +69,11 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  <p class="text-xs text-gray-500 mt-0.5" id="prompt-subtitle">Manage the prompt library.</p>
  </div>
  <div class="flex items-center gap-2 self-start sm:self-auto">
- <button id="pinterest-export-btn" type="button" title="Download a CSV of live prompts not yet exported, formatted for Pinterest Bulk create Pins. Each export includes only new prompts." class="bg-white border border-gray-200 text-text-primary px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-gray-100 transition-colors flex items-center gap-1.5">
+ <button id="pinterest-export-btn" type="button" title="Download a CSV of live prompts not yet exported, formatted for Pinterest Bulk create Pins. Each export includes only new prompts." class="btn-secondary btn-sm flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">download</span>
  <span id="pinterest-export-label">Export Pinterest CSV</span>
  </button>
- <a href="/admin/cms/prompts/new" class="bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5">
+ <a href="/admin/cms/prompts/new" class="btn-primary btn-sm flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">add</span>
  New prompt
  </a>
@@ -228,12 +228,12 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  if (p.status === 'draft' || isScheduledRow(p)) {
  const title = isScheduledRow(p) ? 'Publish now' : 'Publish';
  return variant === 'card'
- ? `<button onclick="promptAction('${esc(p.slug)}', 'publish')" class="px-3 py-2 rounded-md text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors">${title}</button>`
+ ? `<button onclick="promptAction('${esc(p.slug)}', 'publish')" class="btn-primary btn-sm">${title}</button>`
  : `<button onclick="promptAction('${esc(p.slug)}', 'publish')" class="inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-blue-50 text-gray-500 hover:text-blue-700 transition-colors" title="${title}"><span class="material-symbols-outlined text-base">publish</span></button>`;
  }
  if (p.status === 'approved') {
  return variant === 'card'
- ? `<button onclick="promptAction('${esc(p.slug)}', 'unpublish')" class="px-3 py-2 rounded-md text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors">Unpublish</button>`
+ ? `<button onclick="promptAction('${esc(p.slug)}', 'unpublish')" class="btn-secondary btn-sm">Unpublish</button>`
  : `<button onclick="promptAction('${esc(p.slug)}', 'unpublish')" class="inline-flex items-center justify-center w-7 h-7 rounded-md hover:bg-gray-100 text-gray-500 hover:text-text-primary transition-colors" title="Unpublish"><span class="material-symbols-outlined text-base">unpublished</span></button>`;
  }
  return '';
@@ -266,16 +266,16 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  </div>
  </div>
  <div class="flex items-center gap-1 mt-3 -mr-1">
- <a href="/${esc(p.slug)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors">
+ <a href="/${esc(p.slug)}" target="_blank" rel="noopener" class="btn-secondary btn-sm inline-flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">open_in_new</span>
  View
  </a>
- <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-semibold text-text-primary bg-gray-100 hover:bg-gray-200 transition-colors">
+ <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="btn-secondary btn-sm inline-flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">edit</span>
  Edit
  </a>
  ${toggleBtn(p, 'card')}
- <button onclick="deletePrompt('${esc(p.slug)}', '${esc(p.title.replace(/'/g, "\\'"))}')" class="ml-auto inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-semibold text-red-700 bg-red-50 hover:bg-red-100 transition-colors">
+ <button onclick="deletePrompt('${esc(p.slug)}', '${esc(p.title.replace(/'/g, "\\'"))}')" class="btn-danger btn-sm ml-auto inline-flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">delete</span>
  Delete
  </button>

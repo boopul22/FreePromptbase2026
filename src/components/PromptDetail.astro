@@ -36,6 +36,21 @@ const [category, related, categories, potdSlug, authorProfile] = await Promise.a
 ]);
 const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
 
+// Soft multi-colour pills (deterministic per seed so a tag/category keeps its
+// colour across renders). Used by the breadcrumb, tags, and the related rail.
+const PILL_COLORS = ['pill-gold', 'pill-clay', 'pill-rose', 'pill-sage', 'pill-teal', 'pill-slate'];
+function pillColor(seed: string): string {
+	let h = 0;
+	for (const c of seed) h = (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0;
+	return PILL_COLORS[h % PILL_COLORS.length];
+}
+// Distinct categories across the related set — rendered as colourful chips that
+// give the "More like this" header some life and double as category nav.
+const relatedCategoryPills = [...new Set(related.map((r) => r.category))]
+	.map((slug) => categoryBySlug.get(slug))
+	.filter((c): c is NonNullable<typeof c> => Boolean(c))
+	.slice(0, 6);
+
 const isSaved = Astro.locals.savedSlugs?.has(prompt.slug) ?? false;
 const isLiked = Astro.locals.likedSlugs?.has(prompt.slug) ?? false;
 const saveCount = prompt.saveCount ?? prompt.popularity ?? 0;
@@ -152,22 +167,29 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 	preloadImageSizes="(min-width: 1024px) 700px, 92vw"
 >
 	<Header />
-	<main class="flex-grow max-w-6xl mx-auto px-4 w-full py-8 sm:py-12">
-		<!-- Breadcrumb -->
-		<nav class="text-xs text-gray-600 mb-6 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
-			<a href="/" class="hover:text-secondary transition-colors">Home</a>
-			<span class="text-gray-300" aria-hidden="true">/</span>
+	<main class="flex-grow site-main py-8 sm:py-12">
+		<!-- Breadcrumb — shares the page container's left edge with the H1 below,
+		     so they align. Colour comes from the home glyph + the category pill. -->
+		<nav class="mb-5 flex flex-wrap items-center gap-2 text-xs" aria-label="Breadcrumb">
+			<a href="/" class="inline-flex items-center gap-1 font-semibold text-text-primary hover:text-secondary transition-colors">
+				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+				</svg>
+				Home
+			</a>
+			<svg class="w-3.5 h-3.5 text-gray-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 			{
 				category && (
 					<>
-						<a href={`/category/${category.slug}`} class="hover:text-secondary transition-colors">
+						<a href={`/category/${category.slug}`} class={`pill ${pillColor(category.slug)}`}>
+							<CategoryIcon slug={category.slug} class="w-3 h-3" />
 							{category.name}
 						</a>
-						<span class="text-gray-300" aria-hidden="true">/</span>
+						<svg class="w-3.5 h-3.5 text-gray-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 					</>
 				)
 			}
-			<span class="text-text-primary truncate max-w-[60%]">{prompt.title}</span>
+			<span class="text-gray-500 font-medium truncate max-w-[55%]">{prompt.title}</span>
 		</nav>
 
 		<!-- Heading (full width, line-length capped for readability).
@@ -222,7 +244,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 										width={i === 0 ? prompt.coverW : undefined}
 										height={i === 0 ? prompt.coverH : undefined}
 										style={prompt.coverW && prompt.coverH ? `aspect-ratio:${prompt.coverW}/${prompt.coverH}` : undefined}
-										class="snap-center shrink-0 w-full rounded-base object-contain bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
+										class="snap-center shrink-0 w-full rounded-base object-contain bg-soft lg:max-h-[calc(100vh-8rem)]"
 										loading={i === 0 ? 'eager' : 'lazy'}
 										fetchpriority={i === 0 ? 'high' : undefined}
 										decoding="async"
@@ -267,7 +289,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 							alt={prompt.title}
 							width={prompt.coverW}
 							height={prompt.coverH}
-							class="w-full rounded-base object-contain h-auto bg-gray-100 lg:max-h-[calc(100vh-8rem)]"
+							class="w-full rounded-base object-contain h-auto bg-soft lg:max-h-[calc(100vh-8rem)]"
 							loading="eager"
 							fetchpriority="high"
 							decoding="async"
@@ -442,9 +464,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-600 mb-3">Tags</h3>
 					<div class="flex flex-wrap gap-1.5">
 						{prompt.tags.map((tag) => (
-							<span class="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-md">
-								#{tag}
-							</span>
+							<span class={`pill ${pillColor(tag)}`}>#{tag}</span>
 						))}
 					</div>
 				</section>
@@ -518,6 +538,18 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					<header class="mb-6">
 						<p class="text-xs font-semibold uppercase tracking-wide text-gray-600">More like this</p>
 						<h2 class="text-2xl font-bold text-text-primary mt-1">Related prompts</h2>
+						{
+							relatedCategoryPills.length > 0 && (
+								<div class="mt-3 flex flex-wrap items-center gap-2">
+									{relatedCategoryPills.map((c) => (
+										<a href={`/category/${c.slug}`} class={`pill ${pillColor(c.slug)}`}>
+											<CategoryIcon slug={c.slug} class="w-3 h-3" />
+											{c.name}
+										</a>
+									))}
+								</div>
+							)
+						}
 					</header>
 					<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 						{related.map((rel) => (

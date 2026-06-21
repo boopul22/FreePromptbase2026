@@ -23,7 +23,7 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <h1 class="text-lg font-semibold text-text-primary">Media Library</h1>
  <p class="text-xs text-gray-500 mt-0.5" id="media-count">Manage uploaded images for your content.</p>
  </div>
- <label id="media-upload-label" class="btn-feedback bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200 cursor-pointer flex items-center gap-1.5 self-start sm:self-auto has-[:disabled]:opacity-55 has-[:disabled]:cursor-not-allowed">
+ <label id="media-upload-label" class="btn-feedback btn-primary cursor-pointer flex items-center gap-1.5 self-start sm:self-auto has-[:disabled]:opacity-55 has-[:disabled]:cursor-not-allowed">
  <span class="material-symbols-outlined text-lg" data-upload-icon>upload</span>
  <span data-upload-label>Upload Media</span>
  <input type="file" accept="image/*" multiple class="hidden" id="media-upload-input" />
@@ -101,8 +101,8 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  <span>${(m.sizeBytes / 1024).toFixed(0)} KB</span>
  </div>
  <div class="flex items-center gap-1">
- <button onclick="copyUrl('${esc(m.url)}')" class="flex-1 px-2 py-1 rounded text-xs font-bold uppercase border border-primary text-primary hover:bg-primary hover:text-link transition-colors text-center">Copy URL</button>
- <button onclick="deleteMedia('${esc(m.id)}')" class="text-red-600 hover:bg-red-50 hover:text-red-900 w-6 h-6 rounded flex items-center justify-center transition-colors">
+ <button onclick="copyUrl('${esc(m.url)}')" class="btn-secondary btn-sm flex-1 text-center">Copy URL</button>
+ <button onclick="deleteMedia('${esc(m.id)}')" class="btn-danger btn-sm flex items-center justify-center">
  <span class="material-symbols-outlined text-sm">delete</span>
  </button>
  </div>
