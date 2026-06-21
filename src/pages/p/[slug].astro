@@ -3,6 +3,7 @@
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
 import Nav from '../../components/Nav.astro';
 import Footer from '../../components/Footer.astro';
 import { getDB } from '../../lib/db';
@@ -61,11 +62,13 @@ const breadcrumb = breadcrumbSchema([
  <Nav />
 
  <main class="flex-grow site-main py-12">
- <nav class="text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-  <a href="/" class="hover:text-secondary">Home</a>
-  <span class="mx-1.5">/</span>
-  <span class="text-gray-700">{page.title}</span>
- </nav>
+ <Breadcrumb
+		class="mb-4"
+		items={[
+			{ label: 'Home', href: '/' },
+			{ label: page.title },
+		]}
+	/>
  <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary leading-tight">{page.title}</h1>
  <article class="prose-blog mt-8" set:html={page.content} />
  </main>

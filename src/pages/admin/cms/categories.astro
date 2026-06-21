@@ -3,6 +3,7 @@ export const prerender = false;
 
 import Layout from '../../../layouts/Layout.astro';
 import AdminSidebar from '../../../components/AdminSidebar.astro';
+import Breadcrumb from '../../../components/Breadcrumb.astro';
 ---
 
 <Layout title="Categories - CMS - Free Prompt Base" noindex={true}>
@@ -12,11 +13,13 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
 
  <main class="flex-1 min-w-0 p-3 sm:p-5 space-y-4 bg-gray-50 md:overflow-y-auto md:h-screen">
  <!-- Breadcrumb -->
- <nav class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500" aria-label="Breadcrumb">
- <a href="/admin/cms" class="hover:text-text-primary transition-colors">Content</a>
- <span class="material-symbols-outlined text-sm">chevron_right</span>
- <span class="text-text-primary">Categories</span>
- </nav>
+ <Breadcrumb
+ 	variant="admin"
+ 	items={[
+ 		{ label: 'Content', href: '/admin/cms' },
+ 		{ label: 'Categories' },
+ 	]}
+ />
 
  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
  <div>

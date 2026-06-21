@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Breadcrumb from './Breadcrumb.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import CopyPromptButton from './CopyPromptButton.astro';
@@ -170,27 +171,14 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 	<main class="flex-grow site-main py-8 sm:py-12">
 		<!-- Breadcrumb — shares the page container's left edge with the H1 below,
 		     so they align. Colour comes from the home glyph + the category pill. -->
-		<nav class="mb-5 flex flex-wrap items-center gap-2 text-xs" aria-label="Breadcrumb">
-			<a href="/" class="inline-flex items-center gap-1 font-semibold text-text-primary hover:text-secondary transition-colors">
-				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-				</svg>
-				Home
-			</a>
-			<svg class="w-3.5 h-3.5 text-gray-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-			{
-				category && (
-					<>
-						<a href={`/category/${category.slug}`} class={`pill ${pillColor(category.slug)}`}>
-							<CategoryIcon slug={category.slug} class="w-3 h-3" />
-							{category.name}
-						</a>
-						<svg class="w-3.5 h-3.5 text-gray-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-					</>
-				)
-			}
-			<span class="text-gray-500 font-medium truncate max-w-[55%]">{prompt.title}</span>
-		</nav>
+		<Breadcrumb
+			class="mb-5"
+			items={[
+				{ label: 'Home', href: '/' },
+				...(category ? [{ label: category.name, href: `/category/${category.slug}` }] : []),
+				{ label: prompt.title },
+			]}
+		/>
 
 		<!-- Heading (full width, line-length capped for readability).
 		     The slug is the visible H1; the real title is kept in the DOM but
