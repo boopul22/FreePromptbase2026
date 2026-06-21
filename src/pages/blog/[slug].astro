@@ -53,7 +53,9 @@ function buildToc(html: string): { html: string; toc: TocEntry[] } {
 		/<(h[23])(\s[^>]*)?>([\s\S]*?)<\/\1>/gi,
 		(match, tag, attrs = '', inner) => {
 			const level = (tag.toLowerCase() === 'h2' ? 2 : 3) as 2 | 3;
-			const text = String(inner).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+			const text = decodeEntities(String(inner).replace(/<[^>]+>/g, ''))
+				.replace(/\s+/g, ' ')
+				.trim();
 			if (!text) return match;
 			// Respect an existing id; otherwise generate a unique slug.
 			const existingId = /\bid="([^"]+)"/i.exec(attrs ?? '');
@@ -251,7 +253,7 @@ const breadcrumb = breadcrumbSchema([
 					<aside class="blog-rail blog-rail--left hidden xl:block">
 						<div class="sticky top-20">
 							<div class="toc-head">
-								<span class="rail-eyebrow">On this page</span>
+								<span class="toc-title">Contents</span>
 								<span class="toc-pct" data-read-pct aria-hidden="true">0%</span>
 							</div>
 							<nav class="toc mt-4" aria-label="Table of contents">
@@ -589,13 +591,21 @@ const breadcrumb = breadcrumbSchema([
 	}
 	.toc-head {
 		display: flex;
-		align-items: center;
+		align-items: baseline;
 		justify-content: space-between;
 		gap: 0.5rem;
 	}
+	/* Minimal, quiet label — no uppercase, no tracking, no bold. */
+	.toc-title {
+		font-size: 0.8125rem;
+		font-weight: 500;
+		letter-spacing: 0;
+		text-transform: none;
+		color: var(--ink-soft);
+	}
 	.toc-pct {
 		font-size: 11px;
-		font-weight: 700;
+		font-weight: 500;
 		font-variant-numeric: tabular-nums;
 		color: var(--ink-faint);
 	}
@@ -627,10 +637,14 @@ const breadcrumb = breadcrumbSchema([
 	.toc-link {
 		position: relative;
 		display: block;
-		padding: 0.32rem 0;
+		padding: 0.3rem 0;
 		font-size: 0.8125rem;
-		line-height: 1.4;
+		line-height: 1.35;
 		color: var(--ink-soft);
+		/* One line per entry, ellipsis the rest — keeps a long TOC compact. */
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 		transition:
 			color 150ms ease,
 			transform 200ms var(--ease-out-quart);
