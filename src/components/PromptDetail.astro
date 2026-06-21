@@ -232,7 +232,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					(prompt.images?.length ?? 0) > 1 ? (
 						<div class="relative group" data-carousel data-total={prompt.images!.length}>
 							<div
-								class="flex items-start gap-3 overflow-x-auto snap-x snap-mandatory pb-3 scroll-smooth no-scrollbar"
+								class="flex items-start gap-3 overflow-x-auto snap-x snap-proximity pb-3 scroll-smooth no-scrollbar"
 								data-carousel-track
 							>
 								{prompt.images!.map((src, i) => (
@@ -244,7 +244,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 										width={i === 0 ? prompt.coverW : undefined}
 										height={i === 0 ? prompt.coverH : undefined}
 										style={prompt.coverW && prompt.coverH ? `aspect-ratio:${prompt.coverW}/${prompt.coverH}` : undefined}
-										class="snap-center shrink-0 w-full rounded-base object-contain border border-text-primary"
+										class="snap-center shrink-0 w-full rounded-base object-contain"
 										loading={i === 0 ? 'eager' : 'lazy'}
 										fetchpriority={i === 0 ? 'high' : undefined}
 										decoding="async"
@@ -257,7 +257,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 								type="button"
 								data-carousel-prev
 								aria-label="Previous image"
-								class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 backdrop-blur shadow-md flex items-center justify-center text-text-primary hover:bg-white transition-opacity opacity-80 group-hover:opacity-100 focus-visible:opacity-100 disabled:opacity-0 disabled:pointer-events-none"
+								class="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-text-primary hover:bg-white transition-opacity opacity-80 group-hover:opacity-100 focus-visible:opacity-100 disabled:opacity-0 disabled:pointer-events-none"
 							>
 								<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 									<polyline points="15 18 9 12 15 6"/>
@@ -267,7 +267,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 								type="button"
 								data-carousel-next
 								aria-label="Next image"
-								class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/85 backdrop-blur shadow-md flex items-center justify-center text-text-primary hover:bg-white transition-opacity opacity-80 group-hover:opacity-100 focus-visible:opacity-100 disabled:opacity-0 disabled:pointer-events-none"
+								class="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-text-primary hover:bg-white transition-opacity opacity-80 group-hover:opacity-100 focus-visible:opacity-100 disabled:opacity-0 disabled:pointer-events-none"
 							>
 								<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 									<polyline points="9 18 15 12 9 6"/>
@@ -275,7 +275,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 							</button>
 
 							<!-- Slide counter / dot indicator -->
-							<div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 backdrop-blur text-white text-[11px] font-semibold tabular-nums">
+							<div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 text-white text-[11px] font-semibold tabular-nums">
 								<span data-carousel-index>1</span>
 								<span class="opacity-60">/</span>
 								<span>{prompt.images!.length}</span>
@@ -289,7 +289,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 							alt={prompt.title}
 							width={prompt.coverW}
 							height={prompt.coverH}
-							class="w-full rounded-base object-contain h-auto border border-text-primary"
+							class="w-full rounded-base object-contain h-auto"
 							loading="eager"
 							fetchpriority="high"
 							decoding="async"
@@ -521,7 +521,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 						(track as any)._raf = null;
 						update();
 					});
-				});
+				}, { passive: true });
 				update();
 			});
 		</script>
