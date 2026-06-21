@@ -232,7 +232,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					(prompt.images?.length ?? 0) > 1 ? (
 						<div class="relative group" data-carousel data-total={prompt.images!.length}>
 							<div
-								class="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-3 scroll-smooth no-scrollbar"
+								class="flex items-start gap-3 overflow-x-auto snap-x snap-mandatory pb-3 scroll-smooth no-scrollbar"
 								data-carousel-track
 							>
 								{prompt.images!.map((src, i) => (
@@ -244,7 +244,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 										width={i === 0 ? prompt.coverW : undefined}
 										height={i === 0 ? prompt.coverH : undefined}
 										style={prompt.coverW && prompt.coverH ? `aspect-ratio:${prompt.coverW}/${prompt.coverH}` : undefined}
-										class="snap-center shrink-0 w-full rounded-base object-cover lg:max-h-[calc(100vh-8rem)] border border-text-primary"
+										class="snap-center shrink-0 w-full rounded-base object-contain border border-text-primary"
 										loading={i === 0 ? 'eager' : 'lazy'}
 										fetchpriority={i === 0 ? 'high' : undefined}
 										decoding="async"
@@ -289,13 +289,13 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 							alt={prompt.title}
 							width={prompt.coverW}
 							height={prompt.coverH}
-							class="w-full rounded-base object-cover h-auto lg:max-h-[calc(100vh-8rem)] border border-text-primary"
+							class="w-full rounded-base object-contain h-auto border border-text-primary"
 							loading="eager"
 							fetchpriority="high"
 							decoding="async"
 						/>
 					) : (
-						<div class="w-full aspect-[4/5] rounded-base bg-gray-50 border border-gray-200 flex flex-col items-center justify-center gap-3 text-gray-400 lg:max-h-[calc(100vh-8rem)]">
+						<div class="w-full aspect-[4/5] rounded-base bg-gray-50 border border-gray-200 flex flex-col items-center justify-center gap-3 text-gray-400">
 							{category ? (
 								<CategoryIcon slug={category.slug} class="w-16 h-16" />
 							) : (
