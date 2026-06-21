@@ -173,7 +173,7 @@ const faqSchema = {
 										<polyline points="6 9 12 15 18 9" />
 									</svg>
 								</summary>
-								<p class="text-gray-700 leading-relaxed pb-4 -mt-1">{f.a}</p>
+								<p class="text-gray-700 leading-relaxed pb-4 -mt-1 max-w-[68ch]">{f.a}</p>
 							</details>
 						))
 					}
@@ -206,15 +206,34 @@ const faqSchema = {
 		color: var(--color-text-primary);
 		font-size: 1.0625rem;
 		line-height: 1.75;
+		max-width: 68ch; /* cap the reading measure (impeccable: 65-75ch) */
 	}
 	.kw-article > :first-child {
 		margin-top: 0;
 	}
+	/* Lead paragraph — a touch larger to open the article with rhythm. */
+	.kw-article > p:first-of-type {
+		font-size: 1.15rem;
+		line-height: 1.7;
+		color: var(--color-text-primary);
+	}
+	/* In-prose links — readable dark text with a yellow underline accent. */
+	.kw-article a {
+		color: var(--color-text-primary);
+		text-decoration: underline;
+		text-decoration-color: var(--color-accent);
+		text-decoration-thickness: 2px;
+		text-underline-offset: 2px;
+		transition: text-decoration-color 150ms ease;
+	}
+	.kw-article a:hover {
+		text-decoration-color: var(--color-text-primary);
+	}
 	.kw-article h2 {
-		font-size: 1.375rem;
+		font-size: 1.5rem;
 		font-weight: 700;
 		letter-spacing: -0.015em;
-		line-height: 1.25;
+		line-height: 1.2;
 		margin-top: 2.75rem;
 		margin-bottom: 0.85rem;
 		padding-bottom: 0.55rem;
@@ -233,11 +252,11 @@ const faqSchema = {
 		background: var(--color-secondary);
 	}
 	.kw-article h3 {
-		font-size: 1.125rem;
+		font-size: 1.25rem;
 		font-weight: 700;
 		line-height: 1.3;
-		margin-top: 1.85rem;
-		margin-bottom: 0.4rem;
+		margin-top: 2.1rem;
+		margin-bottom: 0.45rem;
 		color: var(--color-link, #181830);
 	}
 	.kw-article p {
@@ -269,10 +288,10 @@ const faqSchema = {
 		position: relative;
 		margin: 2rem 0;
 		padding: 1.1rem 1.25rem 1.1rem 2.6rem;
-		background: oklch(0.965 0.03 85);
-		border: 1px solid oklch(0.9 0.05 85);
-		border-radius: 12px;
-		color: var(--color-link, #181830);
+		background: var(--color-soft);
+		border: 1px solid oklch(0.88 0.07 96);
+		border-radius: var(--radius-base);
+		color: var(--color-text-primary);
 		font-style: italic;
 	}
 	.kw-article blockquote::before {
@@ -296,15 +315,15 @@ const faqSchema = {
 		margin: 1.85rem 0;
 		font-size: 0.95rem;
 		line-height: 1.5;
-		border: 1px solid var(--hairline, #e7e1d4);
-		border-radius: 12px;
+		border: 1px solid var(--color-outline, #e7e1d4);
+		border-radius: var(--radius-base);
 		overflow: hidden;
 	}
 	.kw-article thead th {
-		background: oklch(0.95 0.035 85);
+		background: var(--color-soft);
 		text-align: left;
 		font-weight: 700;
-		color: var(--color-link, #181830);
+		color: var(--color-text-primary);
 	}
 	.kw-article th,
 	.kw-article td {
