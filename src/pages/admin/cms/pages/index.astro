@@ -23,7 +23,7 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <h1 class="text-lg font-semibold text-text-primary">Pages</h1>
  <p class="text-xs text-gray-500 mt-0.5">Manage static pages like About, Terms, and Privacy.</p>
  </div>
- <button id="new-page-btn" class="bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200 transition-all flex items-center gap-1.5 self-start sm:self-auto">
+ <button id="new-page-btn" class="btn-primary flex items-center gap-1.5 self-start sm:self-auto">
  <span class="material-symbols-outlined text-lg">add</span>
  New Page
  </button>
@@ -43,8 +43,8 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <input id="page-meta-title" type="text" placeholder="Meta title (optional)" class="flex-1 border border-gray-200 rounded-lg px-3 py-1.5 bg-white text-sm" />
  </div>
  <div class="flex gap-3">
- <button id="save-page-btn" class="btn-feedback bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200">Save Page</button>
- <button id="cancel-page-btn" class="bg-white px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200">Cancel</button>
+ <button id="save-page-btn" class="btn-feedback btn-primary">Save Page</button>
+ <button id="cancel-page-btn" class="btn-secondary">Cancel</button>
  </div>
  </div>
 
@@ -105,8 +105,8 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <td class="px-3 py-2.5 text-sm text-gray-500">${new Date(p.updatedAt).toLocaleDateString()}</td>
  <td class="px-3 py-2.5 text-sm">
  <div class="flex gap-2">
- <button onclick="editPage('${esc(p.id)}')" class="btn-feedback px-3 py-1.5 rounded-full text-xs font-semibold uppercase border border-primary text-primary hover:bg-primary hover:text-link">Edit</button>
- <button onclick="deletePage('${esc(p.id)}', this)" class="btn-feedback px-3 py-1.5 rounded-full text-xs font-semibold uppercase border border-red-300 text-red-600 hover:bg-red-50 hover:text-red-900">Delete</button>
+ <button onclick="editPage('${esc(p.id)}')" class="btn-feedback btn-secondary btn-sm">Edit</button>
+ <button onclick="deletePage('${esc(p.id)}', this)" class="btn-feedback btn-danger btn-sm">Delete</button>
  </div>
  </td>
  </tr>

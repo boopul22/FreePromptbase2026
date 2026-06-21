@@ -22,7 +22,7 @@ const { promptCount, categoryCount } = Astro.props;
 			<button
 				data-follow-btn
 				data-following="false"
-				class="follow-btn inline-flex items-center gap-1.5 bg-primary text-link px-5 py-2 rounded text-sm font-bold shadow-sm hover:shadow-md hover:-translate-y-px active:translate-y-0 transition-all"
+				class="follow-btn btn-primary text-sm"
 			>
 				<svg class="follow-plus w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -35,9 +35,9 @@ const { promptCount, categoryCount } = Astro.props;
 
 			<a
 				href="/categories"
-				class="inline-flex items-center gap-1.5 bg-white text-text-primary border border-black/10 px-5 py-2 rounded text-sm font-semibold shadow-sm hover:border-black/20 hover:bg-gray-50 hover:-translate-y-px transition-all"
+				class="btn-secondary text-sm"
 			>
-				<svg class="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+				<svg class="w-4 h-4 text-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
 					<rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
 				</svg>

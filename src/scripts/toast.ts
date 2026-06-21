@@ -22,7 +22,7 @@ const ICONS: Record<ToastType, string> = {
 const ICON_COLOR: Record<ToastType, string> = {
 	success: '#34d399', // emerald
 	error: '#f87171', // red
-	info: '#e0a82e', // brand gold
+	info: '#FFE66A', // brand yellow
 };
 
 const DURATION: Record<ToastType, number> = {

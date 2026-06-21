@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, fontProviders } from 'astro/config';
+import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import cloudflare from '@astrojs/cloudflare';
 
@@ -36,16 +36,4 @@ export default defineConfig({
 	vite: {
 		plugins: [tailwindcss()],
 	},
-
-	// Astro 6 built-in Fonts API — self-hosts Rubik (body + heading role)
-	// with automatic download, caching, fallbacks and preload optimization.
-	fonts: [
-		{
-			name: 'Rubik',
-			cssVariable: '--font-rubik',
-			provider: fontProviders.google(),
-			weights: ['300', '400', '500', '600', '700'],
-			styles: ['normal'],
-		},
-	],
 });

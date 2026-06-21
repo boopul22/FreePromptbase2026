@@ -23,16 +23,16 @@ const today = new Date().toISOString().slice(0, 10);
  <header class="flex items-center justify-between gap-4">
  <h1 class="text-lg font-semibold text-text-primary">New prompt</h1>
  <div class="flex gap-2">
- <a href="/admin/cms/prompts" class="px-3 py-1.5 rounded-md text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Cancel</a>
- <button id="draft-btn" type="button" class="btn-feedback bg-white text-text-primary px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 flex items-center gap-1.5">
+ <a href="/admin/cms/prompts" class="btn-secondary">Cancel</a>
+ <button id="draft-btn" type="button" class="btn-feedback btn-secondary flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">draft</span>
  Save draft
  </button>
- <button id="schedule-btn" type="button" class="btn-feedback bg-white text-text-primary px-3 py-1.5 rounded-md text-sm font-semibold border border-gray-200 hover:bg-gray-50 flex items-center gap-1.5">
+ <button id="schedule-btn" type="button" class="btn-feedback btn-secondary flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">schedule</span>
  Schedule
  </button>
- <button id="publish-btn" type="button" class="btn-feedback bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold hover:opacity-90 flex items-center gap-1.5">
+ <button id="publish-btn" type="button" class="btn-feedback btn-primary flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">publish</span>
  Publish
  </button>
@@ -45,24 +45,24 @@ const today = new Date().toISOString().slice(0, 10);
  <div class="bg-white border border-gray-200 rounded-md p-4 space-y-3">
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-title">Title</label>
- <input id="f-title" name="title" type="text" required placeholder="Cinematic Portrait Photography" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-title" name="title" type="text" required placeholder="Cinematic Portrait Photography" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-slug">Slug</label>
- <input id="f-slug" name="slug" type="text" placeholder="auto-generated from title" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-slug" name="slug" type="text" placeholder="auto-generated from title" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-text-primary" />
  <p class="text-xs text-gray-500 mt-1">Used in the URL: <span class="font-mono">/your-slug</span>. Leave blank to auto-generate.</p>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-description">Description</label>
- <textarea id="f-description" name="description" rows="2" placeholder="One-line hook shown on cards and search." class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ <textarea id="f-description" name="description" rows="2" placeholder="One-line hook shown on cards and search." class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary resize-y"></textarea>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-prompt-text">Prompt text</label>
- <textarea id="f-prompt-text" name="promptText" rows="12" required placeholder="The full prompt body the user will copy." class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ <textarea id="f-prompt-text" name="promptText" rows="12" required placeholder="The full prompt body the user will copy." class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-text-primary resize-y"></textarea>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-how-to-use">How to use (optional)</label>
- <textarea id="f-how-to-use" name="howToUse" rows="3" placeholder="Tips on substituting placeholders, tuning, etc." class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ <textarea id="f-how-to-use" name="howToUse" rows="3" placeholder="Tips on substituting placeholders, tuning, etc." class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary resize-y"></textarea>
  </div>
  </div>
 
@@ -72,7 +72,7 @@ const today = new Date().toISOString().slice(0, 10);
  <p class="text-sm font-semibold text-text-primary">Images</p>
  <p class="text-xs text-gray-500 mt-0.5">Drag &amp; drop or click to upload. They render as a carousel on the prompt page. Click a thumbnail to set it as the cover (featured) image, or drag thumbnails to reorder the gallery.</p>
  </div>
- <label id="dropzone" class="block border-2 border-dashed border-gray-300 rounded-md px-4 py-8 text-center cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors">
+ <label id="dropzone" class="block border-2 border-dashed border-gray-300 rounded-md px-4 py-8 text-center cursor-pointer hover:border-text-primary hover:bg-gray-50 transition-colors">
  <input id="image-input" type="file" accept="image/*" multiple class="hidden" />
  <span class="material-symbols-outlined text-3xl text-gray-400">cloud_upload</span>
  <p class="text-sm font-medium text-text-primary mt-1">Drop images here, or click to browse</p>
@@ -88,32 +88,32 @@ const today = new Date().toISOString().slice(0, 10);
  <div class="bg-white border border-gray-200 rounded-md p-4 space-y-3">
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-category">Category</label>
- <select id="f-category" name="category" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+ <select id="f-category" name="category" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-text-primary">
  <option value="">Select category…</option>
  </select>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-tags">Tags</label>
- <input id="f-tags" name="tags" type="text" placeholder="copywriting, social media, hooks" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-tags" name="tags" type="text" placeholder="copywriting, social media, hooks" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  <p class="text-xs text-gray-500 mt-1">Comma-separated.</p>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-cover">Cover image URL</label>
- <input id="f-cover" name="coverImage" type="url" placeholder="https://..." class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-cover" name="coverImage" type="url" placeholder="https://..." class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  </div>
  </div>
 
  <div class="bg-white border border-gray-200 rounded-md p-4 space-y-3">
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-author">Author</label>
- <select id="f-author" name="createdBy" required data-default-id={currentAdminId} class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+ <select id="f-author" name="createdBy" required data-default-id={currentAdminId} class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-text-primary">
  <option value="">Loading users…</option>
  </select>
  <p class="text-xs text-gray-500 mt-1">Pick the user this prompt should be credited to. Their display name becomes the byline.</p>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-popularity">Popularity</label>
- <input id="f-popularity" name="popularity" type="number" min="0" value="0" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-popularity" name="popularity" type="number" min="0" value="0" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  </div>
  <label class="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
  <input id="f-featured" name="featured" type="checkbox" class="accent-primary w-4 h-4" />
@@ -131,7 +131,7 @@ const today = new Date().toISOString().slice(0, 10);
  <h2 id="schedule-dialog-title" class="text-sm font-semibold text-text-primary">Publish</h2>
  </div>
  <p id="schedule-dialog-hint" class="text-xs text-gray-500 leading-snug">Choose when this prompt goes live. Your local timezone.</p>
- <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  <div id="schedule-presets" class="flex flex-wrap gap-1.5">
  <button type="button" class="fpb-preset" data-preset="1h">In 1 hour</button>
  <button type="button" class="fpb-preset" data-preset="tom9">Tomorrow 9 AM</button>
@@ -143,8 +143,8 @@ const today = new Date().toISOString().slice(0, 10);
  <button type="button" id="schedule-change" class="ml-auto text-primary font-semibold hover:underline">Change</button>
  </p>
  <div class="flex justify-end gap-2 pt-0.5">
- <button id="schedule-cancel" type="button" class="btn-feedback px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">Cancel</button>
- <button id="schedule-confirm" type="button" class="btn-feedback bg-primary text-link px-3.5 py-1.5 rounded-md text-sm font-semibold hover:opacity-90">Confirm</button>
+ <button id="schedule-cancel" type="button" class="btn-feedback btn-secondary">Cancel</button>
+ <button id="schedule-confirm" type="button" class="btn-feedback btn-primary">Confirm</button>
  </div>
  </div>
  </dialog>
@@ -231,7 +231,7 @@ const today = new Date().toISOString().slice(0, 10);
  strip.innerHTML = images.map((url, i) => {
  const isCover = url === cover;
  return `
- <div draggable="true" data-idx="${i}" class="relative group rounded-md overflow-hidden border ${isCover ? 'border-primary ring-2 ring-primary' : 'border-gray-200'} aspect-square bg-gray-50 cursor-pointer select-none" data-cover="${url}" title="${isCover ? 'Cover image · drag to reorder' : 'Click to set as cover · drag to reorder'}">
+ <div draggable="true" data-idx="${i}" class="relative group rounded-md overflow-hidden border ${isCover ? 'border-text-primary ring-2 ring-text-primary' : 'border-gray-200'} aspect-square bg-gray-50 cursor-pointer select-none" data-cover="${url}" title="${isCover ? 'Cover image · drag to reorder' : 'Click to set as cover · drag to reorder'}">
  <img src="${url}" alt="" draggable="false" class="w-full h-full object-cover pointer-events-none" />
  ${isCover
  ? '<span class="absolute top-1 left-1 bg-primary text-link text-[10px] font-semibold px-1.5 py-0.5 rounded-md uppercase tracking-wide">Cover</span>'

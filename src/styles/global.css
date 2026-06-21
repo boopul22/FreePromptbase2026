@@ -12,37 +12,51 @@
    ========================================================================== */
 @theme {
 	/* --- Colors ----------------------------------------------------------- */
-	--color-primary: #e0a82e;
-	--color-secondary: #9ca3af;
-	--color-accent: #e0a82e;
-	--color-background: #e6e6e6;
-	--color-text-primary: #333333;
-	--color-link: #181830;
-	/* Neutrals tinted toward the gold hue (never pure white/black). Referenced
-	   by admin chrome: text-surface (light text on dark pills / panel fills),
-	   border-outline (hairline borders), border-tertiary (draft badge). */
-	--color-surface: oklch(0.995 0.004 95);
-	--color-outline: oklch(0.916 0.005 95);
-	--color-tertiary: oklch(0.82 0.09 90);
+	/* Warm-yellow design system. Source hex in comments; values are OKLCH so
+	   neutrals stay tinted toward the warm brand hue (never pure white/black)
+	   and chroma drops at the lightness extremes. NOTE on semantics: in this
+	   codebase `link` is NOT an anchor colour — it is the dark ink painted on
+	   yellow (`bg-primary`) buttons and the footer background (`bg-link`), so it
+	   maps to the warm near-black, never to the spec's lime. */
+	--color-primary: oklch(0.925 0.135 99);    /* #FFE66A — saturated action yellow */
+	--color-secondary: oklch(0.48 0.020 70);   /* #6D6255 — warm taupe (meta text) */
+	--color-accent: oklch(0.925 0.135 99);     /* #FFE66A */
+	--color-background: #ffffff;                /* #FFFFFF — exact, per spec */
+	--color-text-primary: oklch(0.255 0.011 75);/* #211D16 — warm near-black */
+	--color-link: oklch(0.255 0.011 75);        /* dark ink on yellow + footer bg */
+	/* Pale-yellow wash (spec's `primary`) for soft fills / hover surfaces, and
+	   the lime accent — usable only on dark surfaces where it has contrast. */
+	--color-soft: oklch(0.955 0.065 100);       /* #FFF2A8 */
+	--color-lime: oklch(0.94 0.10 125);         /* #D7F99A — dark surfaces only */
+	/* Neutrals: text-surface (light text on dark pills), border-outline
+	   (hairline borders), border-tertiary (draft badge). */
+	--color-surface: oklch(0.985 0.004 95);
+	--color-outline: oklch(0.90 0.006 90);
+	--color-tertiary: oklch(0.88 0.10 99);
 
 	/* --- Typography ------------------------------------------------------- */
-	/* Rubik is loaded via the Astro Fonts API (--font-rubik). */
-	--font-sans: var(--font-rubik), ui-sans-serif, system-ui, -apple-system,
-		BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
-		"Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
-		"Segoe UI Symbol", "Noto Color Emoji";
-	--font-heading: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+	/* System-sans stack (spec: Segoe UI / Inter-led, falling through to the OS
+	   UI font). No webfont download — zero CLS, fastest first paint. */
+	--font-sans: "Inter", "Inter Fallback", ui-sans-serif, system-ui,
+		-apple-system, "Segoe UI", "San Francisco Pro", Roboto, sans-serif,
+		"PingFang SC", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC",
+		"Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+	--font-heading: "cereal", "cereal Fallback", ui-sans-serif, system-ui,
+		-apple-system, "Segoe UI", "San Francisco Pro", Roboto, sans-serif,
+		"PingFang SC", "Microsoft YaHei", "Source Han Sans SC", "Noto Sans SC";
 
-	--text-h1: 36px;
-	--text-h2: 16px;
-	--text-body: 16px;
+	/* h1 scales fluidly so the 60px desktop hero never overflows a phone. h2≈body
+	   (18px) by design — hierarchy comes from weight/colour, not size. */
+	--text-h1: clamp(2rem, 5.5vw + 1rem, 3.75rem);
+	--text-h2: 18px;
+	--text-body: 18px;
 
 	/* --- Spacing ---------------------------------------------------------- */
 	/* baseUnit: 4px — matches Tailwind's default spacing scale (0.25rem). */
 	--spacing: 0.25rem;
 
 	/* --- Radius ----------------------------------------------------------- */
-	--radius-base: 16px;
+	--radius-base: 8px;
 }
 
 /* ----------------------------------------------------------------------------
@@ -59,35 +73,34 @@
 	--ease-overlay: cubic-bezier(0.32, 0.72, 0, 1); /* matches the drawer */
 
 	/* Input */
-	--input-bg: #ffffff;
-	--input-text: #333333;
-	--input-border: #e0a82e;
+	--input-bg: var(--color-background);
+	--input-text: var(--color-text-primary);
+	--input-border: var(--color-outline);
 	--input-radius: 8px;
 	--input-radius-tl: 8px;
-	--input-radius-tr: 0px;
-	--input-radius-br: 0px;
+	--input-radius-tr: 8px;
+	--input-radius-br: 8px;
 	--input-radius-bl: 8px;
 	--input-shadow: none;
 
-	/* Primary button */
-	--btn-primary-bg: #e0a82e;
-	--btn-primary-text: #181830;
-	--btn-primary-border: #e0a82e;
-	--btn-primary-radius-tl: 0px;
-	--btn-primary-radius-tr: 8px;
-	--btn-primary-radius-br: 8px;
-	--btn-primary-radius-bl: 0px;
-	--btn-primary-shadow: none;
+	/* Primary button — yellow fill, dark ink, thin dark keyline, 8px radius,
+	   and the spec's hard neobrutalist offset shadow (button presses into it). */
+	--btn-primary-bg: var(--color-primary);
+	--btn-primary-text: var(--color-link);
+	--btn-primary-border: var(--color-link);
+	--btn-primary-radius: 8px;
+	--btn-primary-shadow: 3px 3px 0 0 rgba(33, 29, 22, 0.9);
 
-	/* Secondary button */
-	--btn-secondary-bg: #ffffff;
-	--btn-secondary-text: #333333;
-	--btn-secondary-radius: 16px;
+	/* Secondary button — transparent, dark text, light keyline, pill radius. */
+	--btn-secondary-bg: transparent;
+	--btn-secondary-text: var(--color-text-primary);
+	--btn-secondary-border: var(--color-outline);
+	--btn-secondary-radius: 40px;
 	--btn-secondary-shadow: none;
 }
 
 /* ----------------------------------------------------------------------------
-   Base layer — applies the light color scheme and Rubik to the document.
+   Base layer — applies the light color scheme and the system sans stack.
    -------------------------------------------------------------------------- */
 @layer base {
 	html {
@@ -101,6 +114,9 @@
 		color: var(--color-text-primary);
 		font-family: var(--font-sans);
 		font-size: var(--text-body);
+		line-height: 1.6;
+		-webkit-font-smoothing: antialiased;
+		text-rendering: optimizeLegibility;
 		overscroll-behavior-y: none;
 	}
 
@@ -111,8 +127,175 @@
 	h5,
 	h6 {
 		font-family: var(--font-heading);
+		line-height: 1.15;
+		letter-spacing: -0.01em;
 	}
 }
+
+/* ----------------------------------------------------------------------------
+   Shared button system — yellow primary + pill secondary, driven by the
+   :root button tokens. Opt-in classes so they never clobber other controls.
+   -------------------------------------------------------------------------- */
+.btn-primary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4em;
+	padding: 0.55rem 1.1rem;
+	font-family: var(--font-heading);
+	font-weight: 700;
+	line-height: 1;
+	color: var(--btn-primary-text);
+	background: var(--btn-primary-bg);
+	border: 1px solid var(--btn-primary-border);
+	border-radius: var(--btn-primary-radius);
+	box-shadow: var(--btn-primary-shadow);
+	cursor: pointer;
+	transition:
+		transform 140ms var(--ease-out-quart),
+		box-shadow 140ms var(--ease-out-quart),
+		opacity 150ms ease;
+}
+.btn-primary:hover {
+	transform: translate(1px, 1px);
+	box-shadow: 2px 2px 0 0 rgba(33, 29, 22, 0.9);
+}
+.btn-primary:active {
+	transform: translate(3px, 3px);
+	box-shadow: 0 0 0 0 rgba(33, 29, 22, 0.9);
+}
+.btn-primary:focus-visible {
+	outline: 2px solid var(--color-text-primary);
+	outline-offset: 2px;
+}
+
+.btn-secondary {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4em;
+	padding: 0.55rem 1.1rem;
+	font-weight: 600;
+	line-height: 1;
+	color: var(--btn-secondary-text);
+	background: var(--btn-secondary-bg);
+	border: 1px solid var(--btn-secondary-border);
+	border-radius: var(--btn-secondary-radius);
+	box-shadow: var(--btn-secondary-shadow);
+	cursor: pointer;
+	transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+.btn-secondary:hover {
+	background: var(--color-soft);
+	border-color: var(--color-text-primary);
+}
+.btn-secondary:focus-visible {
+	outline: 2px solid var(--color-text-primary);
+	outline-offset: 2px;
+}
+
+/* Dark variant — utility / admin primary actions on light chrome. Same
+   brutalist offset shadow as .btn-primary, dark fill + light text. */
+.btn-dark {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4em;
+	padding: 0.55rem 1.1rem;
+	font-family: var(--font-heading);
+	font-weight: 700;
+	line-height: 1;
+	color: var(--color-surface);
+	background: var(--color-text-primary);
+	border: 1px solid var(--color-text-primary);
+	border-radius: var(--btn-primary-radius);
+	box-shadow: var(--btn-primary-shadow);
+	cursor: pointer;
+	transition:
+		transform 140ms var(--ease-out-quart),
+		box-shadow 140ms var(--ease-out-quart),
+		opacity 150ms ease;
+}
+.btn-dark:hover { transform: translate(1px, 1px); box-shadow: 2px 2px 0 0 rgba(33, 29, 22, 0.9); }
+.btn-dark:active { transform: translate(3px, 3px); box-shadow: 0 0 0 0 rgba(33, 29, 22, 0.9); }
+.btn-dark:focus-visible { outline: 2px solid var(--color-text-primary); outline-offset: 2px; }
+
+/* Destructive — red fill, same brutalist frame. */
+.btn-danger {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.4em;
+	padding: 0.55rem 1.1rem;
+	font-family: var(--font-heading);
+	font-weight: 700;
+	line-height: 1;
+	color: oklch(0.99 0.01 25);
+	background: oklch(0.58 0.19 25);
+	border: 1px solid var(--color-text-primary);
+	border-radius: var(--btn-primary-radius);
+	box-shadow: var(--btn-primary-shadow);
+	cursor: pointer;
+	transition:
+		transform 140ms var(--ease-out-quart),
+		box-shadow 140ms var(--ease-out-quart),
+		opacity 150ms ease;
+}
+.btn-danger:hover { transform: translate(1px, 1px); box-shadow: 2px 2px 0 0 rgba(33, 29, 22, 0.9); }
+.btn-danger:active { transform: translate(3px, 3px); box-shadow: 0 0 0 0 rgba(33, 29, 22, 0.9); }
+.btn-danger:focus-visible { outline: 2px solid var(--color-text-primary); outline-offset: 2px; }
+
+/* Size + width modifiers (compose with any .btn-* variant). */
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8125rem; }
+.btn-xs { padding: 0.25rem 0.6rem; font-size: 0.75rem; gap: 0.3em; }
+.btn-block { width: 100%; }
+
+@media (prefers-reduced-motion: reduce) {
+	.btn-primary, .btn-primary:hover, .btn-primary:active,
+	.btn-dark, .btn-dark:hover, .btn-dark:active,
+	.btn-danger, .btn-danger:hover, .btn-danger:active {
+		transform: none;
+		box-shadow: var(--btn-primary-shadow);
+	}
+}
+
+/* ----------------------------------------------------------------------------
+   Global content container. ONE source of truth for the page width so every
+   route lines up with the homepage (no per-page max-w-* drift). Pages keep
+   their own flex-grow / py-* utilities and add `site-main`.
+   -------------------------------------------------------------------------- */
+.site-main {
+	width: 100%;
+	max-width: 80rem; /* = Tailwind max-w-7xl, the homepage width */
+	margin-inline: auto;
+	padding-inline: 1rem; /* = px-4 */
+}
+
+/* ----------------------------------------------------------------------------
+   Decorative tinted pills — a soft, elegant multi-colour accent set (low chroma
+   so they read as refined, not loud). Pale tinted fill + readable dark-tinted
+   text + a hairline border. Compose a colour class onto `.pill`.
+   -------------------------------------------------------------------------- */
+.pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.28rem 0.7rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 1;
+	border: 1px solid transparent;
+	white-space: nowrap;
+	transition: filter 150ms ease, transform 150ms ease;
+}
+a.pill:hover { filter: brightness(0.97); transform: translateY(-1px); }
+.pill-gold  { background: oklch(0.95 0.06 96);  color: oklch(0.42 0.07 80);  border-color: oklch(0.88 0.07 96); }
+.pill-clay  { background: oklch(0.95 0.045 50); color: oklch(0.46 0.08 50);  border-color: oklch(0.89 0.05 50); }
+.pill-rose  { background: oklch(0.95 0.04 18);  color: oklch(0.48 0.11 18);  border-color: oklch(0.90 0.05 18); }
+.pill-sage  { background: oklch(0.95 0.04 150); color: oklch(0.44 0.07 150); border-color: oklch(0.89 0.05 150); }
+.pill-teal  { background: oklch(0.95 0.04 200); color: oklch(0.45 0.07 205); border-color: oklch(0.89 0.05 200); }
+.pill-slate { background: oklch(0.95 0.025 260);color: oklch(0.45 0.05 265); border-color: oklch(0.90 0.03 260); }
 
 /* ----------------------------------------------------------------------------
    Masonry gallery — CSS multi-column layout. Covers render at their natural
@@ -161,12 +344,12 @@
 	width: 100%;
 	max-width: 26rem; /* tidy on desktop; full-width thirds on phones */
 	padding: 4px;
-	background: #e7e7ec; /* recessed track, tinted toward the navy link color */
+	background: oklch(0.95 0.006 95); /* recessed track, warm neutral */
 	border-radius: 9999px;
-	box-shadow: inset 0 1px 2px rgba(24, 24, 48, 0.07);
+	box-shadow: inset 0 1px 2px oklch(0.255 0.011 75 / 0.07);
 	isolation: isolate;
 }
-/* The gold pill that slides under the active tab. */
+/* The yellow pill that slides under the active tab. */
 .sort-indicator {
 	position: absolute;
 	z-index: 0;
@@ -176,7 +359,7 @@
 	width: calc((100% - 8px) / 3);
 	border-radius: 9999px;
 	background: var(--color-primary);
-	box-shadow: 0 1px 1px rgba(24, 24, 48, 0.16), 0 3px 8px rgba(224, 168, 46, 0.28);
+	box-shadow: 0 1px 1px oklch(0.255 0.011 75 / 0.16), 0 3px 8px oklch(0.925 0.135 99 / 0.4);
 	transform: translateX(0);
 	transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
 	will-change: transform;
@@ -236,7 +419,7 @@
 	line-height: 0;
 }
 .like-btn:focus-visible {
-	outline: 2px solid var(--color-primary);
+	outline: 2px solid var(--color-text-primary);
 	outline-offset: 2px;
 	border-radius: 9999px;
 }
@@ -245,8 +428,8 @@
    Copyable prompt box (detail page).
    -------------------------------------------------------------------------- */
 .prompt-box {
-	background-color: #1a1a2e;
-	color: #ececf1;
+	background-color: oklch(0.235 0.010 75);
+	color: oklch(0.95 0.004 95);
 	border-radius: 0;
 	white-space: pre-wrap;
 	word-break: break-word;
@@ -276,7 +459,7 @@
 }
 
 .copy-btn:focus-visible {
-	outline: 2px solid var(--color-primary);
+	outline: 2px solid var(--color-text-primary);
 	outline-offset: 2px;
 }
 
@@ -346,7 +529,7 @@ button:disabled.is-loading {
 .upload-skeleton {
 	position: relative;
 	overflow: hidden;
-	background: #ececec;
+	background: oklch(0.95 0.005 95);
 	border-radius: var(--radius-base);
 }
 .upload-skeleton::after {
@@ -357,7 +540,7 @@ button:disabled.is-loading {
 	background: linear-gradient(
 		90deg,
 		transparent 0%,
-		rgba(224, 168, 46, 0.18) 50%,
+		oklch(0.925 0.135 99 / 0.25) 50%,
 		transparent 100%
 	);
 	animation: upload-shimmer 1.2s ease-in-out infinite;
@@ -388,11 +571,11 @@ button:disabled.is-loading {
 	padding: 0.55rem 1rem;
 	border-radius: 9999px;
 	background: var(--color-text-primary);
-	color: #ffffff;
+	color: oklch(0.97 0.004 95);
 	font-size: 0.875rem;
 	font-weight: 500;
 	line-height: 1.3;
-	box-shadow: 0 8px 24px rgba(24, 24, 48, 0.22);
+	box-shadow: 0 8px 24px oklch(0.255 0.011 75 / 0.28);
 	pointer-events: none;
 	opacity: 0;
 	transform: translate(-50%, 8px);
@@ -428,9 +611,9 @@ button:disabled.is-loading {
 	padding: 0;
 	border: none;
 	border-radius: 14px;
-	background: #fff;
+	background: var(--color-background);
 	color: var(--color-text-primary);
-	box-shadow: 0 24px 60px -12px rgb(24 24 48 / 0.35);
+	box-shadow: 0 24px 60px -12px oklch(0.255 0.011 75 / 0.35);
 	overflow: clip;
 	opacity: 0;
 	transform: translateY(8px) scale(0.97);
@@ -451,7 +634,7 @@ button:disabled.is-loading {
 	}
 }
 .fpb-modal::backdrop {
-	background: rgb(24 24 48 / 0.5);
+	background: oklch(0.255 0.011 75 / 0.5);
 	backdrop-filter: blur(3px);
 	opacity: 0;
 	transition:
@@ -475,7 +658,7 @@ button:disabled.is-loading {
 	font-size: 0.7rem;
 	font-weight: 600;
 	color: var(--color-text-primary);
-	background: #fff;
+	background: var(--color-background);
 	cursor: pointer;
 	transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
 }
@@ -501,12 +684,12 @@ button:disabled.is-loading {
    and ink all read warm against the #e6e6e6 page.
    ========================================================================== */
 :root {
-	--paper: oklch(0.985 0.006 85); /* warm off-white card, never #fff */
-	--paper-sunken: oklch(0.965 0.009 85); /* hover wash / recessed wells */
-	--hairline: oklch(0.9 0.01 85); /* warm rule, replaces gray-200 */
-	--hairline-soft: oklch(0.93 0.008 85);
-	--ink-soft: oklch(0.52 0.012 70); /* warm gray for meta + dek */
-	--ink-faint: oklch(0.66 0.01 75); /* fainter meta / leaders */
+	--paper: oklch(0.985 0.008 95); /* warm off-white card, never #fff */
+	--paper-sunken: oklch(0.965 0.012 95); /* hover wash / recessed wells */
+	--hairline: oklch(0.9 0.012 95); /* warm rule, replaces gray-200 */
+	--hairline-soft: oklch(0.93 0.01 95);
+	--ink-soft: oklch(0.52 0.014 75); /* warm gray for meta + dek */
+	--ink-faint: oklch(0.66 0.012 78); /* fainter meta / leaders */
 	--font-serif: Charter, "Iowan Old Style", "Source Serif 4", "Source Serif Pro",
 		Georgia, Cambria, "Times New Roman", ui-serif, serif;
 }
@@ -519,7 +702,7 @@ button:disabled.is-loading {
 	inset: 0 0 auto 0;
 	height: 3px;
 	z-index: 60;
-	background: var(--color-primary);
+	background: var(--color-text-primary);
 	transform: scaleX(var(--read-progress, 0));
 	transform-origin: 0 50%;
 	will-change: transform;
@@ -579,7 +762,7 @@ button:disabled.is-loading {
 .prose-blog .blog-prompt__meta svg {
 	width: 1rem;
 	height: 1rem;
-	color: var(--color-primary);
+	color: var(--color-secondary);
 	flex: 0 0 auto;
 }
 .prose-blog .blog-prompt__label {
@@ -649,7 +832,7 @@ button:disabled.is-loading {
 	width: 6px;
 	height: 6px;
 	border-radius: 9999px;
-	background: var(--color-primary);
+	background: var(--color-text-primary);
 	transform: translateY(-1px);
 }
 

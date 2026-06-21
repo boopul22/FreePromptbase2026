@@ -13,6 +13,15 @@
 // ~25% smaller — directly trims LCP bytes (the scored metric).
 const DEFAULT_QUALITY = 76;
 
+// Cloudflare Image Transformations only run on a real zone (the production
+// domain). On *.workers.dev preview URLs and on localhost the /cdn-cgi/image/
+// prefix isn't served, so a relative transform URL 404s and every card/cover
+// srcset breaks. Emitting the transform URL as an absolute on the canonical
+// origin makes those environments load the (already transformed + edge-cached)
+// image straight from production, so images render everywhere. On production
+// itself this is just a same-origin absolute URL, so nothing changes there.
+const ORIGIN = import.meta.env.SITE ?? 'https://freepromptbase.com';
+
 function cdnPath(src: string | undefined | null): string | null {
   if (!src) return null;
   let path = src;
@@ -30,7 +39,7 @@ function cdnPath(src: string | undefined | null): string | null {
 export function cfImg(src: string, width: number, quality = DEFAULT_QUALITY): string {
   const path = cdnPath(src);
   if (!path) return src;
-  return `/cdn-cgi/image/width=${width},quality=${quality},format=auto/${path.replace(/^\//, '')}`;
+  return `${ORIGIN}/cdn-cgi/image/width=${width},quality=${quality},format=auto/${path.replace(/^\//, '')}`;
 }
 
 /** `srcset` string across widths, or undefined when src isn't transformable. */

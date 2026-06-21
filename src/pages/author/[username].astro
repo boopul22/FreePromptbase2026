@@ -59,7 +59,7 @@ const description = profileUser.bio
 	preloadImageSizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
 >
 	<Header />
-	<main class="max-w-7xl mx-auto px-4 w-full py-10">
+	<main class="site-main py-10">
 		{justSubmittedSlug && isOwner ? (
 			<div class="mb-6 bg-amber-50 border border-amber-200 text-amber-900 rounded-md px-4 py-3 text-sm">
 				<p class="font-semibold">Submitted — pending review</p>
@@ -85,10 +85,10 @@ const description = profileUser.bio
 			</div>
 			{isOwner ? (
 				<div class="flex gap-2 shrink-0">
-					<a href="/submit" class="bg-primary text-link px-4 py-2 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity">
+					<a href="/submit" class="btn-primary">
 						Submit a prompt
 					</a>
-					<a href="/account" class="px-4 py-2 rounded-md text-sm font-semibold text-text-primary border border-gray-200 hover:border-primary transition-colors">
+					<a href="/account" class="btn-secondary">
 						Edit profile
 					</a>
 				</div>
