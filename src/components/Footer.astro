@@ -1,30 +1,45 @@
 ---
 import { categories } from '../data/categories';
+import { tags } from '../data/tags';
 
 const year = new Date().getFullYear();
 
-// Pick a handful of top-level browse links for the BROWSE column.
-const browseLinks = categories.slice(0, 5).map((c) => ({
-	href: `/category/${c.slug}`,
-	label: c.name,
-}));
-
-// Static blog/learn links — keep these stable. Descriptive anchors so the
-// link text itself carries the topic (good for internal-link relevance).
-const learnLinks = [
-	{ href: '/blog', label: 'Prompt engineering blog' },
-	{ href: '/blog/how-to-write-midjourney-prompts', label: 'Midjourney prompt guide' },
-	{ href: '/blog/prompt-patterns-that-work', label: 'Prompt patterns that work' },
-	{ href: '/blog/chatgpt-prompt-frameworks', label: 'ChatGPT prompt frameworks' },
+// BROWSE — real category routes (/category/<slug>) plus the index page.
+const browseLinks = [
+	...categories.map((c) => ({ href: `/category/${c.slug}`, label: c.name })),
+	{ href: '/categories', label: 'All categories' },
 ];
 
-// Site nav — surface the high-value UGC + utility pages once each, with
-// keyword-bearing anchor text (legal links live in the bottom strip instead).
+// TRENDING — curated keyword landing pages. Each lives at the root /<slug>
+// (see src/pages/[slug].astro). We pick a high-value subset by slug and pull
+// the label straight from tags.ts, so anything renamed/removed self-corrects
+// and we never emit a dead link.
+const trendingSlugs = [
+	'nano-banana-prompt',
+	'gemini-ai-prompt',
+	'gemini-ai-photo-prompt',
+	'couple-prompt',
+	'chatgpt-caricature-prompt',
+	'holi-prompt',
+];
+const tagBySlug = new Map(tags.map((t) => [t.slug, t]));
+const trendingLinks = trendingSlugs
+	.map((slug) => tagBySlug.get(slug))
+	.filter((t): t is (typeof tags)[number] => Boolean(t))
+	.map((t) => ({ href: `/${t.slug}`, label: t.name }));
+
+// LEARN — blog index plus the currently-published posts (verified in D1).
+const learnLinks = [
+	{ href: '/blog', label: 'Prompt engineering blog' },
+	{ href: '/blog/ai-photo-prompt-ideas', label: 'AI photo prompt ideas' },
+	{ href: '/blog/chatgpt-christmas-photo-prompts', label: 'ChatGPT Christmas photo prompts' },
+];
+
+// SITE — high-value UGC + utility pages (legal links live in the bottom strip).
 const siteLinks = [
-	{ href: '/categories', label: 'All categories' },
-	{ href: '/tags', label: 'Browse by keyword' },
 	{ href: '/submit', label: 'Submit a prompt' },
 	{ href: '/saved', label: 'Saved prompts' },
+	{ href: '/tags', label: 'Browse by keyword' },
 	{ href: '/about', label: 'About' },
 ];
 
@@ -32,6 +47,7 @@ const siteLinks = [
 // desktop (see the <style> block). Same data, one render path.
 const navGroups: { label: string; aria: string; items: { href: string; label: string }[] }[] = [
 	{ label: 'Browse', aria: 'Browse', items: browseLinks },
+	{ label: 'Trending', aria: 'Trending prompts', items: trendingLinks },
 	{ label: 'Learn', aria: 'Learn', items: learnLinks },
 	{ label: 'Site', aria: 'Site', items: siteLinks },
 ];
