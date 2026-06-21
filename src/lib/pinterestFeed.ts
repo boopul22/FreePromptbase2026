@@ -23,8 +23,16 @@ const escapeXml = (s: string): string =>
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&apos;');
 
+// Minimal shape both the feed (full Prompt) and the CSV export (raw row) can
+// satisfy — only the fields the Pin builders actually read.
+export interface PinSource {
+	slug: string;
+	coverImage?: string;
+	images?: string[];
+}
+
 /** Best Pin image for a prompt: cover, else first carousel image. */
-function pinImage(p: Prompt): string | undefined {
+function pinImage(p: PinSource): string | undefined {
 	return p.coverImage ?? (p.images && p.images.length > 0 ? p.images[0] : undefined);
 }
 
@@ -40,10 +48,24 @@ function absImage(src: string): string {
 	return `${SITE}${transformed.startsWith('/') ? '' : '/'}${transformed}`;
 }
 
-function itemXml(p: Prompt): string | null {
+/**
+ * Absolute, Pinterest-fetchable image URL for a prompt, or null when it has no
+ * usable image. Shared by the RSS feed and the bulk-CSV export so both pick the
+ * same image and drop the same image-less prompts.
+ */
+export function pinterestImageUrl(p: PinSource): string | null {
 	const img = pinImage(p);
-	if (!img) return null; // no image → Pinterest would skip it → drop it outright
-	const imageUrl = absImage(img);
+	return img ? absImage(img) : null;
+}
+
+/** Absolute prompt page URL. */
+export function promptUrl(p: PinSource): string {
+	return `${SITE}/${p.slug}`;
+}
+
+function itemXml(p: Prompt): string | null {
+	const imageUrl = pinterestImageUrl(p);
+	if (!imageUrl) return null; // no image → Pinterest would skip it → drop it outright
 	const link = `${SITE}/${p.slug}`;
 	const pubDate = new Date(p.date).toUTCString();
 	return `    <item>

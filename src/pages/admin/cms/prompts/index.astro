@@ -68,10 +68,16 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  <h1 class="text-lg font-semibold text-text-primary">Prompts</h1>
  <p class="text-xs text-gray-500 mt-0.5" id="prompt-subtitle">Manage the prompt library.</p>
  </div>
- <a href="/admin/cms/prompts/new" class="bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5 self-start sm:self-auto">
+ <div class="flex items-center gap-2 self-start sm:self-auto">
+ <button id="pinterest-export-btn" type="button" title="Download a CSV of live prompts not yet exported, formatted for Pinterest Bulk create Pins. Each export includes only new prompts." class="bg-white border border-gray-200 text-text-primary px-3 py-1.5 rounded-md text-sm font-semibold hover:bg-gray-100 transition-colors flex items-center gap-1.5">
+ <span class="material-symbols-outlined text-base">download</span>
+ <span id="pinterest-export-label">Export Pinterest CSV</span>
+ </button>
+ <a href="/admin/cms/prompts/new" class="bg-primary text-link px-3 py-1.5 rounded-md text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5">
  <span class="material-symbols-outlined text-base">add</span>
  New prompt
  </a>
+ </div>
  </div>
 
  <!-- Status tabs -->
@@ -408,6 +414,54 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  clearTimeout(searchTimer);
  searchTimer = setTimeout(applyFilters, 250);
  });
+
+ // Pinterest CSV export — delta export of live, not-yet-exported prompts.
+ // Downloads the CSV, then offers an undo that resets that batch server-side.
+ const pinBtn = document.getElementById('pinterest-export-btn') as HTMLButtonElement | null;
+ const pinLabel = document.getElementById('pinterest-export-label');
+ if (pinBtn && pinLabel) {
+ pinBtn.addEventListener('click', async () => {
+ pinBtn.disabled = true;
+ const original = pinLabel.textContent;
+ pinLabel.textContent = 'Exporting…';
+ try {
+ const res = await fetch('/api/admin/cms/prompts/pinterest-export', { headers: { Accept: 'text/csv' } });
+ if (!res.ok) throw new Error((await res.text()) || res.statusText);
+ const count = Number(res.headers.get('X-Export-Count') || '0');
+ if (count === 0) {
+ alert('No new prompts to export — everything live has already been exported to Pinterest.');
+ return;
+ }
+ const blob = await res.blob();
+ const cd = res.headers.get('Content-Disposition') || '';
+ const fname = (cd.match(/filename="([^"]+)"/) || [])[1] || 'pinterest-prompts.csv';
+ const url = URL.createObjectURL(blob);
+ const a = document.createElement('a');
+ a.href = url;
+ a.download = fname;
+ document.body.appendChild(a);
+ a.click();
+ a.remove();
+ URL.revokeObjectURL(url);
+ if (confirm(`Exported ${count} prompt${count === 1 ? '' : 's'} and marked them as done.\n\nUpload "${fname}" to Pinterest → Bulk create Pins.\n\nClick Cancel if the download failed and you want to undo (un-mark this batch so it exports again).`)) {
+ // OK = keep the batch marked. Nothing to do.
+ } else {
+ const undo = await fetch('/api/admin/cms/prompts/pinterest-export', {
+ method: 'POST',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ action: 'reset' }),
+ });
+ const j = await undo.json().catch(() => ({}));
+ alert(`Undone — ${j.reset ?? 0} prompt${j.reset === 1 ? '' : 's'} un-marked. They'll be included in your next export.`);
+ }
+ } catch (e: any) {
+ alert(`Pinterest export failed: ${e?.message || e}`);
+ } finally {
+ pinLabel.textContent = original;
+ pinBtn.disabled = false;
+ }
+ });
+ }
 
  // Boot — use the server-rendered island for instant first paint; fall back to
  // fetching only if it's missing.

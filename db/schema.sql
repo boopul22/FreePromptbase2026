@@ -78,7 +78,11 @@ CREATE TABLE prompts (
 	-- Intrinsic pixel size of cover_image, used to render width/height on the
 	-- card/detail <img> so the browser reserves the box (no layout shift).
 	cover_w          INTEGER,
-	cover_h          INTEGER
+	cover_h          INTEGER,
+	-- UTC timestamp of the Pinterest CSV export batch that included this prompt
+	-- (NULL = never exported). Powers the admin delta-export button: each click
+	-- emits only rows where this is NULL, then stamps them. See migration 0007.
+	pinterest_exported_at TEXT
 );
 
 CREATE INDEX idx_prompts_category     ON prompts(category);
@@ -90,6 +94,7 @@ CREATE INDEX idx_prompts_publish_at    ON prompts(publish_at);
 CREATE INDEX idx_prompts_updated_at    ON prompts(updated_at);
 CREATE INDEX idx_prompts_status_date  ON prompts(status, date);
 CREATE INDEX idx_prompts_submitted_by ON prompts(submitted_by);
+CREATE INDEX idx_prompts_pinterest_exported ON prompts(pinterest_exported_at);
 
 -- Per-actor save list. actor_id is "user:<id>" for signed-in users and
 -- "anon:<uuid>" for anonymous visitors (migrated to user form on login).
