@@ -10,9 +10,9 @@ export const prerender = false;
 
 const W = 1200;
 const H = 630;
-const GOLD = '#e0a82e';
-const INK = '#1a1a1a';
-const MUTED = '#6b6b6b';
+const GOLD = '#FFE66A';
+const INK = '#211D16';
+const MUTED = '#6D6255';
 
 const escapeXml = (s: string): string =>
 	s
@@ -90,31 +90,31 @@ export const GET: APIRoute = async ({ params }) => {
 <svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#fff5d6"/>
-      <stop offset="1" stop-color="#ffe49a"/>
+      <stop offset="0" stop-color="#FFF7CC"/>
+      <stop offset="1" stop-color="#FFE66A"/>
     </linearGradient>
   </defs>
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
   <rect x="40" y="40" width="${W - 80}" height="${H - 80}" rx="28" fill="#ffffff"/>
   <rect x="40" y="40" width="${W - 80}" height="8" rx="4" fill="${GOLD}"/>
 
-  <text x="80" y="120" font-family="system-ui, -apple-system, 'Segoe UI', Rubik, sans-serif" font-size="26" font-weight="700" fill="${GOLD}" letter-spacing="2">
+  <text x="80" y="120" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="26" font-weight="700" fill="${INK}" letter-spacing="2">
     FREE PROMPT BASE
   </text>
 
   <g transform="translate(80, 160)">
     <rect width="${chip.length * 14 + 36}" height="40" rx="20" fill="${GOLD}" fill-opacity="0.15"/>
-    <text x="${(chip.length * 14 + 36) / 2}" y="26" font-family="system-ui, -apple-system, 'Segoe UI', Rubik, sans-serif" font-size="18" font-weight="600" fill="${GOLD}" text-anchor="middle">${escapeXml(chip)}</text>
+    <text x="${(chip.length * 14 + 36) / 2}" y="26" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="18" font-weight="600" fill="${INK}" text-anchor="middle">${escapeXml(chip)}</text>
   </g>
 
-  <text font-family="system-ui, -apple-system, 'Segoe UI', Rubik, sans-serif" font-size="72" font-weight="800" fill="${INK}" letter-spacing="-1">
+  <text font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="72" font-weight="800" fill="${INK}" letter-spacing="-1">
     ${titleTspans}
   </text>
 
-  <text x="80" y="${H - 80}" font-family="system-ui, -apple-system, 'Segoe UI', Rubik, sans-serif" font-size="22" font-weight="500" fill="${MUTED}">
+  <text x="80" y="${H - 80}" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="22" font-weight="500" fill="${MUTED}">
     freepromptbase.com
   </text>
-  <text x="${W - 80}" y="${H - 80}" font-family="system-ui, -apple-system, 'Segoe UI', Rubik, sans-serif" font-size="22" font-weight="600" fill="${INK}" text-anchor="end">
+  <text x="${W - 80}" y="${H - 80}" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="22" font-weight="600" fill="${INK}" text-anchor="end">
     Copy. Use. Create.
   </text>
 </svg>`;

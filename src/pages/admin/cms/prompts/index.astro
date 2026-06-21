@@ -309,7 +309,7 @@ const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
  <td class="px-3 py-2.5 align-top">
  <div class="flex items-center gap-2 min-w-0">
  ${p.featured ? '<span class="material-symbols-outlined text-primary text-base shrink-0" title="Featured">star</span>' : ''}
- <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="font-medium text-text-primary hover:text-primary truncate">${esc(p.title)}</a>
+ <a href="/admin/cms/prompts/edit/${esc(p.slug)}" class="font-medium text-text-primary hover:text-secondary truncate">${esc(p.title)}</a>
  ${statusBadge(p)}
  </div>
  <p class="text-xs text-gray-500 mt-0.5 truncate">${esc(p.description || '')}</p>

@@ -89,7 +89,7 @@ import AdminSidebar from '../../../components/AdminSidebar.astro';
  ${data.categories.map((c: any) => `
  <tr class="hover:bg-gray-50 transition-colors" data-id="${esc(c.id)}">
  <td class="px-3 py-2.5 text-sm">
- <input type="text" value="${esc(c.name)}" class="cat-name bg-transparent border-b border-transparent hover:border-gray-200 focus:border-primary focus:outline-none font-bold text-sm w-full" />
+ <input type="text" value="${esc(c.name)}" class="cat-name bg-transparent border-b border-transparent hover:border-gray-200 focus:border-text-primary focus:outline-none font-bold text-sm w-full" />
  </td>
  <td class="px-3 py-2.5 text-sm text-gray-500">${esc(c.slug)}</td>
  <td class="px-3 py-2.5 text-sm">

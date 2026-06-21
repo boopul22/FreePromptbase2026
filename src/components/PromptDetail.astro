@@ -155,12 +155,12 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 	<main class="flex-grow max-w-6xl mx-auto px-4 w-full py-8 sm:py-12">
 		<!-- Breadcrumb -->
 		<nav class="text-xs text-gray-600 mb-6 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
-			<a href="/" class="hover:text-primary transition-colors">Home</a>
+			<a href="/" class="hover:text-secondary transition-colors">Home</a>
 			<span class="text-gray-300" aria-hidden="true">/</span>
 			{
 				category && (
 					<>
-						<a href={`/category/${category.slug}`} class="hover:text-primary transition-colors">
+						<a href={`/category/${category.slug}`} class="hover:text-secondary transition-colors">
 							{category.name}
 						</a>
 						<span class="text-gray-300" aria-hidden="true">/</span>
@@ -299,7 +299,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 				category && (
 					<a
 						href={`/category/${category.slug}`}
-						class="inline-flex items-center gap-1.5 text-text-primary hover:text-primary font-semibold transition-colors"
+						class="inline-flex items-center gap-1.5 text-text-primary hover:text-secondary font-semibold transition-colors"
 					>
 						<CategoryIcon slug={category.slug} class="w-3.5 h-3.5" />
 						{category.name}
@@ -329,7 +329,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			<span class="inline-flex items-center gap-1.5">
 				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
 				by {authorHref ? (
-					<a href={authorHref} class="text-text-primary font-medium hover:text-primary transition-colors">{authorName}</a>
+					<a href={authorHref} class="text-text-primary font-medium hover:text-secondary transition-colors">{authorName}</a>
 				) : (
 					<span class="text-text-primary font-medium">{authorName}</span>
 				)}
@@ -380,7 +380,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					'detail-save-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors',
 					isSaved
 						? 'bg-primary text-link border-primary'
-						: 'bg-white text-text-primary border-gray-200 hover:border-primary hover:text-primary',
+						: 'bg-white text-text-primary border-gray-200 hover:border-text-primary hover:text-secondary',
 				]}
 			>
 				<svg
@@ -404,7 +404,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 				data-share
 				data-slug={prompt.slug}
 				data-title={prompt.title}
-				class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-white text-text-primary border border-gray-200 hover:border-primary hover:text-primary transition-colors"
+				class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-white text-text-primary border border-gray-200 hover:border-text-primary hover:text-secondary transition-colors"
 			>
 				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>

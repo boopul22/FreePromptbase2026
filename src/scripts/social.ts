@@ -23,8 +23,8 @@ const PILL_UNSAVED = [
 	'bg-white',
 	'text-text-primary',
 	'border-gray-200',
-	'hover:border-primary',
-	'hover:text-primary',
+	'hover:border-text-primary',
+	'hover:text-secondary',
 ];
 const PILL_LIKED = ['bg-rose-50', 'text-rose-600', 'border-rose-200'];
 const PILL_UNLIKED = [

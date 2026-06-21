@@ -1,5 +1,4 @@
 ---
-import { Font } from 'astro:assets';
 import '../styles/global.css';
 
 interface Props {
@@ -132,7 +131,7 @@ const organizationSchema = {
 
 		<link rel="icon" type="image/svg+xml" href="/logo.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<meta name="theme-color" content="#e0a82e" />
+		<meta name="theme-color" content="#211D16" />
 		<meta name="generator" content={Astro.generator} />
 		<meta name="description" content={description} />
 		<!-- Pinterest domain claim (HTML-tag method); same hash as the DNS TXT record. -->
@@ -165,7 +164,6 @@ const organizationSchema = {
 		<meta name="twitter:description" content={description} />
 		{absoluteOgImage && <meta name="twitter:image" content={absoluteOgImage} />}
 
-		<Font cssVariable="--font-rubik" preload />
 		{
 			preloadImage && (
 				<link

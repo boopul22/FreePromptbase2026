@@ -211,9 +211,9 @@ const breadcrumb = breadcrumbSchema([
 	<main class="flex-grow max-w-6xl mx-auto px-4 w-full py-8 sm:py-12">
 		<!-- Breadcrumb -->
 		<nav class="text-xs text-[var(--ink-faint)] mb-8 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
-			<a href="/" class="hover:text-primary transition-colors">Home</a>
+			<a href="/" class="hover:text-secondary transition-colors">Home</a>
 			<span class="text-[var(--hairline)]" aria-hidden="true">/</span>
-			<a href="/blog" class="hover:text-primary transition-colors">Field Notes</a>
+			<a href="/blog" class="hover:text-secondary transition-colors">Field Notes</a>
 			<span class="text-[var(--hairline)]" aria-hidden="true">/</span>
 			<span class="text-text-primary truncate max-w-[55%]">{post.title}</span>
 		</nav>
@@ -298,7 +298,7 @@ const breadcrumb = breadcrumbSchema([
 								<ol class="space-y-1.5 text-sm">
 									{toc.map((h) => (
 										<li class={h.level === 3 ? 'pl-4' : ''}>
-											<a href={`#${h.id}`} class="text-[var(--ink-soft)] hover:text-primary transition-colors block py-0.5">
+											<a href={`#${h.id}`} class="text-[var(--ink-soft)] hover:text-secondary transition-colors block py-0.5">
 												{h.text}
 											</a>
 										</li>
@@ -384,7 +384,7 @@ const breadcrumb = breadcrumbSchema([
 												)}
 											</div>
 											<div class="min-w-0 flex-1">
-												<h3 class="text-base font-bold text-text-primary leading-snug group-hover:text-primary transition-colors line-clamp-2">
+												<h3 class="text-base font-bold text-text-primary leading-snug group-hover:text-secondary transition-colors line-clamp-2">
 													{rel.title}
 												</h3>
 												<div class="text-xs text-[var(--ink-faint)] mt-1">
@@ -395,7 +395,7 @@ const breadcrumb = breadcrumbSchema([
 													})}
 												</div>
 											</div>
-											<svg class="w-4 h-4 shrink-0 text-[var(--ink-faint)] group-hover:text-primary transition-all duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+											<svg class="w-4 h-4 shrink-0 text-[var(--ink-faint)] group-hover:text-secondary transition-all duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 										</a>
 									</li>
 								))}
@@ -421,7 +421,7 @@ const breadcrumb = breadcrumbSchema([
 												href={`#${h.id}`}
 												data-toc-link
 												data-target={h.id}
-												class="block py-0.5 text-[var(--ink-soft)] hover:text-primary transition-colors leading-snug"
+												class="block py-0.5 text-[var(--ink-soft)] hover:text-secondary transition-colors leading-snug"
 											>
 												{h.text}
 											</a>
@@ -534,10 +534,10 @@ const breadcrumb = breadcrumbSchema([
 		padding: 0.08rem 0.35rem;
 		font-size: 0.85em;
 		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-		color: #1a1a2e;
+		color: #211D16;
 	}
 	.prose-blog pre {
-		background: #1a1a2e;
+		background: #211D16;
 		color: #ececf1;
 		padding: 1.1rem 1.25rem;
 		border-radius: 10px;

@@ -170,7 +170,7 @@ import AdminSidebar from '../../../../components/AdminSidebar.astro';
  <tr class="hover:bg-gray-50 transition-colors">
  <td class="px-3 py-2.5 text-sm">
  <div>
- <a href="/admin/cms/posts/edit/${esc(p.id)}" class="font-bold text-sm hover:text-primary transition-colors">${esc(p.title)}</a>
+ <a href="/admin/cms/posts/edit/${esc(p.id)}" class="font-bold text-sm hover:text-secondary transition-colors">${esc(p.title)}</a>
  ${p.featured ? '<span class="ml-2 text-xs text-tertiary font-bold uppercase">Featured</span>' : ''}
  <p class="text-xs text-gray-500 truncate mt-0.5 max-w-sm">${esc(p.excerpt)}</p>
  </div>

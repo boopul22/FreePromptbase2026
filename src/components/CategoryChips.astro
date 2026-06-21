@@ -22,7 +22,7 @@ const { categories, active, showAll = true } = Astro.props;
 					'px-4 py-1.5 rounded-md text-sm font-semibold border transition-colors',
 					!active
 						? 'bg-primary text-link border-primary'
-						: 'bg-white text-text-primary border-gray-200 hover:border-primary',
+						: 'bg-white text-text-primary border-gray-200 hover:border-text-primary',
 				]}
 			>
 				All
@@ -37,7 +37,7 @@ const { categories, active, showAll = true } = Astro.props;
 					'inline-flex items-center gap-1.5 px-4 py-1.5 rounded-md text-sm font-semibold border transition-colors',
 					active === cat.slug
 						? 'bg-primary text-link border-primary'
-						: 'bg-white text-text-primary border-gray-200 hover:border-primary',
+						: 'bg-white text-text-primary border-gray-200 hover:border-text-primary',
 				]}
 			>
 				<CategoryIcon slug={cat.slug} class="w-4 h-4" />

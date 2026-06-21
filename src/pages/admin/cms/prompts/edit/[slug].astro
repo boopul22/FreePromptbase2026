@@ -48,24 +48,24 @@ const slug = Astro.params.slug!;
  <div class="bg-white border border-gray-200 rounded-md p-4 space-y-3">
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-title">Title</label>
- <input id="f-title" type="text" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-title" type="text" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-slug">Slug</label>
- <input id="f-slug" type="text" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-slug" type="text" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-text-primary" />
  <p class="text-xs text-gray-500 mt-1">Changing the slug changes the public URL.</p>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-description">Description</label>
- <textarea id="f-description" rows="2" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ <textarea id="f-description" rows="2" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary resize-y"></textarea>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-prompt-text">Prompt text</label>
- <textarea id="f-prompt-text" rows="12" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ <textarea id="f-prompt-text" rows="12" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-text-primary resize-y"></textarea>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-how-to-use">How to use (optional)</label>
- <textarea id="f-how-to-use" rows="3" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"></textarea>
+ <textarea id="f-how-to-use" rows="3" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary resize-y"></textarea>
  </div>
  </div>
 
@@ -75,7 +75,7 @@ const slug = Astro.params.slug!;
  <p class="text-sm font-semibold text-text-primary">Images</p>
  <p class="text-xs text-gray-500 mt-0.5">Drag &amp; drop or click to upload. They render as a carousel on the prompt page. Click a thumbnail to set it as the cover (featured) image, or drag thumbnails to reorder the gallery.</p>
  </div>
- <label id="dropzone" class="block border-2 border-dashed border-gray-300 rounded-md px-4 py-8 text-center cursor-pointer hover:border-primary hover:bg-gray-50 transition-colors">
+ <label id="dropzone" class="block border-2 border-dashed border-gray-300 rounded-md px-4 py-8 text-center cursor-pointer hover:border-text-primary hover:bg-gray-50 transition-colors">
  <input id="image-input" type="file" accept="image/*" multiple class="hidden" />
  <span class="material-symbols-outlined text-3xl text-gray-400">cloud_upload</span>
  <p class="text-sm font-medium text-text-primary mt-1">Drop images here, or click to browse</p>
@@ -100,22 +100,22 @@ const slug = Astro.params.slug!;
  <div class="bg-white border border-gray-200 rounded-md p-4 space-y-3">
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-category">Category</label>
- <select id="f-category" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"></select>
+ <select id="f-category" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-text-primary"></select>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-tags">Tags</label>
- <input id="f-tags" type="text" placeholder="comma, separated, list" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-tags" type="text" placeholder="comma, separated, list" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-cover">Cover image URL</label>
- <input id="f-cover" type="url" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-cover" type="url" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  </div>
  </div>
 
  <div class="bg-white border border-gray-200 rounded-md p-4 space-y-3">
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-author">Author</label>
- <select id="f-author" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+ <select id="f-author" required class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-text-primary">
  <option value="">Loading users…</option>
  </select>
  <p class="text-xs text-gray-500 mt-1">Pick the user this prompt is credited to. Their display name becomes the byline.</p>
@@ -123,7 +123,7 @@ const slug = Astro.params.slug!;
  <div id="schedule-state" class="hidden rounded-md bg-indigo-50 border border-indigo-200 px-3 py-2 text-xs text-indigo-900"></div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-popularity">Popularity</label>
- <input id="f-popularity" type="number" min="0" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-popularity" type="number" min="0" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  </div>
  <label class="flex items-center gap-2 text-sm text-text-primary cursor-pointer">
  <input id="f-featured" type="checkbox" class="accent-primary w-4 h-4" />
@@ -141,7 +141,7 @@ const slug = Astro.params.slug!;
  <h2 id="schedule-dialog-title" class="text-sm font-semibold text-text-primary">Publish</h2>
  </div>
  <p id="schedule-dialog-hint" class="text-xs text-gray-500 leading-snug">Choose when this prompt goes live. Your local timezone.</p>
- <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+ <input id="f-publish-at" type="datetime-local" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  <div id="schedule-presets" class="flex flex-wrap gap-1.5">
  <button type="button" class="fpb-preset" data-preset="1h">In 1 hour</button>
  <button type="button" class="fpb-preset" data-preset="tom9">Tomorrow 9 AM</button>
@@ -282,7 +282,7 @@ const slug = Astro.params.slug!;
  strip.innerHTML = images.map((url, i) => {
  const isCover = url === cover;
  return `
- <div draggable="true" data-idx="${i}" class="relative group rounded-md overflow-hidden border ${isCover ? 'border-primary ring-2 ring-primary' : 'border-gray-200'} aspect-square bg-gray-50 cursor-pointer select-none" data-cover="${url}" title="${isCover ? 'Cover image · drag to reorder' : 'Click to set as cover · drag to reorder'}">
+ <div draggable="true" data-idx="${i}" class="relative group rounded-md overflow-hidden border ${isCover ? 'border-text-primary ring-2 ring-text-primary' : 'border-gray-200'} aspect-square bg-gray-50 cursor-pointer select-none" data-cover="${url}" title="${isCover ? 'Cover image · drag to reorder' : 'Click to set as cover · drag to reorder'}">
  <img src="${url}" alt="" draggable="false" class="w-full h-full object-cover pointer-events-none" />
  ${isCover
  ? '<span class="absolute top-1 left-1 bg-primary text-link text-[10px] font-semibold px-1.5 py-0.5 rounded-md uppercase tracking-wide">Cover</span>'

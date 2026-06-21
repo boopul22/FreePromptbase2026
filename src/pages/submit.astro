@@ -32,7 +32,7 @@ const MAX_FILE_MB = 5;
 					{user.username ? (
 						<>
 							It'll appear on
-							<a href={`/author/${user.username}`} class="underline hover:text-primary">your profile</a>
+							<a href={`/author/${user.username}`} class="underline hover:text-secondary">your profile</a>
 							as <span class="font-medium text-text-primary">Pending review</span> until then.
 						</>
 					) : null}
@@ -77,7 +77,7 @@ const MAX_FILE_MB = 5;
 									maxlength="120"
 									placeholder="e.g. Cinematic Portrait Photography"
 									autocomplete="off"
-									class="block w-full text-base sm:text-lg px-3.5 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow placeholder:text-gray-300" />
+									class="block w-full text-base sm:text-lg px-3.5 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-text-primary transition-shadow placeholder:text-gray-300" />
 								<p data-error="title" class="hidden mt-1.5 text-xs text-red-600"></p>
 							</div>
 
@@ -87,7 +87,7 @@ const MAX_FILE_MB = 5;
 									<svg class="w-3.5 h-3.5 transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 									Customize URL slug
 								</summary>
-								<div class="mt-3 flex items-stretch border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-primary focus-within:border-primary transition-shadow">
+								<div class="mt-3 flex items-stretch border border-gray-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-text-primary focus-within:border-text-primary transition-shadow">
 									<span class="px-3 py-2.5 text-sm bg-gray-50 text-gray-500 font-mono border-r border-gray-200 select-all">freepromptbase.com/</span>
 									<input
 										id="f-slug"
@@ -111,7 +111,7 @@ const MAX_FILE_MB = 5;
 									rows="2"
 									maxlength="280"
 									placeholder="One sentence that hooks readers — shown on cards and in search."
-									class="block w-full text-sm leading-relaxed px-3.5 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow resize-y placeholder:text-gray-300"></textarea>
+									class="block w-full text-sm leading-relaxed px-3.5 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-text-primary transition-shadow resize-y placeholder:text-gray-300"></textarea>
 							</div>
 
 							<!-- Prompt body -->
@@ -124,7 +124,7 @@ const MAX_FILE_MB = 5;
 									rows="12"
 									required
 									placeholder="Paste the full prompt body — exactly what someone would copy and use."
-									class="block w-full text-sm font-mono leading-relaxed px-3.5 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow resize-y placeholder:text-gray-300"></textarea>
+									class="block w-full text-sm font-mono leading-relaxed px-3.5 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-text-primary transition-shadow resize-y placeholder:text-gray-300"></textarea>
 								<p data-error="promptText" class="hidden mt-1.5 text-xs text-red-600"></p>
 							</div>
 
@@ -137,7 +137,7 @@ const MAX_FILE_MB = 5;
 									id="f-how-to-use"
 									rows="3"
 									placeholder="Tips on substituting placeholders, tuning parameters, what to expect…"
-									class="block w-full text-sm leading-relaxed px-3.5 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow resize-y placeholder:text-gray-300"></textarea>
+									class="block w-full text-sm leading-relaxed px-3.5 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-text-primary transition-shadow resize-y placeholder:text-gray-300"></textarea>
 							</div>
 						</div>
 					</article>
@@ -158,10 +158,10 @@ const MAX_FILE_MB = 5;
 							<label
 								id="dropzone"
 								for="image-input"
-								class="group block relative border-2 border-dashed border-gray-300 hover:border-primary hover:bg-amber-50/40 rounded-xl px-6 py-10 text-center cursor-pointer transition-colors"
+								class="group block relative border-2 border-dashed border-gray-300 hover:border-text-primary hover:bg-soft rounded-xl px-6 py-10 text-center cursor-pointer transition-colors"
 							>
 								<div class="w-12 h-12 rounded-full bg-gray-100 group-hover:bg-amber-100 flex items-center justify-center mx-auto mb-3 transition-colors">
-									<svg class="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+									<svg class="w-5 h-5 text-gray-500 group-hover:text-secondary transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 										<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
 										<polyline points="17 8 12 3 7 8"/>
 										<line x1="12" y1="3" x2="12" y2="15"/>
@@ -208,7 +208,7 @@ const MAX_FILE_MB = 5;
 								<select
 									id="f-category"
 									required
-									class="block w-full text-sm px-3 py-2.5 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow">
+									class="block w-full text-sm px-3 py-2.5 border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-text-primary transition-shadow">
 									<option value="">Choose a category…</option>
 									{categories.map((c) => (
 										<option value={c.slug}>{c.emoji} {c.name}</option>
@@ -225,7 +225,7 @@ const MAX_FILE_MB = 5;
 									id="f-tags"
 									type="text"
 									placeholder="comma, separated, tags"
-									class="block w-full text-sm px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow placeholder:text-gray-300" />
+									class="block w-full text-sm px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-text-primary transition-shadow placeholder:text-gray-300" />
 								<p class="text-[11px] text-gray-400 mt-1">Up to 12 — they help people find your prompt.</p>
 							</div>
 						</div>
@@ -253,14 +253,14 @@ const MAX_FILE_MB = 5;
 								required
 								maxlength="4"
 								placeholder="Your answer"
-								class="block w-full text-center text-base font-mono px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-shadow" />
+								class="block w-full text-center text-base font-mono px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-text-primary focus:border-text-primary transition-shadow" />
 							<input id="f-captcha-token" type="hidden" value={captcha.token} />
 							<div class="flex items-center justify-between">
 								<p data-error="captcha" class="hidden text-xs text-red-600"></p>
 								<button
 									id="captcha-refresh"
 									type="button"
-									class="ml-auto text-xs text-gray-500 hover:text-primary inline-flex items-center gap-1 transition-colors">
+									class="ml-auto text-xs text-gray-500 hover:text-secondary inline-flex items-center gap-1 transition-colors">
 									<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 										<polyline points="23 4 23 10 17 10"/>
 										<path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
