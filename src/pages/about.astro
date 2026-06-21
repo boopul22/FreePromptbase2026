@@ -2,11 +2,21 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { breadcrumbSchema } from '../lib/seo';
+
+const crumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name: 'About', path: '/about' },
+]);
 ---
 
-<Layout title="About — Free Prompt Base" description="Free Prompt Base is a community library of ready-to-use AI prompts. Built by Boopul.">
+<Layout title="About — Free Prompt Base" description="Free Prompt Base is a community library of ready-to-use AI prompts. Built by Boopul."
+	extraSchemas={[crumb]}
+>
 	<Header />
 	<main class="flex-grow site-main py-12">
+		<Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
 		<div class="max-w-2xl">
 			<p class="text-xs font-semibold uppercase tracking-[0.18em] text-secondary mb-3">About</p>
 			<h1 class="text-4xl md:text-5xl font-bold tracking-tight text-text-primary leading-[1.1]">
