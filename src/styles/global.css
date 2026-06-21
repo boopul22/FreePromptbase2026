@@ -21,7 +21,7 @@
 	--color-primary: oklch(0.925 0.135 99);    /* #FFE66A — saturated action yellow */
 	--color-secondary: oklch(0.48 0.020 70);   /* #6D6255 — warm taupe (meta text) */
 	--color-accent: oklch(0.925 0.135 99);     /* #FFE66A */
-	--color-background: oklch(0.992 0.004 95);  /* #FFFFFF, a hair off-white, warm */
+	--color-background: #ffffff;                /* #FFFFFF — exact, per spec */
 	--color-text-primary: oklch(0.255 0.011 75);/* #211D16 — warm near-black */
 	--color-link: oklch(0.255 0.011 75);        /* dark ink on yellow + footer bg */
 	/* Pale-yellow wash (spec's `primary`) for soft fills / hover surfaces, and
@@ -83,15 +83,13 @@
 	--input-radius-bl: 8px;
 	--input-shadow: none;
 
-	/* Primary button — yellow fill, dark ink, thin dark keyline, 8px radius.
-	   "Restrained" treatment: a soft layered shadow + a subtle lift, NOT the
-	   spec's hard neobrutalist offset, so the chrome stays quiet. */
+	/* Primary button — yellow fill, dark ink, thin dark keyline, 8px radius,
+	   and the spec's hard neobrutalist offset shadow (button presses into it). */
 	--btn-primary-bg: var(--color-primary);
 	--btn-primary-text: var(--color-link);
 	--btn-primary-border: var(--color-link);
 	--btn-primary-radius: 8px;
-	--btn-primary-shadow: 0 1px 2px oklch(0.255 0.011 75 / 0.12),
-		0 4px 12px oklch(0.255 0.011 75 / 0.10);
+	--btn-primary-shadow: 3px 3px 0 0 rgba(33, 29, 22, 0.9);
 
 	/* Secondary button — transparent, dark text, light keyline, pill radius. */
 	--btn-secondary-bg: transparent;
@@ -159,13 +157,12 @@
 		opacity 150ms ease;
 }
 .btn-primary:hover {
-	transform: translateY(-1px);
-	box-shadow: 0 2px 4px oklch(0.255 0.011 75 / 0.14),
-		0 8px 20px oklch(0.255 0.011 75 / 0.14);
+	transform: translate(1px, 1px);
+	box-shadow: 2px 2px 0 0 rgba(33, 29, 22, 0.9);
 }
 .btn-primary:active {
-	transform: translateY(0);
-	box-shadow: var(--btn-primary-shadow);
+	transform: translate(3px, 3px);
+	box-shadow: 0 0 0 0 rgba(33, 29, 22, 0.9);
 }
 .btn-primary:focus-visible {
 	outline: 2px solid var(--color-text-primary);
