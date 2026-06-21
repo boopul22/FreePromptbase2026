@@ -8,6 +8,7 @@ import type { Tag } from '../lib/prompts';
 import { getTagArticle } from '../lib/tagArticles';
 import { itemListSchema, breadcrumbSchema } from '../lib/seo';
 import { cfSrcset } from '../lib/cfImage';
+import { pillColor } from '../lib/pills';
 
 // Keyword landing page, served at the ROOT URL /<main-keyword>. The prompt grid
 // renders first; an editorial, blog-style article + FAQ render below it. Used by
@@ -103,14 +104,18 @@ const faqSchema = {
 >
 	<Header />
 	<main class="flex-grow site-main py-10">
-		<nav class="text-sm text-gray-500 mb-4" aria-label="Breadcrumb">
-			<a href="/" class="hover:text-secondary">Home</a>
-			<span class="mx-1.5">/</span>
-			<span class="text-gray-700">{name}</span>
+		<nav class="mb-5 flex flex-wrap items-center gap-2 text-xs" aria-label="Breadcrumb">
+			<a href="/" class="inline-flex items-center gap-1 font-semibold text-text-primary hover:text-secondary transition-colors">
+				<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+				Home
+			</a>
+			<svg class="w-3.5 h-3.5 text-gray-300 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+			<span class={`pill ${pillColor(tag.slug)}`}>{name}</span>
 		</nav>
 
 		<!-- H1 + lead, then the prompts immediately. The article sits below. -->
 		<header class="mb-8 max-w-3xl">
+			<p class="text-xs font-semibold uppercase tracking-[0.18em] text-secondary mb-3">AI prompt library</p>
 			<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary leading-[1.15]">
 				{heading}
 			</h1>
@@ -182,10 +187,7 @@ const faqSchema = {
 			<div class="flex flex-wrap gap-2">
 				{
 					related.map((t) => (
-						<a
-							href={`/${t.slug}`}
-							class="border border-gray-200 bg-white hover:border-text-primary hover:text-secondary text-gray-700 text-sm font-medium px-3 py-1.5 rounded-full transition-colors"
-						>
+						<a href={`/${t.slug}`} class={`pill ${pillColor(t.slug)}`}>
 							{t.name}
 						</a>
 					))
