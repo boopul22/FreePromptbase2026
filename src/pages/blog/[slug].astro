@@ -2,6 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
+import BlogShare from '../../components/BlogShare.astro';
 import { getPostBySlug, getRelatedPosts, postReadTime } from '../../lib/posts';
 import { breadcrumbSchema, publisherBlock } from '../../lib/seo';
 import { cfSrcset } from '../../lib/cfImage';
@@ -136,9 +137,34 @@ function renderPromptBlocks(html: string): string {
 	});
 }
 
+// --- Lift quoted blockquote prompts into copyable cards -------------------
+// Most posts store example prompts as
+//   <blockquote>[optional <img>]<p>"You are a ..."</p></blockquote>
+// (a quoted paragraph, sometimes with an example-output image). Those don't
+// match the inline <em> pattern above, so turn them into the same copy card
+// here — every example becomes one tap to copy. Genuine pull-quotes (no
+// surrounding quote marks, or under 4 words) are left as blockquotes.
+function renderBlockquotePrompts(html: string): string {
+	return html.replace(/<blockquote>([\s\S]*?)<\/blockquote>/gi, (match, inner) => {
+		const imgMatch = /<img[^>]*>/i.exec(inner);
+		const img = imgMatch ? imgMatch[0] : '';
+		const pMatch = /<p>\s*[“"]([\s\S]+?)[”"]\s*<\/p>/i.exec(inner);
+		if (!pMatch) {
+			// A blockquote whose only content is an image is an example output,
+			// not a pull-quote — unwrap it so it renders as a plain figure.
+			const textLeft = inner.replace(/<img[^>]*>/gi, '').replace(/<[^>]+>/g, '').trim();
+			if (img && !textLeft) return img;
+			return match;
+		}
+		const text = decodeEntities(pMatch[1].replace(/<[^>]+>/g, '')).trim();
+		if (text.split(/\s+/).filter(Boolean).length < 4) return match;
+		return img + promptCard('Prompt', text);
+	});
+}
+
 const rawBody = post.htmlContent || post.content.intro || '';
 const { html: builtHtml, toc } = buildToc(rawBody);
-const withPrompts = renderPromptBlocks(builtHtml);
+const withPrompts = renderBlockquotePrompts(renderPromptBlocks(builtHtml));
 // Lazy-load + async-decode every in-body image (they're below the fold) so the
 // page doesn't eagerly fetch 20 MB of images on load. Only images without an
 // explicit loading attr are touched.
@@ -208,7 +234,7 @@ const breadcrumb = breadcrumbSchema([
 	<Header />
 	<div class="read-progress" id="read-progress" aria-hidden="true"></div>
 
-	<main class="flex-grow site-main py-8 sm:py-12">
+	<main class="blog-shell flex-grow py-8 sm:py-12">
 		<!-- Breadcrumb -->
 		<nav class="text-xs text-[var(--ink-faint)] mb-8 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
 			<a href="/" class="hover:text-secondary transition-colors">Home</a>
@@ -218,9 +244,36 @@ const breadcrumb = breadcrumbSchema([
 			<span class="text-text-primary truncate max-w-[55%]">{post.title}</span>
 		</nav>
 
-		<div class="lg:flex lg:gap-14 lg:items-start">
-			<!-- Article column -->
-			<article class="lg:flex-1 lg:max-w-3xl min-w-0">
+		<div class="blog-grid">
+			<!-- LEFT RAIL: Table of contents (xl+) -->
+			{
+				toc.length > 1 && (
+					<aside class="blog-rail blog-rail--left hidden xl:block">
+						<div class="sticky top-20">
+							<p class="rail-eyebrow">On this page</p>
+							<nav class="toc mt-3" aria-label="Table of contents">
+								<ol class="toc-list">
+									{toc.map((h) => (
+										<li class:list={[h.level === 3 && 'toc-sub']}>
+											<a
+												href={`#${h.id}`}
+												data-toc-link
+												data-target={h.id}
+												class="toc-link"
+											>
+												{h.text}
+											</a>
+										</li>
+									))}
+								</ol>
+							</nav>
+						</div>
+					</aside>
+				)
+			}
+
+			<!-- ARTICLE COLUMN -->
+			<article class="blog-article min-w-0">
 				<!-- Title + dek -->
 				<header class="mb-8">
 					{
@@ -267,7 +320,7 @@ const breadcrumb = breadcrumbSchema([
 					</div>
 				</div>
 
-				<!-- Cover (breaks slightly wider than the reading measure) -->
+				<!-- Cover -->
 				{
 					post.coverImage && (
 						<img
@@ -285,10 +338,10 @@ const breadcrumb = breadcrumbSchema([
 					)
 				}
 
-				<!-- Mobile-only TOC (collapsed) -->
+				<!-- Collapsible TOC (mobile + lg; left rail takes over at xl) -->
 				{
 					toc.length > 1 && (
-						<details class="lg:hidden mb-10 border border-[var(--hairline)] rounded-md bg-[var(--paper)] group">
+						<details class="xl:hidden mb-10 border border-[var(--hairline)] rounded-md bg-[var(--paper)] group">
 							<summary class="px-4 py-3 cursor-pointer text-sm font-semibold text-text-primary flex items-center gap-2 list-none">
 								<svg class="w-4 h-4 text-[var(--ink-faint)] transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
 								<span>On this page</span>
@@ -312,7 +365,13 @@ const breadcrumb = breadcrumbSchema([
 				<!-- Body -->
 				<div class="prose-blog" set:html={bodyHtml} />
 
-				<!-- End-of-article CTA — back to the product. -->
+				<!-- Mobile share (rail covers lg+) -->
+				<div class="lg:hidden mt-12 pt-7 border-t border-[var(--hairline)]">
+					<p class="rail-eyebrow mb-3">Share this article</p>
+					<BlogShare url={postUrl} title={post.title} variant="row" />
+				</div>
+
+				<!-- End-of-article CTA -->
 				<aside class="mt-14 rounded-base bg-[var(--paper)] border border-[var(--hairline)] px-6 py-7 sm:px-8 sm:py-8">
 					<p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-2">Now your turn</p>
 					<h2 class="text-xl sm:text-2xl font-bold text-text-primary leading-snug">
@@ -330,7 +389,7 @@ const breadcrumb = breadcrumbSchema([
 					</a>
 				</aside>
 
-				<!-- FAQ (if present) -->
+				<!-- FAQ -->
 				{
 					post.faqItems.length > 0 && (
 						<section class="mt-14 pt-10 border-t border-[var(--hairline)]">
@@ -353,10 +412,10 @@ const breadcrumb = breadcrumbSchema([
 					)
 				}
 
-				<!-- Related -->
+				<!-- Related (mobile only; rail covers lg+) -->
 				{
 					related.length > 0 && (
-						<section class="mt-16 pt-10 border-t border-[var(--hairline)]">
+						<section class="lg:hidden mt-16 pt-10 border-t border-[var(--hairline)]">
 							<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">More to read</p>
 							<h2 class="text-2xl font-bold text-text-primary mb-5">Keep reading</h2>
 							<ol class="border-t border-[var(--hairline)]">
@@ -405,40 +464,273 @@ const breadcrumb = breadcrumbSchema([
 				}
 			</article>
 
-			<!-- Sticky TOC (lg+) -->
-			{
-				toc.length > 1 && (
-					<aside class="hidden lg:block lg:w-56 lg:shrink-0">
-						<div class="sticky top-20">
-							<p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-4">
-								On this page
-							</p>
-							<nav aria-label="Table of contents">
-								<ol class="space-y-2 text-sm border-l border-[var(--hairline)] pl-4">
-									{toc.map((h) => (
-										<li class:list={[h.level === 3 && 'pl-3']}>
-											<a
-												href={`#${h.id}`}
-												data-toc-link
-												data-target={h.id}
-												class="block py-0.5 text-[var(--ink-soft)] hover:text-secondary transition-colors leading-snug"
-											>
-												{h.text}
+			<!-- RIGHT RAIL: Share + Related + Promo (lg+) -->
+			<aside class="blog-rail blog-rail--right hidden lg:block">
+				<div class="sticky top-20 space-y-9">
+					<!-- Share -->
+					<div>
+						<p class="rail-eyebrow mb-3">Share</p>
+						<BlogShare url={postUrl} title={post.title} variant="stack" />
+					</div>
+
+					<!-- Related -->
+					{
+						related.length > 0 && (
+							<div>
+								<p class="rail-eyebrow mb-4">Keep reading</p>
+								<ul class="rail-related">
+									{related.map((rel) => (
+										<li>
+											<a href={`/blog/${rel.slug}`} class="rail-related__item group">
+												<div class="rail-related__thumb">
+													{rel.coverImage ? (
+														<img
+															src={rel.coverImage}
+															srcset={cfSrcset(rel.coverImage, [120, 200])}
+															sizes="48px"
+															alt={rel.title}
+															loading="lazy"
+															decoding="async"
+														/>
+													) : (
+														<div class="w-full h-full flex items-center justify-center text-text-primary/25">
+															<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8"/></svg>
+														</div>
+													)}
+												</div>
+												<div class="min-w-0">
+													<h3 class="rail-related__title">{rel.title}</h3>
+													<span class="rail-related__date">
+														{new Date(rel.publishedAt ?? rel.createdAt).toLocaleDateString('en-US', {
+															month: 'short',
+															day: 'numeric',
+															year: 'numeric',
+														})}
+													</span>
+												</div>
 											</a>
 										</li>
 									))}
-								</ol>
-							</nav>
-						</div>
-					</aside>
-				)
-			}
+								</ul>
+							</div>
+						)
+					}
+
+					<!-- Promo -->
+					<div class="rail-promo">
+						<p class="rail-promo__eyebrow">Free library</p>
+						<p class="rail-promo__title">Ready-to-use AI prompts</p>
+						<p class="rail-promo__body">Hundreds of copy-paste prompts for ChatGPT, Claude and Midjourney. No signup.</p>
+						<a href="/" class="rail-promo__cta btn-feedback group">
+							Browse prompts
+							<svg class="w-3.5 h-3.5 transition-transform duration-300 ease-out group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+						</a>
+						<a href="/submit" class="rail-promo__link">Or submit your own prompt</a>
+					</div>
+				</div>
+			</aside>
 		</div>
 	</main>
+
 	<Footer />
 </Layout>
 
 <style is:global>
+	/* ---- Reading shell + three-zone grid -------------------------------- */
+	.blog-shell {
+		width: 100%;
+		max-width: 72rem;
+		margin-inline: auto;
+		padding-inline: 1rem;
+	}
+	.blog-grid {
+		display: block;
+	}
+	@media (min-width: 1024px) {
+		.blog-grid {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 15rem;
+			column-gap: 3rem;
+			/* Cells stretch to the full row height so the sticky rails have the
+			   article's height to travel through (align-items:start would pin
+			   each rail to its own short content and break stickiness). */
+			align-items: stretch;
+		}
+	}
+	@media (min-width: 1280px) {
+		.blog-grid {
+			grid-template-columns: 11rem minmax(0, 1fr) 16rem;
+			column-gap: 2.5rem;
+		}
+	}
+	.blog-rail {
+		min-width: 0;
+	}
+	.rail-eyebrow {
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.16em;
+		color: var(--ink-faint);
+	}
+
+	/* ---- Table of contents (left rail) ---------------------------------- */
+	.toc-list {
+		position: relative;
+		border-left: 1.5px solid var(--hairline);
+	}
+	.toc-link {
+		position: relative;
+		display: block;
+		padding: 0.3rem 0 0.3rem 0.9rem;
+		font-size: 0.8125rem;
+		line-height: 1.4;
+		color: var(--ink-soft);
+		transition: color 150ms ease;
+	}
+	.toc-link::before {
+		content: '';
+		position: absolute;
+		left: -1.5px;
+		top: 0.3rem;
+		bottom: 0.3rem;
+		width: 2px;
+		background: var(--color-text-primary);
+		transform: scaleY(0);
+		transform-origin: top;
+		transition: transform 220ms var(--ease-out-quart);
+	}
+	.toc-link:hover {
+		color: var(--color-text-primary);
+	}
+	.toc-link.is-active {
+		color: var(--color-text-primary);
+		font-weight: 600;
+	}
+	.toc-link.is-active::before {
+		transform: scaleY(1);
+	}
+	.toc-sub .toc-link {
+		padding-left: 1.7rem;
+		font-size: 0.78rem;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.toc-link::before {
+			transition: none;
+		}
+	}
+
+	/* ---- Related list (right rail) -------------------------------------- */
+	.rail-related {
+		display: flex;
+		flex-direction: column;
+	}
+	.rail-related__item {
+		display: flex;
+		gap: 0.7rem;
+		padding: 0.7rem 0;
+		border-top: 1px solid var(--hairline);
+	}
+	.rail-related li:first-child .rail-related__item {
+		border-top: 0;
+		padding-top: 0;
+	}
+	.rail-related__thumb {
+		width: 3rem;
+		height: 3rem;
+		border-radius: 7px;
+		overflow: hidden;
+		background: var(--paper-sunken);
+		flex-shrink: 0;
+	}
+	.rail-related__thumb img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.rail-related__title {
+		font-size: 0.8125rem;
+		font-weight: 700;
+		line-height: 1.3;
+		color: var(--color-text-primary);
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		transition: color 150ms ease;
+	}
+	.rail-related__item:hover .rail-related__title {
+		color: var(--color-secondary);
+	}
+	.rail-related__date {
+		display: block;
+		font-size: 0.7rem;
+		color: var(--ink-faint);
+		margin-top: 0.2rem;
+	}
+
+	/* ---- Promo card (right rail) ---------------------------------------- */
+	.rail-promo {
+		border-radius: 12px;
+		border: 1px solid var(--color-text-primary);
+		background: var(--color-soft);
+		padding: 1.1rem 1.15rem 1.25rem;
+		box-shadow: 3px 3px 0 0 rgba(33, 29, 22, 0.9);
+	}
+	.rail-promo__eyebrow {
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.14em;
+		color: var(--color-text-primary);
+		opacity: 0.6;
+	}
+	.rail-promo__title {
+		font-family: var(--font-heading);
+		font-size: 1.05rem;
+		font-weight: 700;
+		line-height: 1.2;
+		color: var(--color-text-primary);
+		margin-top: 0.4rem;
+	}
+	.rail-promo__body {
+		font-size: 0.8rem;
+		line-height: 1.5;
+		color: var(--ink-soft);
+		margin-top: 0.45rem;
+	}
+	.rail-promo__cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		margin-top: 0.95rem;
+		padding: 0.5rem 0.85rem;
+		border-radius: 8px;
+		background: var(--color-text-primary);
+		color: var(--color-background);
+		font-weight: 700;
+		font-size: 0.8rem;
+		transition: transform 140ms var(--ease-out-quart);
+	}
+	.rail-promo__cta:hover {
+		transform: translateY(-1px);
+	}
+	.rail-promo__link {
+		display: block;
+		margin-top: 0.65rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--color-text-primary);
+		opacity: 0.7;
+		transition: opacity 150ms ease;
+	}
+	.rail-promo__link:hover {
+		opacity: 1;
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
 	.prose-blog {
 		max-width: 68ch;
 		color: var(--color-text-primary, #1f2937);

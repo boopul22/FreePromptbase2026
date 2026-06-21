@@ -821,25 +821,7 @@ button:disabled.is-loading {
 	font-size: 0.875rem;
 }
 
-/* TOC active marker — a gold dot + weight, not colour alone. */
-[data-toc-link] {
-	position: relative;
-}
-[data-toc-link].is-active {
-	color: var(--color-text-primary);
-	font-weight: 600;
-}
-[data-toc-link].is-active::before {
-	content: "";
-	position: absolute;
-	left: -1.0625rem; /* sit on the rail (pl-4 = 1rem + 1px border) */
-	top: 0.5em;
-	width: 6px;
-	height: 6px;
-	border-radius: 9999px;
-	background: var(--color-text-primary);
-	transform: translateY(-1px);
-}
+/* TOC active marker is styled per-page in blog/[slug].astro (.toc-link). */
 
 /* ============================================================================
    Global reduced-motion — collapses all non-essential motion to a crossfade.
