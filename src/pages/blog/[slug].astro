@@ -239,7 +239,7 @@ const breadcrumb = breadcrumbSchema([
 		<nav class="text-xs text-[var(--ink-faint)] mb-8 flex flex-wrap items-center gap-1.5" aria-label="Breadcrumb">
 			<a href="/" class="hover:text-secondary transition-colors">Home</a>
 			<span class="text-[var(--hairline)]" aria-hidden="true">/</span>
-			<a href="/blog" class="hover:text-secondary transition-colors">Field Notes</a>
+			<a href="/blog" class="hover:text-secondary transition-colors">Blog</a>
 			<span class="text-[var(--hairline)]" aria-hidden="true">/</span>
 			<span class="text-text-primary truncate max-w-[55%]">{post.title}</span>
 		</nav>
@@ -250,8 +250,14 @@ const breadcrumb = breadcrumbSchema([
 				toc.length > 1 && (
 					<aside class="blog-rail blog-rail--left hidden xl:block">
 						<div class="sticky top-20">
-							<p class="rail-eyebrow">On this page</p>
-							<nav class="toc mt-3" aria-label="Table of contents">
+							<div class="toc-head">
+								<span class="rail-eyebrow">On this page</span>
+								<span class="toc-pct" data-read-pct aria-hidden="true">0%</span>
+							</div>
+							<nav class="toc mt-4" aria-label="Table of contents">
+								<div class="toc-track" aria-hidden="true">
+									<span class="toc-progress" data-toc-progress></span>
+								</div>
 								<ol class="toc-list">
 									{toc.map((h) => (
 										<li class:list={[h.level === 3 && 'toc-sub']}>
@@ -575,48 +581,91 @@ const breadcrumb = breadcrumbSchema([
 	}
 
 	/* ---- Table of contents (left rail) ---------------------------------- */
-	.toc-list {
+	/* Deeper, legible gold for the progress fill + you-are-here pin. */
+	.toc {
+		--toc-accent: oklch(0.79 0.15 90);
 		position: relative;
-		border-left: 1.5px solid var(--hairline);
+		padding-left: 0.95rem;
+	}
+	.toc-head {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+	.toc-pct {
+		font-size: 11px;
+		font-weight: 700;
+		font-variant-numeric: tabular-nums;
+		color: var(--ink-faint);
+	}
+	/* The rail line + the gold fill that tracks the active section. */
+	.toc-track {
+		position: absolute;
+		left: 0;
+		top: 0.35rem;
+		bottom: 0.35rem;
+		width: 2px;
+		border-radius: 2px;
+		background: var(--hairline);
+		overflow: hidden;
+	}
+	.toc-progress {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 0;
+		background: var(--toc-accent);
+		transition: height 260ms var(--ease-out-quart);
+	}
+	.toc-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
 	}
 	.toc-link {
 		position: relative;
 		display: block;
-		padding: 0.3rem 0 0.3rem 0.9rem;
+		padding: 0.32rem 0;
 		font-size: 0.8125rem;
 		line-height: 1.4;
 		color: var(--ink-soft);
-		transition: color 150ms ease;
-	}
-	.toc-link::before {
-		content: '';
-		position: absolute;
-		left: -1.5px;
-		top: 0.3rem;
-		bottom: 0.3rem;
-		width: 2px;
-		background: var(--color-text-primary);
-		transform: scaleY(0);
-		transform-origin: top;
-		transition: transform 220ms var(--ease-out-quart);
+		transition:
+			color 150ms ease,
+			transform 200ms var(--ease-out-quart);
 	}
 	.toc-link:hover {
 		color: var(--color-text-primary);
+		transform: translateX(2px);
 	}
 	.toc-link.is-active {
 		color: var(--color-text-primary);
 		font-weight: 600;
 	}
+	/* You-are-here pin: a gold dot sitting on the rail at the active row. */
 	.toc-link.is-active::before {
-		transform: scaleY(1);
+		content: '';
+		position: absolute;
+		left: calc(-0.95rem + 1px);
+		top: 50%;
+		width: 9px;
+		height: 9px;
+		border-radius: 999px;
+		background: var(--toc-accent);
+		border: 1.5px solid var(--color-text-primary);
+		transform: translate(-50%, -50%);
 	}
 	.toc-sub .toc-link {
-		padding-left: 1.7rem;
+		padding-left: 0.85rem;
 		font-size: 0.78rem;
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.toc-link::before {
+		.toc-progress {
 			transition: none;
+		}
+		.toc-link:hover {
+			transform: none;
 		}
 	}
 
@@ -875,13 +924,20 @@ const breadcrumb = breadcrumbSchema([
 	// Drives --read-progress (0..1) from scroll position; the CSS scales the
 	// bar with a transform. Hidden under prefers-reduced-motion via CSS.
 	const bar = document.getElementById('read-progress');
+	const pctEls = Array.from(document.querySelectorAll<HTMLElement>('[data-read-pct]'));
 	if (bar) {
 		let ticking = false;
+		let lastPct = -1;
 		const update = () => {
 			const doc = document.documentElement;
 			const max = doc.scrollHeight - doc.clientHeight;
 			const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
 			bar.style.setProperty('--read-progress', String(ratio));
+			const pct = Math.round(ratio * 100);
+			if (pct !== lastPct) {
+				lastPct = pct;
+				pctEls.forEach((el) => (el.textContent = `${pct}%`));
+			}
 			ticking = false;
 		};
 		const onScroll = () => {
@@ -948,9 +1004,20 @@ const breadcrumb = breadcrumbSchema([
 			if (t) map.set(t, l);
 		});
 
+		const progress = document.querySelector<HTMLElement>('[data-toc-progress]');
+		const track = document.querySelector<HTMLElement>('.toc-track');
+		const moveProgress = (a: HTMLAnchorElement | null) => {
+			if (!progress || !track || !a) return;
+			const tr = track.getBoundingClientRect();
+			const ar = a.getBoundingClientRect();
+			const h = Math.max(0, Math.min(tr.height, ar.top + ar.height / 2 - tr.top));
+			progress.style.height = `${h}px`;
+		};
+
 		const setActive = (a: HTMLAnchorElement | null) => {
 			links.forEach((l) => l.classList.remove('is-active'));
 			if (a) a.classList.add('is-active');
+			moveProgress(a);
 		};
 
 		const observer = new IntersectionObserver(
@@ -969,5 +1036,11 @@ const breadcrumb = breadcrumbSchema([
 		targets.forEach((t) => observer.observe(t));
 		// Default to first link on load
 		setActive(links[0] || null);
+		// Keep the gold fill aligned when the layout reflows.
+		window.addEventListener(
+			'resize',
+			() => moveProgress(document.querySelector<HTMLAnchorElement>('[data-toc-link].is-active')),
+			{ passive: true },
+		);
 	}
 </script>

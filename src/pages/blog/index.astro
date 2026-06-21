@@ -16,13 +16,10 @@ const fmt = (iso: string) =>
 
 const readLabel = (p: (typeof posts)[number]) => p.readTime || `${postReadTime(p)} min read`;
 
-// Three editorial zones: the newest entry leads, the next two are picks, the
-// rest fall into a numbered archive list.
+// The newest guide leads; everything else flows into a warm pinboard grid.
 const lead = posts[0];
-const picks = posts.slice(1, 3);
-const archive = posts.slice(3);
+const rest = posts.slice(1);
 
-// Issue-style masthead meta.
 const latest = posts.length > 0 ? (posts[0].publishedAt ?? posts[0].createdAt) : null;
 
 const list = itemListSchema(
@@ -36,28 +33,33 @@ const crumb = breadcrumbSchema([
 ---
 
 <Layout
-	title="Field Notes — Free Prompt Base"
-	description="Field notes on prompt engineering, AI workflows and what actually works when you build with ChatGPT, Claude, Midjourney and friends."
+	title="Prompt Guides & Ideas — Free Prompt Base"
+	description="Hands-on guides and ready-to-copy prompt packs for ChatGPT, Gemini, Midjourney and more. Free, always."
 	extraSchemas={[list, crumb]}
 >
 	<Header />
-	<main class="flex-grow site-main py-10 sm:py-14">
+	<main class="flex-grow site-main py-10 sm:py-16">
 		<!-- Masthead -->
-		<header class="mb-12 sm:mb-16">
-			<p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-3">
-				The Free Prompt Base journal
-			</p>
-			<h1 class="text-5xl sm:text-6xl md:text-7xl font-bold tracking-tight text-text-primary leading-[0.95]">
-				Field Notes
+		<header class="max-w-2xl">
+			<div class="flex items-center gap-2.5 mb-5">
+				<span class="blog-kicker-dot" aria-hidden="true"></span>
+				<span class="text-[11px] font-semibold uppercase tracking-[0.2em] text-text-primary/70">
+					Free Prompt Base Blog
+				</span>
+			</div>
+			<h1 class="font-heading font-bold tracking-tight text-text-primary leading-[0.98] text-[clamp(2.5rem,6vw,4.25rem)]">
+				Prompt guides <span class="text-primary-ink">&amp; ideas</span>
 			</h1>
-			<p class="text-lg text-[var(--ink-soft)] mt-5 max-w-xl leading-relaxed">
-				On prompt engineering, AI workflows and what actually works once you stop
-				guessing and start shipping.
+			<p class="text-lg text-[var(--ink-soft)] mt-5 leading-relaxed">
+				Hands-on tutorials and ready-to-copy prompt packs for ChatGPT, Gemini,
+				Midjourney and more. Free, always.
 			</p>
 			{
 				posts.length > 0 && (
-					<div class="flex items-center gap-3 mt-8 pt-5 border-t border-[var(--hairline)] text-xs font-medium text-[var(--ink-faint)] uppercase tracking-wide">
-						<span class="text-text-primary">{posts.length} {posts.length === 1 ? 'entry' : 'entries'}</span>
+					<div class="mt-7 flex items-center gap-3 text-xs font-medium text-[var(--ink-faint)] uppercase tracking-wide">
+						<span class="text-text-primary font-semibold">
+							{posts.length} {posts.length === 1 ? 'guide' : 'guides'}
+						</span>
 						{latest && (
 							<>
 								<span aria-hidden="true">·</span>
@@ -71,158 +73,340 @@ const crumb = breadcrumbSchema([
 
 		{
 			posts.length === 0 ? (
-				<div class="border border-[var(--hairline)] rounded-base bg-[var(--paper)] px-6 py-16 text-center">
-					<p class="text-text-primary font-semibold">The notebook is open, the page is blank.</p>
-					<p class="text-[var(--ink-soft)] mt-2 text-sm">First field note lands soon. Check back.</p>
+				<div class="mt-14 border border-[var(--hairline)] rounded-2xl bg-[var(--paper)] px-6 py-16 text-center">
+					<p class="text-text-primary font-semibold">The board is empty for now.</p>
+					<p class="text-[var(--ink-soft)] mt-2 text-sm">First guide lands soon. Check back.</p>
 				</div>
 			) : (
 				<>
-					{/* ---- Lead story ---- */}
-					<a
-						href={`/blog/${lead.slug}`}
-						class="group grid lg:grid-cols-5 gap-6 lg:gap-10 items-center mb-14 sm:mb-20"
-					>
-						<div class="lg:col-span-3 aspect-[16/10] overflow-hidden rounded-base bg-[var(--paper-sunken)]">
+					{/* ---- Featured lead ---- */}
+					<a href={`/blog/${lead.slug}`} class="blog-feature group">
+						<div class="blog-feature__media">
 							{lead.coverImage ? (
 								<img
 									src={lead.coverImage}
 									srcset={cfSrcset(lead.coverImage, [480, 768, 1024, 1280])}
-									sizes="(min-width: 1024px) 60vw, 92vw"
+									sizes="(min-width: 1024px) 56vw, 92vw"
 									alt={lead.title}
-									class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+									width="1280"
+									height="800"
 									loading="eager"
 									fetchpriority="high"
 									decoding="async"
 								/>
 							) : (
-								<div class="w-full h-full flex items-center justify-center text-text-primary/40">
-									<svg class="w-16 h-16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+								<div class="blog-media-fallback">
+									<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
 								</div>
 							)}
+							<span class="blog-feature__tag">Latest</span>
 						</div>
-						<div class="lg:col-span-2">
-							<div class="flex items-center gap-2.5 text-xs font-medium text-[var(--ink-faint)] uppercase tracking-wide mb-4">
-								<span class="text-primary font-semibold">Latest</span>
+						<div class="blog-feature__body">
+							<div class="flex items-center gap-2 text-xs text-[var(--ink-faint)] mb-3">
 								{lead.categoryName && (
 									<>
+										<span class="text-primary-ink font-semibold uppercase tracking-wide">{lead.categoryName}</span>
 										<span aria-hidden="true">·</span>
-										<span>{lead.categoryName}</span>
 									</>
 								)}
-							</div>
-							<h2 class="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-text-primary leading-[1.1] group-hover:text-secondary transition-colors">
-								{lead.title}
-							</h2>
-							<p class="text-[var(--ink-soft)] mt-4 leading-relaxed">{lead.excerpt}</p>
-							<div class="flex items-center gap-2 mt-5 text-xs text-[var(--ink-faint)]">
 								{lead.publishedAt && <span>{fmt(lead.publishedAt)}</span>}
 								{lead.publishedAt && <span aria-hidden="true">·</span>}
 								<span>{readLabel(lead)}</span>
-								<span class="ml-1 text-primary font-semibold inline-flex items-center gap-1.5">
-									Read
-									<svg class="w-3.5 h-3.5 transition-transform duration-300 ease-out group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-								</span>
 							</div>
+							<h2 class="font-heading text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-text-primary leading-[1.1]">
+								{lead.title}
+							</h2>
+							<p class="text-[var(--ink-soft)] mt-4 leading-relaxed">{lead.excerpt}</p>
+							<span class="blog-read-cta">
+								Read the guide
+								<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+							</span>
 						</div>
 					</a>
 
-					{/* ---- Picks (2-up) ---- */}
-					{picks.length > 0 && (
-						<section class="border-t border-[var(--hairline)] pt-10 mb-14 sm:mb-20">
-							<div class="grid gap-8 sm:gap-10 sm:grid-cols-2">
-								{picks.map((post) => (
-									<a href={`/blog/${post.slug}`} class="group block">
-										<div class="aspect-[16/9] overflow-hidden rounded-base bg-[var(--paper-sunken)] mb-4">
+					{/* ---- More guides (pinboard) ---- */}
+					{rest.length > 0 && (
+						<section class="mt-16 sm:mt-24">
+							<h2 class="blog-section-title">More guides</h2>
+							<div class="blog-cards">
+								{rest.map((post) => (
+									<a href={`/blog/${post.slug}`} class="blog-card group">
+										<div class="blog-card__media">
 											{post.coverImage ? (
 												<img
 													src={post.coverImage}
 													srcset={cfSrcset(post.coverImage, [320, 480, 768])}
-													sizes="(min-width: 640px) 45vw, 92vw"
+													sizes="(min-width: 640px) 360px, 92vw"
 													alt={post.title}
-													class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+													width="720"
+													height="540"
 													loading="lazy"
 													decoding="async"
 												/>
 											) : (
-												<div class="w-full h-full flex items-center justify-center text-text-primary/40">
-													<svg class="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+												<div class="blog-media-fallback">
+													<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
 												</div>
 											)}
 										</div>
-										<div class="flex items-center gap-2 text-xs text-[var(--ink-faint)] mb-1.5">
-											{post.categoryName && <span class="text-primary font-semibold uppercase tracking-wide">{post.categoryName}</span>}
-											{post.categoryName && <span aria-hidden="true">·</span>}
-											<span>{readLabel(post)}</span>
+										<div class="blog-card__body">
+											<div class="flex items-center gap-2 text-xs text-[var(--ink-faint)] mb-1.5">
+												{post.categoryName && (
+													<>
+														<span class="text-primary-ink font-semibold uppercase tracking-wide">{post.categoryName}</span>
+														<span aria-hidden="true">·</span>
+													</>
+												)}
+												<span>{readLabel(post)}</span>
+											</div>
+											<h3 class="blog-card__title">{post.title}</h3>
+											<p class="blog-card__dek">{post.excerpt}</p>
 										</div>
-										<h3 class="text-lg sm:text-xl font-bold text-text-primary leading-snug group-hover:text-secondary transition-colors">
-											{post.title}
-										</h3>
-										<p class="text-sm text-[var(--ink-soft)] mt-2 leading-relaxed">{post.excerpt}</p>
 									</a>
 								))}
 							</div>
 						</section>
 					)}
 
-					{/* ---- Archive (numbered list) ---- */}
-					{archive.length > 0 && (
-						<section>
-							<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">
-								The archive
+					{/* ---- Conversion band: blog -> library ---- */}
+					<section class="blog-cta">
+						<div class="min-w-0">
+							<h2 class="font-heading text-2xl sm:text-3xl font-bold text-text-primary leading-tight">
+								Done reading? Go copy a prompt.
+							</h2>
+							<p class="text-sm sm:text-base text-[var(--ink-soft)] mt-2 leading-relaxed max-w-md">
+								Hundreds of ready-to-use prompts for ChatGPT, Claude, Midjourney and
+								more. No signup, no paywall.
 							</p>
-							<ol class="border-t border-[var(--hairline)]">
-								{archive.map((post, i) => (
-									<li>
-										<a
-											href={`/blog/${post.slug}`}
-											class="entry-row group flex items-center gap-4 sm:gap-6 py-5 px-3 -mx-3 rounded-lg border-b border-[var(--hairline)]"
-										>
-											<span class="hidden sm:block w-8 shrink-0 text-sm font-semibold tabular-nums text-[var(--ink-faint)] group-hover:text-secondary transition-colors">
-												{String(i + 4).padStart(2, '0')}
-											</span>
-											<div class="w-16 h-16 sm:w-20 sm:h-20 shrink-0 overflow-hidden rounded-md bg-[var(--paper-sunken)]">
-												{post.coverImage ? (
-													<img
-														src={post.coverImage}
-														srcset={cfSrcset(post.coverImage, [120, 200])}
-														sizes="80px"
-														alt={post.title}
-														class="w-full h-full object-cover"
-														loading="lazy"
-														decoding="async"
-													/>
-												) : (
-													<div class="w-full h-full flex items-center justify-center text-text-primary/30">
-														<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8"/></svg>
-													</div>
-												)}
-											</div>
-											<div class="min-w-0 flex-1">
-												<h3 class="text-base sm:text-lg font-bold text-text-primary leading-snug group-hover:text-secondary transition-colors line-clamp-2">
-													{post.title}
-												</h3>
-												<div class="flex items-center gap-2 mt-1 text-xs text-[var(--ink-faint)]">
-													{post.publishedAt && <span>{fmt(post.publishedAt)}</span>}
-													{post.categoryName && (
-														<>
-															<span aria-hidden="true">·</span>
-															<span>{post.categoryName}</span>
-														</>
-													)}
-												</div>
-											</div>
-											<span class="shrink-0 text-xs font-medium text-[var(--ink-faint)] whitespace-nowrap self-center tabular-nums">
-												{readLabel(post)}
-											</span>
-										</a>
-									</li>
-								))}
-							</ol>
-						</section>
-					)}
+						</div>
+						<a href="/" class="btn-primary inline-flex items-center gap-2 shrink-0 btn-feedback group">
+							Browse the library
+							<svg class="w-4 h-4 transition-transform duration-300 ease-out group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+						</a>
+					</section>
 				</>
 			)
 		}
 	</main>
 	<Footer />
 </Layout>
+
+<style is:global>
+	/* Gold ink for inline accents that must stay legible (pure --color-primary
+	   yellow is too light as text on white, so darken via a tint). */
+	.text-primary-ink {
+		color: oklch(0.62 0.13 80);
+	}
+	.blog-kicker-dot {
+		width: 8px;
+		height: 8px;
+		border-radius: 999px;
+		background: var(--color-primary);
+		border: 1.5px solid var(--color-text-primary);
+	}
+
+	/* ---- Featured lead ---------------------------------------------------- */
+	.blog-feature {
+		display: grid;
+		gap: 1.75rem;
+		margin-top: clamp(2.5rem, 6vw, 4.5rem);
+	}
+	@media (min-width: 1024px) {
+		.blog-feature {
+			grid-template-columns: 1.35fr 1fr;
+			gap: 3.5rem;
+			align-items: center;
+		}
+	}
+	.blog-feature__media {
+		position: relative;
+		aspect-ratio: 16 / 10;
+		border: 1.5px solid var(--color-text-primary);
+		border-radius: 16px;
+		overflow: hidden;
+		background: var(--paper-sunken);
+		box-shadow: 6px 6px 0 0 rgba(33, 29, 22, 0.9);
+		transition:
+			transform 220ms var(--ease-out-quart),
+			box-shadow 220ms var(--ease-out-quart);
+	}
+	.blog-feature:hover .blog-feature__media {
+		transform: translate(3px, 3px);
+		box-shadow: 3px 3px 0 0 rgba(33, 29, 22, 0.9);
+	}
+	.blog-feature__media img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 700ms var(--ease-out-quart);
+	}
+	.blog-feature:hover .blog-feature__media img {
+		transform: scale(1.04);
+	}
+	.blog-feature__tag {
+		position: absolute;
+		top: 0.9rem;
+		left: 0.9rem;
+		display: inline-flex;
+		align-items: center;
+		padding: 0.28rem 0.75rem;
+		border-radius: 999px;
+		border: 1.5px solid var(--color-text-primary);
+		background: var(--color-primary);
+		color: var(--color-link);
+		font-size: 0.68rem;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		box-shadow: 2px 2px 0 0 rgba(33, 29, 22, 0.9);
+	}
+	.blog-read-cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		margin-top: 1.6rem;
+		font-family: var(--font-heading);
+		font-weight: 700;
+		font-size: 0.95rem;
+		color: var(--color-text-primary);
+		border-bottom: 2px solid var(--color-primary);
+		padding-bottom: 2px;
+	}
+	.blog-read-cta svg {
+		width: 1rem;
+		height: 1rem;
+		transition: transform 300ms var(--ease-out-quart);
+	}
+	.blog-feature:hover .blog-read-cta svg {
+		transform: translateX(4px);
+	}
+
+	/* ---- Pinboard grid ---------------------------------------------------- */
+	.blog-section-title {
+		font-family: var(--font-heading);
+		font-size: 1.5rem;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		color: var(--color-text-primary);
+		margin-bottom: 1.6rem;
+		position: relative;
+		padding-left: 0.9rem;
+	}
+	.blog-section-title::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 0.15em;
+		bottom: 0.15em;
+		width: 4px;
+		border-radius: 2px;
+		background: var(--color-primary);
+	}
+	.blog-cards {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 360px));
+		justify-content: start;
+		gap: clamp(1.75rem, 3vw, 2.5rem) clamp(1.5rem, 2.5vw, 2.25rem);
+	}
+	.blog-card {
+		display: flex;
+		flex-direction: column;
+	}
+	.blog-card__media {
+		aspect-ratio: 4 / 3;
+		border: 1.5px solid var(--color-text-primary);
+		border-radius: 13px;
+		overflow: hidden;
+		background: var(--paper-sunken);
+		box-shadow: 4px 4px 0 0 rgba(33, 29, 22, 0.9);
+		transition:
+			transform 180ms var(--ease-out-quart),
+			box-shadow 180ms var(--ease-out-quart);
+	}
+	.blog-card:hover .blog-card__media {
+		transform: translate(2px, 2px);
+		box-shadow: 2px 2px 0 0 rgba(33, 29, 22, 0.9);
+	}
+	.blog-card__media img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		transition: transform 600ms var(--ease-out-quart);
+	}
+	.blog-card:hover .blog-card__media img {
+		transform: scale(1.04);
+	}
+	.blog-card__body {
+		padding-top: 1.05rem;
+	}
+	.blog-card__title {
+		font-family: var(--font-heading);
+		font-size: 1.15rem;
+		font-weight: 700;
+		line-height: 1.3;
+		color: var(--color-text-primary);
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		transition: color 150ms ease;
+	}
+	.blog-card:hover .blog-card__title {
+		color: var(--color-secondary);
+	}
+	.blog-card__dek {
+		font-size: 0.875rem;
+		line-height: 1.55;
+		color: var(--ink-soft);
+		margin-top: 0.5rem;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	.blog-media-fallback {
+		width: 100%;
+		height: 100%;
+		display: grid;
+		place-items: center;
+		color: color-mix(in oklch, var(--color-text-primary) 28%, transparent);
+	}
+	.blog-media-fallback svg {
+		width: 3rem;
+		height: 3rem;
+	}
+
+	/* ---- Conversion band -------------------------------------------------- */
+	.blog-cta {
+		margin-top: clamp(4rem, 9vw, 6.5rem);
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.5rem 2rem;
+		padding: clamp(1.75rem, 4vw, 2.75rem);
+		border: 1.5px solid var(--color-text-primary);
+		border-radius: 18px;
+		background: var(--color-soft);
+		box-shadow: 6px 6px 0 0 rgba(33, 29, 22, 0.9);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.blog-feature__media,
+		.blog-feature__media img,
+		.blog-card__media,
+		.blog-card__media img,
+		.blog-read-cta svg {
+			transition: none;
+		}
+		.blog-feature:hover .blog-feature__media,
+		.blog-feature:hover .blog-feature__media img,
+		.blog-card:hover .blog-card__media,
+		.blog-card:hover .blog-card__media img {
+			transform: none;
+		}
+	}
+</style>
