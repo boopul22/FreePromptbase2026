@@ -142,10 +142,13 @@ const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 					</div>
 				) : (
 					<a
-						href="/api/auth/login"
+						href="/submit"
 						class="hidden lg:inline-flex shrink-0 whitespace-nowrap btn-primary text-sm"
 					>
-						Sign in
+						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+						</svg>
+						Submit prompt
 					</a>
 				)
 			}

@@ -130,7 +130,6 @@ const firstCover = trendingPrompts[0]?.coverImage;
 	const loadMore = document.querySelector<HTMLElement>('[data-load-more]');
 	const loadEnd = document.querySelector<HTMLElement>('[data-load-end]');
 	const allGrid = grids.find((g) => g.dataset.tab === 'all') ?? null;
-	const followBtn = document.querySelector<HTMLButtonElement>('[data-follow-btn]');
 
 	function activeGrid(): HTMLElement | null {
 		return grids.find((g) => !g.classList.contains('hidden')) ?? null;
@@ -237,20 +236,4 @@ const firstCover = trendingPrompts[0]?.coverImage;
 		runSearch(initialQuery);
 	}
 
-	followBtn?.addEventListener('click', () => {
-		const following = followBtn.dataset.following === 'true';
-		const next = !following;
-		followBtn.dataset.following = String(next);
-		// Update only the label span so the icons survive (textContent would
-		// wipe them); swap the plus/check icon to match the state.
-		const label = followBtn.querySelector('[data-follow-label]');
-		if (label) label.textContent = next ? 'Following' : 'Follow';
-		followBtn.querySelector('.follow-plus')?.classList.toggle('hidden', next);
-		followBtn.querySelector('.follow-check')?.classList.toggle('hidden', !next);
-		// Following = muted/confirmed; not-following = gold call-to-action.
-		followBtn.classList.toggle('bg-primary', !next);
-		followBtn.classList.toggle('text-link', !next);
-		followBtn.classList.toggle('bg-gray-200', next);
-		followBtn.classList.toggle('text-text-primary', next);
-	});
 </script>

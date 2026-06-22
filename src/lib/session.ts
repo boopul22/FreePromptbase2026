@@ -11,6 +11,8 @@ export interface SessionUser {
   username: string;
   bio: string;
   twitter: string;
+  instagram: string;
+  website: string;
 }
 
 const SESSION_DURATION_DAYS = 30;
@@ -31,7 +33,7 @@ export async function getSession(db: D1Database, token: string): Promise<Session
   const row = await db
     .prepare(
       `SELECT u.id, u.google_id, u.name, u.email, u.avatar_url, u.role, u.is_banned,
-              u.username, u.bio, u.twitter, s.expires_at
+              u.username, u.bio, u.twitter, u.instagram, u.website, s.expires_at
        FROM sessions s
        JOIN users u ON s.user_id = u.id
        WHERE s.id = ?`
@@ -48,6 +50,8 @@ export async function getSession(db: D1Database, token: string): Promise<Session
       username: string | null;
       bio: string | null;
       twitter: string | null;
+      instagram: string | null;
+      website: string | null;
       expires_at: string;
     }>();
 
@@ -65,6 +69,8 @@ export async function getSession(db: D1Database, token: string): Promise<Session
     username: row.username ?? '',
     bio: row.bio ?? '',
     twitter: row.twitter ?? '',
+    instagram: row.instagram ?? '',
+    website: row.website ?? '',
   };
 }
 

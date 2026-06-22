@@ -144,6 +144,8 @@ CREATE TABLE users (
 	username TEXT UNIQUE,        -- profile slug used at /author/<username>; auto-assigned on first login
 	bio TEXT,                    -- short author bio (~280 chars)
 	twitter TEXT,                -- handle only, no '@' and no URL
+	instagram TEXT,              -- handle only, no '@' and no URL
+	website TEXT,                -- absolute http(s) URL
 	created_at TEXT NOT NULL DEFAULT (datetime('now')),
 	updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );

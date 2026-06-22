@@ -13,6 +13,7 @@ import {
 	getCategoryBySlug,
 	getRelatedPrompts,
 	getAllCategories,
+	getAllTags,
 	getPromptOfTheDaySlug,
 	readTime,
 } from '../lib/prompts';
@@ -52,6 +53,17 @@ const relatedCategoryPills = [...new Set(related.map((r) => r.category))]
 	.map((slug) => categoryBySlug.get(slug))
 	.filter((c): c is NonNullable<typeof c> => Boolean(c))
 	.slice(0, 6);
+
+// Make each prompt tag a real link: to its curated keyword landing page at
+// /<slug> when one exists, otherwise to the homepage search pre-filtered by the
+// tag (which always returns matching prompts). Free-form prompt tags rarely
+// match the 50 curated slugs, so the search fallback keeps every tag clickable.
+const curatedTagSlugs = new Set(getAllTags().map((t) => t.slug));
+const slugifyTag = (t: string) => t.toLowerCase().trim().replace(/\s+/g, '-');
+const tagHref = (t: string) => {
+	const s = slugifyTag(t);
+	return curatedTagSlugs.has(s) ? `/${s}` : `/?q=${encodeURIComponent(t)}`;
+};
 
 const isSaved = Astro.locals.savedSlugs?.has(prompt.slug) ?? false;
 const isLiked = Astro.locals.likedSlugs?.has(prompt.slug) ?? false;
@@ -454,7 +466,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-600 mb-3">Tags</h3>
 					<div class="flex flex-wrap gap-1.5">
 						{prompt.tags.map((tag) => (
-							<span class={`pill ${pillColor(tag)}`}>#{tag}</span>
+							<a href={tagHref(tag)} class={`pill ${pillColor(tag)} hover:opacity-80 transition-opacity`}>#{tag}</a>
 						))}
 					</div>
 				</section>

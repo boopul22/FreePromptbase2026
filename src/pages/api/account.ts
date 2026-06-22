@@ -53,10 +53,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
 		});
 	}
 
-	const patch: { username?: string; bio?: string; twitter?: string } = {};
+	const patch: { username?: string; bio?: string; twitter?: string; instagram?: string; website?: string } = {};
 	if (typeof body.username === 'string') patch.username = body.username;
 	if (typeof body.bio === 'string') patch.bio = body.bio;
 	if (typeof body.twitter === 'string') patch.twitter = body.twitter;
+	if (typeof body.instagram === 'string') patch.instagram = body.instagram;
+	if (typeof body.website === 'string') patch.website = body.website;
 
 	const result = await updateUserProfile(locals.user.id, patch);
 
@@ -72,6 +74,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
 		username: result.username,
 		bio: result.bio,
 		twitter: result.twitter,
+		instagram: result.instagram,
+		website: result.website,
 	}), {
 		headers: { 'Content-Type': 'application/json' },
 	});

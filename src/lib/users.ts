@@ -13,6 +13,8 @@ export interface UserProfile {
   username: string;
   bio: string;
   twitter: string;
+  instagram: string;
+  website: string;
 }
 
 interface UserRow {
@@ -24,6 +26,8 @@ interface UserRow {
   username: string | null;
   bio: string | null;
   twitter: string | null;
+  instagram: string | null;
+  website: string | null;
 }
 
 function getDB(): D1Database {
@@ -42,10 +46,12 @@ function rowToProfile(r: UserRow): UserProfile {
     username: r.username ?? '',
     bio: r.bio ?? '',
     twitter: r.twitter ?? '',
+    instagram: r.instagram ?? '',
+    website: r.website ?? '',
   };
 }
 
-const USER_COLS = 'id, name, email, avatar_url, role, username, bio, twitter';
+const USER_COLS = 'id, name, email, avatar_url, role, username, bio, twitter, instagram, website';
 
 export async function getUserByUsername(username: string): Promise<UserProfile | null> {
   const row = await getDB()
@@ -147,6 +153,8 @@ export interface ProfilePatch {
   username?: string;
   bio?: string;
   twitter?: string;
+  instagram?: string;
+  website?: string;
 }
 
 export interface ProfileUpdateResult {
@@ -154,16 +162,35 @@ export interface ProfileUpdateResult {
   username: string;
   bio: string;
   twitter: string;
+  instagram: string;
+  website: string;
 }
 
 export interface ProfileUpdateError {
   ok: false;
   error: string;
-  field?: 'username' | 'bio' | 'twitter';
+  field?: 'username' | 'bio' | 'twitter' | 'instagram' | 'website';
 }
 
 const BIO_MAX = 280;
 const TWITTER_RE = /^[A-Za-z0-9_]{1,15}$/;
+const INSTAGRAM_RE = /^[A-Za-z0-9._]{1,30}$/;
+
+// Normalise a user-entered website into a safe absolute http(s) URL, or return
+// null when it can't be made into one. Bare domains get https:// prepended.
+function normalizeWebsite(raw: string): string | null {
+  let value = raw.trim();
+  if (!value) return '';
+  if (!/^https?:\/\//i.test(value)) value = `https://${value}`;
+  try {
+    const u = new URL(value);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+    if (!u.hostname.includes('.')) return null;
+    return u.toString().slice(0, 200);
+  } catch {
+    return null;
+  }
+}
 
 export async function updateUserProfile(
   userId: string,
@@ -194,11 +221,33 @@ export async function updateUserProfile(
     }
   }
 
+  let instagram: string | undefined;
+  if (patch.instagram !== undefined) {
+    instagram = patch.instagram.trim().replace(/^@/, '');
+    // Accept a full instagram.com URL too — keep just the handle.
+    const m = instagram.match(/(?:instagram\.com\/)([A-Za-z0-9._]+)/i);
+    if (m) instagram = m[1];
+    if (instagram && !INSTAGRAM_RE.test(instagram)) {
+      return { ok: false, error: 'Instagram handle must be 1-30 chars: letters, numbers, periods, underscores. No @ or URL.', field: 'instagram' };
+    }
+  }
+
+  let website: string | undefined;
+  if (patch.website !== undefined) {
+    const normalized = normalizeWebsite(patch.website);
+    if (normalized === null) {
+      return { ok: false, error: 'Enter a valid website URL (e.g. https://example.com).', field: 'website' };
+    }
+    website = normalized;
+  }
+
   const sets: string[] = [];
   const binds: unknown[] = [];
   if (username !== undefined) { sets.push('username = ?'); binds.push(username); }
   if (bio !== undefined) { sets.push('bio = ?'); binds.push(bio); }
   if (twitter !== undefined) { sets.push('twitter = ?'); binds.push(twitter); }
+  if (instagram !== undefined) { sets.push('instagram = ?'); binds.push(instagram); }
+  if (website !== undefined) { sets.push('website = ?'); binds.push(website); }
   sets.push("updated_at = datetime('now')");
   binds.push(userId);
 
@@ -208,15 +257,17 @@ export async function updateUserProfile(
     .run();
 
   const row = await db
-    .prepare('SELECT username, bio, twitter FROM users WHERE id = ?')
+    .prepare('SELECT username, bio, twitter, instagram, website FROM users WHERE id = ?')
     .bind(userId)
-    .first<{ username: string | null; bio: string | null; twitter: string | null }>();
+    .first<{ username: string | null; bio: string | null; twitter: string | null; instagram: string | null; website: string | null }>();
 
   return {
     ok: true,
     username: row?.username ?? '',
     bio: row?.bio ?? '',
     twitter: row?.twitter ?? '',
+    instagram: row?.instagram ?? '',
+    website: row?.website ?? '',
   };
 }
 
