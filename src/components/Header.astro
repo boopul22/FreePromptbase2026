@@ -91,6 +91,18 @@ const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 
 			{
 				sessionUser ? (
+					<>
+					{!isAdmin && (
+						<a
+							href="/submit"
+							class="hidden lg:inline-flex shrink-0 whitespace-nowrap btn-primary text-sm"
+						>
+							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+								<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+							</svg>
+							Submit prompt
+						</a>
+					)}
 					<div class="hidden lg:block relative ml-2" data-profile-menu>
 						<button
 							type="button"
@@ -140,6 +152,7 @@ const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 							</div>
 						</div>
 					</div>
+					</>
 				) : (
 					<a
 						href="/submit"

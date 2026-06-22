@@ -177,7 +177,15 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       //
       // Default (nothing scheduled within the hour): cache 1h with a long
       // stale-while-revalidate for best performance.
-      let cacheControl = 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400';
+      // Cache only at the shared CDN, never in the browser. The same URL renders
+      // a personalized header (logged-out button vs avatar), so if the browser
+      // kept an anonymous copy (max-age), a visitor who then signs in would keep
+      // seeing the logged-out nav until the entry expired or they hard-reloaded.
+      // Browser → always revalidate; CDN → cache via Cloudflare-CDN-Cache-Control
+      // (Cloudflare strips that header before it reaches the client, and edge
+      // requests carrying a session cookie already bypass the cache and re-run
+      // the worker, so signed-in users always get a fresh render).
+      let edgeCache = 'public, s-maxage=3600, stale-while-revalidate=86400';
       try {
         const nextPublish = await getNextPublishAt();
         if (nextPublish) {
@@ -190,13 +198,14 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
             // stale-serve window. Floored at 30s to avoid a thundering herd of
             // origin renders at the instant of go-live.
             const ttl = Math.max(30, secs);
-            cacheControl = `public, max-age=${Math.min(300, ttl)}, s-maxage=${ttl}`;
+            edgeCache = `public, s-maxage=${ttl}`;
           }
         }
       } catch {
         // D1 unavailable or query failed — keep the safe 1h default above.
       }
-      response.headers.set('Cache-Control', cacheControl);
+      response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+      response.headers.set('Cloudflare-CDN-Cache-Control', edgeCache);
     }
   }
 
