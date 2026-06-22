@@ -4,6 +4,7 @@ import Breadcrumb from './Breadcrumb.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import CopyPromptButton from './CopyPromptButton.astro';
+import OpenInTools from './OpenInTools.astro';
 import PromptCard from './PromptCard.astro';
 import CategoryIcon from './CategoryIcon.astro';
 import { cfSrcset } from '../lib/cfImage';
@@ -428,6 +429,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 		<!-- The prompt + copy (scroll target for the phone hint under the title) -->
 		<div id="the-prompt" class="scroll-mt-24">
 			<CopyPromptButton text={prompt.promptText} />
+			<OpenInTools text={prompt.promptText} />
 		</div>
 
 		<!-- How to use (tip card) -->

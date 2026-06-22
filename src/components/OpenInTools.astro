@@ -1,0 +1,106 @@
+---
+// A compact row of "Open in <AI tool>" buttons shown directly under the prompt
+// box. Clicking copies the prompt to the clipboard (so it can be pasted) and
+// opens the tool in a new tab. ChatGPT additionally gets the prompt pre-filled
+// via its ?q= query param when the prompt is short enough for a sane URL.
+//
+// Icons are the official brand marks (OpenAI, Google Gemini, Google Flow,
+// Midjourney, Grok, Runway) embedded as authentic SVGs. Each keeps its own
+// viewBox and brand colours; sizing is normalised via CSS below.
+interface Props {
+	/** The prompt text — used to pre-fill ChatGPT's query param. */
+	text: string;
+}
+const { text } = Astro.props;
+
+// ChatGPT reliably accepts a pre-filled prompt via ?q=. Guard the length so we
+// never emit an absurdly long URL; long prompts fall back to clipboard paste.
+const chatgptHref =
+	text.length <= 3000 ? `https://chatgpt.com/?q=${encodeURIComponent(text)}` : 'https://chatgpt.com/';
+
+const tools: { name: string; href: string; svg: string }[] = [
+	{
+		name: 'ChatGPT',
+		href: chatgptHref,
+		svg: '<svg viewBox="0 0 24 24" fill="#000000"><path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z"/></svg>',
+	},
+	{
+		name: 'Gemini',
+		href: 'https://gemini.google.com/app',
+		svg: '<svg viewBox="0 0 24 24" fill="#1C69FF"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81"/></svg>',
+	},
+	{
+		name: 'Google Flow',
+		href: 'https://labs.google/flow',
+		svg: '<svg viewBox="0 -960 960 960" fill="#0B57D0"><path d="M209-120q-42 0-70.5-28.5T110-217q0-14 3-25.5t9-21.5l228-341q10-14 15-31t5-34v-170h220v170q0 17 5 34t15 31l227 341q7 9 10 20.5t3 26.5q0 41-28 69t-69 28H209Zm115-177q28 0 56-12t80-47q69-45 103.5-62.5T633-443q4-1 5.5-4.5t-.5-7.5l-78-117q-15-21-22.5-46t-7.5-52v-110H430v110q0 26-7.5 50.5T401-573L274-382q-3 4-9 28 0 23 17 40t42 17Zm26-483q-13 0-21.5-8.5T320-810q0-13 8.5-21.5T350-840h260q13 0 21.5 8.5T640-810q0 13-8.5 21.5T610-780H350Z"/></svg>',
+	},
+	{
+		name: 'Midjourney',
+		href: 'https://www.midjourney.com/',
+		svg: '<svg viewBox="0 0 698 583" fill="none" stroke="#000000" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"><path d="M9 573.5C29 573.5 59 531.5 94 525.5C114 525.5 129 567.5 179 573.5C214 573.5 229 531.5 264 531.5C299 531.5 314 573.5 349 573.5C384 573.5 399 531.5 434 531.5C469 531.5 484 573.5 519 573.5C554 573.5 569 531.5 604 531.5C639 531.5 654 573.5 689 573.5"/><path d="M77.4 531.7L54.5 487.9L644.5 449.9C598.1 492.1 538.5 526.3 478.2 554.3"/><path d="M289.4 79.9004C389.8 110.6 530.2 258.9 578 418.3C551.8 408 532.2 397.5 495.4 406.9C459.8 277.4 396.1 153.7 289.4 79.9004Z"/><path d="M102.7 9.00049C231.3 64.0005 407.7 217.1 440.1 421C291.8 361.2 178.9 393.1 100.3 441.6C220.2 289.2 166.4 115.9 102.7 9.00049Z"/></svg>',
+	},
+	{
+		name: 'Grok',
+		href: 'https://grok.com/',
+		svg: '<svg viewBox="0 0 1024 1024" fill="#0A0A0A"><path d="M395.479 633.828L735.91 381.105C752.599 368.715 776.454 373.548 784.406 392.792C826.26 494.285 807.561 616.253 724.288 699.996C641.016 783.739 525.151 802.104 419.247 760.277L303.556 814.143C469.49 928.202 670.987 899.995 796.901 773.282C896.776 672.843 927.708 535.937 898.785 412.476L899.047 412.739C857.105 231.37 909.358 158.874 1016.4 10.6326C1018.93 7.11771 1021.47 3.60279 1024 0L883.144 141.651V141.212L395.392 633.916"/><path d="M325.226 695.251C206.128 580.84 226.662 403.776 328.285 301.668C403.431 226.097 526.549 195.254 634.026 240.596L749.454 186.994C728.657 171.88 702.007 155.623 671.424 144.2C533.19 86.9942 367.693 115.465 255.323 228.382C147.234 337.081 113.244 504.215 171.613 646.833C215.216 753.423 143.739 828.818 71.7385 904.916C46.2237 931.893 20.6216 958.87 0 987.429L325.139 695.339"/></svg>',
+	},
+	{
+		name: 'Runway',
+		href: 'https://runwayml.com/',
+		svg: '<svg viewBox="0 0 300 300" fill="none"><path d="M212.486 105.22C216.254 116.938 215.261 127.642 207.452 137.312C203.943 141.658 198.973 144.485 189.13 147.005C191.57 149.279 193.809 151.242 195.906 153.347C199.96 157.417 203.986 161.518 207.932 165.693C217.154 175.451 216.804 189.546 210.541 200.693C202.271 215.412 181.191 220.187 168.48 209.238C162.421 204.019 156.733 198.368 150.904 192.884C149.733 191.782 148.681 190.553 147.407 189.205C146.401 192.311 145.751 195.242 144.537 197.918C137.775 212.822 118.698 218.857 103.153 211.198C92.5986 205.997 87.6601 197.087 87.4939 185.832C87.1521 162.69 87.2602 139.539 87.4386 116.393C87.5585 100.838 100.245 87.4862 115.766 87.2205C139.448 86.8152 163.146 86.8725 186.831 87.2132C199.002 87.3883 207.628 93.6476 212.486 105.22Z" fill="#FEFEFE"/><path d="M125.184 108.249C128.015 110.938 129.174 113.951 129.158 117.695C129.062 140.167 129.118 162.639 129.104 185.111C129.101 190.869 125.959 194.95 120.598 196.281C114.992 197.672 109.016 195.282 106.788 190.405C105.972 188.617 105.705 186.442 105.698 184.441C105.625 162.295 105.72 140.149 105.603 118.003C105.575 112.638 107.723 108.778 112.324 106.343C116.875 103.935 121.119 105.032 125.184 108.249Z" fill="black"/><path d="M150.758 146.846C153.138 146.846 155.245 147.112 157.259 146.793C162.029 146.038 165.437 147.981 168.643 151.321C176.836 159.854 185.263 168.162 193.55 176.606C197.209 180.335 198.157 185.348 196.144 189.426C193.731 194.313 188.779 197.599 183.878 196.791C181.473 196.395 178.821 195.148 177.083 193.46C167.442 184.102 158.035 174.501 148.597 164.935C147.983 164.313 147.461 163.291 147.443 162.443C147.336 157.358 147.39 152.27 147.39 146.991C148.553 146.936 149.498 146.891 150.758 146.846Z" fill="black"/><path d="M169.565 105.042C174.88 105.042 179.869 105.016 184.857 105.049C191.917 105.095 196.77 109.897 196.812 116.824C196.857 124.101 192.21 128.849 184.876 128.875C172.526 128.917 160.176 128.886 147.905 128.886C147.252 120.934 146.614 113.151 145.948 105.042C153.305 105.042 161.272 105.042 169.565 105.042Z" fill="black"/><path d="M137.645 300C91.5518 300 45.7852 300 0 300C0 200.02 0 100.04 0 0C99.9541 0 199.927 0 300 0C300 99.9603 300 199.98 300 300C246.028 300 191.999 300 137.645 300ZM211.789 104.298C207.039 92.9544 198.41 86.6939 186.234 86.5187C162.54 86.178 138.833 86.1207 115.141 86.5261C99.6132 86.7918 86.9221 100.146 86.8022 115.705C86.6237 138.855 86.5156 162.011 86.8575 185.157C87.0238 196.414 91.9642 205.326 102.523 210.528C118.074 218.188 137.158 212.152 143.923 197.245C145.137 194.569 145.788 191.637 146.794 188.53C148.069 189.879 149.121 191.108 150.293 192.21C156.124 197.695 161.814 203.348 167.876 208.568C180.592 219.518 201.68 214.743 209.953 200.021C216.218 188.871 216.569 174.774 207.343 165.014C203.396 160.838 199.369 156.736 195.312 152.666C193.215 150.561 190.975 148.597 188.534 146.323C198.38 143.802 203.352 140.974 206.863 136.628C214.675 126.956 215.668 116.25 211.789 104.298Z" fill="black"/></svg>',
+	},
+];
+---
+
+<section class="mt-4" aria-label="Open this prompt in an AI tool" data-open-tools>
+	<p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-2.5">Open in</p>
+	<div class="flex flex-wrap gap-2">
+		{tools.map((t) => (
+			<a
+				href={t.href}
+				target="_blank"
+				rel="noopener"
+				data-open-tool
+				class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-text-primary hover:border-text-primary hover:bg-soft transition-colors"
+			>
+				<span class="tool-ico inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center" set:html={t.svg} />
+				{t.name}
+			</a>
+		))}
+	</div>
+	<p class="mt-2 text-[11px] text-gray-400">The prompt is copied to your clipboard — just paste it in.</p>
+</section>
+
+<style>
+	/* Normalise every embedded brand SVG to the icon box, regardless of its
+	   native viewBox/width. */
+	[data-open-tools] .tool-ico svg {
+		width: 100%;
+		height: 100%;
+		display: block;
+	}
+</style>
+
+<script>
+	// On any "Open in" click, copy the prompt to the clipboard so the user can
+	// paste it into the tool that just opened. We read the already-rendered prompt
+	// text from the copy box so there's a single source of truth. Navigation is
+	// left to the anchor itself (target="_blank"); the clipboard write runs within
+	// the same user gesture, so it succeeds before the new tab takes focus.
+	document.querySelectorAll<HTMLElement>('[data-open-tools]').forEach((root) => {
+		const source =
+			root.closest('[data-prompt-detail]')?.querySelector<HTMLElement>('[data-copy-text]') ??
+			document.querySelector<HTMLElement>('[data-copy-text]');
+		const text = source?.textContent ?? '';
+		if (!text) return;
+		root.querySelectorAll<HTMLAnchorElement>('[data-open-tool]').forEach((a) => {
+			a.addEventListener('click', () => {
+				try {
+					navigator.clipboard?.writeText(text);
+				} catch {
+					/* clipboard may be blocked — the tool still opens */
+				}
+			});
+		});
+	});
+</script>
