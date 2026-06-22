@@ -101,11 +101,13 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 
 <footer class="mt-20 bg-link text-gray-400 border-t-4 border-primary" data-purpose="site-footer">
 	<div class="max-w-6xl mx-auto px-6 sm:px-8 pt-12 pb-8" style="padding-bottom: max(2rem, env(safe-area-inset-bottom));">
-		<!-- Top grid: brand + newsletter + socials, then categorized nav groups -->
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.25fr_repeat(3,minmax(0,1fr))] xl:grid-cols-[1.25fr_repeat(4,minmax(0,1fr))] gap-x-8 gap-y-10">
+		<!-- Top grid: brand block on the left, nav groups in their own grid on the
+		     right so they wrap evenly and the tall brand column never pushes a row
+		     of groups to the bottom. -->
+		<div class="grid grid-cols-1 lg:grid-cols-[1.25fr_minmax(0,3fr)] gap-x-8 gap-y-10">
 
 			<!-- Brand + Newsletter + Socials -->
-			<div class="sm:col-span-2 lg:col-span-1">
+			<div>
 				<a href="/" class="inline-flex items-center gap-2.5 mb-3">
 					<img src="/logo.svg" alt="" aria-hidden="true" class="w-6 h-6" width="24" height="24" />
 					<span class="text-sm font-bold tracking-wide text-white uppercase">Free Prompt Base</span>
@@ -143,20 +145,22 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 				</div>
 			</div>
 
-			<!-- Nav groups: real accordions on every viewport -->
-			{navGroups.map((g) => (
-				<details class="footer-dd">
-					<summary aria-label={g.aria}>
-						<span>{g.label}</span>
-						<span class="dd-sq" aria-hidden="true"></span>
-					</summary>
-					<div class="dd-body">
-						{g.items.map((i) => (
-							<a href={i.href} class="text-sm text-gray-400 hover:text-primary transition-colors">{i.label}</a>
-						))}
-					</div>
-				</details>
-			))}
+			<!-- Nav groups: collapsed accordions, in their own evenly-wrapping grid -->
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-3 self-start">
+				{navGroups.map((g) => (
+					<details class="footer-dd">
+						<summary aria-label={g.aria}>
+							<span>{g.label}</span>
+							<span class="dd-sq" aria-hidden="true"></span>
+						</summary>
+						<div class="dd-body">
+							{g.items.map((i) => (
+								<a href={i.href} class="text-sm text-gray-400 hover:text-primary transition-colors">{i.label}</a>
+							))}
+						</div>
+					</details>
+				))}
+			</div>
 		</div>
 
 		<!-- Divider -->
@@ -174,25 +178,6 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 	</div>
 </footer>
 
-<script is:inline>
-	// Footer nav: collapsed accordions on mobile (tap "+" to expand), open
-	// columns on sm+ . Native <details> keeps toggling bulletproof everywhere.
-	// Runs inline (no module defer) so the desktop "open" state is set before
-	// paint, avoiding a collapsed→expanded flash.
-	(function () {
-		var mq = window.matchMedia('(min-width: 640px)');
-		var apply = function () {
-			var groups = document.querySelectorAll('.footer-dd');
-			for (var i = 0; i < groups.length; i++) groups[i].open = mq.matches;
-		};
-		apply();
-		// Re-sync only when the breakpoint is actually crossed, so a user's
-		// manual toggle within one layout isn't clobbered by unrelated resizes.
-		if (mq.addEventListener) mq.addEventListener('change', apply);
-		else mq.addListener(apply);
-	})();
-</script>
-
 <style>
 	/* --- Newsletter button: brand neobrutalist press --- */
 	.footer-join:hover { transform: translate(-1px, -1px); box-shadow: 2px 2px 0 0 rgba(0, 0, 0, 0.35); }
@@ -201,6 +186,10 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 
 	/* --- Nav group: real accordion on mobile and desktop --- */
 	.footer-dd {
+		/* Hug content so a collapsed group is just its title + rule — keeps every
+		   group the same compact height in the grid instead of stretching to the
+		   tall brand column. */
+		align-self: start;
 		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	}
 	.footer-dd > summary {
