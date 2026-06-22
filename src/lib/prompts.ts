@@ -463,6 +463,23 @@ export async function getSavedPrompts(actorId: string): Promise<Prompt[]> {
 	return results.map(rowToPrompt);
 }
 
+/** Approved prompts liked by a given actor, most recently liked first. */
+export async function getLikedPrompts(actorId: string): Promise<Prompt[]> {
+	const cols = PROMPT_COLS.split(', ')
+		.map((c) => `p.${c}`)
+		.join(', ');
+	const { results } = await getDB()
+		.prepare(
+			`SELECT ${cols} FROM prompts p
+			 INNER JOIN prompt_likes l ON l.prompt_slug = p.slug
+			 WHERE l.actor_id = ? AND p.${APPROVED}
+			 ORDER BY l.created_at DESC`,
+		)
+		.bind(actorId)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
+}
+
 // ---------------------------------------------------------------------------
 // Author profile + submission workflow
 // ---------------------------------------------------------------------------

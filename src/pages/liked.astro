@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import PromptGrid from '../components/PromptGrid.astro';
-import { getAllCategories, getSavedPrompts } from '../lib/prompts';
+import { getAllCategories, getLikedPrompts } from '../lib/prompts';
 
 // Per-actor — never cache publicly.
 export const prerender = false;
@@ -11,8 +11,8 @@ export const prerender = false;
 Astro.response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
 
 const actorId = Astro.locals.actorId;
-const [savedPrompts, categories] = await Promise.all([
-	actorId ? getSavedPrompts(actorId) : Promise.resolve([]),
+const [likedPrompts, categories] = await Promise.all([
+	actorId ? getLikedPrompts(actorId) : Promise.resolve([]),
 	getAllCategories(),
 ]);
 
@@ -20,21 +20,21 @@ const isAnon = !Astro.locals.user;
 ---
 
 <Layout
-	title="Your saved prompts — Free Prompt Base"
-	description="Prompts you've saved on this device or to your account."
+	title="Your liked prompts — Free Prompt Base"
+	description="Prompts you've liked on this device or in your account."
 >
 	<Header />
 	<main class="site-main py-12">
 		<header class="mb-10">
-			<h1 class="text-4xl font-bold tracking-tight text-text-primary">Saved prompts</h1>
+			<h1 class="text-4xl font-bold tracking-tight text-text-primary">Liked prompts</h1>
 			<p class="text-gray-600 mt-3 max-w-2xl">
 				{
-					savedPrompts.length === 0
-						? "Nothing here yet — tap the heart on any prompt card to save it."
-						: `${savedPrompts.length} saved ${savedPrompts.length === 1 ? 'prompt' : 'prompts'}.`
+					likedPrompts.length === 0
+						? 'Nothing here yet. Tap the heart on any prompt card to like it.'
+						: `${likedPrompts.length} liked ${likedPrompts.length === 1 ? 'prompt' : 'prompts'}.`
 				}
 				{
-					isAnon && savedPrompts.length > 0 && (
+					isAnon && likedPrompts.length > 0 && (
 						<>
 							{' '}
 							<a href="/api/auth/login" class="text-primary font-medium hover:underline">
@@ -48,11 +48,11 @@ const isAnon = !Astro.locals.user;
 		</header>
 
 		{
-			savedPrompts.length > 0 ? (
-				<PromptGrid prompts={savedPrompts} categories={categories} />
+			likedPrompts.length > 0 ? (
+				<PromptGrid prompts={likedPrompts} categories={categories} />
 			) : (
 				<div class="border border-dashed border-gray-300 rounded-lg p-10 text-center">
-					<p class="text-gray-500 mb-4">No saved prompts yet.</p>
+					<p class="text-gray-500 mb-4">No liked prompts yet.</p>
 					<a
 						href="/"
 						class="btn-primary inline-flex items-center gap-2"

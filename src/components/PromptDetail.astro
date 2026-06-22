@@ -204,7 +204,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			</svg>
 		</p>
 
-		<!-- Two-column body: image left (sticky), prompt content right.
+		<!-- Two-column body: image left (sticky viewport), prompt content right.
 		     Grid items default to align-items: stretch — the aside stretches to
 		     the row's height (= taller column), giving the inner sticky wrapper
 		     room to slide while the right column scrolls. -->
@@ -218,9 +218,9 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 				<div class="lg:sticky lg:top-24">
 				{
 					(prompt.images?.length ?? 0) > 1 ? (
-						<div class="relative group" data-carousel data-total={prompt.images!.length}>
+						<div class="relative group lg:h-[calc(100dvh-7rem)] lg:min-h-[360px] lg:max-h-[760px] lg:overflow-hidden lg:rounded-base lg:bg-gray-50" data-carousel data-total={prompt.images!.length}>
 							<div
-								class="flex items-start gap-3 overflow-x-auto snap-x snap-proximity pb-3 scroll-smooth no-scrollbar"
+								class="flex items-start gap-3 overflow-x-auto snap-x snap-proximity pb-3 scroll-smooth no-scrollbar lg:h-full lg:items-stretch lg:pb-0"
 								data-carousel-track
 							>
 								{prompt.images!.map((src, i) => (
@@ -232,7 +232,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 										width={i === 0 ? prompt.coverW : undefined}
 										height={i === 0 ? prompt.coverH : undefined}
 										style={prompt.coverW && prompt.coverH ? `aspect-ratio:${prompt.coverW}/${prompt.coverH}` : undefined}
-										class="snap-center shrink-0 w-full rounded-base object-contain"
+										class="snap-center shrink-0 w-full rounded-base object-contain lg:h-full lg:rounded-none"
 										loading={i === 0 ? 'eager' : 'lazy'}
 										fetchpriority={i === 0 ? 'high' : undefined}
 										decoding="async"
@@ -277,13 +277,13 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 							alt={prompt.title}
 							width={prompt.coverW}
 							height={prompt.coverH}
-							class="w-full rounded-base object-contain h-auto"
+							class="w-full rounded-base object-contain h-auto lg:h-[calc(100dvh-7rem)] lg:min-h-[360px] lg:max-h-[760px] lg:bg-gray-50"
 							loading="eager"
 							fetchpriority="high"
 							decoding="async"
 						/>
 					) : (
-						<div class="w-full aspect-[4/5] rounded-base bg-gray-50 border border-gray-200 flex flex-col items-center justify-center gap-3 text-gray-400">
+						<div class="w-full aspect-[4/5] rounded-base bg-gray-50 border border-gray-200 flex flex-col items-center justify-center gap-3 text-gray-400 lg:h-[calc(100dvh-7rem)] lg:min-h-[360px] lg:max-h-[760px] lg:aspect-auto">
 							{category ? (
 								<CategoryIcon slug={category.slug} class="w-16 h-16" />
 							) : (

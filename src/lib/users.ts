@@ -82,7 +82,7 @@ export async function getActiveAuthorUsernames(): Promise<string[]> {
 // Slug shape: 3-32 chars, lowercase ascii alphanum + hyphen, no leading/trailing hyphen.
 const USERNAME_RE = /^[a-z0-9](?:[a-z0-9-]{1,30}[a-z0-9])?$/;
 const RESERVED = new Set([
-  'admin', 'api', 'author', 'submit', 'account', 'login', 'logout', 'saved',
+  'admin', 'api', 'author', 'submit', 'account', 'login', 'logout', 'saved', 'liked',
   'about', 'privacy', 'terms', 'blog', 'category', 'categories', 'p', 'sitemap',
   'robots', 'feed', 'rss', 'auth', 'cms', 'dashboard', 'static', 'public',
 ]);

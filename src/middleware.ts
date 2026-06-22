@@ -146,6 +146,8 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     !path.startsWith('/api/') &&
     !path.startsWith('/admin') &&
     !path.startsWith('/dashboard') &&
+    path !== '/saved' &&
+    path !== '/liked' &&
     path !== '/submit' &&
     !path.startsWith('/submit/') &&
     path !== '/account' &&
