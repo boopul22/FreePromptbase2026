@@ -69,6 +69,41 @@ export async function getUserById(id: string): Promise<UserProfile | null> {
   return row ? rowToProfile(row) : null;
 }
 
+export interface TopContributor {
+  username: string;
+  name: string;
+  avatarUrl: string;
+  promptCount: number;
+}
+
+// The author with the most published prompts — powers the homepage "Top
+// contributor" badge. Respects scheduling (only live prompts count) and skips
+// banned / username-less accounts. Returns null when no one qualifies.
+export async function getTopContributor(): Promise<TopContributor | null> {
+  const row = await getDB()
+    .prepare(
+      `SELECT u.username AS username, u.name AS name, u.avatar_url AS avatar_url,
+              COUNT(p.slug) AS prompt_count
+       FROM users u
+       JOIN prompts p ON (p.submitted_by = u.id OR p.created_by = u.id)
+       WHERE p.status = 'approved'
+         AND (p.publish_at IS NULL OR p.publish_at <= datetime('now'))
+         AND u.username IS NOT NULL
+         AND u.is_banned = 0
+       GROUP BY u.id
+       ORDER BY prompt_count DESC, MAX(COALESCE(p.publish_at, p.created_at)) DESC
+       LIMIT 1`,
+    )
+    .first<{ username: string; name: string; avatar_url: string | null; prompt_count: number }>();
+  if (!row || !row.username) return null;
+  return {
+    username: row.username,
+    name: row.name,
+    avatarUrl: row.avatar_url ?? '',
+    promptCount: Number(row.prompt_count) || 0,
+  };
+}
+
 // Usernames of users who have at least one approved prompt — used by the
 // sitemap so /author/<username> pages get crawled.
 export async function getActiveAuthorUsernames(): Promise<string[]> {

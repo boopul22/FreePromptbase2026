@@ -16,6 +16,7 @@ import {
 	getSiteStats,
 	type Prompt,
 } from '../lib/prompts';
+import { getTopContributor } from '../lib/users';
 import { itemListSchema } from '../lib/seo';
 import { cfSrcset } from '../lib/cfImage';
 
@@ -26,7 +27,7 @@ export const prerender = false;
 // Only the first page of "All" is fetched up front (keyset-paginated, lazy-loaded
 // on scroll); Recent and Trending are bounded sets. The whole catalog is never
 // loaded into one response.
-const [recentPrompts, allPage, categories, popularPrompts, trendingFromEvents, potdSlug, stats] =
+const [recentPrompts, allPage, categories, popularPrompts, trendingFromEvents, potdSlug, stats, topContributor] =
 	await Promise.all([
 		getRecentPrompts(24),
 		getPromptsPage(null, 24),
@@ -35,6 +36,7 @@ const [recentPrompts, allPage, categories, popularPrompts, trendingFromEvents, p
 		getTrendingPrompts(),
 		getPromptOfTheDaySlug(),
 		getSiteStats(),
+		getTopContributor(),
 	]);
 
 // Fetch the Prompt of the Day directly (one indexed lookup) so we can float it
@@ -81,7 +83,7 @@ const firstCover = trendingPrompts[0]?.coverImage;
 >
 	<Header />
 	<main class="site-main py-12">
-		<Hero promptCount={stats.promptCount} categoryCount={categories.length} />
+		<Hero promptCount={stats.promptCount} categoryCount={categories.length} topContributor={topContributor} />
 		<Tabs />
 		<PromptGrid
 			prompts={trendingPrompts}
