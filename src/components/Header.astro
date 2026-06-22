@@ -1,21 +1,7 @@
 ---
-import { getSiteStats } from '../lib/prompts';
-
 // Auth-aware session — falls through to nothing for anonymous visitors.
 const sessionUser = Astro.locals.user;
 const isAdmin = sessionUser?.role === 'admin';
-
-// Live aggregates shown in the right-rail decoration (replaces the old
-// streak/energy mock). Falls back to zeros if D1 is unreachable.
-let stats = { promptCount: 0, likeTotal: 0 };
-try {
-	stats = await getSiteStats();
-} catch {}
-
-function fmt(n: number): string {
-	if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-	return String(n);
-}
 
 const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 ---
@@ -64,7 +50,7 @@ const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 			</div>
 		</form>
 
-		<!-- Right: User Controls -->
+		<!-- Right: User controls -->
 		<div class="flex items-center gap-2 sm:gap-4">
 			{
 				isAdmin && (
@@ -126,7 +112,7 @@ const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 							) : (
 								<div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-500">
 									{sessionUser.name.slice(0, 1).toUpperCase()}
-								</div>
+		</div>
 							)}
 						</button>
 						<div
@@ -178,19 +164,7 @@ const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 				</svg>
 			</button>
 
-			<!-- Real site aggregates — total approved prompts + total likes. -->
-			<div class="hidden lg:flex items-center gap-3 text-xs font-semibold text-gray-500 ml-2" aria-label="Site stats">
-				<span class="flex items-center gap-1">
-					<span class="text-text-primary tabular-nums">{stats.promptCount}</span>
-					<span>prompts</span>
-				</span>
-				<span class="flex items-center gap-1">
-					<span class="text-text-primary tabular-nums">{fmt(stats.likeTotal)}</span>
-					<span aria-hidden="true">❤️</span>
-					<span class="sr-only">likes</span>
-				</span>
 			</div>
-		</div>
 	</div>
 </header>
 
