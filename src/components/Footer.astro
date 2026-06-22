@@ -21,12 +21,10 @@ const browseLinks = [
 const trendingSlugs = [
 	'nano-banana-prompt',
 	'nano-banana',
-	'gemini-ai-prompt',
-	'gemini-ai-prompt-copy-paste',
-	'gemini-ai-photo-prompt',
 	'trending-gemini-prompt',
-	'couple-prompt',
 	'chatgpt-caricature-prompt',
+	'banana-prompt',
+	'nano-banana-ai',
 	'holi-prompt',
 ];
 const tagBySlug = new Map(tags.map((t) => [t.slug, t]));
@@ -38,15 +36,38 @@ const linksFromTags = (slugs: string[]) =>
 
 const trendingLinks = linksFromTags(trendingSlugs);
 
+const geminiSlugs = [
+	'gemini-ai-prompt',
+	'gemini-ai-prompt-copy-paste',
+	'prompt-gemini',
+	'prompt-for-gemini-ai',
+	'google-gemini-ai-photo',
+	'google-gemini-trending-photo-prompt',
+];
+const geminiLinks = linksFromTags(geminiSlugs);
+
 const photoSlugs = [
+	'gemini-ai-photo-prompt',
 	'gemini-ai-photo-prompt-copy-paste',
+	'gemini-photo-prompt',
 	'gemini-photo-editing-prompt',
 	'gemini-couple-photo-prompt',
 	'google-gemini-ai-photo-prompt',
 	'prompt-for-gemini-ai-girl',
-	'banana-prompts',
+	'couple-prompt',
 ];
 const photoLinks = linksFromTags(photoSlugs);
+
+const creatorSlugs = [
+	'ai-prompt-ghaus-editz',
+	'ai-prompt-razz-suman',
+	'prompt-wala',
+	'prompt-by-vikas-editing',
+	'anup-sagar-prompt',
+	'mk-edit',
+	'banana-prompts',
+];
+const creatorLinks = linksFromTags(creatorSlugs);
 
 // LEARN — blog index plus seed posts that map to /blog/<slug>.
 const learnLinks = [
@@ -61,14 +82,18 @@ const siteLinks = [
 	{ href: '/liked', label: 'Liked prompts' },
 	{ href: '/account', label: 'Account settings' },
 	{ href: '/about', label: 'About' },
+	{ href: '/privacy', label: 'Privacy' },
+	{ href: '/terms', label: 'Terms' },
+	{ href: '/sitemap.xml', label: 'Sitemap' },
 ];
 
-// Each nav group renders as an accordion on mobile and an open column on
-// desktop (see the <style> block). Same data, one render path.
+// Each group renders as a real accordion at every viewport size.
 const navGroups: { label: string; aria: string; items: { href: string; label: string }[] }[] = [
 	{ label: 'Browse', aria: 'Browse', items: browseLinks },
 	{ label: 'Trending', aria: 'Trending prompts', items: trendingLinks },
+	{ label: 'Gemini', aria: 'Gemini prompt links', items: geminiLinks },
 	{ label: 'Photo prompts', aria: 'Photo prompt links', items: photoLinks },
+	{ label: 'Creators', aria: 'Creator prompt links', items: creatorLinks },
 	{ label: 'Learn', aria: 'Learn', items: learnLinks },
 	{ label: 'Site', aria: 'Site', items: siteLinks },
 ];
@@ -77,7 +102,7 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 <footer class="mt-20 bg-link text-gray-400 border-t-4 border-primary" data-purpose="site-footer">
 	<div class="max-w-6xl mx-auto px-6 sm:px-8 pt-12 pb-8" style="padding-bottom: max(2rem, env(safe-area-inset-bottom));">
 		<!-- Top grid: brand + newsletter + socials, then categorized nav groups -->
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.35fr_repeat(5,minmax(0,1fr))] gap-x-8 gap-y-10">
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.25fr_repeat(3,minmax(0,1fr))] xl:grid-cols-[1.25fr_repeat(4,minmax(0,1fr))] gap-x-8 gap-y-10">
 
 			<!-- Brand + Newsletter + Socials -->
 			<div class="sm:col-span-2 lg:col-span-1">
@@ -118,7 +143,7 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 				</div>
 			</div>
 
-			<!-- Nav groups: accordion on mobile, open column on desktop -->
+			<!-- Nav groups: real accordions on every viewport -->
 			{navGroups.map((g) => (
 				<details class="footer-dd" open>
 					<summary aria-label={g.aria}>
@@ -137,7 +162,7 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 		<!-- Divider -->
 		<div class="h-px bg-white/10 my-10"></div>
 
-		<!-- Bottom: copyright + legal/utility strip (links not duplicated above) -->
+		<!-- Bottom: copyright + legal/utility strip -->
 		<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-gray-400">
 			<p>© {year} Free Prompt Base. Designed by Bipul.</p>
 			<nav aria-label="Legal" class="flex flex-wrap gap-x-6 gap-y-2">
@@ -155,7 +180,7 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 	.footer-join:active { transform: translate(0, 0); box-shadow: none; }
 	.footer-join:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
-	/* --- Nav group: accordion on mobile, static column on desktop --- */
+	/* --- Nav group: real accordion on mobile and desktop --- */
 	.footer-dd {
 		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 	}
@@ -173,6 +198,12 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 		letter-spacing: 0.12em;
 		text-transform: uppercase;
 		color: #fff;
+		transition: color 160ms linear;
+	}
+	.footer-dd > summary:hover { color: var(--color-primary); }
+	.footer-dd > summary:focus-visible {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 4px;
 	}
 	.footer-dd > summary::-webkit-details-marker { display: none; }
 	.footer-dd > summary::marker { content: ''; }
@@ -210,37 +241,8 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 		margin-left: 0.125rem;
 		border-left: 2px solid var(--color-primary);
 	}
-
-	/* Desktop: drop the accordion chrome, show every column open + flat */
-	@media (min-width: 1024px) {
-		.footer-dd { border-bottom: none; }
-		.footer-dd > summary {
-			cursor: default;
-			pointer-events: none;
-			padding: 0 0 1rem;
-			letter-spacing: 0.15em;
-			justify-content: flex-start;
-		}
-		.footer-dd > summary .dd-sq {
-			display: inline-flex;
-			width: 16px;
-			height: 16px;
-			font-size: 12px;
-			background: var(--color-primary);
-			border-color: var(--color-primary);
-			color: var(--color-link);
-			order: -1;
-		}
-		.footer-dd[open] .dd-sq::before {
-			content: '+';
-			transform: translateY(-1px);
-		}
-		.footer-dd > .dd-body {
-			display: flex !important;
-			padding: 0;
-			margin-left: 0;
-			border-left: none;
-		}
+	.footer-dd:not([open]) > .dd-body {
+		display: none;
 	}
 </style>
 
