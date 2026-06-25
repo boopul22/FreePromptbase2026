@@ -933,6 +933,55 @@ const breadcrumb = breadcrumbSchema([
 		border-top: 1px solid var(--hairline);
 		margin: 2.75rem 0;
 	}
+	/* Table: warm header wash, rounded outer frame, zebra rows. Scrolls on small screens. */
+	.prose-blog table {
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0;
+		margin: 1.85rem 0;
+		font-family: var(--font-heading);
+		font-size: 0.95rem;
+		line-height: 1.5;
+		border: 1px solid var(--color-outline, #e7e1d4);
+		border-radius: var(--radius-base, 10px);
+		overflow: hidden;
+	}
+	.prose-blog thead th {
+		background: var(--color-soft);
+		text-align: left;
+		font-weight: 700;
+		color: var(--color-text-primary);
+	}
+	.prose-blog th,
+	.prose-blog td {
+		padding: 0.65rem 0.85rem;
+		vertical-align: top;
+		border-bottom: 1px solid var(--hairline, #e7e1d4);
+		color: #2b2b2b;
+	}
+	.prose-blog th:not(:last-child),
+	.prose-blog td:not(:last-child) {
+		border-right: 1px solid var(--hairline, #e7e1d4);
+	}
+	.prose-blog tbody tr:last-child td {
+		border-bottom: 0;
+	}
+	.prose-blog tbody tr:nth-child(even) {
+		background: var(--paper-sunken, #f7f3ea);
+	}
+	.prose-blog th > p,
+	.prose-blog td > p {
+		margin: 0;
+		color: inherit;
+	}
+	/* Tiptap wraps tables so wide ones scroll instead of breaking the layout. */
+	.prose-blog .tableWrapper {
+		overflow-x: auto;
+		margin: 1.85rem 0;
+	}
+	.prose-blog .tableWrapper table {
+		margin: 0;
+	}
 </style>
 
 <script>
