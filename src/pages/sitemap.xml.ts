@@ -85,7 +85,7 @@ export const GET: APIRoute = async () => {
 
 	const body =
 		`<?xml version="1.0" encoding="UTF-8"?>\n` +
-		`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemaps-image/1.1">\n` +
+		`<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">\n` +
 		entries
 			.map((e) => {
 				// Match the page's own canonical exactly: the homepage canonical is
