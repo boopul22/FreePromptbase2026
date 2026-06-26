@@ -103,6 +103,10 @@ import Breadcrumb from '../../../components/Breadcrumb.astro';
  <span>${esc(m.folder)}</span>
  <span>${(m.sizeBytes / 1024).toFixed(0)} KB</span>
  </div>
+ <label class="block">
+ <span class="text-xs text-gray-500 uppercase tracking-wider">Alt text</span>
+ <input type="text" value="${esc(m.altText || '')}" placeholder="Describe this image" data-alt-id="${esc(m.id)}" class="mt-1 w-full border border-gray-200 rounded-md px-2 py-1 text-xs" />
+ </label>
  <div class="flex items-center gap-1">
  <button onclick="copyUrl('${esc(m.url)}')" class="btn-secondary btn-sm flex-1 text-center">Copy URL</button>
  <button onclick="deleteMedia('${esc(m.id)}')" class="btn-danger btn-sm flex items-center justify-center">
@@ -149,6 +153,34 @@ import Breadcrumb from '../../../components/Breadcrumb.astro';
  };
 
  (window as any).loadPage = (page: number) => loadMedia(page);
+
+ async function saveAltText(input: HTMLInputElement) {
+ const id = input.dataset.altId;
+ if (!id) return;
+ try {
+ const res = await fetch(`/api/admin/cms/media/${id}`, {
+ method: 'PUT',
+ headers: { 'Content-Type': 'application/json' },
+ body: JSON.stringify({ altText: input.value }),
+ });
+ if (!res.ok) throw new Error(String(res.status));
+ toast('Alt text saved', 'success');
+ } catch {
+ toast('Save failed — try again', 'error');
+ }
+ }
+
+ // Save alt text on change (blur) or Enter
+ const mediaGrid = document.getElementById('media-grid')!;
+ mediaGrid.addEventListener('change', (e) => {
+ const input = (e.target as HTMLElement).closest('input[data-alt-id]') as HTMLInputElement | null;
+ if (input) saveAltText(input);
+ });
+ mediaGrid.addEventListener('keydown', (e) => {
+ if ((e as KeyboardEvent).key !== 'Enter') return;
+ const input = (e.target as HTMLElement).closest('input[data-alt-id]') as HTMLInputElement | null;
+ if (input) { e.preventDefault(); input.blur(); }
+ });
 
  // Folder filter
  document.getElementById('folder-filters')?.addEventListener('click', (e) => {

@@ -616,7 +616,10 @@ const user = Astro.locals.user!;
  try {
  const res = await fetch('/api/admin/cms/media', { method: 'POST', body: form });
  const data = await res.json();
- if (data.url) editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
+ if (data.url) {
+ const alt = window.prompt('Alt text for this image (for SEO & accessibility):', file.name) || file.name;
+ editor.chain().focus().setImage({ src: data.url, alt }).run();
+ }
  } catch (err: any) { alert(`Upload failed: ${err.message}`); }
  imageInput.value = '';
  });

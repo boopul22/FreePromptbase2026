@@ -19,12 +19,13 @@ if (!post) {
 
 const related = await getRelatedPosts(post);
 const mins = postReadTime(post);
+const fmtDate = (iso: string) =>
+	new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 const dateIso = post.publishedAt ?? post.createdAt;
-const dateLabel = new Date(dateIso).toLocaleDateString('en-US', {
-	month: 'short',
-	day: 'numeric',
-	year: 'numeric',
-});
+const updatedIso = post.updatedAt ?? dateIso;
+// Surface the edit date once a post is updated a day or more after it was published.
+const wasUpdated = new Date(updatedIso).getTime() - new Date(dateIso).getTime() > 86_400_000;
+const dateLabel = wasUpdated ? `Updated ${fmtDate(updatedIso)}` : fmtDate(dateIso);
 const authorName = post.authorName || 'Admin';
 const authorInitials = authorName
 	.trim()
@@ -421,57 +422,6 @@ const breadcrumb = breadcrumbSchema([
 						</section>
 					)
 				}
-
-				<!-- Related (mobile only; rail covers lg+) -->
-				{
-					related.length > 0 && (
-						<section class="lg:hidden mt-16 pt-10 border-t border-[var(--hairline)]">
-							<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">More to read</p>
-							<h2 class="text-2xl font-bold text-text-primary mb-5">Keep reading</h2>
-							<ol class="border-t border-[var(--hairline)]">
-								{related.map((rel) => (
-									<li>
-										<a
-											href={`/blog/${rel.slug}`}
-											class="entry-row group flex items-center gap-4 py-4 px-3 -mx-3 rounded-lg border-b border-[var(--hairline)]"
-										>
-											<div class="w-14 h-14 shrink-0 overflow-hidden rounded-md bg-[var(--paper-sunken)]">
-												{rel.coverImage ? (
-													<img
-														src={rel.coverImage}
-														srcset={cfSrcset(rel.coverImage, [120, 200])}
-														sizes="56px"
-														alt={rel.title}
-														class="w-full h-full object-cover"
-														loading="lazy"
-														decoding="async"
-													/>
-												) : (
-													<div class="w-full h-full flex items-center justify-center text-text-primary/30">
-														<svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8"/></svg>
-													</div>
-												)}
-											</div>
-											<div class="min-w-0 flex-1">
-												<h3 class="text-base font-bold text-text-primary leading-snug group-hover:text-secondary transition-colors line-clamp-2">
-													{rel.title}
-												</h3>
-												<div class="text-xs text-[var(--ink-faint)] mt-1">
-													{new Date(rel.publishedAt ?? rel.createdAt).toLocaleDateString('en-US', {
-														month: 'short',
-														day: 'numeric',
-														year: 'numeric',
-													})}
-												</div>
-											</div>
-											<svg class="w-4 h-4 shrink-0 text-[var(--ink-faint)] group-hover:text-secondary transition-all duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
-										</a>
-									</li>
-								))}
-							</ol>
-						</section>
-					)
-				}
 			</article>
 
 			<!-- RIGHT RAIL: Share + Related + Promo (lg+) -->
@@ -482,49 +432,6 @@ const breadcrumb = breadcrumbSchema([
 						<p class="rail-eyebrow mb-3">Share</p>
 						<BlogShare url={postUrl} title={post.title} variant="stack" />
 					</div>
-
-					<!-- Related -->
-					{
-						related.length > 0 && (
-							<div>
-								<p class="rail-eyebrow mb-4">Keep reading</p>
-								<ul class="rail-related">
-									{related.map((rel) => (
-										<li>
-											<a href={`/blog/${rel.slug}`} class="rail-related__item group">
-												<div class="rail-related__thumb">
-													{rel.coverImage ? (
-														<img
-															src={rel.coverImage}
-															srcset={cfSrcset(rel.coverImage, [120, 200])}
-															sizes="48px"
-															alt={rel.title}
-															loading="lazy"
-															decoding="async"
-														/>
-													) : (
-														<div class="w-full h-full flex items-center justify-center text-text-primary/25">
-															<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8"/></svg>
-														</div>
-													)}
-												</div>
-												<div class="min-w-0">
-													<h3 class="rail-related__title">{rel.title}</h3>
-													<span class="rail-related__date">
-														{new Date(rel.publishedAt ?? rel.createdAt).toLocaleDateString('en-US', {
-															month: 'short',
-															day: 'numeric',
-															year: 'numeric',
-														})}
-													</span>
-												</div>
-											</a>
-										</li>
-									))}
-								</ul>
-							</div>
-						)
-					}
 
 					<!-- Promo -->
 					<div class="rail-promo">
@@ -540,6 +447,54 @@ const breadcrumb = breadcrumbSchema([
 				</div>
 			</aside>
 		</div>
+		<!-- Keep reading (full-width card grid, matches /blog + prompt cards) -->
+		{
+			related.length > 0 && (
+				<section class="blog-keep-reading">
+					<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">More to read</p>
+					<h2 class="blog-section-title">Keep reading</h2>
+					<div class="blog-cards">
+						{related.map((rel) => (
+							<a href={`/blog/${rel.slug}`} class="blog-card group">
+								<div class="blog-card__media">
+									{rel.coverImage ? (
+										<img
+											src={rel.coverImage}
+											srcset={cfSrcset(rel.coverImage, [320, 480, 768])}
+											sizes="(min-width: 640px) 360px, 92vw"
+											alt={rel.title}
+											width="720"
+											height="540"
+											loading="lazy"
+											decoding="async"
+										/>
+									) : (
+										<div class="blog-media-fallback">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+										</div>
+									)}
+								</div>
+								<div class="blog-card__body">
+									<div class="flex items-center gap-2 text-xs text-[var(--ink-faint)] mb-1.5">
+										{rel.categoryName && (
+											<>
+												<span class="text-primary-ink font-semibold uppercase tracking-wide">{rel.categoryName}</span>
+												<span aria-hidden="true">·</span>
+											</>
+										)}
+										<span>
+											{new Date(rel.publishedAt ?? rel.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+										</span>
+									</div>
+									<h3 class="blog-card__title">{rel.title}</h3>
+									<p class="blog-card__dek">{rel.excerpt}</p>
+								</div>
+							</a>
+						))}
+					</div>
+				</section>
+			)
+		}
 	</main>
 
 	<Footer />
@@ -575,6 +530,17 @@ const breadcrumb = breadcrumbSchema([
 	}
 	.blog-rail {
 		min-width: 0;
+	}
+	/* Full-width "Keep reading" band below the reading grid. */
+	.blog-keep-reading {
+		margin-top: 4rem;
+		padding-top: 2.5rem;
+		border-top: 1px solid var(--hairline);
+	}
+	@media (min-width: 1024px) {
+		.blog-keep-reading {
+			margin-top: 5rem;
+		}
 	}
 	.rail-eyebrow {
 		font-size: 11px;
