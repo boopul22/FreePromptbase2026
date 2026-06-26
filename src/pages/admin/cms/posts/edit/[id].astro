@@ -88,6 +88,7 @@ const { id } = Astro.params;
  <button type="button" data-action="blockquote" title="Blockquote" class="tb-btn"><span class="material-symbols-outlined text-base">format_quote</span></button>
  <button type="button" data-action="link" title="Link" class="tb-btn"><span class="material-symbols-outlined text-base">link</span></button>
  <button type="button" data-action="image" title="Insert Image" class="tb-btn"><span class="material-symbols-outlined text-base">image</span></button>
+ <button type="button" data-action="imageAlt" title="Edit selected image's alt text (SEO)" class="tb-btn font-bold text-xs">ALT</button>
  <button type="button" data-action="horizontalRule" title="Horizontal Rule" class="tb-btn"><span class="material-symbols-outlined text-base">horizontal_rule</span></button>
  <button type="button" data-action="table" title="Insert Table" class="tb-btn"><span class="material-symbols-outlined text-base">table</span></button>
  <div class="tb-divider"></div>
@@ -128,6 +129,7 @@ const { id } = Astro.params;
  <button type="button" data-action="blockquote" title="Blockquote" class="tb-btn"><span class="material-symbols-outlined text-base">format_quote</span></button>
  <button type="button" data-action="link" title="Link" class="tb-btn"><span class="material-symbols-outlined text-base">link</span></button>
  <button type="button" data-action="image" title="Insert Image" class="tb-btn"><span class="material-symbols-outlined text-base">image</span></button>
+ <button type="button" data-action="imageAlt" title="Edit selected image's alt text (SEO)" class="tb-btn font-bold text-xs">ALT</button>
  <button type="button" data-action="table" title="Insert Table" class="tb-btn"><span class="material-symbols-outlined text-base">table</span></button>
  <div class="tb-divider"></div>
  <button type="button" data-action="undo" title="Undo" class="tb-btn"><span class="material-symbols-outlined text-base">undo</span></button>
@@ -371,6 +373,17 @@ const { id } = Astro.params;
  onUpdate: () => updatePreview(),
  });
 
+		// Double-click an image in the body to edit its alt text (SEO & accessibility)
+		editor.view.dom.addEventListener('dblclick', (ev) => {
+			const img = (ev.target as HTMLElement).closest('img');
+			if (!img) return;
+			const pos = editor.view.posAtDOM(img, 0);
+			editor.chain().focus().setNodeSelection(pos).run();
+			const current = editor.getAttributes('image').alt || '';
+			const alt = window.prompt('Alt text for this image (for SEO & accessibility):', current);
+			if (alt !== null) editor.chain().focus().updateAttributes('image', { alt }).run();
+		});
+
  // --- Tabs ---
  document.querySelectorAll('.desktop-tab').forEach(btn => {
  btn.addEventListener('click', () => {
@@ -470,6 +483,15 @@ const { id } = Astro.params;
  break;
  }
  case 'image': imageInput.click(); break;
+				case 'imageAlt':
+					if (!editor.isActive('image')) {
+						window.alert('Click an image in the content first, then press ALT to edit its alt text.');
+					} else {
+						const current = editor.getAttributes('image').alt || '';
+						const alt = window.prompt('Alt text for this image (for SEO & accessibility):', current);
+						if (alt !== null) editor.chain().focus().updateAttributes('image', { alt }).run();
+					}
+					break;
  case 'horizontalRule': editor.chain().focus().setHorizontalRule().run(); break;
  case 'table': editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(); break;
  case 'addRowBefore': editor.chain().focus().addRowBefore().run(); break;
