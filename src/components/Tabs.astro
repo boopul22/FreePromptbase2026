@@ -8,20 +8,26 @@ const tabs = [
 	{ id: 'recent', label: 'Recent' },
 	{ id: 'all', label: 'All' },
 ] as const;
+
+// Tab the homepage opens on. Keep this in sync with which PromptGrid is
+// rendered un-hidden in index.astro.
+const DEFAULT_TAB = 'all';
+const activeIndex = Math.max(0, tabs.findIndex((t) => t.id === DEFAULT_TAB));
 ---
 
 <nav class="sort-tabs mb-8" data-purpose="content-tabs" role="tablist" aria-label="Sort prompts">
 	<!-- Sliding active pill. Width is locked to a third of the track, so switching
-	     tabs only animates translateX (a transform, never a layout property). -->
-	<span class="sort-indicator" data-tab-indicator aria-hidden="true"></span>
+	     tabs only animates translateX (a transform, never a layout property). The
+	     initial position points at the default tab. -->
+	<span class="sort-indicator" data-tab-indicator style={`transform: translateX(${activeIndex * 100}%)`} aria-hidden="true"></span>
 	{
 		tabs.map((tab, i) => (
 			<button
 				type="button"
 				data-sort={tab.id}
-				data-active={i === 0 ? 'true' : 'false'}
+				data-active={i === activeIndex ? 'true' : 'false'}
 				role="tab"
-				aria-selected={i === 0 ? 'true' : 'false'}
+				aria-selected={i === activeIndex ? 'true' : 'false'}
 				class="sort-tab"
 			>
 				{tab.label}
