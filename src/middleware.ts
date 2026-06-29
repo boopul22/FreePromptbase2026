@@ -11,6 +11,25 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   const url = new URL(request.url);
   const path = url.pathname;
 
+  // Canonical host + scheme: force https://freepromptbase.com (apex, HTTPS).
+  // Runs before any session/D1 work so it's the cheapest possible path — a
+  // single 301 for http:// hits and for the www subdomain. Only the production
+  // domain is normalized, so `astro dev` (http://localhost) and *.workers.dev
+  // preview URLs are left untouched. Cloudflare may carry the original scheme in
+  // the CF-Visitor header, so we check that alongside url.protocol.
+  const CANONICAL_HOST = 'freepromptbase.com';
+  if (url.hostname === CANONICAL_HOST || url.hostname === `www.${CANONICAL_HOST}`) {
+    const viaHttp =
+      url.protocol === 'http:' ||
+      (request.headers.get('cf-visitor') ?? '').includes('"scheme":"http"');
+    if (viaHttp || url.hostname !== CANONICAL_HOST) {
+      url.protocol = 'https:';
+      url.hostname = CANONICAL_HOST;
+      url.port = '';
+      return redirect(url.toString(), 301);
+    }
+  }
+
   // Resolve session from cookie so downstream pages see `locals.user`.
   let db: D1Database | null = null;
   try {

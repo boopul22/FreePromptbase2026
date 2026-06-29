@@ -74,7 +74,7 @@ const description = profileUser.bio
 
 		<header class="flex flex-col sm:flex-row sm:items-center gap-5 mb-10">
 			{profileUser.avatarUrl ? (
-				<img src={profileUser.avatarUrl} alt="" class="w-20 h-20 rounded-full object-cover bg-gray-100" referrerpolicy="no-referrer" />
+				<img src={profileUser.avatarUrl} alt={profileUser.name} class="w-20 h-20 rounded-full object-cover bg-gray-100" referrerpolicy="no-referrer" />
 			) : (
 				<div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-2xl font-semibold text-gray-500">
 					{profileUser.name.slice(0, 1).toUpperCase()}
