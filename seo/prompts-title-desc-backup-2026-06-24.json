@@ -1,0 +1,361 @@
+Cloudflare agent skills are available for: Claude Code, Cursor, OpenCode, Codex, Continue, Roo. Run wrangler in an interactive terminal to install them, or use `--install-skills` to install without prompting.
+[
+  {
+    "results": [
+      {
+        "slug": "blue-hour-portrait-prompt",
+        "title": "Blue Hour Beach Portrait AI Prompt for Gemini",
+        "description": "A blue hour portrait prompt. Turn your photo into a man in a white linen shirt holding white flowers on a beach at dusk, moody and emotional. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"aesthetic prompt\"]"
+      },
+      {
+        "slug": "hand-drawn-doodle-overlay",
+        "title": "Hand-Drawn Doodle Photo Overlay – AI Prompt",
+        "description": "A hand-drawn doodle overlay prompt — add playful doodles, motion lines and captions that react to the subject in any photo. Works in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"photo overlay\",\"doodle\",\"social media\",\"chatgpt\",\"gemini\"]"
+      },
+      {
+        "slug": "european-city-portrait-prompt",
+        "title": "European City Portrait AI Photo Prompt for Gemini",
+        "description": "A European city portrait prompt. Turn your photo into a black and white shot of a man in a wool overcoat among pigeons in a city square. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"travel prompt\"]"
+      },
+      {
+        "slug": "cinematic-football-world-cup-poster",
+        "title": "Cinematic World Cup Football Poster – AI Prompt",
+        "description": "A cinematic World Cup football poster prompt — two players back-to-back, neon flag accents, smoky stadium haze and campaign typography. For Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"football poster prompt\",\"world cup poster\",\"cinematic poster prompt\",\"football prompt\",\"sports poster prompt\",\"world cup football\",\"ai poster prompt\",\"gemini prompt\",\"4k poster prompt\"]"
+      },
+      {
+        "slug": "valentines-day-couple-prompt",
+        "title": "Valentine's Day Couple AI Photo Prompt for Gemini",
+        "description": "A Valentine's Day couple prompt. Turn your photo into a romantic couple inside a golden glowing circle with neon text and floating hearts. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"couple prompt\",\"festival prompt\"]"
+      },
+      {
+        "slug": "father-son-portrait-prompt",
+        "title": "Father and Son Portrait AI Prompt for Gemini",
+        "description": "A father and son portrait prompt. Turn your photo into a stylish man and baby in matching formal outfits and sunglasses in a studio. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"family prompt\",\"fashion prompt\"]"
+      },
+      {
+        "slug": "back-flash-night-portrait",
+        "title": "Back-Flash Cinematic Night Portrait",
+        "description": "iPhone-flash aesthetic at night — a glowing rim-light halo around the subject, lens flare, soft haze, and that grainy candid mood that goes viral on Instagram reels.",
+        "category": "images",
+        "tags": "[\"portrait\",\"night\",\"flash\",\"iphone aesthetic\",\"instagram\",\"reel\"]"
+      },
+      {
+        "slug": "black-and-white-suit-portrait",
+        "title": "Black & White Suit Portrait AI Prompt for Gemini",
+        "description": "A black and white suit portrait prompt. Turn your photo into a dramatic high-contrast studio shot of a bearded man in a tailored suit. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "glassmorphism-prompt",
+        "title": " Glassmorphism Prompt",
+        "description": "Use this viral Glassmorphism Prompt to create elegant designs featuring translucent glass panels, frosted textures, smooth gradients, and soft shadows using ChatGPT.",
+        "category": "images",
+        "tags": "[]"
+      },
+      {
+        "slug": "beach-couple-portrait-prompt",
+        "title": "Beach Couple Portrait AI Photo Prompt for Gemini",
+        "description": "A beach couple portrait prompt. Turn your photo into a romantic couple holding red roses on a beach with elegant name typography. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"couple prompt\",\"wedding prompt\"]"
+      },
+      {
+        "slug": "green-field-portrait-prompt",
+        "title": "Green Field Portrait AI Photo Prompt for Gemini",
+        "description": "A green field portrait prompt. Turn your photo into a moody portrait in a white linen shirt standing in tall green grass. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"aesthetic prompt\",\"nature prompt\"]"
+      },
+      {
+        "slug": "fisheye-floating-photo-prompt",
+        "title": "Fisheye Floating Photo – Surreal Levitation AI Prompt",
+        "description": "A fisheye floating photo prompt — a person levitating above a field of flowers, shot worm's-eye through a floral tunnel. Works in Midjourney & Gemini.",
+        "category": "images",
+        "tags": "[\"fisheye prompt\",\"floating photo prompt\",\"levitation prompt\",\"surreal photo prompt\",\"worm eye view\",\"floral tunnel\",\"cinematic prompt\",\"midjourney prompt\",\"ai photo prompt\"]"
+      },
+      {
+        "slug": "movie-poster-portrait-prompt",
+        "title": "Movie Poster Portrait AI Photo Prompt for Gemini",
+        "description": "A movie poster portrait prompt. Turn your photo into a heroic male lead in a brown blazer and sunglasses against a dramatic sunset sky. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "black-and-white-horse-portrait",
+        "title": "Black & White Horse Portrait AI Prompt for Gemini",
+        "description": "A black and white horse portrait prompt. Turn your photo into a moody monochrome shot of a stylish man sitting with a horse. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "black-and-white-headshot-prompt",
+        "title": "Black & White Headshot AI Photo Prompt for Gemini",
+        "description": "A black and white headshot prompt. Turn your photo into a clean professional portrait of a man in a black tee and glasses on a black backdrop. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "mirror-portrait-prompt",
+        "title": "Mirror Portrait AI Photo Prompt for Gemini",
+        "description": "Mirror portrait prompt — save this free AI photo prompt on Free Prompt Base and edit it in Gemini & ChatGPT. Paste your photo and create fast.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"aesthetic prompt\",\"fashion prompt\"]"
+      },
+      {
+        "slug": "lego-viral-prompt",
+        "title": "Lego Viral Prompt",
+        "description": "Generate viral LEGO-style AI content with powerful LEGO prompts. Create realistic LEGO characters, cinematic scenes, mini-figures, and trending social media visuals. ",
+        "category": "images",
+        "tags": "[]"
+      },
+      {
+        "slug": "pixar-chibi-scrapbook-collage",
+        "title": "Pixar Chibi Scrapbook Collage – AI Photo Prompt",
+        "description": "Turn a photo into a Pixar chibi scrapbook collage — 3D chibi versions in different poses with doodles and sticker outlines. Works in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"pixar chibi\",\"chibi prompt\",\"scrapbook collage\",\"pixar style prompt\",\"chibi collage\",\"3d chibi\",\"ai photo prompt\",\"photo collage prompt\",\"gemini prompt\"]"
+      },
+      {
+        "slug": "aesthetic-portrait-prompt",
+        "title": "Aesthetic Portrait Prompt: Young Man in a Flower Meadow",
+        "description": "A dreamy aesthetic portrait prompt — a young man sitting in a flower meadow in soft afternoon light. Copy it for Gemini, ChatGPT or Midjourney.",
+        "category": "images",
+        "tags": "[\"aesthetic portrait prompt\",\"men portrait prompt\",\"aesthetic prompt\",\"dreamy portrait\",\"outdoor portrait\",\"prompt\",\"flower meadow portrait\",\"pastel aesthetic\",\"ai image prompt\",\"portrait photography prompt\"]"
+      },
+      {
+        "slug": "photographer-portrait-prompt",
+        "title": "Photographer Portrait AI Photo Prompt for Gemini",
+        "description": "A photographer portrait prompt. Turn your photo into a stylish young man holding a camera in a cinematic urban setting. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"lifestyle prompt\"]"
+      },
+      {
+        "slug": "indian-couple-portrait-prompt",
+        "title": "Indian Couple Portrait AI Photo Prompt for Gemini",
+        "description": "An Indian couple portrait prompt. Turn your photo into a romantic outdoor portrait of a couple in a red saree and red shirt. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"couple prompt\",\"wedding prompt\"]"
+      },
+      {
+        "slug": "vintage-gentleman-portrait-prompt",
+        "title": "Vintage Gentleman Portrait AI Prompt for Gemini",
+        "description": "A vintage gentleman portrait prompt. Turn your photo into a man in a plaid three-piece suit with a walking stick on a cobblestone street. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"vintage prompt\"]"
+      },
+      {
+        "slug": "autumn-fashion-portrait-prompt",
+        "title": "Autumn Fashion Portrait AI Photo Prompt for Gemini",
+        "description": "An autumn fashion portrait prompt. Turn your photo into a stylish man by a vintage street lamp in an autumn park with falling leaves. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"fashion prompt\"]"
+      },
+      {
+        "slug": "color-gel-portrait-prompt",
+        "title": "Color Gel Portrait AI Photo Prompt for Gemini",
+        "description": "A color gel portrait prompt. Turn your photo into a cinematic close-up lit with warm golden and cool green tones on a black backdrop. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "turquoise-fashion-portrait-prompt",
+        "title": "Turquoise Fashion Portrait AI Prompt for Gemini",
+        "description": "Turquoise fashion portrait prompt — copy this free AI photo prompt on Free Prompt Base and edit it in Gemini & ChatGPT. Paste your photo and create in seconds.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"fashion prompt\",\"aesthetic prompt\"]"
+      },
+      {
+        "slug": "footballer-portrait-prompt",
+        "title": "Footballer Portrait AI Photo Prompt for Gemini",
+        "description": "A footballer portrait prompt. Turn your photo into a soccer player in a white kit standing with a ball under bright stadium lights. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"sports prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "winter-horse-portrait-prompt",
+        "title": "Winter Horse Portrait AI Photo Prompt for Gemini",
+        "description": "A winter horse portrait prompt. Turn your photo into a man in all-black standing with a black horse in a snowy forest, cinematic. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"winter prompt\"]"
+      },
+      {
+        "slug": "minecraft-prompt",
+        "title": "Minecraft Prompt",
+        "description": "Generate amazing Minecraft AI art with the best Viral Minecraft Prompt. Design block-style characters, epic castles, and cinematic Minecraft scenes using ChatGPT.",
+        "category": "images",
+        "tags": "[]"
+      },
+      {
+        "slug": "man-with-flowers-portrait-prompt",
+        "title": "Man With Flowers Portrait AI Prompt for Gemini",
+        "description": "A man with flowers portrait prompt. Turn your photo into a melancholic black and white shot of a man in a coat holding white flowers in the rain. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "bike-lifestyle-portrait-prompt",
+        "title": "Bike Lifestyle Portrait AI Photo Prompt for Gemini",
+        "description": "A bike lifestyle portrait prompt. Turn your photo into a stylish man leaning against a matte black classic bike in warm daylight. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"lifestyle prompt\"]"
+      },
+      {
+        "slug": "smoky-studio-portrait-prompt",
+        "title": "Smoky Studio Portrait AI Photo Prompt for Gemini",
+        "description": "Smoky studio portrait prompt — copy this free AI photo prompt on Free Prompt Base and edit it in Gemini & ChatGPT. Paste your photo and create in seconds.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "black-and-white-studio-prompt",
+        "title": "Black and white studio prompt",
+        "description": "Use this Black & White Studio Portrait Prompt to create stunning monochrome portraits with studio lighting, deep shadows, high contrast, and detailed facial features using ChatGPT.",
+        "category": "images",
+        "tags": "[]"
+      },
+      {
+        "slug": "urban-motion-portrait-prompt",
+        "title": "Urban Motion Portrait AI Photo Prompt for Gemini",
+        "description": "An urban motion portrait prompt. Turn your photo into a woman in a black coat walking through a busy, motion-blurred city street. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"women portrait prompt\",\"urban prompt\"]"
+      },
+      {
+        "slug": "film-noir-portrait-prompt",
+        "title": "Film Noir Portrait AI Photo Prompt for Gemini",
+        "description": "A film noir portrait prompt. Turn your photo into a black and white shot of a man on a bokeh-lit city street at night. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "light-beam-portrait-prompt",
+        "title": "Light Beam Portrait AI Photo Prompt for Gemini",
+        "description": "A light beam portrait prompt. Turn your photo into a dramatic close-up with a diagonal light beam across the face and deep shadows. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"women portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "monochrome-male-portrait-prompt",
+        "title": "Monochrome Male Portrait AI Photo Prompt for Gemini",
+        "description": "A monochrome male portrait prompt. Turn your photo into a dramatic black and white shot of a man in a black mock neck sweater. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "pixel-style-prompt",
+        "title": "Pixel Style Prompt",
+        "description": "Create amazing, viral pixel-style art with powerful pixel style prompts. Generate 8-bit characters, retro gaming scenes, and pixel avatars using ChatGPT.",
+        "category": "images",
+        "tags": "[]"
+      },
+      {
+        "slug": "old-man-neon-portrait-prompt",
+        "title": "Old Man Neon Portrait AI Photo Prompt for Gemini",
+        "description": "Old man neon portrait prompt — try this free AI photo prompt on Free Prompt Base and create it in Gemini or ChatGPT. Just copy, paste your photo and go.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "yellow-saree-portrait-prompt",
+        "title": "Yellow Saree Portrait AI Photo Prompt for Gemini",
+        "description": "Yellow saree portrait prompt — get this free AI photo prompt on Free Prompt Base. Copy it, paste your photo, and edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"women portrait prompt\",\"aesthetic prompt\"]"
+      },
+      {
+        "slug": "motion-blur-prompt",
+        "title": "Motion Blur Prompt",
+        "description": "Create stunning action shots with this Viral Motion Blur Prompt. Generate cinematic motion blur effects, dynamic speed trails, and realistic movement AI images using ChatGPT.",
+        "category": "images",
+        "tags": "[]"
+      },
+      {
+        "slug": "selective-color-portrait-prompt",
+        "title": "Selective Color Portrait AI Prompt for Gemini",
+        "description": "A selective color portrait prompt. Turn your photo into a black and white male portrait with a glowing amber eye and wet skin droplets. Edit in Gemini.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "chiaroscuro-portrait-prompt",
+        "title": "Chiaroscuro Portrait AI Photo Prompt for Gemini",
+        "description": "Chiaroscuro portrait prompt — grab this free AI photo prompt on Free Prompt Base and recreate the look in Gemini or ChatGPT. Copy, paste, done.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"women portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "floral-shirt-portrait-prompt",
+        "title": "Floral Shirt Portrait AI Photo Prompt for Gemini",
+        "description": "Floral shirt portrait prompt — try this free AI photo prompt on Free Prompt Base and create it in Gemini or ChatGPT. Just copy, paste your photo and go.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"men portrait prompt\",\"fashion prompt\"]"
+      },
+      {
+        "slug": "city-crosswalk-portrait-prompt",
+        "title": "City Crosswalk Portrait AI Prompt for Gemini",
+        "description": "City crosswalk portrait prompt — get this free AI photo prompt on Free Prompt Base. Copy it, paste your photo, and edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"women portrait prompt\",\"urban prompt\"]"
+      },
+      {
+        "slug": "dark-aesthetic-prompt",
+        "title": "Dark Aesthetic Prompt",
+        "description": "Use this Dark Aesthetic Portrait AI Prompt to create striking portraits with low-key lighting, dark backgrounds, cinematic shadows, and intense emotions using ChatGPT. ",
+        "category": "images",
+        "tags": "[]"
+      },
+      {
+        "slug": "gothic-hall-portrait-prompt",
+        "title": "Gothic Hall Portrait AI Photo Prompt for Gemini",
+        "description": "A gothic hall portrait prompt. Turn your photo into a woman in a black coat glancing back in a sunlit gothic hall, cinematic. Edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"women portrait prompt\",\"cinematic prompt\"]"
+      },
+      {
+        "slug": "snowy-night-portrait-prompt",
+        "title": "Snowy Night Portrait AI Photo Prompt for Gemini",
+        "description": "Snowy night portrait prompt — get this free AI photo prompt on Free Prompt Base. Copy it, paste your photo, and edit in Gemini & ChatGPT.",
+        "category": "images",
+        "tags": "[\"ai photo prompt\",\"gemini prompt\",\"portrait prompt\",\"women portrait prompt\",\"winter prompt\"]"
+      },
+      {
+        "slug": "gta-vi-prompt",
+        "title": "GTA VI Prompt",
+        "description": "Use this GTA VI Style AI Prompt to generate cinematic open-world scenes featuring neon streets, dramatic sunsets, and stylish characters using ChatGPT.",
+        "category": "images",
+        "tags": "[]"
+      }
+    ],
+    "success": true,
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "APAC",
+      "served_by_colo": "NRT",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 0.4785
+      },
+      "duration": 0.4785,
+      "changes": 0,
+      "last_row_id": 0,
+      "changed_db": false,
+      "size_after": 749568,
+      "rows_read": 97,
+      "rows_written": 0,
+      "total_attempts": 1
+    }
+  }
+]

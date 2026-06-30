@@ -1,0 +1,265 @@
+Cloudflare agent skills are available for: Claude Code, Cursor, OpenCode, Codex, Continue, Roo. Run wrangler in an interactive terminal to install them, or use `--install-skills` to install without prompting.
+[
+  {
+    "results": [
+      {
+        "slug": "blue-hour-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "hand-drawn-doodle-overlay",
+        "category": "images",
+        "how_to_use": "Upload any clear photo of a person, car, or object. The model reads what is in the frame and draws context-aware doodles + captions around it. Works best with ChatGPT (GPT-4o image edit) or Gemini. For the cleanest results, give the model a portrait or hero shot with one obvious subject and some negative space around it."
+      },
+      {
+        "slug": "european-city-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "cinematic-football-world-cup-poster",
+        "category": "images",
+        "how_to_use": "Replace [COUNTRY], [PLAYER NAME], and [FLAG COLORS] before generating. Examples: Argentina + Lionel Messi (sky blue, white, soft gold), Portugal + Cristiano Ronaldo (deep red, emerald green, gold), Brazil + Neymar (canary yellow, deep green, royal blue). Best results in Gemini 2.5 Pro or ChatGPT image. Stick to 9:16 vertical so the framing reads as a real campaign poster."
+      },
+      {
+        "slug": "valentines-day-couple-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "father-son-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "back-flash-night-portrait",
+        "category": "images",
+        "how_to_use": "Upload a clean photo of the subject (preferably at night or with a dark background). The model paints the rim-light halo and the night atmosphere on top — works equally well on portraits in dresses, casual wear, or jewelry shots. Keep the framing vertical (4:5 or 9:16) for the Instagram-reel feel."
+      },
+      {
+        "slug": "black-and-white-suit-portrait",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "glassmorphism-prompt",
+        "category": "images",
+        "how_to_use": "Either Use this Prompt: \n\nA person standing confidently against a rough concrete/brutalist wall background, surrounded by multiple floating glassmorphism music player UI cards scattered in 3D space at various angles. The UI cards show Spotify and Apple Music branding, displaying song titles in bold uppercase text, artist name \"esdeekid\", album art thumbnails, playback controls (skip back, play/pause, skip forward buttons), progress bars with orange accent color, and timestamps. The cards have a frosted glass transparent effect with glowing neon orange borders and highlights. One large prominent Spotify card floats in the center foreground showing \"PHANTOM\" as the song title. The person wears a black graphic hoodie/jacket with \"edition\" text, baggy distressed brown/cargo pants, Timberland boots, gold chain necklaces, and an orange/red beanie hat. Streetwear fashion, urban editorial photography style, standing pose, moody cinematic lighting, concrete urban background, photorealistic, 4K, high detail, vertical portrait format. \n"
+      },
+      {
+        "slug": "beach-couple-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "green-field-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "fisheye-floating-photo-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "movie-poster-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "black-and-white-horse-portrait",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "black-and-white-headshot-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "mirror-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "lego-viral-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "pixar-chibi-scrapbook-collage",
+        "category": "images",
+        "how_to_use": "Best on GPT Image 2 (the original viral pairing) or Gemini 2.5 Pro. Upload a single full-body photo with one clear pose — the chibi mini-mes will copy the outfit and surround the real subject. Keep the canvas 4:5 vertical. If you get face drift, re-run with the negative-prompt block intact."
+      },
+      {
+        "slug": "aesthetic-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "photographer-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "indian-couple-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "vintage-gentleman-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "autumn-fashion-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "color-gel-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "turquoise-fashion-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "footballer-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "winter-horse-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "minecraft-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "man-with-flowers-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "bike-lifestyle-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "smoky-studio-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "black-and-white-studio-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "urban-motion-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "film-noir-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "light-beam-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "monochrome-male-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "pixel-style-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "old-man-neon-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "yellow-saree-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "motion-blur-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "selective-color-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "chiaroscuro-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "floral-shirt-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "city-crosswalk-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "snowy-night-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "dark-aesthetic-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "gothic-hall-portrait-prompt",
+        "category": "images",
+        "how_to_use": null
+      },
+      {
+        "slug": "gta-vi-prompt",
+        "category": "images",
+        "how_to_use": null
+      }
+    ],
+    "success": true,
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "APAC",
+      "served_by_colo": "NRT",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 0.4054
+      },
+      "duration": 0.4054,
+      "changes": 0,
+      "last_row_id": 0,
+      "changed_db": false,
+      "size_after": 749568,
+      "rows_read": 97,
+      "rows_written": 0,
+      "total_attempts": 1
+    }
+  }
+]
