@@ -81,16 +81,18 @@ Title + unique description + how_to_use + tags. `prompt_text` left untouched.
 ## Not yet optimized
 - (none of the genuine prompts as of 2026-06-30)
 
-### Deferred — likely duplicate/spam submissions (random suffixes, need dedup decision)
-- [ ] couple-prompt-bacer6
-- [ ] couple-prompt-bgmswx
-- [ ] couple-prompt-fsvoel
-- [ ] couple-prompt-vac1w6
-- [ ] pixels-in-motion-prompt-hq9xiu
-- [ ] pixels-in-motion-prompt-p410z5
+### Deferred — duplicate submissions, slugs cleaned (2026-06-30)
+Random suffixes removed → clean numeric slugs (see `rename-suffixed-slugs-2026-06-30.sql`).
+Still need full SEO pass (desc + how_to_use + tags); `-5` already has a title.
+- [ ] couple-prompt-2 *(was couple-prompt-bacer6 — South Asian couple, wheat field)*
+- [ ] couple-prompt-3 *(was couple-prompt-bgmswx — couple in golden-hour meadow)*
+- [ ] couple-prompt-4 *(was couple-prompt-fsvoel — EXACT dup of -2: same cover image)*
+- [ ] couple-prompt-5 *(was couple-prompt-vac1w6 — title done: Golden Hour Couple Portrait)*
+- [ ] pixels-in-motion-prompt-2 *(was …-hq9xiu)*
+- [ ] pixels-in-motion-prompt-3 *(was …-p410z5)*
 
-> These 6 look like duplicate submissions of `couple-prompt` / `pixels-in-motion-prompt`
-> with random slug suffixes. Cannibalization risk — decide keep vs delete before SEO work.
+> `couple-prompt-2` and `couple-prompt-4` are exact duplicates (same content + cover) —
+> consider deleting one before the SEO pass.
 
 New prompts (submissions/drafts approved after 2026-06-24) land here un-optimized until
 their SEO pass. To list approved prompts and eyeball new ones, run:

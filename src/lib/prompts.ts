@@ -556,8 +556,21 @@ export interface PromptSubmissionResult {
 	slug: string;
 }
 
-function randSuffix(): string {
-	return Math.random().toString(36).slice(2, 8);
+/**
+ * A free slug derived from `base`. If `base` is taken, append the smallest
+ * numeric suffix that isn't — `base`, then `base-2`, `base-3`, … — so duplicate
+ * titles get a clean short slug on the same keyword instead of a random code.
+ */
+async function uniqueSlug(db: ReturnType<typeof getDB>, base: string): Promise<string> {
+	let candidate = base;
+	for (let n = 2; ; n++) {
+		const taken = await db
+			.prepare('SELECT 1 FROM prompts WHERE slug = ?')
+			.bind(candidate)
+			.first();
+		if (!taken) return candidate;
+		candidate = `${base}-${n}`;
+	}
 }
 
 /** Insert a user-submitted prompt with status='pending'. */
@@ -571,15 +584,8 @@ export async function submitPrompt(
 		throw new Error('Missing required fields: title, promptText, category.');
 	}
 
-	let slug = input.slug ? generateSlug(input.slug) : generateSlug(input.title);
-	if (!slug) slug = `prompt-${randSuffix()}`;
-
-	// Ensure unique slug
-	const existing = await db
-		.prepare('SELECT slug FROM prompts WHERE slug = ?')
-		.bind(slug)
-		.first<{ slug: string }>();
-	if (existing) slug = `${slug}-${randSuffix()}`;
+	const base = (input.slug ? generateSlug(input.slug) : generateSlug(input.title)) || 'prompt';
+	const slug = await uniqueSlug(db, base);
 
 	const today = new Date().toISOString().slice(0, 10);
 	const now = new Date().toISOString();
