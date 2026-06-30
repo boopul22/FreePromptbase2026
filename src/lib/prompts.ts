@@ -246,6 +246,39 @@ export async function getFeaturedPrompts(): Promise<Prompt[]> {
 
 /** Related prompts: same category first, then most popular, excluding self. Approved only. */
 export async function getRelatedPrompts(prompt: Prompt, limit = 3): Promise<Prompt[]> {
+	// Rank by genuine relevance: how many of THIS prompt's own tags another prompt
+	// shares (in its tags/title/description). Specific overlaps (e.g. "couple prompt")
+	// add to the count alongside generic ones, so the most similar prompts rank
+	// highest and the rail varies per page — instead of always showing the same
+	// most-popular prompts. Falls back to category + popularity when there's no
+	// tag overlap (or the prompt has no tags).
+	const terms = [...new Set((prompt.tags ?? []).map((t) => t.trim().toLowerCase()).filter(Boolean))]
+		.slice(0, 10);
+	if (terms.length > 0) {
+		const cond = '(LOWER(tags) LIKE ? OR LOWER(title) LIKE ? OR LOWER(description) LIKE ?)';
+		const where = terms.map(() => cond).join(' OR ');
+		const score = terms.map(() => `(CASE WHEN ${cond} THEN 1 ELSE 0 END)`).join(' + ');
+		const like = terms.map((t) => `%${t}%`);
+		// Binds, in placeholder order: score block (3/term), slug for slug!=?, WHERE
+		// block (3/term), category for the ORDER BY tiebreak, then limit.
+		const { results } = await getDB()
+			.prepare(
+				`SELECT ${PROMPT_COLS}, (${score}) AS rank FROM prompts
+				 WHERE slug != ? AND ${APPROVED} AND (${where})
+				 ORDER BY rank DESC, (category = ?) DESC, popularity DESC, save_count DESC
+				 LIMIT ?`,
+			)
+			.bind(
+				...like.flatMap((l) => [l, l, l]),
+				prompt.slug,
+				...like.flatMap((l) => [l, l, l]),
+				prompt.category,
+				limit,
+			)
+			.all<PromptRow>();
+		if (results.length > 0) return results.map(rowToPrompt);
+	}
+	// Fallback: no tags or no overlap — same-category, most-popular prompts.
 	const { results } = await getDB()
 		.prepare(
 			`SELECT ${PROMPT_COLS} FROM prompts
