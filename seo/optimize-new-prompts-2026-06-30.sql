@@ -35,3 +35,8 @@ UPDATE prompts SET title='Pixel Stretch Effect – Gemini AI Photo Prompt', desc
 
 -- ===== Pixels in motion =====
 UPDATE prompts SET title='Pixels in Motion – Gemini AI Photo Prompt', description='Cinematic Gemini AI photo prompt — a lakeside silhouette under surreal long-exposure cloud streaks at sunset. Copy, paste your photo in Nano Banana (Gemini) & ChatGPT.', how_to_use='Copy-paste your photo into this pixels-in-motion gemini ai photo prompt in Nano Banana (Gemini) or ChatGPT. A back-view or silhouette photo blends best into the sunset; keep a wide or 4:5 vertical frame.', tags='["ai photo prompt","gemini prompt","cinematic prompt","nature prompt","surreal photo prompt"]' WHERE slug='pixels-in-motion-prompt';
+
+-- ===== Follow-up (2026-06-30): improved title on a deferred duplicate slug =====
+-- couple-prompt-vac1w6 (golden-hour embrace, woman behind man) had the generic title
+-- "couple prompt". Title only — desc/how_to_use/tags still pending a full pass.
+UPDATE prompts SET title='Golden Hour Couple Portrait – Gemini AI Photo Prompt' WHERE slug='couple-prompt-vac1w6';
