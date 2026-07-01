@@ -147,9 +147,9 @@ import Breadcrumb from '../../../../components/Breadcrumb.astro';
  : p.status === 'draft'
  ? `<button onclick="postAction('${p.id}', 'publish')" class="btn-primary btn-sm">Publish</button>`
  : ''}
- <button onclick="postAction('${p.id}', 'archive')" class="btn-danger btn-sm ml-auto inline-flex items-center gap-1.5">
- <span class="material-symbols-outlined text-base">archive</span>
- Archive
+ <button onclick="postAction('${p.id}', 'delete')" class="btn-danger btn-sm ml-auto inline-flex items-center gap-1.5">
+ <span class="material-symbols-outlined text-base">delete</span>
+ Delete
  </button>
  </div>
  </li>`).join('')}
@@ -191,7 +191,7 @@ import Breadcrumb from '../../../../components/Breadcrumb.astro';
  ? `<button onclick="postAction('${p.id}', 'publish')" class="btn-primary btn-sm">Publish</button>`
  : ''
  }
- <button onclick="postAction('${p.id}', 'archive')" class="btn-danger btn-sm">Archive</button>
+ <button onclick="postAction('${p.id}', 'delete')" class="btn-danger btn-sm">Delete</button>
  </div>
  </td>
  </tr>
@@ -219,8 +219,8 @@ import Breadcrumb from '../../../../components/Breadcrumb.astro';
  }
 
  (window as any).postAction = async (id: string, action: string) => {
- if (action === 'archive') {
- if (!confirm('Archive this post?')) return;
+ if (action === 'delete') {
+ if (!confirm('Permanently delete this post? This removes it from the database for good and cannot be undone.')) return;
  await fetch('/api/admin/cms/posts', {
  method: 'DELETE',
  headers: { 'Content-Type': 'application/json' },

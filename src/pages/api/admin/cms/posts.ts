@@ -143,15 +143,14 @@ export const DELETE: APIRoute = async ({ request, locals }) => {
     return new Response(JSON.stringify({ error: 'Post not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
   }
 
-  await db
-    .prepare("UPDATE posts SET status = 'archived', updated_at = datetime('now') WHERE id = ?")
-    .bind(id)
-    .run();
+  // Remove translated copies first (tolerate a missing post_translations table).
+  try { await db.prepare('DELETE FROM post_translations WHERE post_id = ?').bind(id).run(); } catch {}
+  await db.prepare('DELETE FROM posts WHERE id = ?').bind(id).run();
 
   await logActivity(db, {
     userId: locals.user.id,
     userName: locals.user.name,
-    action: 'archive_post',
+    action: 'delete_post',
     entityType: 'post',
     entityId: id,
     entityTitle: post.title,
