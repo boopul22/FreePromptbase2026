@@ -168,6 +168,8 @@ function renderBlockquotePrompts(html: string): string {
 
 const rawBody = post.htmlContent || post.content.intro || '';
 const { html: builtHtml, toc } = buildToc(rawBody);
+// FAQ is rendered outside the prose body, so add it to the TOC by hand — last entry.
+if (post.faqItems.length > 0) toc.push({ level: 2, text: 'FAQ', id: 'faq' });
 const withPrompts = renderBlockquotePrompts(renderPromptBlocks(builtHtml));
 // Lazy-load + async-decode every in-body image (they're below the fold) so the
 // page doesn't eagerly fetch 20 MB of images on load. Only images without an
@@ -297,9 +299,6 @@ const breadcrumb = breadcrumbSchema([
 					<h1 class="text-3xl sm:text-4xl md:text-[2.875rem] font-bold tracking-tight text-text-primary leading-[1.1]">
 						{post.title}
 					</h1>
-					<p class="text-[var(--ink-soft)] text-lg sm:text-xl leading-relaxed mt-5 max-w-[44rem]">
-						{post.excerpt}
-					</p>
 				</header>
 
 				<!-- Byline -->
@@ -403,7 +402,7 @@ const breadcrumb = breadcrumbSchema([
 				<!-- FAQ -->
 				{
 					post.faqItems.length > 0 && (
-						<section class="mt-14 pt-10 border-t border-[var(--hairline)]">
+						<section id="faq" class="mt-14 pt-10 border-t border-[var(--hairline)]">
 							<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">FAQ</p>
 							<h2 class="text-2xl font-bold text-text-primary mb-6">Frequently asked</h2>
 							<div class="space-y-3">
@@ -760,6 +759,11 @@ const breadcrumb = breadcrumbSchema([
 		opacity: 1;
 		text-decoration: underline;
 		text-underline-offset: 2px;
+	}
+
+	/* FAQ lands below the sticky nav, matching the prose headings' offset. */
+	#faq {
+		scroll-margin-top: 5rem;
 	}
 
 	.prose-blog {
