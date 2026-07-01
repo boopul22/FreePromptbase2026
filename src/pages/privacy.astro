@@ -1,36 +1,227 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
+import LegalPage from '../components/LegalPage.astro';
+
+const toc = [
+	{ id: 'info-we-collect', label: '1. Information We Collect' },
+	{ id: 'analytics', label: '2. Analytics' },
+	{ id: 'advertising', label: '3. Advertising & Cookies' },
+	{ id: 'how-we-use', label: '4. How We Use Information' },
+	{ id: 'third-parties', label: '5. Third Parties' },
+	{ id: 'legal-bases', label: '6. Legal Bases (GDPR)' },
+	{ id: 'retention', label: '7. Data Retention' },
+	{ id: 'your-rights', label: '8. Your Rights & Choices' },
+	{ id: 'security', label: '9. Security' },
+	{ id: 'children', label: "10. Children's Privacy" },
+	{ id: 'international', label: '11. International Users' },
+	{ id: 'changes', label: '12. Changes' },
+	{ id: 'contact', label: '13. Contact Us' },
+];
 ---
 
-<Layout title="Privacy Policy — Free Prompt Base" description="How Free Prompt Base handles your data.">
-	<Header />
-	<main class="flex-grow site-main py-12">
-		<div class="max-w-2xl">
-			<p class="text-xs font-semibold uppercase tracking-[0.18em] text-secondary mb-3">Legal</p>
-			<h1 class="text-4xl md:text-5xl font-bold tracking-tight text-text-primary leading-[1.1]">Privacy Policy</h1>
+<LegalPage
+	title="Privacy Policy — Free Prompt Base"
+	description="How Free Prompt Base collects, uses, and protects your information, including cookies and third-party advertising (Google AdSense)."
+	heading="Privacy Policy"
+	intro="How we collect, use, and protect your information — including cookies and third-party advertising."
+	lastUpdated="July 1, 2026"
+	crumb="Privacy Policy"
+	path="/privacy"
+	toc={toc}
+>
+	<p>
+		This Privacy Policy explains how Free Prompt Base ("Free Prompt Base," "we," "us," or "our")
+		collects, uses, and protects information when you use our website at
+		<strong>freepromptbase.com</strong> (the "Service"). You can browse, search, and copy prompts
+		anonymously — no account is required. Creating an account is optional and unlocks features such
+		as saving and liking prompts. By using the Service, you agree to this Privacy Policy.
+	</p>
 
-			<div class="mt-6 mb-8 h-px bg-gray-200"></div>
+	<section id="info-we-collect">
+		<h2>1. Information We Collect</h2>
+		<h3>a. Account information (only if you create an account)</h3>
+		<p>
+			Browsing the Service does not require an account. If you choose to sign in with Google, we
+			collect your name, email address, and a Google-provided user identifier. For signed-in users,
+			we also store your saved and liked prompts, associated with your account. Your browser may
+			additionally cache your saved/liked state locally on your device.
+		</p>
+		<h3>b. Prompt submissions</h3>
+		<p>
+			If you submit a prompt through the Service, we collect the content you provide (such as the
+			prompt text, title, and any attribution or images) so we can review and, if accepted, publish
+			it.
+		</p>
+		<h3>c. Usage data</h3>
+		<p>
+			We collect aggregate engagement counters such as the number of views, likes, copies, and
+			shares for each prompt. These counters are global and are not tied to identifiable users.
+		</p>
+		<h3>d. Device and technical data</h3>
+		<p>
+			When you use the Service, we and our hosting and infrastructure providers may automatically
+			receive standard technical information such as your IP address, browser or device type,
+			operating system, and request logs. This is used for security, troubleshooting, and to
+			operate the Service.
+		</p>
+		<h3>e. Communications</h3>
+		<p>
+			If you contact us or subscribe to our newsletter, we collect the information you provide — such
+			as your email address and the contents of your message — so we can respond and send you
+			updates. You can unsubscribe at any time.
+		</p>
+		<h3>f. Cookies, analytics, and advertising</h3>
+		<p>
+			We use cookies and similar technologies for analytics and advertising, and to keep you signed
+			in. These are described in detail in the two sections below.
+		</p>
+	</section>
 
-			<div class="space-y-4 text-gray-600 leading-relaxed">
+	<section id="analytics">
+		<h2>2. Analytics</h2>
+		<p>
+			Our website uses Google Analytics 4 (GA4), a service provided by Google, to understand how
+			visitors use the site. GA4 sets cookies and collects information such as pages viewed,
+			interactions (for example, copying or liking a prompt), approximate location derived from your
+			IP address, and device and browser characteristics. Google processes this information on our
+			behalf — see
+			<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>
+			and
+			<a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">how Google uses information from sites that use its services</a>.
+			You can opt out using the
+			<a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics Opt-out Browser Add-on</a>
+			or your browser's cookie controls.
+		</p>
+	</section>
+
+	<section id="advertising">
+		<h2>3. Advertising (Google AdSense &amp; Third-Party Vendors)</h2>
+		<p>
+			Free Prompt Base is a free resource supported by advertising. We use Google AdSense and may use
+			other third-party advertising vendors to serve ads when you visit the Service.
+		</p>
+		<ul>
+			<li>Third-party vendors, including Google, use cookies to serve ads based on your prior visits to this website and other websites.</li>
+			<li>Google's use of advertising cookies (including the DoubleClick cookie) enables it and its partners to serve ads to you based on your visit to this and other sites on the internet.</li>
+			<li>You may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google Ads Settings</a>. Alternatively, you can opt out of a third-party vendor's use of cookies for personalized advertising at <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener">aboutads.info</a> or, for users in Europe, <a href="https://www.youronlinechoices.eu/" target="_blank" rel="noopener">youronlinechoices.eu</a>.</li>
+			<li>For visitors in regions that require consent (such as the EEA and UK), Google's consent-management tools are used to obtain your choices before personalized ads and related cookies are served.</li>
+		</ul>
+		<p>
+			For more information about how Google uses data when you use our partners' sites or apps, see
+			<a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">Google's advertising policies</a>.
+		</p>
+	</section>
+
+	<section id="how-we-use">
+		<h2>4. How We Use Your Information</h2>
+		<p>We use the information we collect to:</p>
+		<ul>
+			<li>Provide and maintain the Service, including creating and managing accounts and storing your saved and liked prompts;</li>
+			<li>Authenticate you and keep your account secure;</li>
+			<li>Review and publish prompts you submit;</li>
+			<li>Respond to your inquiries and send newsletter updates you have requested;</li>
+			<li>Measure and improve the Service through analytics; and</li>
+			<li>Display advertising that helps keep the Service free.</li>
+		</ul>
+		<p>We do not sell your personal information.</p>
+	</section>
+
+	<section id="third-parties">
+		<h2>5. Third Parties and Service Providers</h2>
+		<p>
+			We share information only with service providers that help us operate the Service, and only as
+			needed for them to perform their functions:
+		</p>
+		<ul>
+			<li><strong>Authentication:</strong> Google (Google Sign-In) processes sign-in information when you choose that method.</li>
+			<li><strong>Analytics:</strong> Google Analytics 4 processes website usage data via cookies, as described above.</li>
+			<li><strong>Advertising:</strong> Google AdSense and other advertising vendors serve ads and use cookies, as described above.</li>
+			<li><strong>Hosting and infrastructure:</strong> the Service is hosted on Cloudflare, and images are stored and delivered through Cloudflare storage and CDN. These providers may process technical data such as IP addresses and request logs to deliver content.</li>
+			<li><strong>Email:</strong> newsletter and contact submissions are processed through a form-delivery provider to reach us by email.</li>
+		</ul>
+		<p>
+			We may also disclose information if required to do so by law, or to protect the rights, safety,
+			or property of Free Prompt Base, our users, or others.
+		</p>
+	</section>
+
+	<section id="legal-bases">
+		<h2>6. Legal Bases for Processing (GDPR)</h2>
+		<p>This section applies to users in the European Economic Area (EEA) and the United Kingdom and may not apply in all jurisdictions.</p>
+		<ul>
+			<li><strong>Contract</strong> — to provide account features such as saving and liking prompts.</li>
+			<li><strong>Legitimate interests</strong> — to secure, maintain, and improve the Service and respond to inquiries.</li>
+			<li><strong>Consent</strong> — where required, for example for personalized advertising cookies and where you voluntarily provide information. You may withdraw consent at any time.</li>
+			<li><strong>Legal obligation</strong> — where we must process data to comply with applicable law.</li>
+		</ul>
+	</section>
+
+	<section id="retention">
+		<h2>7. Data Retention</h2>
+		<p>
+			We retain account information and associated data (such as your saved and liked prompts) for as
+			long as your account remains active. When you delete your account, we permanently remove your
+			account and its associated data. We may retain limited information where necessary to comply
+			with legal obligations, resolve disputes, or enforce our agreements, and we may retain
+			aggregate, non-identifying data (such as global engagement counters) indefinitely.
+		</p>
+	</section>
+
+	<section id="your-rights">
+		<h2>8. Your Rights and Choices</h2>
+		<ul>
+			<li><strong>Access and correction:</strong> you can review and update certain account information directly; for other requests, contact us at the email below.</li>
+			<li><strong>Deletion:</strong> you may request deletion of your account and associated data by contacting us.</li>
+			<li><strong>Cookies and ads:</strong> you can control cookies through your browser and opt out of personalized advertising using the links in Section 3.</li>
+			<li><strong>EEA / UK (GDPR):</strong> you may have the right to access, correct, delete, restrict, or object to processing, to data portability, and to lodge a complaint with a supervisory authority.</li>
+			<li><strong>California (CCPA/CPRA):</strong> you may have the right to know what personal information we collect, to request deletion, and not to be discriminated against for exercising these rights. We do not sell your personal information.</li>
+		</ul>
+	</section>
+
+	<section id="security">
+		<h2>9. Security</h2>
+		<p>
+			We take reasonable technical and organizational measures to protect your information, including
+			using encrypted connections (HTTPS) for data in transit. However, no method of transmission or
+			storage is completely secure, and we cannot guarantee absolute security.
+		</p>
+	</section>
+
+	<section id="children">
+		<h2>10. Children's Privacy</h2>
+		<p>
+			The Service is not directed to children under 13 (or under 16 where a higher age applies under
+			local law), and we do not knowingly collect personal information from children. If you believe a
+			child has provided us with personal information, please contact us and we will take steps to
+			delete it.
+		</p>
+	</section>
+
+	<section id="international">
+		<h2>11. International Users</h2>
+		<p>
+			The Service may be operated from, and your information processed in, India. By using the
+			Service, you understand that your information may be transferred to and processed in locations
+			that may have different data-protection laws than your own.
+		</p>
+	</section>
+
+	<section id="changes">
+		<h2>12. Changes to This Policy</h2>
+		<p>
+			We may update this Privacy Policy from time to time. When we do, we will revise the "Last
+			updated" date above. Your continued use of the Service after changes take effect constitutes
+			acceptance of the updated policy.
+		</p>
+	</section>
+
+	<section id="contact">
+		<h2>13. Contact Us</h2>
+		<div class="legal-callout">
 			<p>
-				Free Prompt Base is a free resource. We keep data collection to a minimum. If you
-				subscribe to the newsletter, we store the email address you provide solely to send you
-				prompt updates, and you can unsubscribe at any time.
+				Questions about this Privacy Policy or our data practices? Email
+				<strong>Bipul Kumar</strong> at
+				<a href="mailto:blog.boopul@gmail.com">blog.boopul@gmail.com</a>.
 			</p>
-			<p>
-				We do not sell your personal data. This page is a placeholder and will be expanded with
-				full details before launch.
-			</p>
-			<p class="text-sm text-gray-600">
-				Questions? Email
-				<a href="mailto:blog.boopul@gmail.com" class="text-link underline hover:text-secondary"
-					>blog.boopul@gmail.com</a
-				>.
-			</p>
-			</div>
 		</div>
-	</main>
-	<Footer />
-</Layout>
+	</section>
+</LegalPage>

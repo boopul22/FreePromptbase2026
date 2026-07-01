@@ -1,0 +1,84 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+
+const toc = [
+	{ id: 'scope', label: '1. Scope' },
+	{ id: 'nature', label: '2. Nature of Content' },
+	{ id: 'editing', label: '3. Editing & Watermarks' },
+	{ id: 'usage-rights', label: '4. Usage Rights' },
+	{ id: 'liability', label: '5. Limitation of Liability' },
+	{ id: 'contact', label: '6. Contact Us' },
+];
+---
+
+<LegalPage
+	title="AI Content Policy — Free Prompt Base"
+	description="How Free Prompt Base handles AI-generated images: full disclosure of AI origin, editing, watermarks, and usage rights."
+	eyebrow="Transparency"
+	heading="AI Content Policy"
+	intro="Full disclosure about the AI-generated images we display and the prompts we share."
+	lastUpdated="July 1, 2026"
+	crumb="AI Policy"
+	path="/ai-policy"
+	toc={toc}
+>
+	<section id="scope">
+		<h2>1. Definitions &amp; Scope</h2>
+		<p>
+			This policy governs the visual content displayed on Free Prompt Base
+			(<strong>freepromptbase.com</strong>) and its associated social media channels (including but
+			not limited to Instagram, Pinterest, and others), collectively referred to as "the Platform."
+		</p>
+	</section>
+
+	<section id="nature">
+		<h2>2. Nature of Content (Full Disclosure)</h2>
+		<p>You acknowledge and agree that the example visuals displayed across the Platform are AI-generated.</p>
+		<p>
+			Unless explicitly labeled otherwise, no image on the Platform represents actual physical
+			events, real-world locations, or living persons. The example images are the synthetic output
+			of generative AI models — such as Google Gemini, Imagen, Midjourney, and similar text-to-image
+			systems — produced from the prompts we publish.
+		</p>
+	</section>
+
+	<section id="editing">
+		<h2>3. Editing &amp; Watermark Disclosure</h2>
+		<p>To present prompt capabilities clearly and consistently, example images may be processed as follows:</p>
+		<ul>
+			<li><strong>Aesthetic modification:</strong> images may be cropped, color-graded, upscaled, or cleaned of visual artifacts.</li>
+			<li><strong>Removal of visual indicators:</strong> we may remove platform-specific overlays or badges (for example, a generator's "sparkle" icon) to give an unobstructed view of the result.</li>
+			<li><strong>Non-deceptive intent:</strong> any such removal is purely for presentation. It is <strong>not</strong> intended to hide the AI origin of the content or to misrepresent it as human-made. The context of the Platform — a resource for AI prompts — is itself the governing disclosure of AI origin.</li>
+			<li><strong>Preservation of metadata:</strong> we do not knowingly alter or strip invisible provenance standards (such as SynthID, C2PA, or IPTC metadata) embedded in a file, so those credentials remain intact.</li>
+		</ul>
+	</section>
+
+	<section id="usage-rights">
+		<h2>4. Intellectual Property &amp; Usage Rights</h2>
+		<ul>
+			<li><strong>Prompt usage:</strong> you are granted a non-exclusive, royalty-free right to use the text prompts on the Platform for your own personal or commercial generation.</li>
+			<li><strong>Image rights:</strong> to the extent permitted by applicable law and by the terms of the originating AI tools, the Platform asserts rights over the compilation, curation, and specific presentation of the example images.</li>
+			<li><strong>Third-party rights:</strong> we make no warranty that generated images are free of third-party intellectual property (for example, accidental likenesses of trademarked characters). You assume all liability for the commercial use of any output you generate using prompts found here.</li>
+		</ul>
+	</section>
+
+	<section id="liability">
+		<h2>5. Limitation of Liability</h2>
+		<p>
+			The Platform is provided on an "as is" and "as available" basis. Because generative AI models
+			are non-deterministic, we do not guarantee that you will be able to reproduce the exact images
+			displayed, even when using identical prompts and settings. See our
+			<a href="/terms">Terms of Service</a> for the full disclaimers and limitation of liability.
+		</p>
+	</section>
+
+	<section id="contact">
+		<h2>6. Contact Us</h2>
+		<div class="legal-callout">
+			<p>
+				Questions about this AI Content Policy? Email <strong>Bipul Kumar</strong> at
+				<a href="mailto:blog.boopul@gmail.com">blog.boopul@gmail.com</a>.
+			</p>
+		</div>
+	</section>
+</LegalPage>

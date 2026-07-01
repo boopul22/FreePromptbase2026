@@ -1,0 +1,269 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import Breadcrumb from './Breadcrumb.astro';
+import { breadcrumbSchema } from '../lib/seo';
+
+interface TocItem {
+	id: string;
+	label: string;
+}
+
+interface Props {
+	/** Page <title> and meta description. */
+	title: string;
+	description: string;
+	/** Small uppercase kicker above the H1 (e.g. "Legal"). */
+	eyebrow?: string;
+	/** Big H1 shown in the hero. */
+	heading: string;
+	/** One-line intro under the H1. */
+	intro?: string;
+	/** Human date, e.g. "July 1, 2026". Omit to hide the badge. */
+	lastUpdated?: string;
+	/** Breadcrumb + on-page-nav entries. Each id must match a <section id> in the slot. */
+	toc: TocItem[];
+	/** Breadcrumb label for this page. */
+	crumb: string;
+	/** Route of this page for the breadcrumb schema, e.g. "/privacy". */
+	path: string;
+}
+
+const {
+	title,
+	description,
+	eyebrow = 'Legal',
+	heading,
+	intro,
+	lastUpdated,
+	toc,
+	crumb,
+	path,
+} = Astro.props;
+
+const crumbSchema = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name: crumb, path },
+]);
+---
+
+<Layout title={title} description={description} extraSchemas={[crumbSchema]}>
+	<Header />
+	<main class="flex-grow site-main py-10 sm:py-14">
+		<Breadcrumb items={[{ label: 'Home', href: '/' }, { label: crumb }]} />
+
+		<!-- Hero -->
+		<header class="legal-hero max-w-3xl">
+			<p class="text-xs font-semibold uppercase tracking-[0.18em] text-secondary mb-3">{eyebrow}</p>
+			<h1 class="text-4xl md:text-5xl font-bold tracking-tight text-text-primary leading-[1.05]">{heading}</h1>
+			{intro && <p class="mt-4 text-lg text-gray-600 leading-relaxed">{intro}</p>}
+			{lastUpdated && (
+				<span class="legal-updated mt-5">
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7v5l3 2"/></svg>
+					Last updated {lastUpdated}
+				</span>
+			)}
+		</header>
+
+		<div class="legal-grid mt-10">
+			<!-- On-page nav -->
+			<aside class="legal-toc" aria-label="On this page">
+				<div class="legal-toc__inner">
+					<p class="legal-toc__title">On this page</p>
+					<nav>
+						<ol class="legal-toc__list">
+							{toc.map((t) => (
+								<li><a href={`#${t.id}`} class="legal-toc__link" data-toc-link={t.id}>{t.label}</a></li>
+							))}
+						</ol>
+					</nav>
+				</div>
+			</aside>
+
+			<!-- Body -->
+			<article class="legal-body">
+				<slot />
+			</article>
+		</div>
+	</main>
+	<Footer />
+</Layout>
+
+<style>
+	/* Smooth in-page jumps + offset so anchored headings clear the sticky header. */
+	:global(html) { scroll-behavior: smooth; }
+
+	.legal-updated {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.3rem 0.7rem;
+		border-radius: 9999px;
+		font-size: 0.75rem;
+		font-weight: 600;
+		line-height: 1;
+		color: oklch(0.42 0.07 80);
+		background: oklch(0.95 0.06 96);
+		border: 1px solid oklch(0.88 0.07 96);
+	}
+
+	.legal-grid {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 2.5rem;
+	}
+	@media (min-width: 1024px) {
+		.legal-grid { grid-template-columns: 232px minmax(0, 1fr); gap: 3.5rem; }
+	}
+
+	/* --- On-page nav --------------------------------------------------------- */
+	.legal-toc { display: none; }
+	@media (min-width: 1024px) { .legal-toc { display: block; } }
+	.legal-toc__inner { position: sticky; top: 5.5rem; }
+	.legal-toc__title {
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: var(--color-secondary);
+		margin-bottom: 0.75rem;
+	}
+	.legal-toc__list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.1rem;
+		border-left: 2px solid var(--color-outline);
+	}
+	.legal-toc__link {
+		display: block;
+		padding: 0.3rem 0 0.3rem 0.85rem;
+		margin-left: -2px;
+		border-left: 2px solid transparent;
+		font-size: 0.8125rem;
+		line-height: 1.35;
+		color: var(--color-secondary);
+		text-decoration: none;
+		transition: color 140ms ease, border-color 140ms ease;
+	}
+	.legal-toc__link:hover { color: var(--color-text-primary); }
+	.legal-toc__link.is-active {
+		color: var(--color-text-primary);
+		font-weight: 600;
+		border-left-color: var(--color-primary);
+	}
+
+	/* --- Body ---------------------------------------------------------------- */
+	.legal-body {
+		max-width: 46rem;
+		background: #fff;
+		border: 1px solid var(--color-outline);
+		border-radius: 14px;
+		padding: 1.5rem;
+		box-shadow: 0 1px 2px rgba(33, 29, 22, 0.04), 0 10px 30px -18px rgba(33, 29, 22, 0.25);
+	}
+	@media (min-width: 640px) { .legal-body { padding: 2.5rem 2.75rem; } }
+
+	/* Section spacing + anchor offset so the sticky header never covers a heading. */
+	.legal-body :global(section) { scroll-margin-top: 6rem; }
+	.legal-body :global(section + section) { margin-top: 2rem; }
+
+	.legal-body :global(h2) {
+		font-family: var(--font-heading);
+		font-size: 1.3rem;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		color: var(--color-text-primary);
+		line-height: 1.2;
+		margin-bottom: 0.75rem;
+		padding-bottom: 0.6rem;
+		border-bottom: 1px solid var(--color-outline);
+	}
+	.legal-body :global(h3) {
+		font-family: var(--font-heading);
+		font-size: 1rem;
+		font-weight: 600;
+		color: var(--color-text-primary);
+		margin: 1.1rem 0 0.4rem;
+	}
+	.legal-body :global(p) { color: #4b5563; line-height: 1.7; }
+	.legal-body :global(p + p) { margin-top: 0.85rem; }
+	.legal-body :global(ul) {
+		margin: 0.75rem 0;
+		padding-left: 1.15rem;
+		list-style: disc;
+		color: #4b5563;
+	}
+	.legal-body :global(li) { line-height: 1.65; }
+	.legal-body :global(li + li) { margin-top: 0.4rem; }
+	.legal-body :global(a) {
+		color: var(--color-link);
+		text-decoration: underline;
+		text-underline-offset: 2px;
+		text-decoration-color: var(--color-primary);
+		font-weight: 500;
+	}
+	.legal-body :global(a:hover) { text-decoration-color: currentColor; }
+	.legal-body :global(strong) { color: var(--color-text-primary); font-weight: 600; }
+
+	/* Fine-print / legalese blocks — smaller, uppercase, muted. */
+	.legal-body :global(.legal-fineprint) {
+		font-size: 0.8rem;
+		line-height: 1.6;
+		text-transform: uppercase;
+		letter-spacing: 0.01em;
+		color: var(--color-secondary);
+	}
+
+	/* Soft-yellow callout (contact box, key notes). */
+	.legal-body :global(.legal-callout) {
+		margin-top: 1rem;
+		background: var(--color-soft);
+		border: 1px solid oklch(0.88 0.07 96);
+		border-radius: 12px;
+		padding: 1.1rem 1.25rem;
+	}
+	.legal-body :global(.legal-callout p) { color: var(--color-text-primary); margin: 0; }
+
+	@media (prefers-reduced-motion: reduce) {
+		:global(html) { scroll-behavior: auto; }
+	}
+</style>
+
+<script>
+	// Highlight the on-page-nav link for the section currently in view.
+	const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+	const byId = new Map(links.map((l) => [l.dataset.tocLink!, l]));
+	const sections = links
+		.map((l) => document.getElementById(l.dataset.tocLink!))
+		.filter((el): el is HTMLElement => Boolean(el));
+
+	if (sections.length) {
+		let current = '';
+		const setActive = (id: string) => {
+			if (id === current) return;
+			current = id;
+			links.forEach((l) => l.classList.toggle('is-active', l.dataset.tocLink === id));
+		};
+
+		const obs = new IntersectionObserver(
+			(entries) => {
+				// Pick the top-most section intersecting the upper third of the viewport.
+				const visible = entries
+					.filter((e) => e.isIntersecting)
+					.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+				if (visible[0]) setActive(visible[0].target.id);
+			},
+			{ rootMargin: '-15% 0px -70% 0px', threshold: 0 }
+		);
+		sections.forEach((s) => obs.observe(s));
+
+		// Reflect clicks immediately (before the observer catches up).
+		links.forEach((l) =>
+			l.addEventListener('click', () => setActive(l.dataset.tocLink!))
+		);
+	}
+</script>

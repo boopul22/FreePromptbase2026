@@ -81,8 +81,10 @@ const siteLinks = [
 	{ href: '/liked', label: 'Liked prompts' },
 	{ href: '/account', label: 'Account settings' },
 	{ href: '/about', label: 'About' },
+	{ href: '/contact', label: 'Contact' },
 	{ href: '/privacy', label: 'Privacy' },
 	{ href: '/terms', label: 'Terms' },
+	{ href: '/ai-policy', label: 'AI Policy' },
 	{ href: '/sitemap.xml', label: 'Sitemap' },
 ];
 
@@ -163,10 +165,12 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 
 		<!-- Bottom: copyright + legal/utility strip -->
 		<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-gray-400">
-			<p>© {year} Free Prompt Base. Designed by Bipul.</p>
+			<p>© {year} Free Prompt Base. Designed by Bipul Kumar.</p>
 			<nav aria-label="Legal" class="flex flex-wrap gap-x-6 gap-y-2">
+				<a href="/contact" class="hover:text-primary transition-colors">Contact</a>
 				<a href="/privacy" class="hover:text-primary transition-colors">Privacy</a>
 				<a href="/terms" class="hover:text-primary transition-colors">Terms</a>
+				<a href="/ai-policy" class="hover:text-primary transition-colors">AI Policy</a>
 				<a href="/sitemap.xml" class="hover:text-primary transition-colors">Sitemap</a>
 			</nav>
 		</div>
@@ -273,7 +277,7 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 			}
 			if (btn) { btn.disabled = true; btn.textContent = '...'; }
 			try {
-				const res = await fetch('https://formsubmit.co/ajax/bipul281b@gmail.com', {
+				const res = await fetch('https://formsubmit.co/ajax/blog.boopul@gmail.com', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 					body: JSON.stringify({

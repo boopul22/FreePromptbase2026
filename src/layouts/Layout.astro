@@ -129,6 +129,16 @@ const organizationSchema = {
 			})();
 		</script>
 
+		{/* Google AdSense loader — site-wide on public pages; skipped on
+		   noindex admin/CMS pages so ads never render in the dashboard. */}
+		{!noindex && (
+			<script
+				async
+				src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7803867089582138"
+				crossorigin="anonymous"
+			></script>
+		)}
+
 		<link rel="icon" type="image/svg+xml" href="/logo.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="theme-color" content="#211D16" />
