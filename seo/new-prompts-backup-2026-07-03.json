@@ -1,0 +1,73 @@
+[
+  {
+    "results": [
+      {
+        "slug": "couple-prompt-antique-door",
+        "title": "couple prompt",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      },
+      {
+        "slug": "couple-prompt-daisy-meadow",
+        "title": "couple prompt",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      },
+      {
+        "slug": "couple-prompt-golden-hour",
+        "title": "Golden Hour Couple Portrait – Gemini AI Photo Prompt",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      },
+      {
+        "slug": "couple-prompt-old-town-dance",
+        "title": "couple prompt",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      },
+      {
+        "slug": "couple-prompt-wheat-field",
+        "title": "couple prompt",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      },
+      {
+        "slug": "pixels-in-motion-prompt-sky-vortex",
+        "title": "Pixels in motion prompt",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      },
+      {
+        "slug": "pixels-in-motion-prompt-tropical-shore",
+        "title": "Pixels in motion prompt",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      }
+    ],
+    "success": true,
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "APAC",
+      "served_by_colo": "NRT",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 0.6712
+      },
+      "duration": 0.6712,
+      "changes": 0,
+      "last_row_id": 0,
+      "changed_db": false,
+      "size_after": 1032192,
+      "rows_read": 14,
+      "rows_written": 0,
+      "total_attempts": 1
+    }
+  }
+]

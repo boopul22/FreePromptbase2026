@@ -1,0 +1,70 @@
+Cloudflare agent skills are available for: Claude Code, Cursor, OpenCode, Codex, Continue, Roo. Run wrangler in an interactive terminal to install them, or use `--install-skills` to install without prompting.
+[
+  {
+    "results": [
+      {
+        "slug": "couple-prompt-jkbbuq",
+        "title": "couple prompt ",
+        "status": "approved",
+        "date": "2026-07-03",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      },
+      {
+        "slug": "couple-prompt-pmqefn",
+        "title": "couple prompt",
+        "status": "approved",
+        "date": "2026-07-04",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      },
+      {
+        "slug": "couple-prompt-ulsvee",
+        "title": "couple prompt",
+        "status": "approved",
+        "date": "2026-07-04",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      },
+      {
+        "slug": "couple-prompt-fytqnn",
+        "title": "couple prompt",
+        "status": "approved",
+        "date": "2026-07-05",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      },
+      {
+        "slug": "couple-prompt-uagtso",
+        "title": "couple prompt",
+        "status": "approved",
+        "date": "2026-07-05",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      }
+    ],
+    "success": true,
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "APAC",
+      "served_by_colo": "NRT",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 0.3372
+      },
+      "duration": 0.3372,
+      "changes": 0,
+      "last_row_id": 0,
+      "changed_db": false,
+      "size_after": 1085440,
+      "rows_read": 15,
+      "rows_written": 0,
+      "total_attempts": 1
+    }
+  }
+]

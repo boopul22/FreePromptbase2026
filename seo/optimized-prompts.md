@@ -78,21 +78,44 @@ Title + unique description + how_to_use + tags. `prompt_text` left untouched.
 - [x] pixel-stretch-prompt
 - [x] pixels-in-motion-prompt
 
+## Optimized — batch 2026-07-03 (7 renamed duplicate slugs; all approved + scheduled)
+
+Slugs first made descriptive (keyword-first + a **descriptive word** from the content, never
+numbers or random codes — see `rename-descriptive-slugs-2026-07-03.sql`, supersedes the numeric
+rename of 2026-06-30), then given a full SEO pass: keyword title + unique description +
+how_to_use + tags (`optimize-new-prompts-2026-07-03.sql`). `prompt_text` untouched. All 7 had
+EMPTY description/how_to_use/tags before this pass.
+
+### Couple prompts (target "couple prompt" / "gemini couple photo prompt")
+- [x] couple-prompt-golden-hour *(golden-hour back-hug)*
+- [x] couple-prompt-wheat-field *(South Asian couple, golden wheat field)*
+- [x] couple-prompt-daisy-meadow *(embrace in golden-hour meadow, daisy braid)*
+- [x] couple-prompt-antique-door *(antique European doorway, bougainvillea)*
+- [x] couple-prompt-old-town-dance *(dance on cobblestone street, old-town mosque)*
+
+### Pixels-in-motion / surreal (target "gemini ai photo prompt")
+- [x] pixels-in-motion-prompt-tropical-shore *(tropical shoreline, palm trees)*
+- [x] pixels-in-motion-prompt-sky-vortex *(mossy mountain cliff, glowing sky vortex)*
+
+## Optimized — batch 2026-07-05 (5 newly-scheduled couple prompts)
+
+Same as the 2026-07-03 batch: random-code slugs first made descriptive (keyword-first +
+descriptive word — see `rename-descriptive-slugs-2026-07-05.sql`), then a full SEO pass
+(keyword title + unique description + how_to_use + tags — `optimize-new-prompts-2026-07-05.sql`).
+`prompt_text` untouched. All 5 were approved + scheduled (future dates 2026-07-03..05) with
+EMPTY description/how_to_use and empty tags (`[]`) before this pass.
+
+### Couple prompts (target "couple prompt" / "gemini couple photo prompt")
+- [x] couple-prompt-meadow-lift *(golden-hour lift in a wildflower/daisy meadow)* — was `couple-prompt-fytqnn`
+- [x] couple-prompt-double-exposure *(formal black attire, ghosted double-exposure overlay)* — was `couple-prompt-jkbbuq`
+- [x] couple-prompt-tall-grass *(lying face-to-face in tall golden grass, engagement)* — was `couple-prompt-pmqefn`
+- [x] couple-prompt-park-bench *(vintage cottagecore portrait on a lakeside bench)* — was `couple-prompt-uagtso`
+- [x] couple-prompt-saree-veil *(painterly billowing veil, bindi, amber/terracotta)* — was `couple-prompt-ulsvee`
+
 ## Not yet optimized
-- (none of the genuine prompts as of 2026-06-30)
-
-### Deferred — duplicate submissions, slugs cleaned (2026-06-30)
-Random suffixes removed → clean numeric slugs (see `rename-suffixed-slugs-2026-06-30.sql`).
-Still need full SEO pass (desc + how_to_use + tags); `-5` already has a title.
-- [ ] couple-prompt-2 *(was couple-prompt-bacer6 — South Asian couple, wheat field)*
-- [ ] couple-prompt-3 *(was couple-prompt-bgmswx — couple in golden-hour meadow)*
-- [ ] couple-prompt-4 *(was couple-prompt-fsvoel — EXACT dup of -2: same cover image)*
-- [ ] couple-prompt-5 *(was couple-prompt-vac1w6 — title done: Golden Hour Couple Portrait)*
-- [ ] pixels-in-motion-prompt-2 *(was …-hq9xiu)*
-- [ ] pixels-in-motion-prompt-3 *(was …-p410z5)*
-
-> `couple-prompt-2` and `couple-prompt-4` are exact duplicates (same content + cover) —
-> consider deleting one before the SEO pass.
+- (none of the approved/scheduled prompts as of 2026-07-05 — 0 approved prompts have an empty description or how_to_use)
+- Minor: 8 style/ChatGPT prompts from the 2026-06-24 batch have empty `tags` (`[]`) but full title+desc+how_to_use — tags predate the 2026-06-30 tags workflow; low-priority backfill.
+- ~87 `draft` prompts (all dated 2026-06-05) remain un-optimized but are **not published/scheduled**; separate backlog.
 
 New prompts (submissions/drafts approved after 2026-06-24) land here un-optimized until
 their SEO pass. To list approved prompts and eyeball new ones, run:
@@ -111,4 +134,8 @@ keyword-targeted meta description, and a how_to_use block.
 - `seo/optimize-descriptions-v2-2026-06-24.sql` — unique-description rewrite (supersedes desc above)
 - `seo/optimize-howto-2026-06-24.sql` — how_to_use sections
 - `seo/optimize-new-prompts-2026-06-30.sql` — 2026-06-30 batch (title + desc + how_to_use + tags for 10 new prompts)
+- `seo/rename-descriptive-slugs-2026-07-03.sql` — renamed 7 duplicate slugs to keyword-first + descriptive word (no numbers/codes)
+- `seo/optimize-new-prompts-2026-07-03.sql` — full SEO pass (title + desc + how_to_use + tags) for those 7; backup `seo/new-prompts-backup-2026-07-03.json`
+- `seo/rename-descriptive-slugs-2026-07-05.sql` — renamed 5 random-code couple slugs to keyword-first + descriptive word
+- `seo/optimize-new-prompts-2026-07-05.sql` — full SEO pass (title + desc + how_to_use + tags) for those 5; backup `seo/new-prompts-backup-2026-07-05.json`
 - Backups: `seo/prompts-title-desc-backup-2026-06-24.json`, `seo/prompts-howto-backup-2026-06-24.json`, `seo/new-prompts-backup-2026-06-30.json`
