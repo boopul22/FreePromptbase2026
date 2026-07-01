@@ -9,50 +9,242 @@ const crumb = breadcrumbSchema([
 	{ name: 'Home', path: '/' },
 	{ name: 'About', path: '/about' },
 ]);
+
+// What-you'll-find feature grid.
+const features = [
+	{
+		icon: '🎯',
+		title: 'Ready to use',
+		body: 'Every prompt is written, tested, and formatted so it works the moment you paste it — no rewriting or guesswork.',
+	},
+	{
+		icon: '⚡',
+		title: 'Copy, paste, create',
+		body: 'No signup, no paywall, no friction. Find a prompt, hit copy, and drop it straight into your favourite AI tool.',
+	},
+	{
+		icon: '🗂️',
+		title: 'Organised by need',
+		body: 'Browse by category, by AI tool, or by keyword. Whatever you are trying to make, the right prompt is a click away.',
+	},
+	{
+		icon: '🛠️',
+		title: 'Built for every tool',
+		body: 'Prompts tuned for ChatGPT, Google Gemini, Claude, and Midjourney — from photo edits to writing to code.',
+	},
+	{
+		icon: '🌱',
+		title: 'Always growing',
+		body: 'New prompts are added all the time, and anyone can submit the prompts they love for the whole community to use.',
+	},
+	{
+		icon: '🆓',
+		title: 'Free, forever',
+		body: 'The library is kept free and supported by ads — so great prompts stay open to everyone, not locked behind a fee.',
+	},
+];
 ---
 
-<Layout title="About — Free Prompt Base" description="Free Prompt Base is a community library of ready-to-use AI prompts. Built by Bipul Kumar."
+<Layout
+	title="About Free Prompt Base — Our Vision, Mission & Story"
+	description="Free Prompt Base is a free, curated library of ready-to-use AI prompts for ChatGPT, Gemini, Claude and Midjourney. Learn our vision, mission, and the story behind the site."
 	extraSchemas={[crumb]}
 >
 	<Header />
 	<main class="flex-grow site-main py-12">
 		<Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+
+		<!-- Hero -->
 		<div class="max-w-2xl">
 			<p class="text-xs font-semibold uppercase tracking-[0.18em] text-secondary mb-3">About</p>
 			<h1 class="text-4xl md:text-5xl font-bold tracking-tight text-text-primary leading-[1.1]">
 				About Free Prompt Base
 			</h1>
-			<p class="text-gray-600 text-lg mt-4">
-				Free Prompt Base is a free, curated library of AI prompts, built for the community, by
-				the community. Every prompt is ready to copy and use with ChatGPT, Midjourney, Claude or
-				Gemini.
+			<p class="text-gray-600 text-lg mt-4 leading-relaxed">
+				Free Prompt Base is a free, curated library of ready-to-use AI prompts — built for the
+				community, by the community. Every prompt is ready to copy and use with ChatGPT, Google
+				Gemini, Claude or Midjourney. No signup. No paywall. Just <strong class="text-text-primary"
+					>find a prompt, copy it, create.</strong
+				>
 			</p>
+		</div>
 
-			<div class="mt-6 mb-8 h-px bg-gray-200"></div>
-
-			<div class="prose-like space-y-4 text-gray-600 leading-relaxed">
-			<p>
-				Hi, I'm <strong class="text-text-primary">Bipul Kumar</strong> 👋 — an AI-powered creator,
-				no-code explorer, and disciplined builder. I believe consistency beats talent and action
-				beats intention.
-			</p>
-			<p>
-				I build small apps, tools and websites with AI and no-code, and I share what I learn
-				about prompting, automation and building in public. Free Prompt Base is where I collect
-				the prompts I actually use, so anyone can grab them for free.
-			</p>
-			<p>The idea is simple: <strong class="text-text-primary">find a prompt, copy it, create.</strong></p>
+		<!-- Vision + Mission -->
+		<div class="mt-10 grid gap-4 sm:grid-cols-2 max-w-4xl">
+			<div class="about-panel">
+				<p class="about-eyebrow">Our Vision</p>
+				<p class="about-panel__text">
+					A world where anyone — whatever their budget, background, or technical skill — can
+					create something great with AI. We believe prompting should be an open, shared craft,
+					not a secret that lives behind a paywall.
+				</p>
 			</div>
-
-			<div class="mt-10 flex flex-wrap gap-3">
-				<a href="/categories" class="btn-primary">
-					Browse prompts
-				</a>
-				<a href="/contact" class="btn-secondary">
-					Contact
-				</a>
+			<div class="about-panel">
+				<p class="about-eyebrow">Our Mission</p>
+				<p class="about-panel__text">
+					To make high-quality AI prompts free and effortless to use. We collect, test, and
+					organise the best prompts for today's AI tools, so you can skip the trial-and-error and
+					get straight to creating — one copy-paste at a time.
+				</p>
 			</div>
+		</div>
+
+		<!-- What is Free Prompt Base -->
+		<section class="mt-14 max-w-2xl">
+			<h2 class="about-h2">What is Free Prompt Base?</h2>
+			<div class="prose-like space-y-4 text-gray-600 leading-relaxed mt-4">
+				<p>
+					AI tools are only as good as the prompt you give them. A great prompt turns a blank
+					chat box into a finished poster, a polished email, a working script, or a
+					scroll-stopping photo edit. A weak one leaves you fighting the model and starting over.
+				</p>
+				<p>
+					The problem is that the best prompts are scattered everywhere — buried in videos,
+					locked in paid packs, or lost in someone's screenshots. Free Prompt Base pulls them
+					into one clean, searchable home. Each prompt is spelled out in full, ready to copy,
+					with the context you need to make it work on the first try.
+				</p>
+				<p>
+					Think of it as a shared toolbox for AI creators. Whether you are making images, writing
+					copy, brainstorming ideas, studying, or building a product, there is a starting point
+					here waiting for you.
+				</p>
+			</div>
+		</section>
+
+		<!-- What you'll find -->
+		<section class="mt-14">
+			<h2 class="about-h2 max-w-2xl">What you'll find here</h2>
+			<div class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl">
+				{features.map((f) => (
+					<div class="about-card">
+						<span class="about-card__icon" aria-hidden="true">{f.icon}</span>
+						<h3 class="about-card__title">{f.title}</h3>
+						<p class="about-card__body">{f.body}</p>
+					</div>
+				))}
+			</div>
+		</section>
+
+		<!-- Who it's for -->
+		<section class="mt-14 max-w-2xl">
+			<h2 class="about-h2">Who it's for</h2>
+			<div class="prose-like space-y-4 text-gray-600 leading-relaxed mt-4">
+				<p>
+					Free Prompt Base is for <strong class="text-text-primary">everyone learning to create with AI</strong> —
+					creators and designers chasing a specific look, marketers and founders shipping content
+					fast, students and writers who want a stronger first draft, and curious beginners who
+					just want to see what these tools can do.
+				</p>
+				<p>
+					You don't need to be a "prompt engineer." That's the whole point. We do the fiddly part
+					so you can focus on the idea.
+				</p>
+			</div>
+		</section>
+
+		<!-- Founder story -->
+		<section class="mt-14 max-w-2xl">
+			<h2 class="about-h2">The story behind it</h2>
+			<div class="prose-like space-y-4 text-gray-600 leading-relaxed mt-4">
+				<p>
+					Hi, I'm <strong class="text-text-primary">Bipul Kumar</strong> 👋 — an AI-powered
+					creator, no-code explorer, and disciplined builder. I believe consistency beats talent
+					and action beats intention.
+				</p>
+				<p>
+					I build small apps, tools and websites with AI and no-code, and I share what I learn
+					about prompting, automation and building in public. Free Prompt Base started as my own
+					private stash of prompts that actually worked — the ones I kept reaching for. It grew
+					into this: an open library so anyone can grab them for free, without hunting or paying.
+				</p>
+				<p>
+					The idea is simple: <strong class="text-text-primary">find a prompt, copy it, create.</strong>
+				</p>
+			</div>
+		</section>
+
+		<!-- CTA -->
+		<div class="mt-12 flex flex-wrap gap-3">
+			<a href="/categories" class="btn-primary">Browse prompts</a>
+			<a href="/submit" class="btn-secondary">Submit a prompt</a>
+			<a href="/contact" class="btn-secondary">Contact</a>
 		</div>
 	</main>
 	<Footer />
 </Layout>
+
+<style>
+	.about-h2 {
+		font-family: var(--font-heading);
+		font-size: 1.6rem;
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		color: var(--color-text-primary);
+		line-height: 1.2;
+	}
+
+	.about-eyebrow {
+		font-size: 11px;
+		font-weight: 700;
+		letter-spacing: 0.14em;
+		text-transform: uppercase;
+		color: oklch(0.42 0.07 80);
+		margin-bottom: 0.6rem;
+	}
+
+	/* Vision / Mission highlight panels — soft-yellow brand wash. */
+	.about-panel {
+		background: var(--color-soft);
+		border: 1px solid oklch(0.88 0.07 96);
+		border-radius: 14px;
+		padding: 1.4rem 1.5rem;
+	}
+	.about-panel__text {
+		color: var(--color-text-primary);
+		line-height: 1.65;
+		font-size: 1.02rem;
+	}
+
+	/* Feature cards. */
+	.about-card {
+		background: #fff;
+		border: 1px solid var(--color-outline);
+		border-radius: 14px;
+		padding: 1.25rem 1.35rem;
+		transition: transform 160ms var(--ease-out-quart), box-shadow 160ms var(--ease-out-quart);
+	}
+	.about-card:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 1px 2px rgba(33, 29, 22, 0.05), 0 12px 28px -16px rgba(33, 29, 22, 0.3);
+	}
+	.about-card__icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		border-radius: 10px;
+		background: var(--color-soft);
+		border: 1px solid oklch(0.88 0.07 96);
+		font-size: 1.25rem;
+		margin-bottom: 0.85rem;
+	}
+	.about-card__title {
+		font-family: var(--font-heading);
+		font-size: 1.05rem;
+		font-weight: 700;
+		color: var(--color-text-primary);
+		margin-bottom: 0.35rem;
+	}
+	.about-card__body {
+		font-size: 0.925rem;
+		line-height: 1.6;
+		color: #4b5563;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.about-card { transition: none; }
+		.about-card:hover { transform: none; }
+	}
+</style>
