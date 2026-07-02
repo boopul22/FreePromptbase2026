@@ -4,16 +4,18 @@ interface Props {
 	text: string;
 	/** Optional label override. */
 	label?: string;
+	/** Prompt slug — when set, successful copies are tracked via the copy API. */
+	slug?: string;
 }
 
-const { text, label = 'The prompt' } = Astro.props;
+const { text, label = 'The prompt', slug } = Astro.props;
 
 // Stats shown in the header bar
 const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
 const charCount = text.length;
 ---
 
-<section class="prompt-card rounded-base border border-gray-200 bg-white overflow-hidden" data-copy-root>
+<section class="prompt-card rounded-base border border-gray-200 bg-white overflow-hidden" data-copy-root data-copy-slug={slug}>
 	<!-- Header bar -->
 	<header class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 border-b border-gray-200 bg-soft">
 		<div class="flex items-center gap-3 min-w-0">
@@ -55,7 +57,21 @@ const charCount = text.length;
 		if (!btn || !source || !label) return;
 
 		const text = source.textContent ?? '';
+		const slug = root.dataset.copySlug;
 		let resetTimer: ReturnType<typeof setTimeout> | undefined;
+
+		// Fire-and-forget copy tracking; must never affect the copy UX.
+		function trackCopy() {
+			if (!slug) return;
+			try {
+				fetch(`/api/prompts/${encodeURIComponent(slug)}/copy`, {
+					method: 'POST',
+					keepalive: true,
+				}).catch(() => {});
+			} catch {
+				// ignore
+			}
+		}
 
 		function showCopied(ok: boolean) {
 			label!.textContent = ok ? 'Copied!' : 'Press Ctrl/⌘+C';
@@ -86,6 +102,7 @@ const charCount = text.length;
 					document.body.removeChild(ta);
 				}
 				showCopied(true);
+				trackCopy();
 			} catch {
 				showCopied(false);
 			}

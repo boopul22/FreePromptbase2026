@@ -1,0 +1,231 @@
+---
+export const prerender = false;
+
+import Layout from '../../../layouts/Layout.astro';
+import AdminSidebar from '../../../components/AdminSidebar.astro';
+import { getDB } from '../../../lib/db';
+
+// Copy-tracking stats dashboard. All prompt_events timestamps are UTC;
+// "today"/"yesterday" tiles and the daily chart use IST (UTC+5:30) day
+// boundaries since that's where the admin (and most of the audience) is.
+// istMidnight = the UTC timestamp at which the current IST day began.
+const IST_MIDNIGHT = "datetime(date('now', '+330 minutes'), '-330 minutes')";
+
+interface TopRow {
+	slug: string;
+	title: string;
+	n: number;
+}
+
+let stats = {
+	today: { n: 0, u: 0 },
+	yesterday: { n: 0, u: 0 },
+	week: { n: 0, u: 0 },
+	month: { n: 0, u: 0 },
+	allTime: { n: 0, u: 0 },
+	daily: [] as { d: string; n: number }[],
+	topWeek: [] as TopRow[],
+	topAllTime: [] as TopRow[],
+	todayByKind: {} as Record<string, number>,
+};
+
+try {
+	const db = getDB(Astro.locals);
+	const [today, yesterday, week, month, allTime, daily, topWeek, topAllTime, byKind] =
+		await db.batch<any>([
+			db.prepare(
+				`SELECT COUNT(*) AS n, COUNT(DISTINCT actor_id) AS u FROM prompt_events
+				 WHERE kind = 'copy' AND created_at >= ${IST_MIDNIGHT}`,
+			),
+			db.prepare(
+				`SELECT COUNT(*) AS n, COUNT(DISTINCT actor_id) AS u FROM prompt_events
+				 WHERE kind = 'copy'
+				   AND created_at >= datetime(date('now', '+330 minutes'), '-1 day', '-330 minutes')
+				   AND created_at <  ${IST_MIDNIGHT}`,
+			),
+			db.prepare(
+				`SELECT COUNT(*) AS n, COUNT(DISTINCT actor_id) AS u FROM prompt_events
+				 WHERE kind = 'copy' AND created_at >= datetime('now', '-7 days')`,
+			),
+			db.prepare(
+				`SELECT COUNT(*) AS n, COUNT(DISTINCT actor_id) AS u FROM prompt_events
+				 WHERE kind = 'copy' AND created_at >= datetime('now', '-30 days')`,
+			),
+			db.prepare(
+				`SELECT COUNT(*) AS n, COUNT(DISTINCT actor_id) AS u FROM prompt_events
+				 WHERE kind = 'copy'`,
+			),
+			db.prepare(
+				`SELECT date(created_at, '+330 minutes') AS d, COUNT(*) AS n FROM prompt_events
+				 WHERE kind = 'copy'
+				   AND created_at >= datetime(date('now', '+330 minutes'), '-13 days', '-330 minutes')
+				 GROUP BY d ORDER BY d`,
+			),
+			db.prepare(
+				`SELECT e.prompt_slug AS slug, p.title AS title, COUNT(*) AS n
+				 FROM prompt_events e JOIN prompts p ON p.slug = e.prompt_slug
+				 WHERE e.kind = 'copy' AND e.created_at >= datetime('now', '-7 days')
+				 GROUP BY e.prompt_slug ORDER BY n DESC LIMIT 10`,
+			),
+			db.prepare(
+				`SELECT slug, title, copy_count AS n FROM prompts
+				 WHERE copy_count > 0 ORDER BY copy_count DESC LIMIT 10`,
+			),
+			db.prepare(
+				`SELECT kind, COUNT(*) AS n FROM prompt_events
+				 WHERE created_at >= ${IST_MIDNIGHT} GROUP BY kind`,
+			),
+		]);
+
+	const one = (r: any) => r.results?.[0] ?? { n: 0, u: 0 };
+	stats = {
+		today: one(today),
+		yesterday: one(yesterday),
+		week: one(week),
+		month: one(month),
+		allTime: one(allTime),
+		daily: daily.results ?? [],
+		topWeek: topWeek.results ?? [],
+		topAllTime: topAllTime.results ?? [],
+		todayByKind: Object.fromEntries((byKind.results ?? []).map((r: any) => [r.kind, r.n])),
+	};
+} catch {
+	// New column/kind not migrated yet — render the empty state instead of a 500.
+}
+
+// Fill the last 14 IST days so the chart shows gaps as zero bars.
+const dailyMap = new Map(stats.daily.map((r) => [r.d, r.n]));
+const istNow = new Date(Date.now() + 330 * 60 * 1000);
+const days: { d: string; n: number; label: string }[] = [];
+for (let i = 13; i >= 0; i--) {
+	const dt = new Date(istNow.getTime() - i * 24 * 60 * 60 * 1000);
+	const d = dt.toISOString().slice(0, 10);
+	days.push({ d, n: dailyMap.get(d) ?? 0, label: d.slice(5).replace('-', '/') });
+}
+const maxDay = Math.max(1, ...days.map((x) => x.n));
+
+const tiles = [
+	{ label: 'Copies today', value: stats.today.n, sub: `${stats.today.u} unique ${stats.today.u === 1 ? 'person' : 'people'}`, icon: 'content_copy' },
+	{ label: 'Yesterday', value: stats.yesterday.n, sub: `${stats.yesterday.u} unique`, icon: 'history' },
+	{ label: 'Last 7 days', value: stats.week.n, sub: `${stats.week.u} unique`, icon: 'date_range' },
+	{ label: 'Last 30 days', value: stats.month.n, sub: `${stats.month.u} unique`, icon: 'calendar_month' },
+	{ label: 'All time', value: stats.allTime.n, sub: `${stats.allTime.u} unique`, icon: 'all_inclusive' },
+];
+
+const engagement = [
+	{ label: 'Views', kind: 'view', icon: 'visibility' },
+	{ label: 'Saves', kind: 'save', icon: 'bookmark' },
+	{ label: 'Shares', kind: 'share', icon: 'share' },
+	{ label: 'Copies', kind: 'copy', icon: 'content_copy' },
+];
+---
+
+<Layout title="Stats - Admin - Free Prompt Base" noindex={true}>
+	<div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
+		<AdminSidebar activePage="stats" />
+
+		<main class="flex-1 min-w-0 p-3 sm:p-5 space-y-4 bg-gray-50 md:overflow-y-auto md:h-screen">
+			<!-- Header -->
+			<div>
+				<h1 class="text-lg font-semibold text-text-primary">Copy Stats</h1>
+				<p class="text-xs text-gray-500 mt-0.5">
+					How often visitors copy prompts. Days use IST (UTC+5:30); rapid re-copies by the same person are counted once per minute.
+				</p>
+			</div>
+
+			<!-- Copy tiles -->
+			<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+				{
+					tiles.map((t) => (
+						<div class="bg-white border border-gray-200 rounded-md p-4">
+							<span class="material-symbols-outlined text-primary text-xl">{t.icon}</span>
+							<p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mt-2">{t.label}</p>
+							<p class="text-2xl font-semibold text-text-primary mt-1 tabular-nums">{t.value}</p>
+							<p class="text-[11px] text-gray-500 mt-0.5">{t.sub}</p>
+						</div>
+					))
+				}
+			</div>
+
+			<!-- Daily chart (last 14 days) -->
+			<div class="bg-white border border-gray-200 rounded-md">
+				<div class="p-4 border-b border-gray-200">
+					<h2 class="font-semibold text-base">Copies per day — last 14 days</h2>
+				</div>
+				<div class="p-4">
+					<div class="flex items-end gap-1.5 h-36">
+						{
+							days.map((day) => (
+								<div class="flex-1 flex flex-col items-center gap-1 min-w-0 h-full justify-end" title={`${day.d}: ${day.n} ${day.n === 1 ? 'copy' : 'copies'}`}>
+									<span class="text-[10px] text-gray-500 tabular-nums leading-none">{day.n > 0 ? day.n : ''}</span>
+									<div
+										class="w-full rounded-t bg-primary/80 hover:bg-primary transition-colors"
+										style={`height: ${Math.max(day.n > 0 ? 4 : 2, Math.round((day.n / maxDay) * 100))}px; ${day.n === 0 ? 'background:#e5e7eb;' : ''}`}
+									/>
+									<span class="text-[9px] text-gray-400 leading-none whitespace-nowrap">{day.label}</span>
+								</div>
+							))
+						}
+					</div>
+				</div>
+			</div>
+
+			<!-- Today's engagement (all event kinds) -->
+			<div class="bg-white border border-gray-200 rounded-md">
+				<div class="p-4 border-b border-gray-200">
+					<h2 class="font-semibold text-base">Today's engagement</h2>
+				</div>
+				<div class="grid grid-cols-2 sm:grid-cols-4 divide-x divide-gray-200/70">
+					{
+						engagement.map((e) => (
+							<div class="p-4 flex items-center gap-3">
+								<span class="material-symbols-outlined text-primary text-xl">{e.icon}</span>
+								<div>
+									<p class="text-lg font-semibold text-text-primary tabular-nums leading-tight">{stats.todayByKind[e.kind] ?? 0}</p>
+									<p class="text-[11px] font-semibold uppercase tracking-wide text-gray-500">{e.label}</p>
+								</div>
+							</div>
+						))
+					}
+				</div>
+			</div>
+
+			<!-- Top copied tables -->
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+				{
+					[
+						{ heading: 'Most copied — last 7 days', rows: stats.topWeek },
+						{ heading: 'Most copied — all time', rows: stats.topAllTime },
+					].map((table) => (
+						<div class="bg-white border border-gray-200 rounded-md">
+							<div class="p-4 border-b border-gray-200">
+								<h2 class="font-semibold text-base">{table.heading}</h2>
+							</div>
+							{table.rows.length > 0 ? (
+								<div class="divide-y divide-gray-200/50">
+									{table.rows.map((row, i) => (
+										<a href={`/${row.slug}`} target="_blank" rel="noopener" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+											<span class="text-xs font-semibold text-gray-400 tabular-nums w-5 shrink-0">{i + 1}</span>
+											<div class="flex-1 min-w-0">
+												<p class="font-medium text-sm truncate">{row.title}</p>
+												<p class="text-[11px] text-gray-500 truncate">/{row.slug}</p>
+											</div>
+											<span class="text-sm font-semibold text-text-primary tabular-nums shrink-0">
+												{row.n} <span class="text-[11px] font-normal text-gray-500">{row.n === 1 ? 'copy' : 'copies'}</span>
+											</span>
+										</a>
+									))}
+								</div>
+							) : (
+								<div class="py-10 px-6 text-center text-gray-500">
+									<span class="material-symbols-outlined text-3xl">content_copy</span>
+									<p class="text-xs uppercase tracking-wide mt-2">No copies tracked yet</p>
+								</div>
+							)}
+						</div>
+					))
+				}
+			</div>
+		</main>
+	</div>
+</Layout>

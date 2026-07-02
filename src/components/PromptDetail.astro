@@ -440,7 +440,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 
 		<!-- The prompt + copy (scroll target for the phone hint under the title) -->
 		<div id="the-prompt" class="scroll-mt-24">
-			<CopyPromptButton text={prompt.promptText} />
+			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} />
 			<OpenInTools text={prompt.promptText} />
 		</div>
 
