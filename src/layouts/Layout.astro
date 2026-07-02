@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import IconSprite from '../components/IconSprite.astro';
 
 interface Props {
 	title?: string;
@@ -219,6 +220,7 @@ const organizationSchema = {
 		))}
 	</head>
 	<body class="min-h-screen flex flex-col">
+		<IconSprite />
 		<slot />
 	</body>
 </html>

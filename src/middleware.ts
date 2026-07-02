@@ -7,6 +7,35 @@ import { getNextPublishAt } from './lib/prompts';
 // `middleware.i18n.ts` as a starting point — it adds /{locale}/* prefix
 // redirects and depends on src/i18n/config.ts + src/i18n/utils.ts.
 
+// Paths whose HTML is (or can be) personalized or private — never eligible for
+// the shared edge cache or public cache headers.
+function isPubliclyCacheablePath(path: string): boolean {
+  return (
+    !path.startsWith('/api/') &&
+    !path.startsWith('/admin') &&
+    !path.startsWith('/dashboard') &&
+    path !== '/saved' &&
+    path !== '/liked' &&
+    path !== '/submit' &&
+    !path.startsWith('/submit/') &&
+    path !== '/account' &&
+    !path.startsWith('/account/')
+  );
+}
+
+// Workers' per-colo HTTP cache. `Cloudflare-CDN-Cache-Control` on a Worker
+// response is advisory only — eyeball responses from a Worker never transit
+// Cloudflare's CDN cache, so before this every single page view re-rendered on
+// the origin (~1s TTFB, all D1 queries included). We cache anonymous,
+// non-personalized HTML explicitly and serve hits before any rendering work.
+function getEdgeCache(): Cache | null {
+  try {
+    return (globalThis.caches as unknown as { default?: Cache })?.default ?? null;
+  } catch {
+    return null; // astro dev without a caches global
+  }
+}
+
 export const onRequest = defineMiddleware(async ({ request, cookies, locals, redirect }, next) => {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -96,6 +125,52 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     locals.likedSlugs = new Set();
   }
 
+  // Issue the anon_id cookie if this visitor didn't have one. Long-lived; not
+  // HttpOnly so we could read it client-side if ever needed (server still uses
+  // the same value either way). Never overwrite an existing cookie.
+  const appendAnonCookie = (res: Response) => {
+    if (!setAnonCookie) return;
+    const isSecure = import.meta.env.PROD;
+    const domain = isSecure ? '; Domain=.freepromptbase.com' : '';
+    const maxAge = 60 * 60 * 24 * 365;
+    res.headers.append(
+      'Set-Cookie',
+      `anon_id=${anonId}; SameSite=Lax; Path=/; Max-Age=${maxAge}${isSecure ? '; Secure' : ''}${domain}`,
+    );
+  };
+
+  // Edge-cache lookup. Only fully anonymous renders are shared: no user, no
+  // saves/likes (those personalize the card hearts/bookmarks), a bare GET with
+  // no query string. Query-stringed URLs are skipped so junk params can't fill
+  // the cache with variants.
+  const sharedCacheable =
+    request.method === 'GET' &&
+    !url.search &&
+    !isStaticProxy &&
+    !locals.user &&
+    locals.savedSlugs.size === 0 &&
+    locals.likedSlugs.size === 0 &&
+    isPubliclyCacheablePath(path);
+  const edgeCacheStore = sharedCacheable ? getEdgeCache() : null;
+  if (edgeCacheStore) {
+    try {
+      const hit = await edgeCacheStore.match(url.toString());
+      if (hit) {
+        // Stored copies already carry the security/cache headers set below;
+        // only the per-visitor cookie is added at serve time.
+        const res = new Response(hit.body, hit);
+        res.headers.set('X-Edge-Cache', 'hit');
+        // Stored copies carry s-maxage for the Cache API; browsers must still
+        // always revalidate (a signed-in user shares the URL with anon renders).
+        res.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+        appendAnonCookie(res);
+        return res;
+      }
+    } catch {
+      // Cache unavailable — fall through to a normal render.
+    }
+  }
+
   // /dashboard, /submit, /account — any authenticated user
   const requiresAuth =
     path.startsWith('/dashboard') ||
@@ -130,18 +205,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
 
   const response = await next();
 
-  // Issue the anon_id cookie if this visitor didn't have one. Long-lived; not
-  // HttpOnly so we could read it client-side if ever needed (server still uses
-  // the same value either way). Never overwrite an existing cookie.
-  if (setAnonCookie) {
-    const isSecure = import.meta.env.PROD;
-    const domain = isSecure ? '; Domain=.freepromptbase.com' : '';
-    const maxAge = 60 * 60 * 24 * 365;
-    response.headers.append(
-      'Set-Cookie',
-      `anon_id=${anonId}; SameSite=Lax; Path=/; Max-Age=${maxAge}${isSecure ? '; Secure' : ''}${domain}`,
-    );
-  }
+  appendAnonCookie(response);
 
   // Security headers on every response
   response.headers.set('X-Content-Type-Options', 'nosniff');
@@ -161,18 +225,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
 
   // Public HTML caching — skip API/admin/dashboard. Logged-in users get private,
   // no-cache so personalized nav isn't served from the CDN.
-  if (
-    !path.startsWith('/api/') &&
-    !path.startsWith('/admin') &&
-    !path.startsWith('/dashboard') &&
-    path !== '/saved' &&
-    path !== '/liked' &&
-    path !== '/submit' &&
-    !path.startsWith('/submit/') &&
-    path !== '/account' &&
-    !path.startsWith('/account/') &&
-    response.headers.get('content-type')?.includes('text/html')
-  ) {
+  if (isPubliclyCacheablePath(path) && response.headers.get('content-type')?.includes('text/html')) {
     const hasPersonalization =
       locals.user ||
       (locals.savedSlugs && locals.savedSlugs.size > 0) ||
@@ -187,24 +240,21 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       // prompt) must not be shared across visitors via the CDN cache.
       response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
     } else {
-      // Scheduling-aware CDN TTL. Scheduled prompts have no cron — they go live
+      // Scheduling-aware edge TTL. Scheduled prompts have no cron — they go live
       // purely because this SSR gate (`publish_at <= now`) is re-evaluated per
       // request. A stale cached page would keep hiding a freshly-due prompt, so we
-      // make the cache expire exactly at the next scheduled go-live. This runs only
-      // on cache misses (the worker never executes on CDN hits), so the single
-      // indexed MIN lookup costs nothing on the hot path.
+      // make the cache expire exactly at the next scheduled go-live. This runs
+      // only on cache misses, so the single indexed MIN lookup costs nothing on
+      // the hot path. Default (nothing scheduled within the hour): 1h TTL.
       //
-      // Default (nothing scheduled within the hour): cache 1h with a long
-      // stale-while-revalidate for best performance.
-      // Cache only at the shared CDN, never in the browser. The same URL renders
-      // a personalized header (logged-out button vs avatar), so if the browser
+      // Cache only at the edge, never in the browser. The same URL renders a
+      // personalized header (logged-out button vs avatar), so if the browser
       // kept an anonymous copy (max-age), a visitor who then signs in would keep
       // seeing the logged-out nav until the entry expired or they hard-reloaded.
-      // Browser → always revalidate; CDN → cache via Cloudflare-CDN-Cache-Control
-      // (Cloudflare strips that header before it reaches the client, and edge
-      // requests carrying a session cookie already bypass the cache and re-run
-      // the worker, so signed-in users always get a fresh render).
-      let edgeCache = 'public, s-maxage=3600, stale-while-revalidate=86400';
+      // The actual caching happens via the Cache API put below (see
+      // getEdgeCache); Cloudflare-CDN-Cache-Control is kept as documentation of
+      // intent and for any future move behind the CDN cache proper.
+      let edgeTtl = 3600;
       try {
         const nextPublish = await getNextPublishAt();
         if (nextPublish) {
@@ -212,19 +262,40 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
           const secs = Math.floor((Date.parse(nextPublish.replace(' ', 'T') + 'Z') - Date.now()) / 1000);
           if (Number.isFinite(secs) && secs <= 3600) {
             // A go-live is imminent. Pin freshness to expire right at publish time
-            // and drop stale-while-revalidate entirely, so the cache hard-expires at
-            // the boundary and the very next request renders the new prompt — no
-            // stale-serve window. Floored at 30s to avoid a thundering herd of
-            // origin renders at the instant of go-live.
-            const ttl = Math.max(30, secs);
-            edgeCache = `public, s-maxage=${ttl}`;
+            // so the cache hard-expires at the boundary and the very next request
+            // renders the new prompt — no stale-serve window. Floored at 30s to
+            // avoid a thundering herd of origin renders at the instant of go-live.
+            edgeTtl = Math.max(30, secs);
           }
         }
       } catch {
         // D1 unavailable or query failed — keep the safe 1h default above.
       }
       response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
-      response.headers.set('Cloudflare-CDN-Cache-Control', edgeCache);
+      response.headers.set('Cloudflare-CDN-Cache-Control', `public, s-maxage=${edgeTtl}`);
+
+      // Store the anonymous render in the per-colo edge cache (see the lookup
+      // above). The stored copy drops Set-Cookie (added per visitor at serve
+      // time) and carries an s-maxage the Cache API uses for freshness; browsers
+      // still see max-age=0 so they always revalidate.
+      if (edgeCacheStore && response.status === 200) {
+        try {
+          response.headers.set('X-Edge-Cache', 'miss');
+          const stored = new Response(response.clone().body, response);
+          stored.headers.delete('Set-Cookie');
+          stored.headers.set('Cache-Control', `public, s-maxage=${edgeTtl}`);
+          const put = edgeCacheStore.put(url.toString(), stored).catch(() => {});
+          try {
+            // Astro v6 cloudflare adapter exposes the Workers execution context
+            // as locals.cfContext (locals.runtime.ctx throws a removal error).
+            locals.cfContext.waitUntil(put);
+          } catch {
+            // No execution context (astro dev) — the put still runs, just unanchored.
+          }
+        } catch {
+          // Never let cache writes break the response.
+        }
+      }
     }
   }
 

@@ -25,6 +25,10 @@ declare namespace App {
         waitUntil: (promise: Promise<unknown>) => void;
       };
     };
+    /** Workers execution context (Astro v6 cloudflare adapter). */
+    cfContext: {
+      waitUntil: (promise: Promise<unknown>) => void;
+    };
     user?: {
       id: string;
       googleId: string;
