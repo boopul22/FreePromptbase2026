@@ -1,0 +1,41 @@
+
+ ⛅️ wrangler 4.94.0 (update available 4.107.0)
+──────────────────────────────────────────────
+Resource location: remote 
+
+🌀 Executing on remote database freepromptbase-com (90131e07-7de7-48e7-b8bc-6153b5b105e6):
+🌀 To execute on your local development database, remove the --remote flag from your wrangler command.
+🚣 Executed 1 command in 0.43ms
+[
+  {
+    "results": [
+      {
+        "slug": "couple-prompt-xzsbsw",
+        "title": "couple prompt ",
+        "status": "approved",
+        "date": "2026-07-07",
+        "description": "",
+        "how_to_use": null,
+        "tags": "[]"
+      }
+    ],
+    "success": true,
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "APAC",
+      "served_by_colo": "NRT",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 0.4272
+      },
+      "duration": 0.4272,
+      "changes": 0,
+      "last_row_id": 15,
+      "changed_db": false,
+      "size_after": 1171456,
+      "rows_read": 9,
+      "rows_written": 0,
+      "total_attempts": 1
+    }
+  }
+]

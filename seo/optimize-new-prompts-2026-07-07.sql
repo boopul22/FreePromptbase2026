@@ -1,0 +1,26 @@
+-- SEO pass for the 5 newly-approved couple prompts (2026-07-07) — all approved (dates
+-- 2026-07-06..07), all had EMPTY description/how_to_use and empty tags ('[]').
+-- Touches ONLY SEO fields: title, description (meta), how_to_use (rendered body), tags.
+-- prompt_text is NEVER modified. Keyword targeting per seo/keyword-research.md +
+-- seo/tracklist.md: couple prompt / gemini couple photo prompt / gemini ai photo prompt
+-- (copy paste), Nano Banana, India/SE-Asia. Descriptions are structurally unique (no shared
+-- boilerplate). Backup of prior (empty) values: seo/new-prompts-backup-2026-07-07.json.
+-- Slugs renamed in rename-descriptive-slugs-2026-07-07.sql (run that FIRST).
+
+-- ===== Couple: golden-hour beach backward dip kiss =====
+UPDATE prompts SET title='Beach Dip Kiss Couple – Gemini AI Photo Prompt', description='Gemini AI couple photo prompt — a dramatic golden-hour dip kiss at the water''s edge, white linen and a flowing dress, 35mm film grain and honey tones. Copy, paste in Nano Banana (Gemini) & ChatGPT.', how_to_use='Upload one clear couple photo where both faces show, then copy-paste this couple prompt into Nano Banana (Gemini) or ChatGPT. A vertical frame keeps the backward dip and the ocean bokeh in shot — re-run once if a face softens against the sunset backlight.', tags='["ai photo prompt","gemini prompt","couple prompt","aesthetic prompt","beach prompt"]' WHERE slug='couple-prompt-beach-dip';
+
+-- ===== Couple: mountain valley shoulder-sit / piggyback =====
+UPDATE prompts SET title='Mountain Piggyback Couple – Gemini AI Photo Prompt', description='Gemini AI couple photo prompt — a playful shoulder-sit in a grassy mountain valley, cream knit and cliff backdrop, muted earthy film tones. Copy, paste in Nano Banana (Gemini) & ChatGPT.', how_to_use='Upload one clear couple photo where both faces show, then copy-paste this couple prompt into Nano Banana (Gemini) or ChatGPT. A vertical portrait frame at a slight low angle keeps both faces and the mountain in shot — re-run if the overcast grade dulls the likeness.', tags='["ai photo prompt","gemini prompt","couple prompt","aesthetic prompt","nature prompt"]' WHERE slug='couple-prompt-mountain-piggyback';
+
+-- ===== Couple: golden-hour beach forehead/hair kiss, backlit =====
+UPDATE prompts SET title='Sunset Hair Kiss Couple – Gemini AI Photo Prompt', description='Gemini AI couple photo prompt — a backlit sunset silhouette, him leaning in to kiss the top of her head as she smiles into the light, warm honey haze. Copy, paste in Nano Banana (Gemini) & ChatGPT.', how_to_use='Upload one clear couple photo, then copy-paste this couple prompt into Nano Banana (Gemini) or ChatGPT. Keep both faces visible; a vertical 9:16 frame suits the rim-lit profile pose — re-run once if the overexposed sky washes out a face.', tags='["ai photo prompt","gemini prompt","couple prompt","aesthetic prompt","beach prompt"]' WHERE slug='couple-prompt-beach-hair-kiss';
+
+-- ===== Couple: overhead flat-lay on grass, V-shape, red tulip =====
+UPDATE prompts SET title='Overhead Grass Couple – Gemini AI Photo Prompt', description='Gemini AI couple photo prompt — a top-down flat-lay lying on green grass in a V shape, heads meeting near a red tulip and gingham bandana, warm film grade. Copy, paste in Nano Banana (Gemini) & ChatGPT.', how_to_use='Upload one clear couple photo where both faces show, then copy-paste this couple prompt into Nano Banana (Gemini) or ChatGPT. This is a strict bird''s-eye overhead shot — mention "top-down" if the angle drifts, and re-run once if the two heads merge at the centre.', tags='["ai photo prompt","gemini prompt","couple prompt","aesthetic prompt","flat lay prompt"]' WHERE slug='couple-prompt-overhead-grass';
+
+-- ===== Couple: tennis-court athleisure editorial =====
+UPDATE prompts SET title='Tennis Court Couple – Gemini AI Photo Prompt', description='Gemini AI couple photo prompt — a stylish athleisure-luxury sit on a tennis court, sunglasses, rackets and warm influencer-editorial grade. Copy, paste in Nano Banana (Gemini) & ChatGPT.', how_to_use='Upload one clear couple photo where both faces show, then copy-paste this couple prompt into Nano Banana (Gemini) or ChatGPT. A three-quarter close-medium frame keeps the pose, rackets and court lines in shot — re-run once if the sunglasses hide too much of the face.', tags='["ai photo prompt","gemini prompt","couple prompt","fashion prompt","editorial prompt"]' WHERE slug='couple-prompt-tennis-court';
+
+-- ===== Couple: vintage pickup truck, Americana golden hour (added later same day) =====
+UPDATE prompts SET title='Vintage Truck Couple – Gemini AI Photo Prompt', description='Gemini AI couple photo prompt — a nostalgic Americana portrait leaning on a vintage pickup truck on a dusk gravel road, faded film grain and pastel sunset sky. Copy, paste in Nano Banana (Gemini) & ChatGPT.', how_to_use='Upload one clear couple photo where both faces show, then copy-paste this couple prompt into Nano Banana (Gemini) or ChatGPT. A vertical 2:3 frame keeps the truck, couple and dusk sky in shot — re-run once if the faded film grade dulls the faces.', tags='["ai photo prompt","gemini prompt","couple prompt","aesthetic prompt","vintage prompt"]' WHERE slug='couple-prompt-vintage-truck';

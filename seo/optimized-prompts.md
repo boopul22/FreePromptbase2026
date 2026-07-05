@@ -112,9 +112,53 @@ EMPTY description/how_to_use and empty tags (`[]`) before this pass.
 - [x] couple-prompt-park-bench *(vintage cottagecore portrait on a lakeside bench)* — was `couple-prompt-uagtso`
 - [x] couple-prompt-saree-veil *(painterly billowing veil, bindi, amber/terracotta)* — was `couple-prompt-ulsvee`
 
+## Optimized — batch 2026-07-07 (6 newly-approved couple prompts)
+
+Same as the 2026-07-03/05 batches: random-code slugs first made descriptive (keyword-first +
+descriptive word — see `rename-descriptive-slugs-2026-07-07.sql`), then a full SEO pass
+(keyword title + unique description + how_to_use + tags — `optimize-new-prompts-2026-07-07.sql`).
+`prompt_text` untouched. All 6 were approved (dates 2026-07-06..07) with EMPTY
+description/how_to_use and empty tags (`[]`) before this pass. The 6th (`vintage-truck`) was
+added by a submitter later the same day and folded into the same two SQL files.
+
+### Couple prompts (target "couple prompt" / "gemini couple photo prompt")
+- [x] couple-prompt-beach-dip *(golden-hour beach backward dip kiss, 35mm film)* — was `couple-prompt-87gdtu`
+- [x] couple-prompt-mountain-piggyback *(shoulder-sit in a grassy mountain valley, cream knit)* — was `couple-prompt-dd0sig`
+- [x] couple-prompt-beach-hair-kiss *(backlit sunset silhouette, kiss to top of her head)* — was `couple-prompt-gzhh3d`
+- [x] couple-prompt-overhead-grass *(top-down flat-lay V-pose on grass, red tulip, gingham)* — was `couple-prompt-sfy4ue`
+- [x] couple-prompt-tennis-court *(athleisure-luxury sit on a tennis court, rackets, sunglasses)* — was `couple-prompt-w3ybic`
+- [x] couple-prompt-vintage-truck *(Americana dusk portrait leaning on a vintage pickup)* — was `couple-prompt-xzsbsw`
+
+## Optimized — batch 2026-07-12 (15 newly-approved couple prompts, dates 2026-07-08..12)
+
+Same as the 2026-07-03/05/07 batches: 13 random-code slugs first made descriptive
+(keyword-first + descriptive word — see `rename-descriptive-slugs-2026-07-12.sql`; the other
+2 already had descriptive slugs), then a full SEO pass (keyword title + unique description +
+how_to_use + tags — `optimize-new-prompts-2026-07-12.sql`). `prompt_text` untouched. All 15
+were approved (dates 2026-07-08..12) with EMPTY description/how_to_use and empty tags (`[]`)
+before this pass. The last 2 (`clear-umbrella`, `carousel`) were added by submitters later
+the same day and folded into the same two SQL files.
+
+### Couple prompts (target "couple prompt" / "gemini couple photo prompt")
+- [x] couple-prompt-luxury-car *(dusk lakeside, luxury convertible, black-tie editorial)* — was `couple-prompt-nspwe4`
+- [x] romantic-couple-prompt *(vintage speakeasy billiards room, pool-table flirtation)* — slug already descriptive
+- [x] vintage-editorial-couple-prompt *(1970s Moroccan riad terrace, mosaic wall, sepia film)* — slug already descriptive
+- [x] couple-prompt-vintage-mirror *(ivory saree, earring at ornate mirror, admiring glance)* — was `couple-prompt-ixcel3`
+- [x] couple-prompt-vespa-street *(old European town, cream Vespa, polka-dot romper)* — was `couple-prompt-nw3acr`
+- [x] couple-prompt-yacht-deck *(sailing yacht bow at golden hour, white linen)* — was `couple-prompt-tqwlz3`
+- [x] couple-prompt-rain-kiss *(golden-hour kiss in rain, hidden roses, pink scooter)* — was `couple-prompt-55aqxj`
+- [x] couple-prompt-jasmine-anklet *(haveli archway, jasmine strand tied at her ankle)* — was `couple-prompt-pfztt2`
+- [x] couple-prompt-saree-draping *(getting-ready bedroom, draping the mustard silk saree)* — was `couple-prompt-xeg00u`
+- [x] couple-prompt-ferris-wheel *(carnival dip pose at dusk, illuminated ferris wheel)* — was `couple-prompt-7evkgu`
+- [x] couple-prompt-kulhad-chai *(night ghat steps, kulhad chai, fairy lights)* — was `couple-prompt-f3ihua`
+- [x] couple-prompt-haveli-door *(orange haveli door, fastening her clasp, marigolds)* — was `couple-prompt-hoeehg`
+- [x] couple-prompt-sunflower *(backlit close-up, sunflower + carnation, interlaced hands)* — was `couple-prompt-tiyqfn`
+- [x] couple-prompt-clear-umbrella *(sharing one clear umbrella in gentle garden rain)* — was `couple-prompt-qghtff`
+- [x] couple-prompt-carousel *(vintage carousel at dusk, film-camera candid)* — was `couple-prompt-wxq2cl`
+
 ## Not yet optimized
-- (none of the approved/scheduled prompts as of 2026-07-05 — 0 approved prompts have an empty description or how_to_use)
-- Minor: 8 style/ChatGPT prompts from the 2026-06-24 batch have empty `tags` (`[]`) but full title+desc+how_to_use — tags predate the 2026-06-30 tags workflow; low-priority backfill.
+- (none of the approved/scheduled prompts as of 2026-07-12 — 0 approved prompts have an empty description or how_to_use)
+- Minor: 8 style/ChatGPT prompts from the 2026-06-24 batch have empty `tags` (`[]`) but full title+desc+how_to_use — tags predate the 2026-06-30 tags workflow; low-priority backfill (still 8 as of 2026-07-12).
 - ~87 `draft` prompts (all dated 2026-06-05) remain un-optimized but are **not published/scheduled**; separate backlog.
 
 New prompts (submissions/drafts approved after 2026-06-24) land here un-optimized until
@@ -138,4 +182,8 @@ keyword-targeted meta description, and a how_to_use block.
 - `seo/optimize-new-prompts-2026-07-03.sql` — full SEO pass (title + desc + how_to_use + tags) for those 7; backup `seo/new-prompts-backup-2026-07-03.json`
 - `seo/rename-descriptive-slugs-2026-07-05.sql` — renamed 5 random-code couple slugs to keyword-first + descriptive word
 - `seo/optimize-new-prompts-2026-07-05.sql` — full SEO pass (title + desc + how_to_use + tags) for those 5; backup `seo/new-prompts-backup-2026-07-05.json`
+- `seo/rename-descriptive-slugs-2026-07-07.sql` — renamed 6 random-code couple slugs to keyword-first + descriptive word
+- `seo/optimize-new-prompts-2026-07-07.sql` — full SEO pass (title + desc + how_to_use + tags) for those 6; backup `seo/new-prompts-backup-2026-07-07.json`
+- `seo/rename-descriptive-slugs-2026-07-12.sql` — renamed 13 random-code couple slugs to keyword-first + descriptive word
+- `seo/optimize-new-prompts-2026-07-12.sql` — full SEO pass (title + desc + how_to_use + tags) for 15 new couple prompts; backup `seo/new-prompts-backup-2026-07-12.json`
 - Backups: `seo/prompts-title-desc-backup-2026-06-24.json`, `seo/prompts-howto-backup-2026-06-24.json`, `seo/new-prompts-backup-2026-06-30.json`
