@@ -9,7 +9,17 @@ import { getDB } from '../lib/db';
 export const prerender = false;
 
 const SITE = (import.meta.env.SITE ?? 'https://freepromptbase.com').replace(/\/$/, '');
-const STATIC_PATHS = ['/', '/categories', '/tags', '/blog', '/about', '/privacy', '/terms'];
+const STATIC_PATHS = [
+	'/',
+	'/categories',
+	'/tags',
+	'/blog',
+	'/about',
+	'/contact',
+	'/privacy',
+	'/terms',
+	'/ai-policy',
+];
 
 export const GET: APIRoute = async () => {
 	const tags = getAllTags();

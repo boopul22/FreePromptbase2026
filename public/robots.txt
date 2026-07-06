@@ -4,38 +4,21 @@
 
 User-agent: *
 Allow: /
-Disallow: /admin/
 Disallow: /api/
-Disallow: /account
-Disallow: /saved
-Disallow: /submit
-# On-site search renders client-side over the homepage grid, so /?q=… URLs are
-# duplicates of /. Canonical already collapses them; this also saves crawl budget.
-Disallow: /*?q=
+# User-only, admin, and search-result URLs are crawlable so Google can see their
+# noindex/403 signals and drop any previously indexed copies.
 
 # AI crawlers welcome (GEO / AI citations) — same private-path exclusions apply.
 User-agent: GPTBot
 Allow: /
-Disallow: /admin/
 Disallow: /api/
-Disallow: /account
-Disallow: /saved
-Disallow: /submit
 
 User-agent: ClaudeBot
 Allow: /
-Disallow: /admin/
 Disallow: /api/
-Disallow: /account
-Disallow: /saved
-Disallow: /submit
 
 User-agent: PerplexityBot
 Allow: /
-Disallow: /admin/
 Disallow: /api/
-Disallow: /account
-Disallow: /saved
-Disallow: /submit
 
 Sitemap: https://freepromptbase.com/sitemap.xml

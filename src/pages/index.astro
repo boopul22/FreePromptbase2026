@@ -74,10 +74,12 @@ const homeList = itemListSchema(
 // Preload the first card's cover — it's the LCP element on the home grid.
 // The All tab is the default open tab, so its first card is the LCP element.
 const firstCover = allPage.prompts[0]?.coverImage ?? trendingPrompts[0]?.coverImage;
+const hasQueryString = Astro.url.search !== '';
 ---
 
 <Layout
 	extraSchemas={[homeList]}
+	robots={hasQueryString ? 'noindex, follow' : undefined}
 	preloadImage={firstCover}
 	preloadImageSrcset={firstCover ? cfSrcset(firstCover, [300, 400, 520, 660], 68) : undefined}
 	preloadImageSizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"

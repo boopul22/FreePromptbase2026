@@ -22,6 +22,7 @@ const isAnon = !Astro.locals.user;
 <Layout
 	title="Your saved prompts — Free Prompt Base"
 	description="Prompts you've saved on this device or to your account."
+	noindex={true}
 >
 	<Header />
 	<main class="site-main py-12">
@@ -37,7 +38,7 @@ const isAnon = !Astro.locals.user;
 					isAnon && savedPrompts.length > 0 && (
 						<>
 							{' '}
-							<a href="/api/auth/login" class="text-primary font-medium hover:underline">
+							<a href="/api/auth/login" rel="nofollow" class="text-primary font-medium hover:underline">
 								Sign in
 							</a>{' '}
 							to keep them across devices.

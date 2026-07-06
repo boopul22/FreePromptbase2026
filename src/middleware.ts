@@ -185,10 +185,16 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   if (requiresAuth && !locals.user) {
     if (path.startsWith('/api/')) {
       return new Response(JSON.stringify({ error: 'Authentication required' }), {
-        status: 401, headers: { 'Content-Type': 'application/json' },
+        status: 401,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Robots-Tag': 'noindex, nofollow',
+        },
       });
     }
-    return redirect('/api/auth/login', 302);
+    const authRedirect = redirect('/api/auth/login', 302);
+    authRedirect.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return authRedirect;
   }
 
   // /admin — admin role required
@@ -196,10 +202,17 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     if (!locals.user || locals.user.role !== 'admin') {
       if (path.startsWith('/api/')) {
         return new Response(JSON.stringify({ error: 'Forbidden' }), {
-          status: 403, headers: { 'Content-Type': 'application/json' },
+          status: 403,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Robots-Tag': 'noindex, nofollow',
+          },
         });
       }
-      return new Response('Forbidden', { status: 403 });
+      return new Response('Forbidden', {
+        status: 403,
+        headers: { 'X-Robots-Tag': 'noindex, nofollow' },
+      });
     }
   }
 

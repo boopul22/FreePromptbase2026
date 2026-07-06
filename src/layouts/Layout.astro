@@ -15,6 +15,8 @@ interface Props {
 	ogType?: 'website' | 'article';
 	/** Set to true on admin/CMS pages to add a noindex meta + load Material Symbols. */
 	noindex?: boolean;
+	/** Optional robots meta override for crawlable pages that should not be indexed. */
+	robots?: string;
 	/** LCP image to preload (href fallback). Pair with the srcset/sizes below. */
 	preloadImage?: string;
 	preloadImageSrcset?: string;
@@ -29,6 +31,7 @@ const {
 	ogImage = '/og-default.png',
 	ogType = 'website',
 	noindex = false,
+	robots,
 	preloadImage,
 	preloadImageSrcset,
 	preloadImageSizes,
@@ -70,6 +73,7 @@ const ogImageType = absoluteOgImage
 // we don't know real dimensions, so we skip width/height rather than lie.
 const ogImageKnownSize =
 	!!ogImage && (ogImage === '/og-default.png' || /^\/og\/[^/]+\.svg$/.test(ogImage));
+const robotsContent = noindex ? 'noindex, nofollow' : robots;
 
 // Site-wide WebSite schema with a sitelinks search box action.
 const websiteSchema = {
@@ -189,7 +193,7 @@ const organizationSchema = {
 		}
 		<title>{title}</title>
 
-		{noindex && <meta name="robots" content="noindex, nofollow" />}
+		{robotsContent && <meta name="robots" content={robotsContent} />}
 		{noindex && (
 			<>
 				{/* Admin icon font — loaded non-blocking so it never delays first paint.
