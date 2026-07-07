@@ -18,6 +18,22 @@ declare namespace App {
         R2_BUCKET_NAME: string;
         R2_ENDPOINT: string;
         R2_PUBLIC_URL: string;
+        // Cloudflare Email Sending — newsletter double opt-in (src/lib/subscribers.ts).
+        EMAIL: {
+          send(message: {
+            to: string | string[];
+            from: { email: string; name?: string };
+            replyTo?: string;
+            subject: string;
+            html: string;
+            text: string;
+            headers?: Record<string, string>;
+          }): Promise<{ messageId?: string }>;
+        };
+        EMAIL_FROM: string;
+        EMAIL_FROM_NAME: string;
+        EMAIL_REPLY_TO: string;
+        SITE_URL: string;
         // Optional — only needed if using translate feature
         OPENROUTER_API_KEY?: string;
       };

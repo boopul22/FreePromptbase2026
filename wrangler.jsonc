@@ -4,6 +4,9 @@
 	// assets, with a D1 database binding for prompt content.
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "freepromptbase2026",
+	// The auth token may have access to multiple CF accounts; pin the one that
+	// owns this project's domain/D1/R2/email so wrangler never prompts to choose.
+	"account_id": "ab54ca2d01df4886aa0c3f240ace806d",
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	"compatibility_date": "2026-05-25",
 	"compatibility_flags": ["nodejs_compat"],
@@ -30,6 +33,18 @@
 			"bucket_name": "freepromptbase-media-2026"
 		}
 	],
+	// Cloudflare Email Sending binding — used by src/lib/subscribers.ts as
+	// env.EMAIL.send() to deliver double opt-in + welcome emails. Requires the
+	// sender domain (freepromptbase.com) to be onboarded to Email Sending:
+	//   npx wrangler email sending enable freepromptbase.com
+	// (or onboard it in the Cloudflare dashboard → Email → Email Sending), then
+	// add the DNS records Cloudflare provides. To exercise real sends during local
+	// `wrangler dev`, temporarily add `"remote": true` to this binding (it proxies
+	// to the live service, so it needs a token with email perms — leave it off for
+	// normal builds/deploys).
+	"send_email": [
+		{ "name": "EMAIL" }
+	],
 	"kv_namespaces": [
 		{
 			// Required by @astrojs/cloudflare which auto-enables Astro sessions.
@@ -46,6 +61,14 @@
 		// `${R2_PUBLIC_URL}/${r2_key}` and served via the /cdn/<key> route in
 		// src/pages/cdn/[...key].ts. Keeps every image under the project's
 		// own domain for SEO + branding. Safe to commit; not a secret.
-		"R2_PUBLIC_URL": "https://freepromptbase.com/cdn"
+		"R2_PUBLIC_URL": "https://freepromptbase.com/cdn",
+
+		// Newsletter (Cloudflare Email Service) — the custom branded sender address
+		// and reply-to. EMAIL_FROM's domain must be onboarded to Email Sending.
+		// SITE_URL builds the confirm/unsubscribe links inside emails. Not secrets.
+		"EMAIL_FROM": "updates@freepromptbase.com",
+		"EMAIL_FROM_NAME": "Free Prompt Base",
+		"EMAIL_REPLY_TO": "hello@freepromptbase.com",
+		"SITE_URL": "https://freepromptbase.com"
 	}
 }

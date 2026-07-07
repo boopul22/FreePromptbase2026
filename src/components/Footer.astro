@@ -254,7 +254,9 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 </style>
 
 <script>
-	// Newsletter capture via FormSubmit.co AJAX — no backend required.
+	// Newsletter capture → /api/subscribe (Cloudflare Email Service, double opt-in).
+	// The API stores a pending subscriber and emails a confirmation link; the user
+	// isn't on the list until they click it.
 	document.querySelectorAll<HTMLFormElement>('.footer-news').forEach((form) => {
 		const msg = form.parentElement?.querySelector<HTMLElement>('.footer-news-msg');
 		const input = form.querySelector<HTMLInputElement>('input[name="email"]');
@@ -277,19 +279,17 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 			}
 			if (btn) { btn.disabled = true; btn.textContent = '...'; }
 			try {
-				const res = await fetch('https://formsubmit.co/ajax/blog.boopul@gmail.com', {
+				const res = await fetch('/api/subscribe', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-					body: JSON.stringify({
-						email,
-						_subject: 'New Free Prompt Base subscriber',
-					}),
+					body: JSON.stringify({ email }),
 				});
-				if (!res.ok) throw new Error('Request failed');
-				show('Thanks — you’re on the list.', true);
+				const data = await res.json().catch(() => ({}));
+				if (!res.ok) throw new Error(data?.error || 'Request failed');
+				show(data?.message || 'Almost there — check your inbox to confirm.', true);
 				form.reset();
-			} catch {
-				show('Something went wrong. Please try again.', false);
+			} catch (err) {
+				show(err instanceof Error ? err.message : 'Something went wrong. Please try again.', false);
 			} finally {
 				if (btn) { btn.disabled = false; btn.textContent = 'Join'; }
 			}
