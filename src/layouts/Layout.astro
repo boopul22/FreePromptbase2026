@@ -39,6 +39,17 @@ const {
 
 const siteUrl = (Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '');
 
+// Google truncates meta descriptions around ~160 chars, so clamp anything longer
+// to a clean word boundary (never mid-word) with an ellipsis. Acts as a safety
+// net so hand-written descriptions can't overflow into a truncated SERP snippet.
+const clampDescription = (d: string, max = 158): string => {
+	if (!d || d.length <= max) return d;
+	const cut = d.slice(0, max - 1);
+	const lastSpace = cut.lastIndexOf(' ');
+	return `${(lastSpace > 40 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:.\-–—]+$/, '')}…`;
+};
+const metaDescription = clampDescription(description);
+
 // Normalize the path for canonical/OG: the `file` build format makes
 // Astro.url.pathname end in ".html" (e.g. /cold-email-writer.html), but the
 // served + sitemap URL is clean (/cold-email-writer). Strip index/.html and any
@@ -148,7 +159,7 @@ const organizationSchema = {
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="theme-color" content="#211D16" />
 		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content={description} />
+		<meta name="description" content={metaDescription} />
 		<!-- Pinterest domain claim (HTML-tag method); same hash as the DNS TXT record. -->
 		<meta name="p:domain_verify" content="c4fb2597439177318c1172122d3b49c9" />
 		<link rel="canonical" href={canonical} />
@@ -166,7 +177,7 @@ const organizationSchema = {
 		<meta property="og:type" content={ogType} />
 		<meta property="og:site_name" content="Free Prompt Base" />
 		<meta property="og:title" content={title} />
-		<meta property="og:description" content={description} />
+		<meta property="og:description" content={metaDescription} />
 		<meta property="og:url" content={canonical} />
 		{absoluteOgImage && <meta property="og:image" content={absoluteOgImage} />}
 		{absoluteOgImage && ogImageType && <meta property="og:image:type" content={ogImageType} />}
@@ -176,7 +187,7 @@ const organizationSchema = {
 		<!-- Twitter -->
 		<meta name="twitter:card" content={absoluteOgImage ? 'summary_large_image' : 'summary'} />
 		<meta name="twitter:title" content={title} />
-		<meta name="twitter:description" content={description} />
+		<meta name="twitter:description" content={metaDescription} />
 		{absoluteOgImage && <meta name="twitter:image" content={absoluteOgImage} />}
 
 		{

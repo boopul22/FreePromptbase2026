@@ -1,7 +1,7 @@
 ---
 import type { Prompt, Category } from '../lib/prompts';
 import CategoryIcon from './CategoryIcon.astro';
-import { cfSrcset } from '../lib/cfImage';
+import { cfSrcset, cfImg } from '../lib/cfImage';
 
 interface Props {
 	prompt: Prompt;
@@ -72,7 +72,7 @@ void index;
 		{
 			prompt.coverImage ? (
 				<img
-					src={prompt.coverImage}
+					src={cfImg(prompt.coverImage, 660, 68)}
 					srcset={cfSrcset(prompt.coverImage, [300, 400, 520, 660], 68)}
 					sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
 					alt={prompt.title}
