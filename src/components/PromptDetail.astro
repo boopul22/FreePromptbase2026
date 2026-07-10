@@ -439,6 +439,8 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			</button>
 		</div>
 
+		<AdSlot placement="prompt-above-copy" />
+
 		<!-- The prompt + copy (scroll target for the phone hint under the title) -->
 		<div id="the-prompt" class="scroll-mt-24">
 			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} />
@@ -474,7 +476,6 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			)
 		}
 
-				<AdSlot placement="prompt-below-content" />
 			</div><!-- /right column -->
 		</div><!-- /two-column grid -->
 
