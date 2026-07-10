@@ -5,6 +5,7 @@ import Header from './Header.astro';
 import Footer from './Footer.astro';
 import CopyPromptButton from './CopyPromptButton.astro';
 import OpenInTools from './OpenInTools.astro';
+import AdSlot from './AdSlot.astro';
 import PromptCard from './PromptCard.astro';
 import CategoryIcon from './CategoryIcon.astro';
 import { cfSrcset, cfImg } from '../lib/cfImage';
@@ -473,8 +474,11 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			)
 		}
 
+				<AdSlot placement="prompt-below-content" />
 			</div><!-- /right column -->
 		</div><!-- /two-column grid -->
+
+		<AdSlot placement="prompt-above-related" />
 
 		<script>
 			import { wireSave, wireShare, wireLike, recordView } from '../scripts/social';

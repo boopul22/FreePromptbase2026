@@ -94,6 +94,7 @@ const hasQueryString = Astro.url.search !== '';
 			tab="trending"
 			hidden
 			emptyMessage="No trending prompts yet — heart a few to get this section moving."
+			adPositions={[8, 20]}
 		/>
 		<PromptGrid
 			prompts={recentPrompts}
@@ -101,12 +102,14 @@ const hasQueryString = Astro.url.search !== '';
 			tab="recent"
 			hidden
 			emptyMessage="Nothing here yet. New prompts show up first."
+			adPositions={[8, 20]}
 		/>
 		<PromptGrid
 			prompts={allPage.prompts}
 			categories={categories}
 			tab="all"
 			emptyMessage="No prompts yet."
+			adPositions={[8, 20]}
 		/>
 		<!-- Pagination for the All tab (shown/hidden with it). The button carries
 		     the keyset cursor; clicking it fetches the next page from
@@ -199,6 +202,9 @@ const hasQueryString = Astro.url.search !== '';
 			wireSave();
 			wireLike();
 			wireShare();
+			// Fragment scripts never execute via insertAdjacentHTML — hand any
+			// appended ad boxes to the page-level observer instead.
+			(window as any).__fpbAdsObserve?.();
 			loadMore.dataset.cursor = next;
 			if (!next) {
 				loadMoreWrap?.classList.add('hidden');
@@ -230,6 +236,10 @@ const hasQueryString = Astro.url.search !== '';
 			const match = !q || (el.dataset.search ?? '').includes(q);
 			el.classList.toggle('hidden', !match);
 			if (match) visible++;
+		});
+		// Ad cards don't match searches — hide them whenever a filter is active.
+		grid.querySelectorAll<HTMLElement>('[data-ad-card]').forEach((el) => {
+			el.classList.toggle('hidden', !!q);
 		});
 		emptyState?.classList.toggle('hidden', visible !== 0);
 	}

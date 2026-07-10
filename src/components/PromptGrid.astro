@@ -1,5 +1,6 @@
 ---
 import PromptCard from './PromptCard.astro';
+import AdSlot from './AdSlot.astro';
 import type { Prompt, Category } from '../lib/prompts';
 import { getPromptOfTheDaySlug } from '../lib/prompts';
 
@@ -12,9 +13,11 @@ interface Props {
 	hidden?: boolean;
 	/** Optional empty-state message rendered when the prompts array is empty. */
 	emptyMessage?: string;
+	/** 1-based card positions after which an in-feed ad card is inserted. */
+	adPositions?: number[];
 }
 
-const { prompts, categories, tab, hidden = false, emptyMessage } = Astro.props;
+const { prompts, categories, tab, hidden = false, emptyMessage, adPositions = [] } = Astro.props;
 const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
 // View-driven Prompt of the Day — memoized in the data layer, so multiple grids
 // on one page resolve to the same winner without re-querying.
@@ -29,13 +32,18 @@ const potdSlug = await getPromptOfTheDaySlug();
 >
 	{
 		prompts.map((prompt, i) => (
-			<PromptCard
-				prompt={prompt}
-				category={categoryBySlug.get(prompt.category)}
-				priority={!hidden && i === 0}
-				index={i}
-				isPotd={prompt.slug === potdSlug}
-			/>
+			<>
+				<PromptCard
+					prompt={prompt}
+					category={categoryBySlug.get(prompt.category)}
+					priority={!hidden && i === 0}
+					index={i}
+					isPotd={prompt.slug === potdSlug}
+				/>
+				{adPositions.includes(i + 1) && i + 1 < prompts.length && (
+					<AdSlot placement="infeed-card" variant="card" />
+				)}
+			</>
 		))
 	}
 </section>

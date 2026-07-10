@@ -1,0 +1,89 @@
+---
+import { ADS_ENABLED, AD_CLIENT, AD_SLOTS, type AdPlacement } from '../lib/ads';
+
+// One AdSense placement. The server renders only an empty labelled box; the
+// <ins> is created client-side when the box scrolls near the viewport. That
+// ordering matters: adsbygoogle.push({}) always fills the FIRST unprocessed
+// <ins> in DOM order, so a server-rendered <ins> inside a hidden home-tab grid
+// would swallow a push meant for a visible slot (availableWidth=0 errors).
+// Creating the <ins> only for boxes that actually intersect keeps hidden and
+// far-below-fold slots out of Google's queue entirely, and lets load-more
+// fragments (inert scripts) be adopted by the page-level observer.
+interface Props {
+	placement: AdPlacement;
+	/** 'card' renders with PromptCard chrome for masonry in-feed slots. */
+	variant?: 'card';
+	class?: string;
+}
+const { placement, variant, class: className } = Astro.props;
+const cfg = AD_SLOTS[placement];
+const enabled = ADS_ENABLED && !!cfg.slot && (cfg.format !== 'in-feed' || !!cfg.layoutKey);
+---
+
+{
+	enabled && (
+		<div
+			class:list={['ad-slot', variant === 'card' && 'ad-slot--card masonry-item', className]}
+			style={`min-height:${cfg.minHeight}px`}
+			data-ad-box
+			data-ad-card={variant === 'card' ? '' : undefined}
+			data-client={AD_CLIENT}
+			data-slot={cfg.slot}
+			data-format={cfg.format}
+			data-layout-key={cfg.layoutKey}
+		>
+			<span class="ad-slot__label">Advertisement</span>
+		</div>
+	)
+}
+
+<script>
+	// Shared lazy initialiser — Astro dedupes this script to one copy per page.
+	// window.__fpbAdsObserve() is idempotent and re-callable after DOM inserts
+	// (the homepage calls it after appending load-more fragments).
+	function buildIns(box: HTMLElement): HTMLElement {
+		const ins = document.createElement('ins');
+		ins.className = 'adsbygoogle';
+		ins.style.display = 'block';
+		ins.dataset.adClient = box.dataset.client!;
+		ins.dataset.adSlot = box.dataset.slot!;
+		if (box.dataset.format === 'in-article') {
+			ins.style.textAlign = 'center';
+			ins.dataset.adFormat = 'fluid';
+			ins.dataset.adLayout = 'in-article';
+		} else if (box.dataset.format === 'in-feed') {
+			ins.dataset.adFormat = 'fluid';
+			ins.dataset.adLayoutKey = box.dataset.layoutKey!;
+		} else {
+			ins.dataset.adFormat = 'auto';
+			ins.dataset.fullWidthResponsive = 'true';
+		}
+		return ins;
+	}
+
+	const io = new IntersectionObserver(
+		(entries) => {
+			for (const entry of entries) {
+				if (!entry.isIntersecting) continue;
+				io.unobserve(entry.target);
+				const box = entry.target as HTMLElement;
+				box.appendChild(buildIns(box));
+				try {
+					((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+				} catch {
+					// adsbygoogle.js blocked or errored — the slot stays empty and
+					// the unfilled-collapse CSS hides the box.
+				}
+			}
+		},
+		{ rootMargin: '400px 0px' },
+	);
+
+	(window as any).__fpbAdsObserve = () => {
+		document.querySelectorAll<HTMLElement>('[data-ad-box]:not([data-observed])').forEach((box) => {
+			box.dataset.observed = '1';
+			io.observe(box);
+		});
+	};
+	(window as any).__fpbAdsObserve();
+</script>

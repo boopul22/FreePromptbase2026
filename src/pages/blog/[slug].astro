@@ -4,6 +4,8 @@ import Breadcrumb from '../../components/Breadcrumb.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
 import BlogShare from '../../components/BlogShare.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { splitAtNthH2 } from '../../lib/ads';
 import { getPostBySlug, getRelatedPosts, postReadTime } from '../../lib/posts';
 import { breadcrumbSchema, publisherBlock } from '../../lib/seo';
 import { cfSrcset } from '../../lib/cfImage';
@@ -175,6 +177,9 @@ const withPrompts = renderBlockquotePrompts(renderPromptBlocks(builtHtml));
 // page doesn't eagerly fetch 20 MB of images on load. Only images without an
 // explicit loading attr are touched.
 const bodyHtml = withPrompts.replace(/<img(?![^>]*\bloading=)/gi, '<img loading="lazy" decoding="async"');
+// Mid-article ad: split after the TOC/prompt-card transforms so heading ids
+// stay intact. Falls back to the unsplit body on short posts.
+const articleParts = splitAtNthH2(bodyHtml, 3);
 
 // Strip HTML to plain text for articleBody + wordCount. Truncate body so the
 // JSON-LD payload stays small while still giving AI engines enough to cite.
@@ -373,7 +378,19 @@ const breadcrumb = breadcrumbSchema([
 				}
 
 				<!-- Body -->
-				<div class="prose-blog" set:html={bodyHtml} />
+				<div class="prose-blog">
+					{
+						articleParts ? (
+							<>
+								<Fragment set:html={articleParts[0]} />
+								<AdSlot placement="blog-article-mid" />
+								<Fragment set:html={articleParts[1]} />
+							</>
+						) : (
+							<Fragment set:html={bodyHtml} />
+						)
+					}
+				</div>
 
 				<!-- Mobile share (rail covers lg+) -->
 				<div class="lg:hidden mt-12 pt-7 border-t border-[var(--hairline)]">
@@ -398,6 +415,8 @@ const breadcrumb = breadcrumbSchema([
 						<svg class="w-4 h-4 transition-transform duration-300 ease-out group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
 					</a>
 				</aside>
+
+				<AdSlot placement="blog-end" />
 
 				<!-- FAQ -->
 				{

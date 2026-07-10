@@ -4,6 +4,8 @@ import Breadcrumb from './Breadcrumb.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import PromptGrid from './PromptGrid.astro';
+import AdSlot from './AdSlot.astro';
+import { splitAtNthH2 } from '../lib/ads';
 import { getAllCategories, getAllTags, getPromptsByTag } from '../lib/prompts';
 import type { Tag } from '../lib/prompts';
 import { getTagArticle } from '../lib/tagArticles';
@@ -71,6 +73,10 @@ const faqs =
 		},
 	];
 
+// Mid-article ad: split the authored body before its 3rd h2 so the unit sits
+// between sections. Falls back to the unsplit body on short articles.
+const articleParts = splitAtNthH2(bodyHtml, 3);
+
 const title = `${name} — Free Prompts to Copy & Paste | Free Prompt Base`;
 // Prefer the authored meta description (its opening uses the main keyword);
 // fall back to the keyword's templated description.
@@ -127,7 +133,7 @@ const faqSchema = {
 
 		{
 			prompts.length > 0 ? (
-				<PromptGrid prompts={prompts} categories={categories} />
+				<PromptGrid prompts={prompts} categories={categories} adPositions={[8]} />
 			) : (
 				<p class="text-center text-gray-500 py-16">No prompts here yet. Check back soon!</p>
 			)
@@ -152,7 +158,19 @@ const faqSchema = {
 				Everything about {lowerPl}
 			</h2>
 
-			<div class="kw-article" set:html={bodyHtml} />
+			<div class="kw-article">
+				{
+					articleParts ? (
+						<>
+							<Fragment set:html={articleParts[0]} />
+							<AdSlot placement="tag-article-mid" />
+							<Fragment set:html={articleParts[1]} />
+						</>
+					) : (
+						<Fragment set:html={bodyHtml} />
+					)
+				}
+			</div>
 
 			<!-- FAQ -->
 			<div class="mt-16 pt-12 border-t border-gray-200">
@@ -180,6 +198,8 @@ const faqSchema = {
 				</div>
 			</div>
 		</section>
+
+		<AdSlot placement="tag-after-faq" />
 
 		<!-- Related keywords -->
 		<section class="mt-16 pt-12 border-t border-gray-200">
