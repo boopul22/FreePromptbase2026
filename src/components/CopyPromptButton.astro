@@ -7,11 +7,11 @@ interface Props {
 	/** Prompt slug — when set, successful copies are tracked via the copy API. */
 	slug?: string;
 	/**
-	 * Rewarded-ad copy gate: the first Copy click on a page view releases the
-	 * AdSense Offerwall (held back by Layout's controlledMessagingFunction) and
-	 * copies once the visitor finishes the ad. Fails open — if the Offerwall
-	 * doesn't appear (no inventory, ad blocker, script blocked), copy proceeds.
-	 * Requires the page to be rendered with Layout's `copyGate` prop.
+	 * Rewarded-ad copy gate (promptplum-style): the prompt renders half-hidden
+	 * behind a blur veil and the copy button is locked. Unlocking tries, in
+	 * order: a GAM rewarded ad (on-demand, GPT) → the held AdSense Offerwall →
+	 * fail open (reveal without an ad) so nobody is ever locked out by ad
+	 * blockers or no-fill. Requires Layout's `copyGate` prop on the page.
 	 */
 	adGate?: boolean;
 }
@@ -21,141 +21,260 @@ const { text, label = 'The prompt', slug, adGate = false } = Astro.props;
 // Stats shown in the header bar
 const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
 const charCount = text.length;
+
+// Don't gate short prompts — there'd be nothing left to half-hide and the
+// veil card would cover the whole box.
+const shouldGate = adGate && charCount > 280;
+
+// GAM rewarded slot ("fpb-reward" ad unit, fluid, reward 1×"reward").
+const REWARD_SLOT = '/23360694095/fpb-reward';
+
+// Arms the gate synchronously right after the section is parsed, so no-JS
+// visitors and crawlers always get the full prompt while browsers gate every
+// page view. Frontmatter string + set:html because the Astro compiler mangles
+// raw script bodies inside template expressions.
+const gateArm = `(function () {
+	var el = document.currentScript.previousElementSibling;
+	if (el) el.setAttribute('data-gate-on', '');
+})();`;
 ---
 
-<!-- The prompt is fully visible; monetization happens on the Copy click via
-     the AdSense Offerwall (promptplum-style rewarded unlock, see adGate). -->
 <section
-	class="prompt-card rounded-base border border-gray-200 bg-white overflow-hidden"
 	data-copy-root
 	data-copy-slug={slug}
-	data-ad-gate={adGate ? '' : undefined}
+	data-reward-slot={shouldGate ? REWARD_SLOT : undefined}
 >
-	<!-- Header bar -->
-	<header class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 border-b border-gray-200 bg-soft">
-		<div class="flex items-center gap-3 min-w-0">
-			<h2 class="text-xs font-semibold uppercase tracking-wide text-text-primary m-0">{label}</h2>
-			<span class="hidden sm:flex items-center gap-2 text-xs text-gray-500">
-				<span>{wordCount} {wordCount === 1 ? 'word' : 'words'}</span>
-				<span aria-hidden="true">·</span>
-				<span>{charCount} chars</span>
-			</span>
-		</div>
-		<button
-			type="button"
-			class="copy-btn btn-feedback btn-primary btn-sm inline-flex items-center gap-2"
-			data-copy-btn
-			aria-live="polite"
-		>
-			<svg class="copy-icon-copy w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-					d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-			</svg>
-			<svg class="copy-icon-done hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-				<polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" points="20 6 9 17 4 12" />
-			</svg>
-			<svg class="copy-icon-spin hidden w-4 h-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
-				<path stroke-linecap="round" d="M21 12a9 9 0 1 1-6.219-8.56" />
-			</svg>
-			<span class="copy-label">Copy</span>
-		</button>
-	</header>
+	<div class="prompt-card rounded-base border border-gray-200 bg-white overflow-hidden">
+		<!-- Header bar -->
+		<header class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 border-b border-gray-200 bg-soft">
+			<div class="flex items-center gap-3 min-w-0">
+				<h2 class="text-xs font-semibold uppercase tracking-wide text-text-primary m-0">{label}</h2>
+				<span class="hidden sm:flex items-center gap-2 text-xs text-gray-500">
+					<span>{wordCount} {wordCount === 1 ? 'word' : 'words'}</span>
+					<span aria-hidden="true">·</span>
+					<span>{charCount} chars</span>
+				</span>
+			</div>
+			{
+				shouldGate && (
+					<button
+						type="button"
+						class="gate-lock-btn btn-feedback btn-primary btn-sm items-center gap-2"
+						data-gate-open
+					>
+						<svg class="gate-ico-lock w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+						</svg>
+						<svg class="gate-ico-spin hidden w-4 h-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+							<path stroke-linecap="round" d="M21 12a9 9 0 1 1-6.219-8.56" />
+						</svg>
+						<span class="gate-open-label">Unlock to copy</span>
+					</button>
+				)
+			}
+			<button
+				type="button"
+				class="copy-btn btn-feedback btn-primary btn-sm inline-flex items-center gap-2"
+				data-copy-btn
+				aria-live="polite"
+			>
+				<svg class="copy-icon-copy w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+				</svg>
+				<svg class="copy-icon-done hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+					<polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" points="20 6 9 17 4 12" />
+				</svg>
+				<span class="copy-label">Copy</span>
+			</button>
+		</header>
 
-	<!-- Prompt body — dark, monospace, scrollable -->
-	<pre class="prompt-box px-4 sm:px-5 py-4 sm:py-5 m-0 overflow-x-auto rounded-none border-0" data-copy-text>{text}</pre>
+		<!-- Prompt body — dark, monospace, scrollable. When the gate is on, the
+		     wrapper clips the box to ~half height and the veil (gradient + blur +
+		     CTA card) sits on top. The full text is always in the DOM for
+		     crawlers and no-JS visitors. -->
+		<div data-gate-clip>
+			<pre class="prompt-box px-4 sm:px-5 py-4 sm:py-5 m-0 overflow-x-auto rounded-none border-0" data-copy-text>{text}</pre>
+			{
+				shouldGate && (
+					<div class="gate-veil" data-nosnippet>
+						<div class="gate-cta">
+							<span class="gate-cta__badge" aria-hidden="true">
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+								</svg>
+							</span>
+							<p class="gate-cta__title">The full prompt is locked</p>
+							<p class="gate-cta__sub">Watch a short ad to reveal the whole prompt and unlock the copy button. Ads keep every prompt here free.</p>
+							<button type="button" class="btn-primary w-full justify-center" data-gate-open>
+								<span class="gate-open-label">Unlock full prompt</span>
+							</button>
+							<span class="gate-cta__hint">Free · takes a few seconds</span>
+						</div>
+					</div>
+				)
+			}
+		</div>
+	</div>
 </section>
+{shouldGate && <script is:inline set:html={gateArm} />}
 
 <script>
+	// Rewarded unlock chain — GAM rewarded ad first, held AdSense Offerwall as
+	// fallback demand, and fail-open (reveal without an ad) last so ad blockers
+	// or no-fill can never dead-lock the prompt. 'closed' means the visitor
+	// dismissed the rewarded ad before earning the reward: stay locked.
+	type RewardResult = 'granted' | 'closed' | 'nofill';
+
+	function tryRewarded(slotPath: string): Promise<RewardResult> {
+		const g = (window as any).googletag;
+		if (!g || !g.cmd) return Promise.resolve('nofill');
+		return new Promise((resolve) => {
+			let slot: any = null;
+			let done = false;
+			const finish = (r: RewardResult) => {
+				if (done) return;
+				done = true;
+				clearTimeout(fillTimer);
+				try {
+					if (slot) g.destroySlots([slot]);
+				} catch {
+					/* ignore */
+				}
+				resolve(r);
+			};
+			// If no ad arrives quickly, treat as no-fill and move on.
+			const fillTimer = setTimeout(() => finish('nofill'), 8000);
+			g.cmd.push(() => {
+				try {
+					slot = g.defineOutOfPageSlot(slotPath, g.enums.OutOfPageFormat.REWARDED);
+					if (!slot) {
+						finish('nofill');
+						return;
+					}
+					slot.addService(g.pubads());
+					g.pubads().addEventListener('rewardedSlotReady', (ev: any) => {
+						if (ev.slot === slot && !done) ev.makeRewardedVisible();
+					});
+					g.pubads().addEventListener('rewardedSlotGranted', (ev: any) => {
+						if (ev.slot === slot) finish('granted');
+					});
+					g.pubads().addEventListener('rewardedSlotClosed', (ev: any) => {
+						if (ev.slot === slot) finish('closed');
+					});
+					g.pubads().addEventListener('slotRenderEnded', (ev: any) => {
+						if (ev.slot === slot && ev.isEmpty) finish('nofill');
+					});
+					g.enableServices();
+					g.display(slot);
+				} catch {
+					finish('nofill');
+				}
+			});
+		});
+	}
+
+	function waitFor(cond: () => boolean, timeoutMs: number): Promise<boolean> {
+		return new Promise((resolve) => {
+			if (cond()) return resolve(true);
+			const t0 = Date.now();
+			const iv = setInterval(() => {
+				if (cond()) {
+					clearInterval(iv);
+					resolve(true);
+				} else if (Date.now() - t0 > timeoutMs) {
+					clearInterval(iv);
+					resolve(false);
+				}
+			}, 250);
+		});
+	}
+
+	// Any Privacy & messaging surface (the Offerwall) renders in an fc-* root.
+	function wallVisible(): boolean {
+		const nodes = document.querySelectorAll<HTMLElement>(
+			'.fc-message-root, .fc-consent-root, [class*="fc-monetization"], iframe[src*="fundingchoicesmessages.google.com"]',
+		);
+		for (const el of nodes) {
+			const r = el.getBoundingClientRect();
+			if (r.width > 4 && r.height > 4) return true;
+		}
+		return false;
+	}
+
+	async function tryOfferwall(): Promise<void> {
+		const w = window as any;
+		if (typeof w.__fpbReleaseOfferwall !== 'function') {
+			await waitFor(() => typeof w.__fpbReleaseOfferwall === 'function', 1000);
+		}
+		const release = w.__fpbReleaseOfferwall;
+		if (typeof release !== 'function') return;
+		w.__fpbReleaseOfferwall = undefined;
+		try {
+			release();
+		} catch {
+			return;
+		}
+		const appeared = await waitFor(wallVisible, 4000);
+		if (appeared) await waitFor(() => !wallVisible(), 600000);
+	}
+
 	function initCopy(root: HTMLElement) {
 		const btn = root.querySelector<HTMLButtonElement>('[data-copy-btn]');
 		const source = root.querySelector<HTMLElement>('[data-copy-text]');
 		const label = root.querySelector<HTMLElement>('.copy-label');
 		const iconCopy = root.querySelector<SVGElement>('.copy-icon-copy');
 		const iconDone = root.querySelector<SVGElement>('.copy-icon-done');
-		const iconSpin = root.querySelector<SVGElement>('.copy-icon-spin');
+		const clip = root.querySelector<HTMLElement>('[data-gate-clip]');
+		const openBtns = root.querySelectorAll<HTMLButtonElement>('[data-gate-open]');
 		if (!btn || !source || !label) return;
 
 		const text = source.textContent ?? '';
 		const slug = root.dataset.copySlug;
+		const slotPath = root.dataset.rewardSlot;
 		let resetTimer: ReturnType<typeof setTimeout> | undefined;
-
-		// --- Rewarded-ad gate ------------------------------------------------
-		// One unlock per page view: the first Copy click releases the Offerwall
-		// that Layout's controlledMessagingFunction is holding, then waits for
-		// the visitor to finish the ad. Every guard fails OPEN (copy proceeds)
-		// so ad blockers, no-fill, or API changes can never lock the button.
-		let unlocked = !root.hasAttribute('data-ad-gate');
 		let unlocking = false;
 
-		// The Offerwall (and any other privacy message) renders in an fc-* root
-		// container. "Visible" = it has actual layout, not just DOM presence.
-		function wallVisible(): boolean {
-			const nodes = document.querySelectorAll<HTMLElement>(
-				'.fc-message-root, .fc-consent-root, [class*="fc-monetization"], iframe[src*="fundingchoicesmessages.google.com"]',
-			);
-			for (const el of nodes) {
-				const r = el.getBoundingClientRect();
-				if (r.width > 4 && r.height > 4) return true;
-			}
-			return false;
-		}
+		const gated = () => root.hasAttribute('data-gate-on');
 
-		function waitFor(cond: () => boolean, timeoutMs: number): Promise<boolean> {
-			return new Promise((resolve) => {
-				if (cond()) return resolve(true);
-				const t0 = Date.now();
-				const iv = setInterval(() => {
-					if (cond()) {
-						clearInterval(iv);
-						resolve(true);
-					} else if (Date.now() - t0 > timeoutMs) {
-						clearInterval(iv);
-						resolve(false);
-					}
-				}, 250);
+		function setBusy(on: boolean) {
+			openBtns.forEach((b) => {
+				b.disabled = on;
+				const t = b.querySelector<HTMLElement>('.gate-open-label');
+				if (t) t.textContent = on ? 'Loading ad…' : t.dataset.idle ?? 'Unlock full prompt';
+				b.querySelector('.gate-ico-lock')?.classList.toggle('hidden', on);
+				b.querySelector('.gate-ico-spin')?.classList.toggle('hidden', !on);
 			});
 		}
 
-		function setAdLoading(on: boolean) {
-			btn!.disabled = on;
-			label!.textContent = on ? 'Loading ad…' : 'Copy';
-			iconCopy?.classList.toggle('hidden', on);
-			iconSpin?.classList.toggle('hidden', !on);
+		// Dissolve the veil and expand the clip, then drop the gate state.
+		function reveal() {
+			root.setAttribute('data-gate-unlocking', '');
+			if (clip) clip.style.maxHeight = `${clip.scrollHeight}px`;
+			setTimeout(() => {
+				root.removeAttribute('data-gate-on');
+				root.removeAttribute('data-gate-unlocking');
+				if (clip) clip.style.maxHeight = '';
+			}, 650);
 		}
 
-		async function unlock(): Promise<void> {
-			if (unlocked || unlocking) return;
+		async function unlock(): Promise<boolean> {
+			if (unlocking) return false;
 			unlocking = true;
-			setAdLoading(true);
+			setBusy(true);
 			try {
-				const w = window as any;
-				// The messaging library may not have called our hold function yet
-				// on a very fast click — give it a moment before failing open.
-				if (typeof w.__fpbReleaseOfferwall !== 'function') {
-					await waitFor(() => typeof w.__fpbReleaseOfferwall === 'function', 1500);
+				if (slotPath) {
+					const r = await tryRewarded(slotPath);
+					if (r === 'granted') return true;
+					if (r === 'closed') return false; // dismissed the ad — stay locked
 				}
-				const release = w.__fpbReleaseOfferwall;
-				if (typeof release === 'function') {
-					w.__fpbReleaseOfferwall = undefined;
-					try {
-						release();
-					} catch {
-						/* fail open */
-					}
-					// No inventory / blocked → the wall never appears; move on.
-					const appeared = await waitFor(wallVisible, 4000);
-					if (appeared) {
-						// The Offerwall owns the screen until the ad is done.
-						await waitFor(() => !wallVisible(), 600000);
-					}
-				}
+				await tryOfferwall(); // fallback demand; resolves either way
+				return true; // fail open — never dead-lock the prompt
 			} finally {
-				unlocked = true;
 				unlocking = false;
-				setAdLoading(false);
+				setBusy(false);
 			}
 		}
-		// ---------------------------------------------------------------------
 
 		// Fire-and-forget copy tracking; must never affect the copy UX.
 		function trackCopy() {
@@ -185,10 +304,6 @@ const charCount = text.length;
 		}
 
 		async function copy() {
-			if (!unlocked) {
-				if (unlocking) return;
-				await unlock();
-			}
 			try {
 				if (navigator.clipboard?.writeText) {
 					await navigator.clipboard.writeText(text);
@@ -209,10 +324,23 @@ const charCount = text.length;
 			}
 		}
 
-		btn.addEventListener('click', copy);
+		openBtns.forEach((b) => {
+			const t = b.querySelector<HTMLElement>('.gate-open-label');
+			if (t) t.dataset.idle = t.textContent ?? '';
+			b.addEventListener('click', async () => {
+				if (!gated()) return;
+				if (await unlock()) {
+					reveal();
+					copy();
+				}
+			});
+		});
+
+		btn.addEventListener('click', () => {
+			if (gated()) return; // locked — the lock button is shown instead
+			copy();
+		});
 	}
 
-	document
-		.querySelectorAll<HTMLElement>('[data-copy-root]')
-		.forEach((root) => initCopy(root));
+	document.querySelectorAll<HTMLElement>('[data-copy-root]').forEach((root) => initCopy(root));
 </script>
