@@ -11,6 +11,7 @@ export const ADS_ENABLED = true;
 export const AD_CLIENT = 'ca-pub-7803867089582138';
 
 export type AdPlacement =
+	| 'prompt-above-copy'
 	| 'prompt-above-related'
 	| 'infeed-card'
 	| 'tag-article-mid'
@@ -28,11 +29,10 @@ export interface AdSlotConfig {
 }
 
 export const AD_SLOTS: Record<AdPlacement, AdSlotConfig> = {
-	// The prompt column itself carries no ad unit: monetized content-gating is
-	// handled by the AdSense Offerwall (Privacy & messaging, rewarded ads),
-	// and the copy gate on prompt pages is a plain tap-to-reveal. The unused
-	// "FPB - Copy gate" (6138440036) and "FPB - Prompt above copy" (1615184167)
-	// units still exist in the dashboard.
+	// Sits between the action row and the (gated) copy card — guaranteed
+	// display fill alongside the rewarded copy gate, which only monetizes when
+	// rewarded inventory exists. ("FPB - Copy gate" 6138440036 stays unused.)
+	'prompt-above-copy': { slot: '1615184167', format: 'display', minHeight: 280 },
 	'prompt-above-related': { slot: '7689637921', format: 'display', minHeight: 100 },
 	'infeed-card': { slot: '9681376442', format: 'in-feed', layoutKey: '-6t+ed+2i-1n-4w', minHeight: 320 },
 	'tag-article-mid': { slot: '5731321905', format: 'in-article', minHeight: 250 },

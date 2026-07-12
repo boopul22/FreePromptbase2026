@@ -440,9 +440,14 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			</button>
 		</div>
 
+		<!-- Guaranteed-fill display unit right above the gated prompt: the
+		     rewarded copy gate below only monetizes when rewarded inventory
+		     exists, so this carries the reliable impressions. -->
+		<AdSlot placement="prompt-above-copy" />
+
 		<!-- The prompt + copy (scroll target for the phone hint under the title).
-		     The prompt is fully visible; the Copy click releases the held
-		     AdSense Offerwall (rewarded ad), then copies. Pairs with Layout's
+		     Half-hidden behind the veil; unlocking runs the rewarded chain
+		     (GAM rewarded → Offerwall → fail open). Pairs with Layout's
 		     copyGate prop above. -->
 		<div id="the-prompt" class="scroll-mt-24">
 			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} adGate />
