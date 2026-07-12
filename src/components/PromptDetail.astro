@@ -439,11 +439,11 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			</button>
 		</div>
 
-		<AdSlot placement="prompt-above-copy" />
-
-		<!-- The prompt + copy (scroll target for the phone hint under the title) -->
+		<!-- The prompt + copy (scroll target for the phone hint under the title).
+		     Gated: half-revealed prompt + ad-supported unlock; the gate panel's ad
+		     is the only ad unit in this column. -->
 		<div id="the-prompt" class="scroll-mt-24">
-			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} />
+			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} gated />
 			<OpenInTools text={prompt.promptText} />
 		</div>
 

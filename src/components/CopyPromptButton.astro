@@ -1,4 +1,6 @@
 ---
+import AdSlot from './AdSlot.astro';
+
 interface Props {
 	/** The prompt text to display and copy. */
 	text: string;
@@ -6,46 +8,128 @@ interface Props {
 	label?: string;
 	/** Prompt slug — when set, successful copies are tracked via the copy API. */
 	slug?: string;
+	/**
+	 * Ad-supported copy gate: the prompt renders half-revealed and the copy
+	 * button stays locked until the visitor sits through a short countdown with
+	 * an ad in view. Unlocks are remembered per prompt for the session.
+	 */
+	gated?: boolean;
 }
 
-const { text, label = 'The prompt', slug } = Astro.props;
+const { text, label = 'The prompt', slug, gated = false } = Astro.props;
 
 // Stats shown in the header bar
 const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
 const charCount = text.length;
+
+// Don't gate short prompts — there'd be nothing left to "half reveal" and the
+// veil card would cover the whole box.
+const shouldGate = gated && charCount > 280;
+const UNLOCK_SECONDS = 5;
+
+// Inline gate-arming script (see the <script is:inline> below). Kept as a
+// frontmatter string + set:html because the Astro compiler mangles raw script
+// bodies that sit inside a template expression.
+const gateInit = `(() => {
+	var el = document.currentScript.previousElementSibling;
+	var on = true;
+	try { on = !sessionStorage.getItem('fpb-unlock:' + (el.getAttribute('data-copy-slug') || '')); } catch (e) {}
+	if (on) el.setAttribute('data-gate-on', '');
+})();`;
 ---
 
-<section class="prompt-card rounded-base border border-gray-200 bg-white overflow-hidden" data-copy-root data-copy-slug={slug}>
-	<!-- Header bar -->
-	<header class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 border-b border-gray-200 bg-soft">
-		<div class="flex items-center gap-3 min-w-0">
-			<h2 class="text-xs font-semibold uppercase tracking-wide text-text-primary m-0">{label}</h2>
-			<span class="hidden sm:flex items-center gap-2 text-xs text-gray-500">
-				<span>{wordCount} {wordCount === 1 ? 'word' : 'words'}</span>
-				<span aria-hidden="true">·</span>
-				<span>{charCount} chars</span>
-			</span>
-		</div>
-		<button
-			type="button"
-			class="copy-btn btn-feedback btn-primary btn-sm inline-flex items-center gap-2"
-			data-copy-btn
-			aria-live="polite"
-		>
-			<svg class="copy-icon-copy w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-					d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-			</svg>
-			<svg class="copy-icon-done hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-				<polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" points="20 6 9 17 4 12" />
-			</svg>
-			<span class="copy-label">Copy</span>
-		</button>
-	</header>
+<section
+	data-copy-root
+	data-copy-slug={slug}
+	data-gate-seconds={shouldGate ? UNLOCK_SECONDS : undefined}
+>
+	<div class="prompt-card rounded-base border border-gray-200 bg-white overflow-hidden">
+		<!-- Header bar -->
+		<header class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 border-b border-gray-200 bg-soft">
+			<div class="flex items-center gap-3 min-w-0">
+				<h2 class="text-xs font-semibold uppercase tracking-wide text-text-primary m-0">{label}</h2>
+				<span class="hidden sm:flex items-center gap-2 text-xs text-gray-500">
+					<span>{wordCount} {wordCount === 1 ? 'word' : 'words'}</span>
+					<span aria-hidden="true">·</span>
+					<span>{charCount} chars</span>
+				</span>
+			</div>
+			{
+				shouldGate && (
+					<button
+						type="button"
+						class="gate-lock-btn btn-feedback btn-primary btn-sm items-center gap-2"
+						data-gate-open
+					>
+						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+							<rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+						</svg>
+						<span>Unlock to copy</span>
+					</button>
+				)
+			}
+			<button
+				type="button"
+				class="copy-btn btn-feedback btn-primary btn-sm inline-flex items-center gap-2"
+				data-copy-btn
+				aria-live="polite"
+			>
+				<svg class="copy-icon-copy w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+						d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+				</svg>
+				<svg class="copy-icon-done hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+					<polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" points="20 6 9 17 4 12" />
+				</svg>
+				<span class="copy-label">Copy</span>
+			</button>
+		</header>
 
-	<!-- Prompt body — dark, monospace, scrollable -->
-	<pre class="prompt-box px-4 sm:px-5 py-4 sm:py-5 m-0 overflow-x-auto rounded-none border-0" data-copy-text>{text}</pre>
+		<!-- Prompt body — dark, monospace, scrollable. When the gate is on, the
+		     wrapper clips the box to ~half height and the veil (gradient + blur +
+		     CTA card) sits on top. The full text is always in the DOM. -->
+		<div data-gate-clip>
+			<pre class="prompt-box px-4 sm:px-5 py-4 sm:py-5 m-0 overflow-x-auto rounded-none border-0" data-copy-text>{text}</pre>
+			{
+				shouldGate && (
+					<div class="gate-veil" data-nosnippet>
+						<div class="gate-cta">
+							<span class="gate-cta__badge" aria-hidden="true">
+								<svg class="w-4.5 h-4.5" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+									<rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+								</svg>
+							</span>
+							<p class="gate-cta__title">The full prompt is locked</p>
+							<p class="gate-cta__sub">Watch a quick ad to reveal the whole prompt and unlock the copy button. It keeps every prompt here free.</p>
+							<button type="button" class="btn-primary w-full justify-center" data-gate-open>
+								Unlock full prompt
+							</button>
+							<span class="gate-cta__hint">Free · takes about {UNLOCK_SECONDS} seconds</span>
+						</div>
+					</div>
+				)
+			}
+		</div>
+	</div>
+
+	{
+		shouldGate && (
+			<div class="gate-panel" data-gate-panel data-nosnippet hidden>
+				<p class="gate-panel__status" data-gate-status aria-live="polite">
+					Unlocking in {UNLOCK_SECONDS}s…
+				</p>
+				<div class="gate-progress" aria-hidden="true">
+					<div class="gate-progress__bar" data-gate-bar />
+				</div>
+				<AdSlot placement="copy-gate" />
+			</div>
+		)
+	}
 </section>
+<!-- Runs synchronously right after the section is parsed (before paint):
+     arms the gate unless this prompt was already unlocked this session.
+     No-JS visitors and crawlers therefore always get the full prompt. -->
+{shouldGate && <script is:inline set:html={gateInit} />}
 
 <script>
 	function initCopy(root: HTMLElement) {
@@ -111,7 +195,72 @@ const charCount = text.length;
 		btn.addEventListener('click', copy);
 	}
 
-	document
-		.querySelectorAll<HTMLElement>('[data-copy-root]')
-		.forEach((root) => initCopy(root));
+	// Copy gate: open the ad panel, run the countdown, then dissolve the veil
+	// and unclip the prompt. The countdown is a fixed timer — it completes even
+	// if the ad is blocked or unfilled, so nobody gets locked out.
+	function initGate(root: HTMLElement) {
+		if (!root.hasAttribute('data-gate-on')) return;
+		const clip = root.querySelector<HTMLElement>('[data-gate-clip]');
+		const panel = root.querySelector<HTMLElement>('[data-gate-panel]');
+		const status = root.querySelector<HTMLElement>('[data-gate-status]');
+		const bar = root.querySelector<HTMLElement>('[data-gate-bar]');
+		const openBtns = root.querySelectorAll<HTMLButtonElement>('[data-gate-open]');
+		const seconds = Math.max(1, Number(root.dataset.gateSeconds) || 5);
+		let started = false;
+
+		function unlock() {
+			root.setAttribute('data-gate-unlocking', '');
+			panel?.classList.add('gate-done');
+			if (status) status.textContent = '✓ Prompt unlocked — thanks for supporting the site!';
+			// Animate the clip open to its real height, then drop the gate state.
+			if (clip) clip.style.maxHeight = `${clip.scrollHeight}px`;
+			setTimeout(() => {
+				root.removeAttribute('data-gate-on');
+				root.removeAttribute('data-gate-unlocking');
+				if (clip) clip.style.maxHeight = '';
+			}, 650);
+			try {
+				sessionStorage.setItem(`fpb-unlock:${root.dataset.copySlug ?? ''}`, '1');
+			} catch {
+				// private mode — the unlock still applies for this page view
+			}
+		}
+
+		function start() {
+			if (started) return;
+			started = true;
+			openBtns.forEach((b) => {
+				b.disabled = true;
+				const t = b.querySelector('span') ?? b;
+				t.textContent = 'Unlocking…';
+			});
+			if (panel) {
+				panel.hidden = false;
+				// The ad box inside the panel is already registered with the lazy
+				// observer; unhiding the panel makes it intersect and load.
+				panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+			}
+			if (bar) {
+				bar.style.transitionDuration = `${seconds}s`;
+				requestAnimationFrame(() => bar.classList.add('gate-progress__bar--run'));
+			}
+			let left = seconds;
+			const tick = setInterval(() => {
+				left -= 1;
+				if (left <= 0) {
+					clearInterval(tick);
+					unlock();
+				} else if (status) {
+					status.textContent = `Unlocking in ${left}s…`;
+				}
+			}, 1000);
+		}
+
+		openBtns.forEach((b) => b.addEventListener('click', start));
+	}
+
+	document.querySelectorAll<HTMLElement>('[data-copy-root]').forEach((root) => {
+		initCopy(root);
+		initGate(root);
+	});
 </script>

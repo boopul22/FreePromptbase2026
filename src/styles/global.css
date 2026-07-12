@@ -469,6 +469,158 @@ a.pill:hover { filter: brightness(0.97); transform: translateY(-1px); }
 }
 
 /* ----------------------------------------------------------------------------
+   Copy gate — ad-supported unlock for the prompt box. All gate chrome is
+   display:none until an inline script stamps [data-gate-on] on the copy root
+   (so no-JS visitors and crawlers always see the full prompt), and everything
+   reverts when the unlock countdown removes the attribute again.
+   -------------------------------------------------------------------------- */
+.gate-lock-btn,
+.gate-veil {
+	display: none;
+}
+[data-gate-clip] {
+	transition: max-height 600ms var(--ease-out-quart);
+}
+
+[data-gate-on] .copy-btn {
+	display: none;
+}
+[data-gate-on] .gate-lock-btn {
+	display: inline-flex;
+}
+/* Clip the prompt to roughly half: the first lines stay readable, the rest
+   fades into the box's own dark tone under a soft blur. */
+[data-gate-on] [data-gate-clip] {
+	position: relative;
+	max-height: 19rem;
+	overflow: hidden;
+}
+[data-gate-on] .gate-veil {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	padding: 1rem 1rem 1.4rem;
+	background: linear-gradient(
+		to bottom,
+		oklch(0.235 0.01 75 / 0) 0%,
+		oklch(0.235 0.01 75 / 0.55) 38%,
+		oklch(0.235 0.01 75 / 0.96) 82%
+	);
+	opacity: 1;
+	transition: opacity 450ms ease;
+}
+/* Blur layer kept on a pseudo-element so the fade mask never eats into the
+   CTA card sitting on top of it. */
+[data-gate-on] .gate-veil::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	backdrop-filter: blur(3px);
+	-webkit-backdrop-filter: blur(3px);
+	mask-image: linear-gradient(to bottom, transparent 0%, #000 40%);
+	-webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 40%);
+}
+[data-gate-on][data-gate-unlocking] .gate-veil {
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* CTA card on the veil — same neobrutalist chrome as the primary buttons. */
+.gate-cta {
+	position: relative;
+	width: min(22rem, 100%);
+	background: #fff;
+	border: 1px solid var(--color-text-primary);
+	border-radius: 12px;
+	box-shadow: 3px 3px 0 0 rgba(33, 29, 22, 0.9);
+	padding: 1.1rem 1.2rem 0.95rem;
+	text-align: center;
+	font-family: var(--font-sans);
+	white-space: normal;
+}
+.gate-cta__badge {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.4rem;
+	height: 2.4rem;
+	margin: 0 auto 0.6rem;
+	border-radius: 999px;
+	background: var(--color-primary);
+	border: 1px solid var(--color-text-primary);
+	color: var(--color-text-primary);
+}
+.gate-cta__title {
+	font-family: var(--font-heading);
+	font-weight: 700;
+	font-size: 1rem;
+	color: var(--color-text-primary);
+	margin: 0 0 0.25rem;
+}
+.gate-cta__sub {
+	font-size: 0.8125rem;
+	line-height: 1.5;
+	color: #6b7280;
+	margin: 0 0 0.85rem;
+}
+.gate-cta__hint {
+	display: block;
+	margin-top: 0.55rem;
+	font-size: 0.6875rem;
+	font-weight: 500;
+	letter-spacing: 0.02em;
+	color: #9ca3af;
+}
+
+/* Unlock panel below the prompt card: countdown + progress + the ad unit.
+   It stays after unlock (the ad shouldn't vanish mid-view); only the copy
+   changes to the unlocked state. */
+[data-gate-panel] {
+	margin-top: 0.85rem;
+	background: #fff;
+	border: 1px solid var(--color-outline);
+	border-radius: var(--radius-base);
+	padding: 0.9rem 1.1rem 1.1rem;
+}
+[data-gate-panel][hidden] {
+	display: none;
+}
+.gate-panel__status {
+	margin: 0;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: var(--color-text-primary);
+}
+.gate-progress {
+	margin-top: 0.6rem;
+	height: 7px;
+	border-radius: 999px;
+	background: var(--color-soft);
+	border: 1px solid var(--color-outline);
+	overflow: hidden;
+}
+.gate-progress__bar {
+	height: 100%;
+	width: 0;
+	background: var(--color-primary);
+	transition-property: width;
+	transition-timing-function: linear;
+}
+.gate-progress__bar--run {
+	width: 100%;
+}
+[data-gate-panel].gate-done .gate-progress__bar {
+	width: 100%;
+	transition: none;
+}
+[data-gate-panel] .ad-slot {
+	margin-block: 0.9rem 0;
+}
+
+/* ----------------------------------------------------------------------------
    Admin UI — Material Symbols icon font. Loaded in Layout.astro via a <link>
    when noindex={true} (admin pages). Rendered as <span class="material-symbols-outlined">name</span>.
    -------------------------------------------------------------------------- */

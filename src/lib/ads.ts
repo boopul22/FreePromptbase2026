@@ -11,7 +11,7 @@ export const ADS_ENABLED = true;
 export const AD_CLIENT = 'ca-pub-7803867089582138';
 
 export type AdPlacement =
-	| 'prompt-above-copy'
+	| 'copy-gate'
 	| 'prompt-above-related'
 	| 'infeed-card'
 	| 'tag-article-mid'
@@ -29,9 +29,10 @@ export interface AdSlotConfig {
 }
 
 export const AD_SLOTS: Record<AdPlacement, AdSlotConfig> = {
-	// Sits between the action row and the copy button — the scroll path to
-	// "Copy prompt" passes through the ad.
-	'prompt-above-copy': { slot: '1615184167', format: 'display', minHeight: 280 },
+	// Shown inside the copy-gate unlock panel while the countdown runs (and it
+	// stays after unlock). This is the only ad in the prompt column — it
+	// replaced the always-on prompt-above-copy display unit.
+	'copy-gate': { slot: '6138440036', format: 'display', minHeight: 250 },
 	'prompt-above-related': { slot: '7689637921', format: 'display', minHeight: 100 },
 	'infeed-card': { slot: '9681376442', format: 'in-feed', layoutKey: '-6t+ed+2i-1n-4w', minHeight: 320 },
 	'tag-article-mid': { slot: '5731321905', format: 'in-article', minHeight: 250 },
