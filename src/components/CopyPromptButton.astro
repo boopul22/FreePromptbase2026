@@ -6,19 +6,31 @@ interface Props {
 	label?: string;
 	/** Prompt slug — when set, successful copies are tracked via the copy API. */
 	slug?: string;
+	/**
+	 * Rewarded-ad copy gate: the first Copy click on a page view releases the
+	 * AdSense Offerwall (held back by Layout's controlledMessagingFunction) and
+	 * copies once the visitor finishes the ad. Fails open — if the Offerwall
+	 * doesn't appear (no inventory, ad blocker, script blocked), copy proceeds.
+	 * Requires the page to be rendered with Layout's `copyGate` prop.
+	 */
+	adGate?: boolean;
 }
 
-const { text, label = 'The prompt', slug } = Astro.props;
+const { text, label = 'The prompt', slug, adGate = false } = Astro.props;
 
 // Stats shown in the header bar
 const wordCount = text.trim().split(/\s+/).filter(Boolean).length;
 const charCount = text.length;
 ---
 
-<!-- Deliberately no gate here: the prompt is fully visible and copy is one
-     click. Monetized content-gating is the AdSense Offerwall's job (Privacy &
-     messaging), which Google injects at page level. -->
-<section class="prompt-card rounded-base border border-gray-200 bg-white overflow-hidden" data-copy-root data-copy-slug={slug}>
+<!-- The prompt is fully visible; monetization happens on the Copy click via
+     the AdSense Offerwall (promptplum-style rewarded unlock, see adGate). -->
+<section
+	class="prompt-card rounded-base border border-gray-200 bg-white overflow-hidden"
+	data-copy-root
+	data-copy-slug={slug}
+	data-ad-gate={adGate ? '' : undefined}
+>
 	<!-- Header bar -->
 	<header class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 border-b border-gray-200 bg-soft">
 		<div class="flex items-center gap-3 min-w-0">
@@ -42,6 +54,9 @@ const charCount = text.length;
 			<svg class="copy-icon-done hidden w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
 				<polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" points="20 6 9 17 4 12" />
 			</svg>
+			<svg class="copy-icon-spin hidden w-4 h-4 animate-spin" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+				<path stroke-linecap="round" d="M21 12a9 9 0 1 1-6.219-8.56" />
+			</svg>
 			<span class="copy-label">Copy</span>
 		</button>
 	</header>
@@ -57,11 +72,90 @@ const charCount = text.length;
 		const label = root.querySelector<HTMLElement>('.copy-label');
 		const iconCopy = root.querySelector<SVGElement>('.copy-icon-copy');
 		const iconDone = root.querySelector<SVGElement>('.copy-icon-done');
+		const iconSpin = root.querySelector<SVGElement>('.copy-icon-spin');
 		if (!btn || !source || !label) return;
 
 		const text = source.textContent ?? '';
 		const slug = root.dataset.copySlug;
 		let resetTimer: ReturnType<typeof setTimeout> | undefined;
+
+		// --- Rewarded-ad gate ------------------------------------------------
+		// One unlock per page view: the first Copy click releases the Offerwall
+		// that Layout's controlledMessagingFunction is holding, then waits for
+		// the visitor to finish the ad. Every guard fails OPEN (copy proceeds)
+		// so ad blockers, no-fill, or API changes can never lock the button.
+		let unlocked = !root.hasAttribute('data-ad-gate');
+		let unlocking = false;
+
+		// The Offerwall (and any other privacy message) renders in an fc-* root
+		// container. "Visible" = it has actual layout, not just DOM presence.
+		function wallVisible(): boolean {
+			const nodes = document.querySelectorAll<HTMLElement>(
+				'.fc-message-root, .fc-consent-root, [class*="fc-monetization"], iframe[src*="fundingchoicesmessages.google.com"]',
+			);
+			for (const el of nodes) {
+				const r = el.getBoundingClientRect();
+				if (r.width > 4 && r.height > 4) return true;
+			}
+			return false;
+		}
+
+		function waitFor(cond: () => boolean, timeoutMs: number): Promise<boolean> {
+			return new Promise((resolve) => {
+				if (cond()) return resolve(true);
+				const t0 = Date.now();
+				const iv = setInterval(() => {
+					if (cond()) {
+						clearInterval(iv);
+						resolve(true);
+					} else if (Date.now() - t0 > timeoutMs) {
+						clearInterval(iv);
+						resolve(false);
+					}
+				}, 250);
+			});
+		}
+
+		function setAdLoading(on: boolean) {
+			btn!.disabled = on;
+			label!.textContent = on ? 'Loading ad…' : 'Copy';
+			iconCopy?.classList.toggle('hidden', on);
+			iconSpin?.classList.toggle('hidden', !on);
+		}
+
+		async function unlock(): Promise<void> {
+			if (unlocked || unlocking) return;
+			unlocking = true;
+			setAdLoading(true);
+			try {
+				const w = window as any;
+				// The messaging library may not have called our hold function yet
+				// on a very fast click — give it a moment before failing open.
+				if (typeof w.__fpbReleaseOfferwall !== 'function') {
+					await waitFor(() => typeof w.__fpbReleaseOfferwall === 'function', 1500);
+				}
+				const release = w.__fpbReleaseOfferwall;
+				if (typeof release === 'function') {
+					w.__fpbReleaseOfferwall = undefined;
+					try {
+						release();
+					} catch {
+						/* fail open */
+					}
+					// No inventory / blocked → the wall never appears; move on.
+					const appeared = await waitFor(wallVisible, 4000);
+					if (appeared) {
+						// The Offerwall owns the screen until the ad is done.
+						await waitFor(() => !wallVisible(), 600000);
+					}
+				}
+			} finally {
+				unlocked = true;
+				unlocking = false;
+				setAdLoading(false);
+			}
+		}
+		// ---------------------------------------------------------------------
 
 		// Fire-and-forget copy tracking; must never affect the copy UX.
 		function trackCopy() {
@@ -91,6 +185,10 @@ const charCount = text.length;
 		}
 
 		async function copy() {
+			if (!unlocked) {
+				if (unlocking) return;
+				await unlock();
+			}
 			try {
 				if (navigator.clipboard?.writeText) {
 					await navigator.clipboard.writeText(text);

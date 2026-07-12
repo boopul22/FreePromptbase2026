@@ -176,6 +176,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 	schema={promptSchema}
 	extraSchemas={[breadcrumb]}
 	ogType="article"
+	copyGate
 	ogImage={heroImage}
 	preloadImage={hasHeroImage ? heroImage : undefined}
 	preloadImageSrcset={hasHeroImage ? cfSrcset(heroImage, [480, 768, 1080]) : undefined}
@@ -440,10 +441,11 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 		</div>
 
 		<!-- The prompt + copy (scroll target for the phone hint under the title).
-		     No gate here — the AdSense Offerwall handles monetized gating at
-		     page level, so copying stays one click. -->
+		     The prompt is fully visible; the Copy click releases the held
+		     AdSense Offerwall (rewarded ad), then copies. Pairs with Layout's
+		     copyGate prop above. -->
 		<div id="the-prompt" class="scroll-mt-24">
-			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} />
+			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} adGate />
 			<OpenInTools text={prompt.promptText} />
 		</div>
 

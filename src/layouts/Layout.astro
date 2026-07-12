@@ -21,6 +21,13 @@ interface Props {
 	preloadImage?: string;
 	preloadImageSrcset?: string;
 	preloadImageSizes?: string;
+	/**
+	 * Copy gate (prompt detail pages): hold the AdSense Offerwall until the
+	 * visitor clicks Copy, instead of letting it fire on page load. On pages
+	 * without this flag the Offerwall is suppressed entirely (consent and other
+	 * privacy messages still show), so browsing stays uninterrupted.
+	 */
+	copyGate?: boolean;
 }
 
 const {
@@ -35,7 +42,32 @@ const {
 	preloadImage,
 	preloadImageSrcset,
 	preloadImageSizes,
+	copyGate = false,
 } = Astro.props;
+
+// Offerwall control — must be defined on window BEFORE adsbygoogle.js loads.
+// The messaging library calls controlledMessagingFunction once per page view;
+// we either park the release (copy-gated pages: CopyPromptButton triggers it on
+// Copy), suppress just the Offerwall (browsing pages), or fail open if the
+// MessageTypeEnum API is ever missing. Kept as a frontmatter string + set:html
+// because the Astro compiler mangles raw script bodies inside expressions.
+const offerwallGateInit = `(function () {
+	var gated = ${copyGate ? 'true' : 'false'};
+	window.googlefc = window.googlefc || {};
+	window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
+	window.googlefc.controlledMessagingFunction = function (message) {
+		if (gated) {
+			window.__fpbReleaseOfferwall = function () { message.proceed(true); };
+			return;
+		}
+		var types = window.googlefc.MessageTypeEnum;
+		if (types && types.OFFERWALL !== undefined) {
+			message.proceed(false, [types.OFFERWALL]);
+		} else {
+			message.proceed(true);
+		}
+	};
+})();`;
 
 const siteUrl = (Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '');
 
@@ -146,7 +178,9 @@ const organizationSchema = {
 		</script>
 
 		{/* Google AdSense loader — site-wide on public pages; skipped on
-		   noindex admin/CMS pages so ads never render in the dashboard. */}
+		   noindex admin/CMS pages so ads never render in the dashboard. The
+		   Offerwall-control script must come first (see offerwallGateInit). */}
+		{!noindex && <script is:inline set:html={offerwallGateInit} />}
 		{!noindex && (
 			<script
 				async
