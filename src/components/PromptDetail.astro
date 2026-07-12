@@ -440,10 +440,10 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 		</div>
 
 		<!-- The prompt + copy (scroll target for the phone hint under the title).
-		     Gated: half-revealed prompt behind a tap-to-reveal veil. Monetized
-		     gating is handled by the AdSense Offerwall at page level. -->
+		     No gate here — the AdSense Offerwall handles monetized gating at
+		     page level, so copying stays one click. -->
 		<div id="the-prompt" class="scroll-mt-24">
-			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} gated />
+			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} />
 			<OpenInTools text={prompt.promptText} />
 		</div>
 
