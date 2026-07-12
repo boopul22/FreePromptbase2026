@@ -144,7 +144,7 @@ const gateArm = `(function () {
 				resolve(r);
 			};
 			// If no ad arrives quickly, treat as no-fill and move on.
-			const fillTimer = setTimeout(() => finish('nofill'), 8000);
+			const fillTimer = setTimeout(() => finish('nofill'), 5000);
 			g.cmd.push(() => {
 				try {
 					slot = g.defineOutOfPageSlot(slotPath, g.enums.OutOfPageFormat.REWARDED);
@@ -202,21 +202,23 @@ const gateArm = `(function () {
 		return false;
 	}
 
-	async function tryOfferwall(): Promise<void> {
+	// Returns true when the Offerwall actually showed (and was completed).
+	async function tryOfferwall(): Promise<boolean> {
 		const w = window as any;
 		if (typeof w.__fpbReleaseOfferwall !== 'function') {
-			await waitFor(() => typeof w.__fpbReleaseOfferwall === 'function', 1000);
+			await waitFor(() => typeof w.__fpbReleaseOfferwall === 'function', 600);
 		}
 		const release = w.__fpbReleaseOfferwall;
-		if (typeof release !== 'function') return;
+		if (typeof release !== 'function') return false;
 		w.__fpbReleaseOfferwall = undefined;
 		try {
 			release();
 		} catch {
-			return;
+			return false;
 		}
-		const appeared = await waitFor(wallVisible, 4000);
+		const appeared = await waitFor(wallVisible, 2500);
 		if (appeared) await waitFor(() => !wallVisible(), 600000);
+		return appeared;
 	}
 
 	function initCopy(root: HTMLElement) {
@@ -237,11 +239,11 @@ const gateArm = `(function () {
 
 		const gated = () => root.hasAttribute('data-gate-on');
 
-		function setBusy(on: boolean) {
+		function setBusy(on: boolean, text = 'Loading ad…') {
 			openBtns.forEach((b) => {
 				b.disabled = on;
 				const t = b.querySelector<HTMLElement>('.gate-open-label');
-				if (t) t.textContent = on ? 'Loading ad…' : t.dataset.idle ?? 'Unlock full prompt';
+				if (t) t.textContent = on ? text : t.dataset.idle ?? 'Unlock full prompt';
 				b.querySelector('.gate-ico-lock')?.classList.toggle('hidden', on);
 				b.querySelector('.gate-ico-spin')?.classList.toggle('hidden', !on);
 			});
@@ -268,8 +270,12 @@ const gateArm = `(function () {
 					if (r === 'granted') return true;
 					if (r === 'closed') return false; // dismissed the ad — stay locked
 				}
-				await tryOfferwall(); // fallback demand; resolves either way
-				return true; // fail open — never dead-lock the prompt
+				if (await tryOfferwall()) return true;
+				// No ad available from any source right now — say so briefly, then
+				// fail open. Never dead-lock the prompt behind missing inventory.
+				setBusy(true, 'No ad right now — unlocking free!');
+				await new Promise((r) => setTimeout(r, 900));
+				return true;
 			} finally {
 				unlocking = false;
 				setBusy(false);
