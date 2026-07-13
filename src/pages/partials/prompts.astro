@@ -11,7 +11,6 @@ export const prerender = false;
 export const partial = true;
 
 import PromptCard from '../../components/PromptCard.astro';
-import AdSlot from '../../components/AdSlot.astro';
 import { getPromptsPage, getAllCategories } from '../../lib/prompts';
 
 const cursor = Astro.url.searchParams.get('cursor');
@@ -29,12 +28,6 @@ Astro.response.headers.set('X-Robots-Tag', 'noindex');
 
 {
 	prompts.map((prompt, i) => (
-		<>
-			<PromptCard prompt={prompt} category={categoryBySlug.get(prompt.category)} index={i} />
-			{/* One in-feed unit per appended page. The fragment's copy of the
-			    AdSlot script is inert (insertAdjacentHTML) — index.astro calls
-			    __fpbAdsObserve() after appending to adopt this box. */}
-			{i === 11 && prompts.length > 12 && <AdSlot placement="infeed-card" variant="card" />}
-		</>
+		<PromptCard prompt={prompt} category={categoryBySlug.get(prompt.category)} index={i} />
 	))
 }
