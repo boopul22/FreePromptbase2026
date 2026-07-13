@@ -21,13 +21,6 @@ interface Props {
 	preloadImage?: string;
 	preloadImageSrcset?: string;
 	preloadImageSizes?: string;
-	/**
-	 * Copy gate (prompt detail pages): hold the AdSense Offerwall until the
-	 * visitor clicks Copy, instead of letting it fire on page load. On pages
-	 * without this flag the Offerwall is suppressed entirely (consent and other
-	 * privacy messages still show), so browsing stays uninterrupted.
-	 */
-	copyGate?: boolean;
 }
 
 const {
@@ -42,29 +35,19 @@ const {
 	preloadImage,
 	preloadImageSrcset,
 	preloadImageSizes,
-	copyGate = false,
 } = Astro.props;
 
 // Offerwall control — must be defined on window BEFORE adsbygoogle.js loads.
 // The messaging library calls controlledMessagingFunction once per page view;
-// we either park the release (copy-gated pages: CopyPromptButton triggers it
-// as the fallback behind GAM rewarded ads), suppress just the Offerwall
-// (browsing pages), or fail open if the MessageTypeEnum API is ever missing.
-// On gated pages the googletag command queue is also bootstrapped for the
-// GPT rewarded slot. Kept as a frontmatter string + set:html because the
-// Astro compiler mangles raw script bodies inside expressions.
+// we suppress just the Offerwall (consent and other privacy messages still
+// show) so nothing ever interrupts reading or copying a prompt, and fail open
+// if the MessageTypeEnum API is ever missing. Kept as a frontmatter string +
+// set:html because the Astro compiler mangles raw script bodies inside
+// expressions.
 const offerwallGateInit = `(function () {
-	var gated = ${copyGate ? 'true' : 'false'};
-	if (gated) {
-		window.googletag = window.googletag || { cmd: [] };
-	}
 	window.googlefc = window.googlefc || {};
 	window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
 	window.googlefc.controlledMessagingFunction = function (message) {
-		if (gated) {
-			window.__fpbReleaseOfferwall = function () { message.proceed(true); };
-			return;
-		}
 		var types = window.googlefc.MessageTypeEnum;
 		if (types && types.OFFERWALL !== undefined) {
 			message.proceed(false, [types.OFFERWALL]);
@@ -74,29 +57,23 @@ const offerwallGateInit = `(function () {
 	};
 })();`;
 
-// Ad script loader — injects adsbygoogle.js (and gpt.js on copy-gated pages)
-// after window load instead of as blocking-bandwidth <script async> tags in
-// the head. The ~500 KB ad stack was contending with the LCP image on slow
-// mobile connections (Lighthouse LCP 6.2s). Both APIs are queue-based
-// (adsbygoogle array / googletag.cmd, bootstrapped above), so pushes made
-// before the scripts arrive are processed on load — AdSlot boxes and the
-// rewarded copy gate keep working unchanged. A fallback timer still loads
-// the ads if a hanging resource delays the load event, so no pageview ever
+// Ad script loader — injects adsbygoogle.js after window load instead of as a
+// blocking-bandwidth <script async> tag in the head. The ad stack was
+// contending with the LCP image on slow mobile connections (Lighthouse LCP
+// 6.2s). The API is queue-based (the adsbygoogle array), so AdSlot pushes made
+// before the script arrives are processed on load. A fallback timer still
+// loads it if a hanging resource delays the load event, so no pageview ever
 // skips ads entirely.
 const adScriptsInit = `(function () {
 	var done = false;
-	function inject(src) {
-		var s = document.createElement('script');
-		s.async = true;
-		s.crossOrigin = 'anonymous';
-		s.src = src;
-		document.head.appendChild(s);
-	}
 	function load() {
 		if (done) return;
 		done = true;
-		inject('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7803867089582138');
-		${copyGate ? "inject('https://securepubads.g.doubleclick.net/tag/js/gpt.js');" : ''}
+		var s = document.createElement('script');
+		s.async = true;
+		s.crossOrigin = 'anonymous';
+		s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7803867089582138';
+		document.head.appendChild(s);
 	}
 	if (document.readyState === 'complete') {
 		load();
