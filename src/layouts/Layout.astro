@@ -74,6 +74,38 @@ const offerwallGateInit = `(function () {
 	};
 })();`;
 
+// Ad script loader — injects adsbygoogle.js (and gpt.js on copy-gated pages)
+// after window load instead of as blocking-bandwidth <script async> tags in
+// the head. The ~500 KB ad stack was contending with the LCP image on slow
+// mobile connections (Lighthouse LCP 6.2s). Both APIs are queue-based
+// (adsbygoogle array / googletag.cmd, bootstrapped above), so pushes made
+// before the scripts arrive are processed on load — AdSlot boxes and the
+// rewarded copy gate keep working unchanged. A fallback timer still loads
+// the ads if a hanging resource delays the load event, so no pageview ever
+// skips ads entirely.
+const adScriptsInit = `(function () {
+	var done = false;
+	function inject(src) {
+		var s = document.createElement('script');
+		s.async = true;
+		s.crossOrigin = 'anonymous';
+		s.src = src;
+		document.head.appendChild(s);
+	}
+	function load() {
+		if (done) return;
+		done = true;
+		inject('https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7803867089582138');
+		${copyGate ? "inject('https://securepubads.g.doubleclick.net/tag/js/gpt.js');" : ''}
+	}
+	if (document.readyState === 'complete') {
+		load();
+	} else {
+		window.addEventListener('load', load, { once: true });
+		setTimeout(load, 6000);
+	}
+})();`;
+
 const siteUrl = (Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '');
 
 // Google truncates meta descriptions around ~160 chars, so clamp anything longer
@@ -184,20 +216,10 @@ const organizationSchema = {
 
 		{/* Google AdSense loader — site-wide on public pages; skipped on
 		   noindex admin/CMS pages so ads never render in the dashboard. The
-		   Offerwall-control script must come first (see offerwallGateInit). */}
+		   Offerwall-control script must come first (see offerwallGateInit);
+		   the actual ad scripts are injected post-load (see adScriptsInit). */}
 		{!noindex && <script is:inline set:html={offerwallGateInit} />}
-		{!noindex && (
-			<script
-				async
-				src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7803867089582138"
-				crossorigin="anonymous"
-			></script>
-		)}
-		{/* GPT — only on copy-gated pages, for the on-demand rewarded ad slot. */}
-		{!noindex && copyGate && (
-			<script async src="https://securepubads.g.doubleclick.net/tag/js/gpt.js" crossorigin="anonymous"
-			></script>
-		)}
+		{!noindex && <script is:inline set:html={adScriptsInit} />}
 
 		<link rel="icon" type="image/svg+xml" href="/logo.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />

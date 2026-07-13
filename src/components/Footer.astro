@@ -88,13 +88,14 @@ const siteLinks = [
 	{ href: '/sitemap.xml', label: 'Sitemap' },
 ];
 
-// Each group renders as a real accordion at every viewport size.
+// Each group renders as a real accordion at every viewport size. The aria
+// string must start with the visible label (axe: label-content-name-mismatch).
 const navGroups: { label: string; aria: string; items: { href: string; label: string }[] }[] = [
 	{ label: 'Browse', aria: 'Browse', items: browseLinks },
 	{ label: 'Trending', aria: 'Trending prompts', items: trendingLinks },
 	{ label: 'Gemini', aria: 'Gemini prompt links', items: geminiLinks },
-	{ label: 'Photos', aria: 'Photo prompt links', items: photoLinks },
-	{ label: 'Creators', aria: 'Creator prompt links', items: creatorLinks },
+	{ label: 'Photos', aria: 'Photos — prompt links', items: photoLinks },
+	{ label: 'Creators', aria: 'Creators — prompt links', items: creatorLinks },
 	{ label: 'Learn', aria: 'Learn', items: learnLinks },
 	{ label: 'Site', aria: 'Site', items: siteLinks },
 ];

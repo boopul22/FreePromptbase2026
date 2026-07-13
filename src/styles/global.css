@@ -573,7 +573,8 @@ a.pill:hover { filter: brightness(0.97); transform: translateY(-1px); }
 	font-size: 0.6875rem;
 	font-weight: 500;
 	letter-spacing: 0.02em;
-	color: #9ca3af;
+	/* Matches .gate-cta__sub — gray-400 fails 4.5:1 contrast at this size. */
+	color: #6b7280;
 }
 
 /* ----------------------------------------------------------------------------
@@ -1059,7 +1060,8 @@ button:disabled.is-loading {
 	font-weight: 600;
 	letter-spacing: 0.14em;
 	text-transform: uppercase;
-	color: var(--ink-faint);
+	/* --ink-soft, not --ink-faint: 10px text needs 4.5:1 contrast on white. */
+	color: var(--ink-soft);
 	margin-bottom: 0.35rem;
 }
 

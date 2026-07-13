@@ -179,7 +179,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 	copyGate
 	ogImage={heroImage}
 	preloadImage={hasHeroImage ? heroImage : undefined}
-	preloadImageSrcset={hasHeroImage ? cfSrcset(heroImage, [480, 768, 1080]) : undefined}
+	preloadImageSrcset={hasHeroImage ? cfSrcset(heroImage, [480, 672, 768, 1080]) : undefined}
 	preloadImageSizes="(min-width: 1024px) 700px, 92vw"
 >
 	<Header />
@@ -241,7 +241,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 								{prompt.images!.map((src, i) => (
 									<img
 										src={cfImg(src, 1080)}
-										srcset={cfSrcset(src, [480, 768, 1080])}
+										srcset={cfSrcset(src, [480, 672, 768, 1080])}
 										sizes="(min-width: 1024px) 700px, 92vw"
 										alt={`${prompt.title} — image ${i + 1}`}
 										width={i === 0 ? prompt.coverW : undefined}
@@ -287,7 +287,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					) : prompt.coverImage ? (
 						<img
 							src={cfImg(prompt.coverImage, 1080)}
-							srcset={cfSrcset(prompt.coverImage, [480, 768, 1080])}
+							srcset={cfSrcset(prompt.coverImage, [480, 672, 768, 1080])}
 							sizes="(min-width: 1024px) 700px, 92vw"
 							alt={prompt.title}
 							width={prompt.coverW}
@@ -400,7 +400,6 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 				data-slug={prompt.slug}
 				data-saved={isSaved ? 'true' : 'false'}
 				aria-pressed={isSaved ? 'true' : 'false'}
-				aria-label={isSaved ? 'Remove from saved' : 'Save prompt'}
 				class:list={[
 					'detail-save-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold border transition-colors',
 					isSaved

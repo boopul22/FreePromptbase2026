@@ -56,12 +56,17 @@ function slugFor(btn: HTMLElement): string | null {
 function setSavedVisual(btn: HTMLElement, saved: boolean, countOverride?: number) {
 	btn.dataset.saved = String(saved);
 	btn.setAttribute('aria-pressed', String(saved));
-	btn.setAttribute('aria-label', saved ? 'Remove from saved' : 'Save prompt');
 
 	if (btn.classList.contains('detail-save-btn')) {
+		// Detail button shows a visible "Save"/"Saved" text label + count, which
+		// already forms the accessible name — an aria-label would clash with the
+		// visible text (axe: label-content-name-mismatch).
+		btn.removeAttribute('aria-label');
 		btn.classList.remove(...PILL_SAVED, ...PILL_UNSAVED);
 		btn.classList.add(...(saved ? PILL_SAVED : PILL_UNSAVED));
 	} else {
+		// Card pill is icon-only, so the aria-label is the accessible name.
+		btn.setAttribute('aria-label', saved ? 'Remove from saved' : 'Save prompt');
 		btn.classList.toggle('is-saved', saved);
 		const icon = btn.querySelector<SVGElement>('.save-icon');
 		if (icon) icon.setAttribute('fill', saved ? 'currentColor' : 'none');
