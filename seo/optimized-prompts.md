@@ -156,9 +156,35 @@ the same day and folded into the same two SQL files.
 - [x] couple-prompt-clear-umbrella *(sharing one clear umbrella in gentle garden rain)* — was `couple-prompt-qghtff`
 - [x] couple-prompt-carousel *(vintage carousel at dusk, film-camera candid)* — was `couple-prompt-wxq2cl`
 
+## Optimized — batch 2026-07-13 (6 newly-approved prompts, dates 2026-07-13..14)
+
+Same shape as the 2026-07-03/05/07/12 batches, but the slug problem was different: these 6 came
+in with **generic head-term slugs** rather than random codes — `prompt`, `women-image`,
+`fashion-portrait`, `black-and-white-portrait`, `indian-couple-image`, `couple-paradise-prompt`.
+Too broad to rank, and they collide conceptually with our tag pages. All 6 were renamed
+keyword-first + descriptive word (`rename-descriptive-slugs-2026-07-13.sql`), then given a full
+SEO pass (keyword title + unique description + how_to_use + tags —
+`optimize-new-prompts-2026-07-13.sql`). `prompt_text` untouched. All 6 had EMPTY
+description/how_to_use and empty tags (`[]`) before this pass.
+
+The first 3 had **already gone live** earlier that day (publish_at 04:30–06:30 on 2026-07-13) —
+renamed anyway, since all 6 had `view_count=0`, `copy_count=0` and no Pinterest export, so no
+inbound links or impressions were lost. Nothing else in this repo maps old slugs → new, so
+avoid renaming a prompt that has picked up traffic.
+
+### Solo portraits (target "gemini ai photo prompt" / "portrait prompt")
+- [x] black-and-white-women-portrait-prompt *(B&W editorial woman, sheer mesh turtleneck, split black/white backdrop)* — was `women-image`
+- [x] colonnade-fashion-portrait-prompt *(mid-stride walk through a sunlit classical colonnade, street-style editorial)* — was `fashion-portrait`
+- [x] golden-hour-blazer-portrait-prompt *(brown blazer + wayfarers, teal-and-amber sunset sky, cinematic rim light)* — was `prompt`
+- [x] black-and-white-glasses-portrait-prompt *(low-key studio, round wire glasses, fist at the jaw, pure black backdrop)* — was `black-and-white-portrait`
+
+### Couple prompts (target "couple prompt" / "gemini couple photo prompt")
+- [x] couple-prompt-red-saree *(red silk saree + gold zari, vine-draped stone wall, golden-hour pre-wedding)* — was `indian-couple-image`
+- [x] couple-prompt-cliff-selfie *(Nusa Penida-style clifftop travel selfie, turquoise ocean, matching white linen)* — was `couple-paradise-prompt`
+
 ## Not yet optimized
-- (none of the approved/scheduled prompts as of 2026-07-12 — 0 approved prompts have an empty description or how_to_use)
-- Minor: 8 style/ChatGPT prompts from the 2026-06-24 batch have empty `tags` (`[]`) but full title+desc+how_to_use — tags predate the 2026-06-30 tags workflow; low-priority backfill (still 8 as of 2026-07-12).
+- (none of the approved/scheduled prompts as of 2026-07-13 — 0 approved prompts have an empty description or how_to_use)
+- Minor: 8 style/ChatGPT prompts from the 2026-06-24 batch have empty `tags` (`[]`) but full title+desc+how_to_use — tags predate the 2026-06-30 tags workflow; low-priority backfill (still 8 as of 2026-07-13). They are: `lego-viral-prompt`, `pixel-style-prompt`, `minecraft-prompt`, `motion-blur-prompt`, `glassmorphism-prompt`, `black-and-white-studio-prompt`, `dark-aesthetic-prompt`, `gta-vi-prompt`.
 - ~87 `draft` prompts (all dated 2026-06-05) remain un-optimized but are **not published/scheduled**; separate backlog.
 
 New prompts (submissions/drafts approved after 2026-06-24) land here un-optimized until
@@ -186,4 +212,6 @@ keyword-targeted meta description, and a how_to_use block.
 - `seo/optimize-new-prompts-2026-07-07.sql` — full SEO pass (title + desc + how_to_use + tags) for those 6; backup `seo/new-prompts-backup-2026-07-07.json`
 - `seo/rename-descriptive-slugs-2026-07-12.sql` — renamed 13 random-code couple slugs to keyword-first + descriptive word
 - `seo/optimize-new-prompts-2026-07-12.sql` — full SEO pass (title + desc + how_to_use + tags) for 15 new couple prompts; backup `seo/new-prompts-backup-2026-07-12.json`
+- `seo/rename-descriptive-slugs-2026-07-13.sql` — renamed 6 generic head-term slugs (`prompt`, `women-image`, …) to keyword-first + descriptive word
+- `seo/optimize-new-prompts-2026-07-13.sql` — full SEO pass (title + desc + how_to_use + tags) for those 6; backup `seo/new-prompts-backup-2026-07-13.json`
 - Backups: `seo/prompts-title-desc-backup-2026-06-24.json`, `seo/prompts-howto-backup-2026-06-24.json`, `seo/new-prompts-backup-2026-06-30.json`
