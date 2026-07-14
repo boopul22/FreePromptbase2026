@@ -89,10 +89,32 @@
 | /category/images | ai image prompts (Midjourney, Gemini, DALL·E) |
 | /category/text | ai text / writing / coding prompts |
 
+### Cluster E — Photo editing prompts (**SHIPPED 2026-07-14** — see [competitor-promptplum.md](competitor-promptplum.md))
+| Slug | Primary keyword | Vol/KD | Notes |
+|---|---|---|---|
+| photo-editing-prompt | photo editing prompt | IN 720 / KD 18 | tool-agnostic angle; secondary: ai photo prompt |
+| chatgpt-photo-editing-prompt | chatgpt photo editing prompts | IN 18,100 / KD 74 | grew 90× in 12 mo |
+| ai-image-prompt | ai image prompts | US 720 / KD 9 | secondary: ai picture prompts (KD 8), image prompt |
+
+Supporting blog posts shipped same day (in D1, see `seo/blog-posts-2026-07-14.sql`):
+`/blog/chatgpt-photo-editing-prompts`, `/blog/how-to-edit-photos-with-ai-prompts`,
+`/blog/anatomy-of-a-perfect-ai-image-prompt`, `/blog/gemini-face-consistency`,
+`/blog/how-to-use-nano-banana-ai-free`, `/blog/nano-banana-vs-pro-vs-2`,
+`/blog/trending-gemini-prompts`, `/blog/gemini-couple-photo-prompt-ideas`.
+Free tool: `/tools/gemini-prompt-generator`. Homepage title now carries the cluster.
+
+### Nano banana follow-ons + person-type tags (**SHIPPED 2026-07-14**)
+| Slug | Primary keyword | Notes |
+|---|---|---|
+| nano-banana-pro | nano banana pro (18,100, KD 86) | Nov'25 model |
+| nano-banana-2 | nano banana 2 | Feb'26 model, breakout |
+| banana-ai | banana ai (5,400, KD 52) | head term |
+| gemini-photo-prompt-for-man | gemini photo prompt for man | person-type |
+| gemini-photo-prompt-for-woman | gemini photo prompt for woman | person-type, saree trend |
+| gemini-family-photo-prompt | gemini family photo prompt | person-type |
+| gemini-birthday-photo-prompt | gemini birthday photo prompt | person-type; promptplum's only linked pages are birthday/christmas |
+
 ## Gaps / candidates to add (from research + trend)
-- `nano banana pro` (18,100, KD 86) — **rising**, no page yet (Nov'25 model)
-- `nano banana 2` — **rising breakout** (Feb'26 model), capture early
 - `nano banana images` (KD 43) — close to our content, no dedicated page yet
 - `google nano banana` (8,100, KD 76) — head variant
-- `banana ai` (5,400, KD 52) — easier head term, steady climb
-- FAQ target: "how to use nano banana ai for free" (KD 0) — answer-capsule on flagship
+- `editing prompt` (IN 12,100, KD 76) / `prompt image` (IN 8,000, KD 74) / `image prompt` (IN 6,600, KD 69) — homepage/long-tail collectors, no dedicated page yet

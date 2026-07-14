@@ -1,0 +1,185 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import Breadcrumb from '../../components/Breadcrumb.astro';
+import { breadcrumbSchema } from '../../lib/seo';
+
+// Fully static, client-side tool — no data reads, safe to prerender.
+export const prerender = true;
+
+const crumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name: 'Gemini Prompt Generator', path: '/tools/gemini-prompt-generator' },
+]);
+---
+
+<Layout
+	title="Gemini Prompt Generator — Build a Photo Prompt in Seconds"
+	description="Free Gemini prompt generator: pick a style, setting, and light, and get a copy-paste photo editing prompt with the face-preserving keep line built in."
+	extraSchemas={[crumb]}
+>
+	<Header />
+
+	<main class="max-w-3xl mx-auto px-6 sm:px-8 pt-8 pb-16">
+		<Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Gemini prompt generator' }]} />
+
+		<h1 class="text-3xl sm:text-4xl font-extrabold text-link mt-4 mb-3">Gemini prompt generator</h1>
+		<p class="text-gray-600 mb-8 max-w-2xl">
+			Pick a look, a setting, and a light. The generator assembles a Gemini photo prompt with the
+			face-preserving keep line already in place — copy it, upload your photo in Gemini, and paste.
+		</p>
+
+		<div class="bg-white border border-gray-200 rounded-2xl p-5 sm:p-7 shadow-sm">
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+				<label class="block">
+					<span class="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1.5">Look</span>
+					<select id="gpg-look" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
+						<option value="a clean professional headshot">Professional headshot</option>
+						<option value="a 1990s film portrait with grain and faded warm colors">Retro 90s film</option>
+						<option value="a cinematic movie-poster style portrait">Cinematic poster</option>
+						<option value="a soft aesthetic portrait with pastel tones">Soft aesthetic</option>
+						<option value="a traditional festive portrait">Traditional festive</option>
+						<option value="a detailed collectible figurine of me in a branded box">Collectible figurine</option>
+						<option value="a dramatic black and white portrait">Black &amp; white</option>
+					</select>
+				</label>
+				<label class="block">
+					<span class="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1.5">Setting</span>
+					<select id="gpg-setting" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
+						<option value="a plain studio background">Plain studio</option>
+						<option value="a rainy evening street with warm reflections">Rainy street</option>
+						<option value="a golden-hour rooftop with the city blurred below">Rooftop at dusk</option>
+						<option value="a quiet beach at sunset">Beach at sunset</option>
+						<option value="a night market full of glowing stalls">Night market</option>
+						<option value="a flower garden in soft daylight">Garden</option>
+						<option value="a cozy cafe window seat">Cafe window</option>
+					</select>
+				</label>
+				<label class="block">
+					<span class="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1.5">Light</span>
+					<select id="gpg-light" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white">
+						<option value="soft studio lighting">Soft studio</option>
+						<option value="warm golden-hour light">Golden hour</option>
+						<option value="moody light with deep shadows">Moody</option>
+						<option value="gentle window light">Window light</option>
+						<option value="neon lights with soft bokeh">Neon</option>
+						<option value="bright, even natural light">Bright natural</option>
+					</select>
+				</label>
+				<label class="block">
+					<span class="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1.5">Extra detail (optional)</span>
+					<input
+						id="gpg-extra"
+						type="text"
+						maxlength="80"
+						placeholder="e.g. wearing a black suit"
+						class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+					/>
+				</label>
+			</div>
+
+			<label class="flex items-center gap-2 mt-4 text-sm text-gray-700">
+				<input id="gpg-keep" type="checkbox" checked class="rounded border-gray-300" />
+				Keep my face exactly the same (recommended)
+			</label>
+
+			<div class="mt-5">
+				<span class="block text-xs font-bold uppercase tracking-wide text-gray-500 mb-1.5">Your prompt</span>
+				<p id="gpg-output" class="border border-dashed border-gray-300 rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-800 leading-relaxed min-h-[4.5rem]"></p>
+			</div>
+
+			<div class="flex flex-wrap items-center gap-3 mt-4">
+				<button
+					id="gpg-copy"
+					type="button"
+					class="bg-primary text-link font-bold text-sm rounded-lg px-5 py-2.5 border border-link/20 transition-transform active:scale-95"
+				>Copy prompt</button>
+				<button
+					id="gpg-random"
+					type="button"
+					class="text-sm font-semibold text-gray-600 border border-gray-300 rounded-lg px-4 py-2.5 hover:border-gray-400 transition-colors"
+				>Surprise me</button>
+				<a
+					href="https://gemini.google.com/"
+					target="_blank"
+					rel="noopener"
+					class="text-sm font-semibold text-link underline underline-offset-4"
+				>Open Gemini →</a>
+				<span id="gpg-copied" class="text-xs font-semibold text-green-700" hidden>Copied!</span>
+			</div>
+		</div>
+
+		<section class="mt-10 text-sm text-gray-600 leading-relaxed max-w-2xl">
+			<h2 class="text-lg font-bold text-link mb-2">How to use the prompt</h2>
+			<ol class="list-decimal pl-5 space-y-1.5">
+				<li>Open Gemini and upload one clear, front-facing photo of yourself.</li>
+				<li>Paste the generated prompt and send it.</li>
+				<li>Not quite right? Reply with one correction at a time, like 'warmer light'.</li>
+			</ol>
+			<p class="mt-4">
+				Want ready-made lines instead? Browse the
+				<a href="/gemini-ai-photo-prompt" class="text-link underline underline-offset-2">Gemini AI photo prompts</a>,
+				see what is
+				<a href="/trending-gemini-prompt" class="text-link underline underline-offset-2">trending this month</a>,
+				or learn the method in our
+				<a href="/photo-editing-prompt" class="text-link underline underline-offset-2">photo editing prompt guide</a>.
+			</p>
+		</section>
+	</main>
+
+	<Footer />
+</Layout>
+
+<script>
+	const $ = (id: string) => document.getElementById(id) as HTMLElement;
+	const look = $('gpg-look') as HTMLSelectElement;
+	const setting = $('gpg-setting') as HTMLSelectElement;
+	const light = $('gpg-light') as HTMLSelectElement;
+	const extra = $('gpg-extra') as HTMLInputElement;
+	const keep = $('gpg-keep') as HTMLInputElement;
+	const output = $('gpg-output');
+	const copied = $('gpg-copied');
+
+	function build(): string {
+		const extraTxt = extra.value.trim();
+		let p = `Edit my photo into ${look.value}, set against ${setting.value}, with ${light.value}.`;
+		if (extraTxt) p += ` Include this detail: ${extraTxt}.`;
+		if (keep.checked) p += ' Keep my face, facial features, and expression exactly the same. Do not alter my identity.';
+		return p;
+	}
+
+	function render() {
+		output.textContent = build();
+		copied.hidden = true;
+	}
+
+	[look, setting, light, extra, keep].forEach((el) => {
+		el.addEventListener('input', render);
+		el.addEventListener('change', render);
+	});
+
+	$('gpg-random').addEventListener('click', () => {
+		for (const sel of [look, setting, light]) {
+			sel.selectedIndex = Math.floor(Math.random() * sel.options.length);
+		}
+		render();
+	});
+
+	$('gpg-copy').addEventListener('click', async () => {
+		try {
+			await navigator.clipboard.writeText(build());
+			copied.hidden = false;
+			setTimeout(() => { copied.hidden = true; }, 2000);
+		} catch {
+			// Clipboard API unavailable (e.g. non-secure context): select the text instead.
+			const range = document.createRange();
+			range.selectNodeContents(output);
+			const sel = window.getSelection();
+			sel?.removeAllRanges();
+			sel?.addRange(range);
+		}
+	});
+
+	render();
+</script>

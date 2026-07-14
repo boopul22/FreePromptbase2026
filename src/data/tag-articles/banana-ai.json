@@ -1,0 +1,18 @@
+{
+	"metaDescription": "Banana AI is the nickname for Google's Nano Banana image tool in Gemini. Here is what it is, how to use it free, and prompts to start with.",
+	"bodyHtml": "<p>Banana AI is what people call Google's Nano Banana image model, the photo tool built into Gemini. There is no separate banana app: you open Gemini, upload a photo, type what you want, and the model edits or generates the image. The odd name started as an internal codename and stuck because it was more memorable than the official one.</p><h2>Getting started in two minutes</h2><ul><li>Open the Gemini app or gemini.google.com and sign in with a Google account.</li><li>Tap the image or plus button and upload one clear, well-lit photo.</li><li>Paste a prompt that says what to change and what to keep, then send.</li><li>Not right? Reply with one correction, like 'less blur on the face', instead of rewriting everything.</li></ul><h2>Three prompts that show what it can do</h2><table><thead><tr><th>Trend</th><th>Paste this</th></tr></thead><tbody><tr><td>Figurine</td><td>'Turn me into a detailed collectible figurine standing on a desk, still in a branded box beside me, studio lighting. Keep my face exactly the same.'</td></tr><tr><td>Retro portrait</td><td>'Edit my photo into a 90s film portrait: grainy texture, warm faded colors, plain studio backdrop. Keep my face unchanged.'</td></tr><tr><td>Formal headshot</td><td>'Create a clean professional headshot from my photo: neutral background, soft studio light, formal attire. Keep my face natural and recognizable.'</td></tr></tbody></table><h2>Where to go from here</h2><p>The pattern behind every good result is the same: one change, one keep line, one style. Our <a href=\"/nano-banana-prompt\">nano banana prompt</a> page teaches that structure properly and has the longest list of ready-made lines. If you keep hitting limits on text inside images or need several matching portraits, the <a href=\"/nano-banana-pro\">Pro model</a> handles both better.</p><p>One caution: only edit photos you have the right to use, and expect the model to refuse certain requests involving real people. The refusals are deliberate, not bugs.</p>",
+	"faqs": [
+		{
+			"q": "What is Banana AI?",
+			"a": "It is the popular nickname for Nano Banana, Google's image generation and editing model inside Gemini. People use it to edit their own photos into portraits, figurines, and styled shots by typing plain-English prompts. There is no separate Banana AI app."
+		},
+		{
+			"q": "Is Banana AI free?",
+			"a": "Yes, within limits. Gemini's free tier includes the image model with a daily cap that covers casual editing. Paid plans raise the limits and unlock the Pro variant for higher resolution and better text handling."
+		},
+		{
+			"q": "How do I get the viral figurine or retro looks?",
+			"a": "Upload one clear photo of yourself in Gemini and paste a trend prompt, like the figurine line on this page. Always include 'keep my face exactly the same' so you stay recognizable, and rerun the prompt a couple of times to pick the best version."
+		}
+	]
+}

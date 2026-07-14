@@ -1,0 +1,18 @@
+{
+	"metaDescription": "Gemini birthday photo prompt ideas: balloon backdrops, cake-smash edits, and clean birthday portraits from one photo, with the face kept the same.",
+	"bodyHtml": "<p>A Gemini birthday photo prompt turns an everyday photo into a birthday picture: balloons behind you, a cake in frame, confetti mid-air. People use them for last-minute posts, invitation cards, and for kids' photos when the party shots did not come out. Paste a line below into Gemini with your photo, and keep the keep line intact.</p><h2>Birthday prompts to copy</h2><table><thead><tr><th>Style</th><th>Paste this</th></tr></thead><tbody><tr><td>Balloon backdrop</td><td>'Edit my photo into a birthday portrait: pastel balloon arch behind me, soft festive lighting, confetti falling. Keep my face exactly the same.'</td></tr><tr><td>Kids cake smash</td><td>'Turn this photo into a first-birthday cake smash scene: small cake in front, balloons and bunting behind, bright cheerful light. Keep the child's face exactly unchanged.'</td></tr><tr><td>Elegant adult</td><td>'Create an elegant birthday portrait from my photo: dark background, golden bokeh lights, a small cake with candles beside me. Keep my face and expression the same.'</td></tr><tr><td>Surprise moment</td><td>'Edit my photo so I am mid-celebration: confetti in the air, warm party lights behind, genuine happy energy. Keep my face natural and unchanged.'</td></tr></tbody></table><h2>Two things birthday edits get wrong</h2><p>Candles and text. Ask for 'a cake with candles' and count them before posting, because the model is casual about numbers; if the count matters, say it ('five candles'). And skip writing the name on the cake inside Gemini. Small text comes out garbled more often than not; generate the scene clean and add the name with any basic editor, or use <a href=\"/nano-banana-pro\">Nano Banana Pro</a>, which handles short text far better.</p><p>For kids' photos, use a sharp, close, front-facing shot. Small faces drift the most, and a keep line written specifically about the child ('keep the child's face exactly unchanged') holds better than a generic one.</p><h2>Related pages</h2><p>Family group versions of these edits are on the <a href=\"/gemini-family-photo-prompt\">Gemini family photo prompt</a> page. For the general method behind every edit here, see the <a href=\"/gemini-photo-editing-prompt\">Gemini photo editing prompt</a> guide, and this month's viral looks are collected under <a href=\"/trending-gemini-prompt\">trending Gemini prompts</a>.</p>",
+	"faqs": [
+		{
+			"q": "How do I make a birthday photo with Gemini?",
+			"a": "Upload a clear photo and paste a prompt naming the scene, the light, and a keep line, like: 'Edit my photo into a birthday portrait, pastel balloon arch behind me, soft festive lighting. Keep my face exactly the same.' Rerun it a couple of times and keep the best result."
+		},
+		{
+			"q": "Can Gemini write a name on the birthday cake?",
+			"a": "It tries, but short text often comes out misspelled or warped. The reliable route is generating the scene without text and adding the name in a basic editor afterward, or using Nano Banana Pro, which renders short text much more accurately."
+		},
+		{
+			"q": "Do these prompts work for kids' birthday photos?",
+			"a": "Yes, and they are popular for first birthdays. Use a sharp close-up of the child, write the keep line about the child specifically, and check the result carefully; small faces are the ones AI edits distort first."
+		}
+	]
+}

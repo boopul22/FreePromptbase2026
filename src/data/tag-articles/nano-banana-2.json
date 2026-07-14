@@ -1,0 +1,18 @@
+{
+	"metaDescription": "Nano Banana 2 is the newest version of Google's viral image model. What changed, what still trips it up, and the prompts worth trying first.",
+	"bodyHtml": "<p>Nano Banana 2 is the newest generation of Google's Nano Banana image model in Gemini, the follow-up to the model that made figurine portraits and saree edits a whole genre. The short version: prompts you already use keep working, faces hold together with less coaxing, and complicated scenes fall apart less often.</p><h2>What actually changed</h2><p>The headline improvement is instruction following. Earlier versions would grab the loudest words in your prompt and ignore the rest; the new model works through multi-part requests more faithfully. Ask for 'a rainy street, me under a red umbrella, neon reflections, keep my face' and you are much more likely to get all four.</p><p>Face preservation also needs less babysitting. You should still write a keep line, but one is usually enough, where the old model sometimes needed the request repeated or the style words softened.</p><h2>Prompts to try on Nano Banana 2</h2><table><thead><tr><th>Idea</th><th>Paste this</th></tr></thead><tbody><tr><td>Layered scene</td><td>'Edit my photo: place me on a rainy evening street under a red umbrella, neon shop reflections on the wet road, cinematic tone. Keep my face exactly the same.'</td></tr><tr><td>Two-person edit</td><td>'From this photo of us, create a formal portrait: matching outfits, studio background, soft light. Keep both faces exactly as they are.'</td></tr><tr><td>Style jump</td><td>'Turn my photo into a hand-painted movie poster, dramatic sky behind me, my name style left blank. Keep my face recognizable.'</td></tr></tbody></table><h2>What still goes wrong</h2><ul><li><strong>Small text.</strong> Better than before, still not reliable. For posters with names or dates, <a href=\"/nano-banana-pro\">Nano Banana Pro</a> remains the safer pick.</li><li><strong>Hands and jewellery.</strong> Rings, bangles, and interlocked fingers still deserve a second look before you post.</li><li><strong>Over-stuffed prompts.</strong> Instruction following improved; mind reading did not. One scene, one style, one keep line per prompt.</li></ul><p>Everything on our main <a href=\"/nano-banana-prompt\">nano banana prompt</a> page runs on the new model without changes, so raid that list first and come back for the newer patterns as trends emerge.</p>",
+	"faqs": [
+		{
+			"q": "What is Nano Banana 2?",
+			"a": "It is the newest generation of Google's Nano Banana image model inside Gemini. Compared with earlier versions it follows multi-part instructions more faithfully and keeps faces consistent with less prompt effort. Existing nano banana prompts work on it unchanged."
+		},
+		{
+			"q": "Do my old nano banana prompts still work?",
+			"a": "Yes. The prompt style is identical, and old prompts generally come out better because the model follows instructions more closely. Keep writing a keep line for your face; it is still needed, just less fragile."
+		},
+		{
+			"q": "Is Nano Banana 2 free to use?",
+			"a": "Gemini's free tier includes the current image model with daily limits, which covers casual editing. Heavy use or the Pro variant may need a paid plan. All prompts on this page are free to copy."
+		}
+	]
+}

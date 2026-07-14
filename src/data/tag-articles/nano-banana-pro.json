@@ -1,0 +1,18 @@
+{
+	"metaDescription": "Nano Banana Pro is the upgraded version of Google's viral image model. Here is what it does better and the prompts that make the most of it.",
+	"bodyHtml": "<p>Nano Banana Pro is the bigger, more careful version of Google's Nano Banana image model, the Gemini feature behind the figurine and saree portrait trends. The Pro model is slower per image but noticeably better at three things: readable text inside images, higher-resolution output, and keeping the same person consistent across a set of pictures.</p><h2>What Pro actually does better</h2><ul><li><strong>Text in images.</strong> Posters, name banners, birthday cards. The regular model garbles small lettering; Pro usually gets short text right on the first or second try.</li><li><strong>Detail at large sizes.</strong> Pro renders at higher resolution, so edits meant for printing or cropping hold up.</li><li><strong>Consistency across images.</strong> Give it your photo once and ask for several looks; the face stays steadier from image to image than with the standard model.</li></ul><p>For a quick one-off edit, the regular model is faster and usually enough. Pro earns its keep when the output matters: invitations, profile pictures, anything with words on it.</p><h2>Prompts that play to Pro's strengths</h2><table><thead><tr><th>Job</th><th>Paste this</th></tr></thead><tbody><tr><td>Poster with text</td><td>'Design a birthday poster featuring my photo, with the text HAPPY BIRTHDAY ARJUN in bold letters at the top. Warm balloons background, keep my face exactly the same.'</td></tr><tr><td>Photo set</td><td>'Create three portraits of me from this photo: one in a black suit, one in traditional wear, one casual. Same face, same person, studio lighting in all three.'</td></tr><tr><td>Print-quality portrait</td><td>'A high-resolution studio portrait from my photo: charcoal background, soft key light, sharp eyes, natural skin texture. Keep my face unchanged.'</td></tr></tbody></table><h2>Writing for Pro vs the regular model</h2><p>The prompt language is the same, so anything from our main <a href=\"/nano-banana-prompt\">nano banana prompt</a> page works here unchanged. The difference is what you can ask for. With Pro you can afford requests the standard model fumbles: exact spellings, multi-image sets, fine fabric detail. Keep the keep line ('keep my face exactly the same') in every prompt; Pro respects it more reliably, but it still needs to be told.</p><p>If you are choosing between versions, try the standard model first. When you hit its ceiling, usually on text or consistency, the same prompt on Pro is the fix. And if you have heard about the newest release, we track prompts for it separately on the <a href=\"/nano-banana-2\">Nano Banana 2</a> page.</p>",
+	"faqs": [
+		{
+			"q": "What is Nano Banana Pro?",
+			"a": "It is the upgraded version of Google's Nano Banana image model inside Gemini. It generates at higher resolution, handles text inside images far better, and keeps a person's face more consistent across multiple images. It is slower per image than the standard model."
+		},
+		{
+			"q": "Is Nano Banana Pro free?",
+			"a": "Gemini's free tier gives limited access, with the standard model covering most free usage. Paid Gemini plans raise the limits on the Pro model. The prompts on this page are free to copy regardless of plan."
+		},
+		{
+			"q": "When should I use Pro instead of the regular Nano Banana?",
+			"a": "Use Pro when the image includes text, needs printing or heavy cropping, or is part of a set where your face must match across images. For quick one-off edits, the regular model is faster and usually good enough."
+		}
+	]
+}

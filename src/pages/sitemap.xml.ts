@@ -14,6 +14,7 @@ const STATIC_PATHS = [
 	'/categories',
 	'/tags',
 	'/blog',
+	'/tools/gemini-prompt-generator',
 	'/about',
 	'/contact',
 	'/privacy',

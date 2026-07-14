@@ -90,6 +90,39 @@ export const tags: Tag[] = [
 		]
 	},
 	{
+		"slug": "photo-editing-prompt",
+		"name": "Photo Editing Prompt",
+		"query": "photo editing prompt",
+		"description": "Photo editing prompt ideas you can copy free. Paste one into Gemini, ChatGPT, or any AI tool, add your photo, and get a clean edit in seconds.",
+		"matchTerms": [
+			"photo editing",
+			"editing",
+			"retouch",
+			"portrait"
+		]
+	},
+	{
+		"slug": "chatgpt-photo-editing-prompt",
+		"name": "ChatGPT Photo Editing Prompt",
+		"query": "chatgpt photo editing prompts",
+		"description": "ChatGPT photo editing prompts you can copy and paste. Ready-made lines for portraits, retouching, and style edits — free, no signup needed.",
+		"matchTerms": [
+			"chatgpt",
+			"photo editing"
+		]
+	},
+	{
+		"slug": "ai-image-prompt",
+		"name": "AI Image Prompt",
+		"query": "ai image prompts",
+		"description": "AI image prompts you can copy in one tap. Ready-to-paste lines for portraits, edits, and full image generation in Gemini, ChatGPT, and Midjourney.",
+		"matchTerms": [
+			"ai photo prompt",
+			"image",
+			"portrait"
+		]
+	},
+	{
 		"slug": "nano-banana-ai",
 		"name": "Nano Banana AI",
 		"query": "nano banana ai",
@@ -514,6 +547,79 @@ export const tags: Tag[] = [
 		"description": "Free Couple Prompt ideas you can copy and paste. Browse ready-to-use AI prompts for couple prompt — no signup needed.",
 		"matchTerms": [
 			"couple"
+		]
+	},
+	{
+		"slug": "nano-banana-pro",
+		"name": "Nano Banana Pro",
+		"query": "nano banana pro",
+		"description": "Nano Banana Pro prompts you can copy and paste. See what the Pro model does better and grab ready-made lines for portraits, edits, and text in images.",
+		"matchTerms": [
+			"nano",
+			"banana"
+		]
+	},
+	{
+		"slug": "nano-banana-2",
+		"name": "Nano Banana 2",
+		"query": "nano banana 2",
+		"description": "Nano Banana 2 prompts to copy and paste. Ready-made lines tuned for the newest model — portraits, edits, and consistent faces, free to use.",
+		"matchTerms": [
+			"nano",
+			"banana"
+		]
+	},
+	{
+		"slug": "banana-ai",
+		"name": "Banana AI",
+		"query": "banana ai",
+		"description": "Banana AI prompts you can copy free. Paste one into Gemini's image tool, add your photo, and get portraits, figurines, and edits in a few tries.",
+		"matchTerms": [
+			"banana"
+		]
+	},
+	{
+		"slug": "gemini-photo-prompt-for-man",
+		"name": "Gemini Photo Prompt for Man",
+		"query": "gemini photo prompt for man",
+		"description": "Gemini photo prompt for man — copy-paste lines for male portraits, traditional looks, retro styles, and clean studio edits. Free, no signup.",
+		"matchTerms": [
+			"gemini",
+			" man",
+			"boy",
+			"male"
+		]
+	},
+	{
+		"slug": "gemini-photo-prompt-for-woman",
+		"name": "Gemini Photo Prompt for Woman",
+		"query": "gemini photo prompt for woman",
+		"description": "Gemini photo prompt for woman — copy-paste lines for saree portraits, aesthetic edits, retro looks, and studio-style shots. Free to use.",
+		"matchTerms": [
+			"gemini",
+			"woman",
+			"girl",
+			"female"
+		]
+	},
+	{
+		"slug": "gemini-family-photo-prompt",
+		"name": "Gemini Family Photo Prompt",
+		"query": "gemini family photo prompt",
+		"description": "Gemini family photo prompt ideas you can copy and paste. Turn one group photo into portraits, festive cards, and studio-style family shots.",
+		"matchTerms": [
+			"gemini",
+			"family"
+		]
+	},
+	{
+		"slug": "gemini-birthday-photo-prompt",
+		"name": "Gemini Birthday Photo Prompt",
+		"query": "gemini birthday photo prompt",
+		"description": "Gemini birthday photo prompt ideas to copy and paste. Cake-smash shots, balloon backdrops, and clean birthday portraits from one photo.",
+		"matchTerms": [
+			"gemini",
+			"birthday"
 		]
 	}
 ];

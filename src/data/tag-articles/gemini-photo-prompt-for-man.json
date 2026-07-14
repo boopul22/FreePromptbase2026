@@ -1,0 +1,18 @@
+{
+	"metaDescription": "Gemini photo prompt for man: copy-paste lines for suits, traditional wear, retro film looks, and gym shots that keep your face exactly the same.",
+	"bodyHtml": "<p>A Gemini photo prompt for man is a ready-made instruction you paste into Gemini with your own photo to get a styled male portrait: a sharp suit, a kurta at a wedding, a 90s film look. The trick that separates a good result from a stranger's face is one sentence: 'keep my face exactly the same.' Every prompt below has it built in.</p><h2>Prompts men actually search for</h2><table><thead><tr><th>Look</th><th>Paste this</th></tr></thead><tbody><tr><td>Black suit</td><td>'Edit my photo: dress me in a tailored black suit with a white shirt, dark studio background, single soft light from the left. Keep my face and hairstyle exactly the same.'</td></tr><tr><td>Traditional kurta</td><td>'Put me in an elegant cream kurta with a Nehru jacket, wedding venue softly blurred behind me, warm evening light. Keep my face unchanged.'</td></tr><tr><td>Retro 90s</td><td>'Turn my photo into a 1990s Bollywood-style portrait: film grain, faded warm colors, vintage shirt, plain backdrop. Keep my face exactly as it is.'</td></tr><tr><td>Gym shot</td><td>'Edit my photo into a moody gym portrait: dark background, hard rim lighting, athletic wear. Keep my face and physique realistic and unchanged.'</td></tr><tr><td>Bike portrait</td><td>'Place me leaning against a classic motorcycle on an empty road at dusk, cinematic tones, leather jacket. Keep my face the same.'</td></tr></tbody></table><h2>Making these prompts your own</h2><p>Change one noun at a time. Swap 'black suit' for 'navy bandhgala', or 'empty road' for 'old Delhi street', and keep the rest of the sentence intact. The structure is doing the heavy lifting: change, setting, light, keep line. If the face drifts, cut a style word; strong style words are what pull features out of shape.</p><p>Upload a clear, front-facing photo with decent light. Group shots, sunglasses, and motion blur are the three most common reasons an edit comes back wrong.</p><h2>Related pages</h2><p>Couples looking for matching edits should start with the <a href=\"/gemini-couple-photo-prompt\">Gemini couple photo prompt</a> page. For the general technique behind all of these, the <a href=\"/gemini-photo-editing-prompt\">Gemini photo editing prompt</a> guide explains the keep line and style balance in more depth, and the trending list lives at <a href=\"/trending-gemini-prompt\">trending Gemini prompts</a>.</p>",
+	"faqs": [
+		{
+			"q": "What is the best Gemini photo prompt for a man?",
+			"a": "The most reliable pattern is: one outfit, one setting, one light, plus a keep line. For example: 'Dress me in a tailored black suit, dark studio background, soft side light. Keep my face and hairstyle exactly the same.' Swap the outfit and setting to make any variation."
+		},
+		{
+			"q": "Why does my face change in Gemini edits?",
+			"a": "Style-heavy words overpower the instruction to preserve your face. Always include 'keep my face exactly the same', use a clear front-facing photo, and remove dramatic style words one at a time until your features hold."
+		},
+		{
+			"q": "Are these prompts free to use?",
+			"a": "Yes. Copy any prompt on this page and paste it into Gemini's free tier, which allows a limited number of image edits per day. No signup is needed on our side."
+		}
+	]
+}

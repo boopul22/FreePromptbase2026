@@ -1,0 +1,18 @@
+{
+	"metaDescription": "Gemini photo prompt for woman: copy-paste lines for saree portraits, aesthetic edits, retro film looks, and studio shots that keep your face the same.",
+	"bodyHtml": "<p>A Gemini photo prompt for woman is a ready-to-paste instruction that turns your own photo into a styled portrait: a chiffon saree in golden light, a clean studio headshot, a 90s film frame. The saree trend alone made this the most copied prompt category in India. Every line below includes the one sentence that keeps you looking like you: the keep line.</p><h2>The prompts everyone is copying</h2><table><thead><tr><th>Look</th><th>Paste this</th></tr></thead><tbody><tr><td>Chiffon saree</td><td>'Edit my photo: drape me in a flowing red chiffon saree, wind in the fabric, golden-hour terrace backdrop, cinematic warm light. Keep my face exactly the same.'</td></tr><tr><td>Retro 90s</td><td>'Turn my photo into a 1990s film portrait: grainy texture, faded warm colors, vintage salwar suit, plain studio backdrop. Keep my face unchanged.'</td></tr><tr><td>Aesthetic minimal</td><td>'Create a soft aesthetic portrait from my photo: pastel tones, clean cream background, gentle window light, Instagram-ready. Keep my face exactly as it is.'</td></tr><tr><td>Royal look</td><td>'Style me in an elegant lehenga with subtle jewellery, palace corridor softly blurred behind me, warm evening glow. Keep my face and expression the same.'</td></tr><tr><td>Studio headshot</td><td>'A clean professional headshot from my photo: neutral grey background, soft studio light, business attire. Keep my face natural and recognizable.'</td></tr></tbody></table><h2>Getting the fabric and jewellery right</h2><p>Fabric is where Gemini shines and jewellery is where it slips. Name the fabric ('chiffon', 'silk', 'organza') and the model renders it convincingly. Jewellery, especially earrings and nose pins, sometimes comes back subtly different, so either describe it as 'minimal jewellery' or check the result closely before posting.</p><p>Start from a clear, well-lit, front-facing photo. If the face drifts, soften the style words before anything else; 'cinematic dramatic ethereal glow' is usually the culprit, and 'warm light' does the same job safely.</p><h2>Related pages</h2><p>Matching edits for two people live on the <a href=\"/gemini-couple-photo-prompt\">Gemini couple photo prompt</a> page. The general technique, including why the keep line works, is on the <a href=\"/gemini-photo-editing-prompt\">Gemini photo editing prompt</a> guide, and this month's most copied lines are collected under <a href=\"/trending-gemini-prompt\">trending Gemini prompts</a>.</p>",
+	"faqs": [
+		{
+			"q": "What is the viral saree prompt for Gemini?",
+			"a": "The pattern is: 'Drape me in a flowing [color] chiffon saree, wind in the fabric, golden-hour backdrop, cinematic warm light. Keep my face exactly the same.' Swap the color and backdrop for endless variations. The keep line at the end is what protects your face."
+		},
+		{
+			"q": "Why does the result not look like me?",
+			"a": "Heavy style words override face preservation. Keep 'keep my face exactly the same' in every prompt, use a sharp front-facing photo, and trim dramatic adjectives one at a time until your features hold steady."
+		},
+		{
+			"q": "Are these prompts free?",
+			"a": "Yes. Every prompt here is free to copy, and Gemini's free tier covers a limited number of image edits per day. Nothing on this page needs a signup."
+		}
+	]
+}
