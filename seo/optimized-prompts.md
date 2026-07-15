@@ -182,9 +182,33 @@ avoid renaming a prompt that has picked up traffic.
 - [x] couple-prompt-red-saree *(red silk saree + gold zari, vine-draped stone wall, golden-hour pre-wedding)* — was `indian-couple-image`
 - [x] couple-prompt-cliff-selfie *(Nusa Penida-style clifftop travel selfie, turquoise ocean, matching white linen)* — was `couple-paradise-prompt`
 
+## Optimized — batch 2026-07-15 (9 scheduled prompts, publish 2026-07-15..17)
+
+Same shape as prior batches. All 9 arrived with EMPTY description/how_to_use/tags and either
+random-code slugs (`couple-prompt-l26mob`, `couple-prompt-bwsgjr`) or generic head-term slugs
+(`men-in-red-shirt`, `girl-with-flowers`, …). All had `view_count=0`/`copy_count=0`, so the
+renames (`rename-descriptive-slugs-2026-07-15.sql`) lost nothing; full SEO pass in
+`optimize-new-prompts-2026-07-15.sql`. `prompt_text` untouched. Note:
+`couple-prompt-double-exposure` was already taken by an earlier prompt, hence the `-beach` suffix.
+
+### Solo portraits
+- [x] sunflower-bouquet-portrait-prompt *(kraft-paper sunflowers, cobblestone European street)* — was `girl-with-flowers`
+- [x] red-shirt-baroque-portrait-prompt *(carved black baroque armchair, red shirt, gold chain)* — was `men-in-red-shirt`
+- [x] garden-staircase-portrait-prompt *(rose-garden staircase, sunglasses adjust)* — was `men-in-mint-t-shirt`
+- [x] black-blazer-studio-portrait-prompt *(open black blazer, warm smile, studio key light)* — was `men-studio-portrait`
+- [x] duotone-wall-portrait-prompt *(laughing on wooden floor, giant B&W duotone of same pose behind)* — was `girl-with-shadow`
+- [x] black-suit-bouquet-portrait-prompt *(three-piece suit, black sedan, bouquet at hip)* — was `men-with-flower`
+
+### Couple prompts
+- [x] couple-prompt-kiss-marks *(night selfie, lipstick kiss marks on his cheek)* — was `couple-prompt-l26mob`
+- [x] couple-prompt-seaside-cliff *(golden-hour rocky cliff, hand on chest)* — was `couple-prompt-bwsgjr`
+- [x] couple-prompt-double-exposure-beach *(forehead close-up fading into golden-hour beach)* — was `double-exposure-couple-image`
+
+### Tags backfill (2026-06-24 style batch, done in the same SQL)
+- [x] `lego-viral-prompt`, `pixel-style-prompt`, `minecraft-prompt`, `motion-blur-prompt`, `glassmorphism-prompt`, `black-and-white-studio-prompt`, `dark-aesthetic-prompt`, `gta-vi-prompt` — tags were `[]`, now filled; title/desc/how_to_use were already done.
+
 ## Not yet optimized
-- (none of the approved/scheduled prompts as of 2026-07-13 — 0 approved prompts have an empty description or how_to_use)
-- Minor: 8 style/ChatGPT prompts from the 2026-06-24 batch have empty `tags` (`[]`) but full title+desc+how_to_use — tags predate the 2026-06-30 tags workflow; low-priority backfill (still 8 as of 2026-07-13). They are: `lego-viral-prompt`, `pixel-style-prompt`, `minecraft-prompt`, `motion-blur-prompt`, `glassmorphism-prompt`, `black-and-white-studio-prompt`, `dark-aesthetic-prompt`, `gta-vi-prompt`.
+- (none as of 2026-07-15 — 0 approved/scheduled prompts have an empty description, how_to_use, or tags)
 - ~87 `draft` prompts (all dated 2026-06-05) remain un-optimized but are **not published/scheduled**; separate backlog.
 
 New prompts (submissions/drafts approved after 2026-06-24) land here un-optimized until
@@ -214,4 +238,6 @@ keyword-targeted meta description, and a how_to_use block.
 - `seo/optimize-new-prompts-2026-07-12.sql` — full SEO pass (title + desc + how_to_use + tags) for 15 new couple prompts; backup `seo/new-prompts-backup-2026-07-12.json`
 - `seo/rename-descriptive-slugs-2026-07-13.sql` — renamed 6 generic head-term slugs (`prompt`, `women-image`, …) to keyword-first + descriptive word
 - `seo/optimize-new-prompts-2026-07-13.sql` — full SEO pass (title + desc + how_to_use + tags) for those 6; backup `seo/new-prompts-backup-2026-07-13.json`
+- `seo/rename-descriptive-slugs-2026-07-15.sql` — renamed 9 scheduled prompts (random codes + generic slugs) to keyword-first + descriptive word
+- `seo/optimize-new-prompts-2026-07-15.sql` — full SEO pass for those 9 + tags backfill for the 8 style prompts from 2026-06-24; backup `seo/new-prompts-backup-2026-07-15.json`
 - Backups: `seo/prompts-title-desc-backup-2026-06-24.json`, `seo/prompts-howto-backup-2026-06-24.json`, `seo/new-prompts-backup-2026-06-30.json`
