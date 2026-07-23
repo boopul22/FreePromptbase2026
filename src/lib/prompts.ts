@@ -236,6 +236,35 @@ export async function getPromptsByCategory(categorySlug: string): Promise<Prompt
 	return results.map(rowToPrompt);
 }
 
+/** A bounded, server-rendered page of category prompts for category landing pages. */
+export async function getPromptsByCategoryPage(
+	categorySlug: string,
+	page = 1,
+	limit = 48,
+): Promise<{ prompts: Prompt[]; total: number; totalPages: number }> {
+	const safePage = Math.max(1, Math.floor(page) || 1);
+	const offset = (safePage - 1) * limit;
+	const db = getDB();
+	const [countRow, result] = await Promise.all([
+		db
+			.prepare(`SELECT COUNT(*) AS count FROM prompts WHERE category = ? AND ${APPROVED}`)
+			.bind(categorySlug)
+			.first<{ count: number }>(),
+		db
+			.prepare(
+				`SELECT ${PROMPT_COLS} FROM prompts WHERE category = ? AND ${APPROVED} ORDER BY ${NEWEST_ORDER} LIMIT ? OFFSET ?`,
+			)
+			.bind(categorySlug, limit, offset)
+			.all<PromptRow>(),
+	]);
+	const total = countRow?.count ?? 0;
+	return {
+		prompts: result.results.map(rowToPrompt),
+		total,
+		totalPages: Math.max(1, Math.ceil(total / limit)),
+	};
+}
+
 /** Featured + approved prompts. */
 export async function getFeaturedPrompts(): Promise<Prompt[]> {
 	const { results } = await getDB()

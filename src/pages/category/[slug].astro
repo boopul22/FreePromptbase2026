@@ -9,7 +9,7 @@ import CategoryIcon from '../../components/CategoryIcon.astro';
 import {
 	getAllCategories,
 	getCategoryBySlug,
-	getPromptsByCategory,
+	getPromptsByCategoryPage,
 } from '../../lib/prompts';
 import { itemListSchema, breadcrumbSchema } from '../../lib/seo';
 import { cfSrcset } from '../../lib/cfImage';
@@ -24,13 +24,20 @@ if (!category) {
 	return Astro.rewrite('/404');
 }
 
-const [prompts, categories] = await Promise.all([
-	getPromptsByCategory(slug),
+const requestedPage = Number.parseInt(Astro.url.searchParams.get('page') ?? '1', 10);
+const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+
+const [{ prompts, total, totalPages }, categories] = await Promise.all([
+	getPromptsByCategoryPage(slug, page),
 	getAllCategories(),
 ]);
 
+if (page > totalPages) {
+	return Astro.redirect(`/category/${slug}${totalPages > 1 ? `?page=${totalPages}` : ''}`, 302);
+}
+
 const list = itemListSchema(
-	prompts.slice(0, 30).map((p) => ({ name: p.title, url: `/${p.slug}` })),
+	prompts.map((p) => ({ name: p.title, url: `/${p.slug}` })),
 	`${category.name} prompts`,
 );
 const crumb = breadcrumbSchema([
@@ -44,6 +51,7 @@ const crumb = breadcrumbSchema([
 	title={`${category.name} prompts — Free Prompt Base`}
 	description={category.description}
 	extraSchemas={[list, crumb]}
+	robots={page > 1 ? 'noindex, follow' : undefined}
 	preloadImage={prompts[0]?.coverImage}
 	preloadImageSrcset={prompts[0]?.coverImage ? cfSrcset(prompts[0].coverImage, [300, 400, 520, 660], 68) : undefined}
 	preloadImageSizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
@@ -70,7 +78,7 @@ const crumb = breadcrumbSchema([
 				</h1>
 				<p class="text-gray-600 text-lg mt-2 max-w-2xl">{category.description}</p>
 				<p class="text-sm font-medium text-gray-500 mt-2">
-					{prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'}
+					{total} {total === 1 ? 'prompt' : 'prompts'}
 				</p>
 			</div>
 		</header>
@@ -86,6 +94,24 @@ const crumb = breadcrumbSchema([
 				<p class="text-center text-gray-500 py-16">
 					No prompts in this category yet. Check back soon!
 				</p>
+			)
+		}
+
+		{
+			totalPages > 1 && (
+				<nav class="mt-10 flex items-center justify-center gap-3" aria-label={`${category.name} prompt pages`}>
+					{page > 1 && (
+						<a class="btn-secondary" href={`/category/${slug}${page === 2 ? '' : `?page=${page - 1}`}`}>
+							Previous
+						</a>
+					)}
+					<span class="text-sm text-gray-600">Page {page} of {totalPages}</span>
+					{page < totalPages && (
+						<a class="btn-secondary" href={`/category/${slug}?page=${page + 1}`}>
+							Next
+						</a>
+					)}
+				</nav>
 			)
 		}
 	</main>
