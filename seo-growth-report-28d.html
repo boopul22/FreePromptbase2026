@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>freepromptbase.com — Global 28-Day SEO Report</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --ink:#14161a; --muted:#5c6570;
+    --line:#e6e9ee; --brand:#4f46e5; --brand-soft:#eef0fe;
+    --good:#0f9d58; --good-soft:#e7f5ee; --bad:#d93025; --bad-soft:#fce8e6;
+    --warn:#b26a00; --warn-soft:#fff3e0; --flat:#6b7280; --flat-soft:#eef1f4;
+    --shadow:0 1px 2px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.06);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1013; --card:#171a1f; --ink:#eef1f5; --muted:#9aa4b0;
+      --line:#262b32; --brand:#8b85ff; --brand-soft:#20213a;
+      --good:#4ade80; --good-soft:#12271b; --bad:#ff6b60; --bad-soft:#2a1512;
+      --warn:#f0b429; --warn-soft:#2a2110; --flat:#9aa4b0; --flat-soft:#1d2127;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 20px 80px}
+  header.top{margin-bottom:8px}
+  .kicker{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand);font-weight:700}
+  h1{font-size:30px;line-height:1.15;margin:8px 0 6px;letter-spacing:-.02em}
+  h1 .dom{color:var(--brand)}
+  .range{color:var(--muted);font-size:14px}
+  .range b{color:var(--ink)}
+
+  section{margin-top:34px}
+  h2{font-size:18px;margin:0 0 14px;letter-spacing:-.01em}
+  h2 .n{color:var(--muted);font-weight:500;font-size:14px;margin-left:6px}
+
+  .verdict{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--flat);
+    border-radius:14px;padding:20px 22px;box-shadow:var(--shadow);display:flex;gap:16px;align-items:flex-start}
+  .verdict .badge{flex:none;font-size:13px;font-weight:800;letter-spacing:.03em;padding:6px 12px;border-radius:999px;
+    background:var(--flat-soft);color:var(--flat);white-space:nowrap}
+  .verdict p{margin:0}
+  .verdict p + p{margin-top:8px;color:var(--muted);font-size:14.5px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+  .card .label{font-size:12.5px;color:var(--muted);font-weight:600}
+  .card .val{font-size:30px;font-weight:800;letter-spacing:-.02em;margin-top:6px;line-height:1}
+  .card .sub{margin-top:7px;font-size:12.5px;color:var(--muted)}
+  .chip{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px}
+  .chip.flat{background:var(--flat-soft);color:var(--flat)}
+  .chip.good{background:var(--good-soft);color:var(--good)}
+  .chip.bad{background:var(--bad-soft);color:var(--bad)}
+  .chip.warn{background:var(--warn-soft);color:var(--warn)}
+
+  /* global scoreboard */
+  .score{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+  @media(max-width:640px){.score{grid-template-columns:repeat(2,1fr)}}
+  .score .cell{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 12px;text-align:center;box-shadow:var(--shadow)}
+  .score .cell .big{font-size:26px;font-weight:800;line-height:1}
+  .score .cell .cap{font-size:11.5px;color:var(--muted);margin-top:6px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+  .score .cell.new .big{color:var(--good)} .score .cell.up .big{color:var(--good)}
+  .score .cell.down .big{color:var(--bad)} .score .cell.lost .big{color:var(--bad)}
+  .score .cell.same .big{color:var(--flat)}
+
+  /* movement bar */
+  .movebar{display:flex;height:34px;border-radius:9px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow);margin-top:14px}
+  .movebar span{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff}
+  .movebar .s-new{background:#0f9d58} .movebar .s-up{background:#5bbf86}
+  .movebar .s-same{background:#9aa4b0} .movebar .s-down{background:#e8776f} .movebar .s-lost{background:#d93025}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:12.5px;color:var(--muted)}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+  table{width:100%;border-collapse:collapse;background:var(--card);font-size:14px;min-width:560px}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700;background:var(--flat-soft)}
+  tr:last-child td{border-bottom:none}
+  td.kw{white-space:normal;font-weight:600;min-width:170px}
+  td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tfoot td{font-weight:800;background:var(--flat-soft)}
+  .delta{font-weight:700;font-variant-numeric:tabular-nums}
+  .delta.up{color:var(--good)} .delta.down{color:var(--bad)} .delta.same{color:var(--flat)}
+  .muted{color:var(--muted)}
+
+  .bars{display:flex;align-items:flex-end;gap:6px;height:120px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow-x:auto}
+  .bar{flex:1;min-width:20px;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+  .bar .stalk{width:100%;max-width:26px;background:var(--brand-soft);border:1px solid var(--brand);border-radius:5px 5px 3px 3px}
+  .bar .stalk.now{background:var(--brand)}
+  .bar .m{font-size:10.5px;color:var(--muted);white-space:nowrap}
+  .bar .v{font-size:11px;font-weight:700}
+
+  .note{background:var(--warn-soft);border:1px solid color-mix(in srgb,var(--warn) 30%,transparent);border-radius:12px;padding:14px 16px;font-size:14px}
+  .note b{color:var(--warn)}
+  .todo{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:6px 4px;box-shadow:var(--shadow)}
+  .todo .row{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line)}
+  .todo .row:last-child{border-bottom:none}
+  .todo .idx{flex:none;width:26px;height:26px;border-radius:8px;background:var(--brand-soft);color:var(--brand);font-weight:800;display:grid;place-items:center;font-size:13px}
+  .todo .txt{font-size:14.5px}
+  .todo .txt b{display:block}
+  .todo .txt span{color:var(--muted);font-size:13px}
+  footer{margin-top:44px;color:var(--muted);font-size:12.5px;text-align:center;line-height:1.7}
+  code{background:var(--flat-soft);padding:1px 5px;border-radius:4px;font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="kicker">SE Ranking · Global 28-Day Growth Report</div>
+    <h1><span class="dom">freepromptbase.com</span> — Worldwide Search Visibility</h1>
+    <div class="range">Window: <b>18 Jun 2026 → 15 Jul 2026</b> (28 days) · Scope: <b>Worldwide (all countries)</b> · Source: SE Ranking research DB</div>
+  </header>
+
+  <!-- VERDICT -->
+  <section aria-label="Verdict">
+    <div class="verdict">
+      <div class="badge">GLOBAL: FLAT ↘ SLIGHT DECLINE</div>
+      <div>
+        <p><b>Worldwide the site held at 30 tracked keywords with 0 estimated traffic — net change over 28 days is roughly zero, with a slight negative tilt.</b> The two highest-volume terms both lost ground.</p>
+        <p>This is SE Ranking's <em>research-database estimate</em>. It undercounts small sites and cannot see your real Google clicks — connect Search Console for true traffic (see fixes at the bottom).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GLOBAL SCOREBOARD -->
+  <section aria-label="Global scoreboard">
+    <h2>🌍 Global keyword movement <span class="n">last 28 days</span></h2>
+    <div class="score">
+      <div class="cell new"><div class="big">+1</div><div class="cap">New</div></div>
+      <div class="cell up"><div class="big">+1</div><div class="cap">Improved ▲</div></div>
+      <div class="cell same"><div class="big">12</div><div class="cap">Held</div></div>
+      <div class="cell down"><div class="big">−2</div><div class="cap">Declined ▼</div></div>
+      <div class="cell lost"><div class="big">−1</div><div class="cap">Lost</div></div>
+    </div>
+
+    <div class="movebar" role="img" aria-label="Movement: 1 new, 1 up, 12 held, 2 down, 1 lost">
+      <span class="s-new" style="width:6%">+1</span>
+      <span class="s-up" style="width:6%">▲1</span>
+      <span class="s-same" style="width:70%">12 held</span>
+      <span class="s-down" style="width:12%">▼2</span>
+      <span class="s-lost" style="width:6%">−1</span>
+    </div>
+    <div class="legend">
+      <span><i style="background:#0f9d58"></i>New</span>
+      <span><i style="background:#5bbf86"></i>Improved</span>
+      <span><i style="background:#9aa4b0"></i>Held steady</span>
+      <span><i style="background:#e8776f"></i>Declined</span>
+      <span><i style="background:#d93025"></i>Lost</span>
+    </div>
+    <p class="muted" style="font-size:13px;margin-top:12px">Movement measured across the 5 markets that hold multiple keywords (India, US, Vietnam, Romania, Brazil = 15 of the 30 worldwide keywords). Read it as: for every keyword that improved, two slipped — the worldwide trend is flat-to-down, not growing.</p>
+  </section>
+
+  <!-- HEADLINE METRICS -->
+  <section aria-label="Global headline metrics">
+    <h2>Worldwide totals</h2>
+    <div class="grid">
+      <div class="card"><div class="label">Keywords (worldwide)</div><div class="val">30</div><div class="sub"><span class="chip flat">≈ net 0 vs 28d ago</span></div></div>
+      <div class="card"><div class="label">Countries present in</div><div class="val">21</div><div class="sub">India &amp; US lead (4 each)</div></div>
+      <div class="card"><div class="label">Est. traffic / mo</div><div class="val">0</div><div class="sub">All ranks below traffic threshold</div></div>
+      <div class="card"><div class="label">Backlinks</div><div class="val">44</div><div class="sub"><span class="chip flat">0 new · 0 lost (28d)</span></div></div>
+      <div class="card"><div class="label">Referring domains</div><div class="val">31</div><div class="sub">only <b>2</b> dofollow</div></div>
+      <div class="card"><div class="label">Domain authority</div><div class="val">2<span style="font-size:15px;color:var(--muted)">/100</span></div><div class="sub">InLink Rank</div></div>
+    </div>
+  </section>
+
+  <!-- GLOBAL FOOTPRINT BY COUNTRY -->
+  <section aria-label="Keywords by country">
+    <h2>Where the 30 keywords sit <span class="n">worldwide distribution</span></h2>
+    <div class="bars" role="img" aria-label="Keyword count by country">
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:100%"></div><div class="m">🇮🇳 IN</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:100%"></div><div class="m">🇺🇸 US</div></div>
+      <div class="bar"><div class="v">3</div><div class="stalk" style="height:75%"></div><div class="m">🇻🇳 VN</div></div>
+      <div class="bar"><div class="v">2</div><div class="stalk" style="height:50%"></div><div class="m">🇷🇴 RO</div></div>
+      <div class="bar"><div class="v">2</div><div class="stalk" style="height:50%"></div><div class="m">🇧🇷 BR</div></div>
+      <div class="bar"><div class="v">15</div><div class="stalk" style="height:50%;background:var(--flat-soft);border-color:var(--flat)"></div><div class="m">16 more ×1</div></div>
+    </div>
+    <p class="muted" style="font-size:13px;margin-top:10px">The footprint is a wide, thin spread: five core markets hold half the keywords, and 16 other countries pick up a single keyword each. India and the US are the strongest — matching the India-led strategy in <code>seo/tracklist.md</code>.</p>
+  </section>
+
+  <!-- 28-DAY CHANGE BY MARKET -->
+  <section aria-label="28-day change by market">
+    <h2>28-day change <span class="n">by market</span></h2>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Market</th><th class="num">Keywords</th><th class="num">New</th><th class="num">Up ▲</th><th class="num">Down ▼</th><th class="num">Held</th><th class="num">Lost</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="kw">🇮🇳 India</td><td class="num">4</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">4</td><td class="num">0</td></tr>
+          <tr><td class="kw">🇺🇸 United States</td><td class="num">4</td><td class="num">0</td><td class="num">0</td><td class="num delta down">1</td><td class="num">3</td><td class="num">0</td></tr>
+          <tr><td class="kw">🇻🇳 Vietnam</td><td class="num">3</td><td class="num">0</td><td class="num">0</td><td class="num delta down">1</td><td class="num">2</td><td class="num">0</td></tr>
+          <tr><td class="kw">🇷🇴 Romania</td><td class="num">2</td><td class="num delta up">1</td><td class="num">0</td><td class="num">0</td><td class="num">2</td><td class="num">0</td></tr>
+          <tr><td class="kw">🇧🇷 Brazil</td><td class="num">2</td><td class="num">0</td><td class="num delta up">1</td><td class="num">0</td><td class="num">1</td><td class="num delta down">1</td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td>Global (measured)</td><td class="num">15</td><td class="num">1</td><td class="num">1</td><td class="num">2</td><td class="num">12</td><td class="num">1</td></tr>
+        </tfoot>
+      </table>
+    </div>
+  </section>
+
+  <!-- BIGGEST MOVERS -->
+  <section aria-label="Biggest movers">
+    <h2>Biggest movers <span class="n">the terms that matter most</span></h2>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Keyword</th><th>Market</th><th class="num">Vol/mo</th><th class="num">Was</th><th class="num">Now</th><th class="num">28-day move</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="kw">prompt base</td><td>🇺🇸 US</td><td class="num">480</td><td class="num">45</td><td class="num">62</td><td class="num delta down">▼ 17</td></tr>
+          <tr><td class="kw">promptbase</td><td>🇻🇳 VN</td><td class="num">320</td><td class="num">36</td><td class="num">42</td><td class="num delta down">▼ 6</td></tr>
+          <tr><td class="kw">promptbase free</td><td>🇮🇳 IN / US / VN</td><td class="num">30–70</td><td class="num">27–58</td><td class="num">27–58</td><td class="num delta same">±0</td></tr>
+          <tr><td class="kw">prompt base free</td><td>🇮🇳 IN / VN</td><td class="num">10</td><td class="num">22–23</td><td class="num">22–23</td><td class="num delta same">±0</td></tr>
+          <tr><td class="kw">ghetto tattoo sleeves</td><td>🇺🇸 US</td><td class="num">30</td><td class="num">22</td><td class="num">22</td><td class="num delta same">±0</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <b>⚠ The headline problem:</b> your two highest-volume keywords — <b>"prompt base" (480/mo)</b> and <b>"promptbase" (320/mo)</b> — <b>both declined</b> this month. Together they represent most of the site's potential traffic, and both are drifting deeper into page 3–4. This is the single most important thing to reverse.
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section aria-label="Keyword footprint history">
+    <h2>Keyword footprint over time <span class="n">last 12 months (India DB)</span></h2>
+    <div class="bars" role="img" aria-label="Monthly tracked keyword count, flat at 4 for most months">
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:80%"></div><div class="m">Aug</div></div>
+      <div class="bar"><div class="v">2</div><div class="stalk" style="height:40%"></div><div class="m">Sep</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:80%"></div><div class="m">Oct</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:80%"></div><div class="m">Nov</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:80%"></div><div class="m">Dec</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:80%"></div><div class="m">Jan</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:80%"></div><div class="m">Feb</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:80%"></div><div class="m">Mar</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:80%"></div><div class="m">Apr</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:80%"></div><div class="m">May</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk" style="height:80%"></div><div class="m">Jun</div></div>
+      <div class="bar"><div class="v">4</div><div class="stalk now" style="height:80%"></div><div class="m">Jul</div></div>
+    </div>
+    <p class="muted" style="font-size:13px;margin-top:10px">Flat at ~4 tracked keywords for over a year — the database has never recorded growth here, which points to thin coverage of a small site rather than the site failing.</p>
+  </section>
+
+  <!-- BACKLINKS -->
+  <section aria-label="Backlink profile">
+    <h2>Backlink profile <span class="n">and a warning</span></h2>
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
+      <div class="card"><div class="label">Backlinks</div><div class="val">44</div><div class="sub">41 nofollow · <b>3</b> dofollow</div></div>
+      <div class="card"><div class="label">Ref. domains</div><div class="val">31</div><div class="sub">2 dofollow</div></div>
+      <div class="card"><div class="label">New links (28d)</div><div class="val">0</div><div class="sub"><span class="chip flat">no link growth</span></div></div>
+      <div class="card"><div class="label">Top source</div><div class="val">🇫🇮</div><div class="sub">Finland (19), France (7)</div></div>
+    </div>
+    <div class="note" style="margin-top:14px">
+      <b>⚠ Spam signal:</b> the profile is loaded with junk-TLD domains (<code>.top</code>, <code>.sbs</code>, <code>.cfd</code>) and a link-scheme anchor — <em>"Elevate your ranking with freepromptbase.com on seo-high-ranking.shop."</em> That looks like an automated/PBN link blast, not earned links. Review and disavow the junk, and earn a few <b>real dofollow</b> links (only 2 referring domains currently count).
+    </div>
+  </section>
+
+  <!-- WHAT TO DO -->
+  <section aria-label="What to fix">
+    <h2>Why growth reads flat — and how to actually grow it</h2>
+    <div class="todo">
+      <div class="row"><div class="idx">1</div><div class="txt"><b>Rescue your two biggest keywords first</b><span>"prompt base" (480) and "promptbase" (320) both fell this month. Strengthen homepage on-page targeting + internal links pointing to it — this is where global traffic will come from.</span></div></div>
+      <div class="row"><div class="idx">2</div><div class="txt"><b>Connect Google Search Console for true 28-day numbers</b><span>SE Ranking's estimate reads 0 traffic because it can't see a small site's real clicks. GSC is the ground truth for global growth.</span></div></div>
+      <div class="row"><div class="idx">3</div><div class="txt"><b>Set up a rank-tracking project (none exists in the account)</b><span>Add freepromptbase.com with your strategic terms — nano banana prompt, gemini ai photo prompt copy paste — in the India database for daily day-by-day tracking.</span></div></div>
+      <div class="row"><div class="idx">4</div><div class="txt"><b>Get the strategic /tag pages indexed globally</b><span>Only the homepage ranks anywhere. Your nano-banana / gemini-photo landing pages aren't surfacing in any country DB yet — they need indexing, internal links, and content depth.</span></div></div>
+      <div class="row"><div class="idx">5</div><div class="txt"><b>Clean up the spammy backlinks</b><span>Disavow the PBN/junk-TLD links and pursue a handful of genuine dofollow links to lift domain authority off 2/100.</span></div></div>
+    </div>
+  </section>
+
+  <footer>
+    Generated from live SE Ranking API data on 15 Jul 2026 · Worldwide scope · Window 18 Jun – 15 Jul 2026 (28 days).<br>
+    Global movement is measured across the 5 multi-keyword markets (15 of 30 keywords); the 16 single-keyword markets were unchanged in count.<br>
+    "Keywords" and "estimated traffic" come from SE Ranking's research database and undercount small/new sites — treat Google Search Console as ground truth for real traffic.
+  </footer>
+
+</div>
+</body>
+</html>

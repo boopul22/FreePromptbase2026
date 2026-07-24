@@ -1,0 +1,363 @@
+- generic [ref=f63e4]:
+  - button "Skip to content" [ref=f63e6]
+  - generic [ref=f63e10]:
+    - banner [ref=f63e12]:
+      - generic [ref=f63e14]:
+        - button "Main menu" [ref=f63e16] [cursor=pointer]:
+          - img [ref=f63e19]: menu
+        - link "Google AdSense" [ref=f63e20] [cursor=pointer]:
+          - /url: /adsense/u/0/pub-7803867089582138/home
+      - heading "Privacy & messaging" [level=1] [ref=f63e23]
+      - generic [ref=f63e25]:
+        - button "Help" [ref=f63e27] [cursor=pointer]:
+          - img [ref=f63e30]: help
+        - button "Notifications" [ref=f63e34] [cursor=pointer]:
+          - img [ref=f63e39]: notifications
+        - button "Google account" [ref=f63e42] [cursor=pointer]:
+          - img "Google account (bipul281b@gmail.com)" [ref=f63e44]
+    - generic:
+      - navigation:
+        - menu:
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "AdSense for YouTube":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: video_youtube
+                    - generic: AdSense for YouTube
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Home":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: home
+                    - generic: Home
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Ads":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: picture_in_picture
+                    - generic: Ads
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Sites":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: drive_site
+                    - generic: Sites
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Privacy & messaging"
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Brand safety":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: arrow_right
+                    - generic:
+                      - generic:
+                        - img: not_interested
+                    - generic: Brand safety
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Reports":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: assessment
+                    - generic: Reports
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Optimization":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: arrow_right
+                    - generic:
+                      - generic:
+                        - img: trending_up
+                    - generic: Optimization
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Policy center":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: policy
+                    - generic: Policy center
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Payments":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: arrow_right
+                    - generic: Payments
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Account":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: arrow_right
+                    - generic:
+                      - generic:
+                        - img: settings
+                    - generic: Account
+          - generic:
+            - generic:
+              - generic:
+                - menuitem "Feedback":
+                  - generic:
+                    - generic:
+                      - generic:
+                        - img: feedback
+                    - generic: Feedback
+        - generic:
+          - generic:
+            - generic:
+              - link "Privacy":
+                - /url: https://www.google.com/intl/en_US/policies/privacy
+              - link "Terms":
+                - /url: https://adsense.google.com/adsense/terms?rc=IN&ce=19
+    - generic [ref=f63e45]:
+      - generic:
+        - region "Notifications"
+      - main "Privacy & messaging" [ref=f63e47]:
+        - generic [ref=f63e50]:
+          - iframe [active] [ref=f63e51]:
+            - generic [ref=f64e7]:
+              - generic [ref=f64e8]:
+                - generic [ref=f64e10]:
+                  - generic [ref=f64e12]:
+                    - button "Privacy & messaging" [ref=f64e15]
+                    - generic [ref=f64e19]: keyboard_arrow_right
+                    - button "Offerwall" [ref=f64e23]
+                  - heading "Offerwall" [level=5] [ref=f64e27]
+                - generic [ref=f64e29]:
+                  - text: Offer visitors choices to gain access to your content and discover new sources of revenue for your site.
+                  - link "Learn more about Offerwall" [ref=f64e30] [cursor=pointer]:
+                    - /url: https://support.google.com/adsense/answer/13865318
+                    - text: Learn more about Offerwall
+                    - generic [ref=f64e31]: launch
+              - generic [ref=f64e32]:
+                - tablist [ref=f64e33]:
+                  - generic [ref=f64e36]:
+                    - tab "Messages" [selected] [ref=f64e37] [cursor=pointer]
+                    - tab "Tags" [ref=f64e39] [cursor=pointer]
+                - tabpanel "Messages" [ref=f64e41]:
+                  - generic [ref=f64e42]:
+                    - separator [ref=f64e43]
+                    - generic [ref=f64e44]:
+                      - generic [ref=f64e47]:
+                        - generic [ref=f64e49]:
+                          - generic [ref=f64e50]:
+                            - generic [ref=f64e51]:
+                              - generic [ref=f64e52]: Messages shown
+                              - button "More info" [ref=f64e53] [cursor=pointer]:
+                                - generic [ref=f64e54]: 
+                            - heading "39" [level=2] [ref=f64e55]
+                          - generic [ref=f64e56]:
+                            - generic [ref=f64e57]:
+                              - generic [ref=f64e58]: Rewarded ads revenue
+                              - button "More info" [ref=f64e59] [cursor=pointer]:
+                                - generic [ref=f64e60]: 
+                            - heading "$0.04" [level=2] [ref=f64e61]
+                        - button "Download reports" [ref=f64e67]
+                      - generic [ref=f64e72]:
+                        - button "Create message" [active] [ref=f64e74]
+                        - table "View and edit messages" [ref=f64e84]:
+                          - rowgroup [ref=f64e85]:
+                            - row [ref=f64e86]:
+                              - columnheader "Name Sort by Name" [ref=f64e87] [cursor=pointer]:
+                                - generic [ref=f64e88]:
+                                  - generic [ref=f64e89]: Name
+                                  - button "Sort by Name" [ref=f64e90]:
+                                    - generic [ref=f64e91]: arrow_upward
+                              - columnheader "Language" [ref=f64e93]
+                              - columnheader "Site" [ref=f64e94]
+                              - columnheader "Last modified Sort by Last modified" [ref=f64e95] [cursor=pointer]:
+                                - generic [ref=f64e96]:
+                                  - generic [ref=f64e97]: Last modified
+                                  - button "Sort by Last modified" [ref=f64e98]:
+                                    - generic [ref=f64e99]: arrow_upward
+                                  - generic [ref=f64e100]: Sorted in descending order
+                              - columnheader "Status" [ref=f64e101]
+                              - columnheader "Publish" [ref=f64e102]
+                              - columnheader [ref=f64e103]
+                          - rowgroup [ref=f64e104]:
+                            - row [ref=f64e105]:
+                              - cell "ITU Offerwall" [ref=f64e106]:
+                                - link "ITU Offerwall" [ref=f64e108] [cursor=pointer]:
+                                  - /url: "#"
+                              - cell "English (en-US)" [ref=f64e109]
+                              - cell "imagetourl.cloud" [ref=f64e110]:
+                                - link "imagetourl.cloud" [ref=f64e112] [cursor=pointer]:
+                                  - /url: "#"
+                              - cell "Jul 11, 2026" [ref=f64e113]
+                              - cell "Draft" [ref=f64e114]
+                              - cell "Publish message" [ref=f64e116]:
+                                - switch "Publish message" [ref=f64e118] [cursor=pointer]
+                              - cell "More options" [ref=f64e129]:
+                                - generic [ref=f64e133]:
+                                  - button "More options" [ref=f64e134] [cursor=pointer]:
+                                    - generic [ref=f64e135]: more_vert
+                                  - tooltip [ref=f64e136]: More options
+          - iframe [ref=f63e63]:
+            - generic [ref=f65e7]:
+              - generic [ref=f65e9]:
+                - generic [ref=f65e10]:
+                  - button "Close" [ref=f65e11] [cursor=pointer]:
+                    - generic [ref=f65e12]: arrow_back
+                  - tooltip [ref=f65e13]: Close
+                - textbox "Enter message name" [ref=f65e16]: Untitled Offerwall message
+                - button "More info" [ref=f65e18] [cursor=pointer]:
+                  - generic [ref=f65e19]: 
+                - generic [ref=f65e20]:
+                  - button "Save draft" [ref=f65e22]
+                  - button "Publish" [ref=f65e25]
+              - generic [ref=f65e28]:
+                - generic [ref=f65e30]:
+                  - tablist [ref=f65e31]:
+                    - generic [ref=f65e34]:
+                      - tab "Original" [ref=f65e35] [cursor=pointer]:
+                        - generic:
+                          - generic: No Message
+                          - generic: Original
+                      - tab "Variation" [selected] [ref=f65e37] [cursor=pointer]:
+                        - generic:
+                          - generic:
+                            - generic: science
+                            - text: Draft
+                          - generic: Variation
+                  - tabpanel
+                - button "Discard experiment" [ref=f65e41]
+              - generic [ref=f65e45]:
+                - generic [ref=f65e46]:
+                  - generic [ref=f65e47]:
+                    - generic [ref=f65e50]:
+                      - generic [ref=f65e51]:
+                        - button "Preview message for desktop" [pressed] [ref=f65e52] [cursor=pointer]:
+                          - generic [ref=f65e53]: desktop_windows
+                        - tooltip [ref=f65e55]: Desktop
+                      - generic [ref=f65e56]:
+                        - button "Preview message for mobile" [ref=f65e57] [cursor=pointer]:
+                          - generic [ref=f65e58]: smartphone
+                        - tooltip [ref=f65e60]: Mobile
+                    - generic [ref=f65e63]:
+                      - generic:
+                        - combobox "English (en-US)" [disabled]:
+                          - generic: language
+                  - generic [ref=f65e65]:
+                    - generic [ref=f65e68]:
+                      - text: Offerwall
+                      - button "More info" [ref=f65e69] [cursor=pointer]:
+                        - generic [ref=f65e70]: 
+                      - menu "Offerwall" [ref=f65e71]:
+                        - menuitem "Offerwall" [ref=f65e72] [cursor=pointer]
+                        - menuitem "Rewarded ad" [ref=f65e73] [cursor=pointer]
+                        - menuitem "Confirmation" [ref=f65e74] [cursor=pointer]
+                    - dialog "Unlock more content" [ref=f65e79]:
+                      - generic [ref=f65e80]:
+                        - img "Welcome to %%SITE_NAME%%" [ref=f65e83]
+                        - generic [ref=f65e84]:
+                          - heading "Unlock more content" [level=1] [ref=f65e85]
+                          - paragraph [ref=f65e87]: Take action to continue accessing the content on this site
+                        - button "View a short ad Site-wide access for 24 hours" [ref=f65e89] [cursor=pointer]:
+                          - generic [ref=f65e90]:
+                            - generic [ref=f65e91]: View a short ad
+                            - generic [ref=f65e92]: Site-wide access for 24 hours
+                - generic [ref=f65e99]:
+                  - tablist [ref=f65e100]:
+                    - generic [ref=f65e103]:
+                      - tab "Setup" [selected] [ref=f65e104] [cursor=pointer]:
+                        - generic:
+                          - generic: settings
+                          - generic: Setup
+                      - tab "Styling" [ref=f65e106] [cursor=pointer]:
+                        - generic:
+                          - generic: palette
+                          - generic: Styling
+                  - tabpanel "Setup" [ref=f65e108]:
+                    - generic [ref=f65e111]:
+                      - generic [ref=f65e114]:
+                        - generic [ref=f65e115]: Your sites
+                        - button "Select sites" [ref=f65e117]
+                      - generic [ref=f65e122]:
+                        - generic [ref=f65e123]:
+                          - text: Page inclusions and exclusions
+                          - button "More info" [ref=f65e124] [cursor=pointer]:
+                            - generic [ref=f65e125]: 
+                        - generic [ref=f65e126]:
+                          - button "Add URLs" [disabled]
+                      - generic [ref=f65e129]:
+                        - generic [ref=f65e130]:
+                          - text: Default language
+                          - button "More info" [ref=f65e131] [cursor=pointer]:
+                            - generic [ref=f65e132]: 
+                          - combobox "Default language English (en-US)" [ref=f65e135] [cursor=pointer]:
+                            - generic: English (en-US)
+                        - button "Additional languages" [ref=f65e139]
+                      - generic [ref=f65e143]:
+                        - generic [ref=f65e144]:
+                          - text: Metering
+                          - button "More info" [ref=f65e145] [cursor=pointer]:
+                            - generic [ref=f65e146]: 
+                        - generic [ref=f65e149]:
+                          - generic [ref=f65e150]: insights
+                          - text: Optimizing
+                      - separator [ref=f65e151]
+                      - generic [ref=f65e154]:
+                        - text: User choices
+                        - button "More info" [ref=f65e155] [cursor=pointer]:
+                          - generic [ref=f65e156]: 
+                        - generic [ref=f65e157]:
+                          - generic [ref=f65e158]:
+                            - generic [ref=f65e159]:
+                              - generic [ref=f65e160]: Rewarded ad
+                              - generic [ref=f65e161]: "On"
+                            - generic [ref=f65e162]: Reward your site visitors access for a limited period of time after viewing an ad
+                            - button "Manage" [ref=f65e165]
+                          - generic [ref=f65e168]:
+                            - generic [ref=f65e169]:
+                              - generic [ref=f65e170]:
+                                - generic [ref=f65e171]: Email collection
+                                - generic [ref=f65e172]: BETA
+                              - generic [ref=f65e173]: Grow your audience and boost engagement by collecting user emails for newsletters, promotions, and more
+                              - button "Set up" [ref=f65e175]
+                            - generic [ref=f65e178]: "Off"
+                          - generic [ref=f65e179]:
+                            - generic [ref=f65e180]:
+                              - generic [ref=f65e181]: Dismiss (close)
+                              - generic [ref=f65e183]: Give site visitors the option to dismiss your Offerwall for one or more page views
+                              - button "Set up" [ref=f65e185]
+                            - generic [ref=f65e188]: "Off"
+                      - separator [ref=f65e189]
+                      - generic [ref=f65e192]:
+                        - generic [ref=f65e193]:
+                          - generic [ref=f65e194]: Optimize your Offerwall
+                          - generic [ref=f65e195]:
+                            - text: Google will optimize settings, like metering, for each end user to maximize earnings.
+                            - paragraph [ref=f65e196]:
+                              - link "Learn more about Offerwall optimization" [ref=f65e197] [cursor=pointer]:
+                                - /url: https://support.google.com/adsense/answer/13866332#01_optimize
+                                - text: Learn more about Offerwall optimization
+                                - generic [ref=f65e198]: launch
+                        - combobox "On" [ref=f65e202] [cursor=pointer]
