@@ -673,7 +673,8 @@ const { id } = Astro.params;
  badgeMobile.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-50 text-blue-900';
  toggleBtn.textContent = 'Unpublish';
  toggleBtn.className = 'btn-dark btn-sm';
- viewLink.href = `/blog/${currentSlug}`;
+ const contentType = (document.getElementById('post-content-type') as HTMLSelectElement).value;
+ viewLink.href = `/${contentType === 'news' ? 'news' : 'blog'}/${currentSlug}`;
  viewLink.classList.remove('hidden');
  } else {
  badge.textContent = 'Draft';

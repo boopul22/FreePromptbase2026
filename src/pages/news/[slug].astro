@@ -11,8 +11,8 @@ if (!post) {
 	return Astro.rewrite('/404');
 }
 
-if (post.contentType === 'news') {
-	return Astro.redirect(`/news/${post.slug}`, 301);
+if (post.contentType !== 'news') {
+	return Astro.redirect(`/blog/${post.slug}`, 301);
 }
 ---
 

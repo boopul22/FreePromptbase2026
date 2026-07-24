@@ -1,0 +1,1133 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Breadcrumb from './Breadcrumb.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import BlogShare from './BlogShare.astro';
+import AdSlot from './AdSlot.astro';
+import { splitAtNthH2 } from '../lib/ads';
+import { getRelatedPosts, postReadTime, type Post } from '../lib/posts';
+import { breadcrumbSchema, publisherBlock } from '../lib/seo';
+import { cfSrcset } from '../lib/cfImage';
+
+interface Props {
+	post: Post;
+}
+
+const { post } = Astro.props as Props;
+
+const related = await getRelatedPosts(post);
+const mins = postReadTime(post);
+const isNews = post.contentType === 'news';
+const fmtDate = (iso: string) =>
+	new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const fmtNewsDate = (iso: string) =>
+	new Date(iso).toLocaleString('en-US', {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric',
+		hour: 'numeric',
+		minute: '2-digit',
+		timeZone: 'Asia/Kolkata',
+		timeZoneName: 'short',
+	});
+const dateIso = post.publishedAt ?? post.createdAt;
+const updatedIso = post.updatedAt ?? dateIso;
+// Surface the edit date once a post is updated a day or more after it was published.
+const wasUpdated = new Date(updatedIso).getTime() - new Date(dateIso).getTime() > 86_400_000;
+const formatVisibleDate = isNews ? fmtNewsDate : fmtDate;
+const dateLabel = wasUpdated ? `Updated ${formatVisibleDate(updatedIso)}` : formatVisibleDate(dateIso);
+const authorName = post.authorName || 'Admin';
+const sectionName = isNews ? 'News' : 'Blog';
+const sectionPath = isNews ? '/news' : '/blog';
+const articlePath = `${sectionPath}/${post.slug}`;
+const relatedHref = (relatedPost: Post) =>
+	`${relatedPost.contentType === 'news' ? '/news' : '/blog'}/${relatedPost.slug}`;
+const authorInitials = authorName
+	.trim()
+	.split(/\s+/)
+	.map((w) => w[0])
+	.slice(0, 2)
+	.join('')
+	.toUpperCase();
+
+// --- Build TOC from h2/h3 in the body HTML, inject anchor ids inline ---
+function slugify(s: string): string {
+	return s
+		.toLowerCase()
+		.replace(/<[^>]+>/g, '')
+		.replace(/[^a-z0-9\s-]/g, '')
+		.replace(/\s+/g, '-')
+		.replace(/-+/g, '-')
+		.replace(/^-|-$/g, '');
+}
+
+interface TocEntry { level: 2 | 3; text: string; id: string; }
+
+function buildToc(html: string): { html: string; toc: TocEntry[] } {
+	const toc: TocEntry[] = [];
+	const used = new Set<string>();
+	const out = html.replace(
+		/<(h[23])(\s[^>]*)?>([\s\S]*?)<\/\1>/gi,
+		(match, tag, attrs = '', inner) => {
+			const level = (tag.toLowerCase() === 'h2' ? 2 : 3) as 2 | 3;
+			const text = decodeEntities(String(inner).replace(/<[^>]+>/g, ''))
+				.replace(/\s+/g, ' ')
+				.trim();
+			if (!text) return match;
+			// Respect an existing id; otherwise generate a unique slug.
+			const existingId = /\bid="([^"]+)"/i.exec(attrs ?? '');
+			let id: string;
+			if (existingId) {
+				id = existingId[1];
+			} else {
+				id = slugify(text) || 'section';
+				let n = 2;
+				while (used.has(id)) id = `${slugify(text)}-${n++}`;
+			}
+			used.add(id);
+			toc.push({ level, text, id });
+			if (existingId) return match;
+			return `<${tag}${attrs ?? ''} id="${id}">${inner}</${tag}>`;
+		},
+	);
+	return { html: out, toc };
+}
+
+// --- Lift standalone quoted prompts into copyable cards -------------------
+// Authors write example prompts inline as a whole paragraph, e.g.
+//   <p><strong>Template:</strong> <em>"You are a [role]..."</em></p>
+//   <p>Bad: <em>"a fisherman by the sea, beautiful, 8k"</em></p>
+// We turn ONLY those (an optional short label + a single quoted <em> that fills
+// the paragraph) into a copy block. Short inline quotes mid-sentence are left
+// alone. The card mirrors CopyPromptButton's markup so the shared copy script
+// (added below) drives it via the data-copy-* hooks.
+function escapeHtml(s: string): string {
+	return s
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
+}
+function decodeEntities(s: string): string {
+	return s
+		.replace(/&amp;/g, '&')
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&quot;/g, '"')
+		.replace(/&#39;|&apos;/g, "'");
+}
+
+const COPY_ICON =
+	'<svg class="copy-icon-copy" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>';
+const DONE_ICON =
+	'<svg class="copy-icon-done hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" points="20 6 9 17 4 12"/></svg>';
+const QUOTE_ICON =
+	'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7.5 6C5.6 6 4 7.6 4 9.5S5.6 13 7.5 13c.2 0 .3 0 .5-.05V13a3 3 0 0 1-3 3 1 1 0 1 0 0 2 5 5 0 0 0 5-5V9.5C10 7.6 9.4 6 7.5 6Zm9 0C14.6 6 13 7.6 13 9.5s1.6 3.5 3.5 3.5c.2 0 .3 0 .5-.05V13a3 3 0 0 1-3 3 1 1 0 1 0 0 2 5 5 0 0 0 5-5V9.5C19 7.6 18.4 6 16.5 6Z"/></svg>';
+
+function promptCard(label: string, text: string): string {
+	const words = text.trim().split(/\s+/).filter(Boolean).length;
+	return (
+		`<div class="blog-prompt not-prose" data-copy-root>` +
+		`<div class="blog-prompt__bar">` +
+		`<div class="blog-prompt__meta">${QUOTE_ICON}` +
+		`<span class="blog-prompt__label">${escapeHtml(label)}</span>` +
+		`<span class="blog-prompt__count">${words} ${words === 1 ? 'word' : 'words'}</span>` +
+		`</div>` +
+		`<button type="button" class="blog-prompt__btn btn-feedback" data-copy-btn aria-live="polite">` +
+		`${COPY_ICON}${DONE_ICON}<span class="copy-label">Copy</span></button>` +
+		`</div>` +
+		`<pre class="prompt-box" data-copy-text>${escapeHtml(text)}</pre>` +
+		`</div>`
+	);
+}
+
+function renderPromptBlocks(html: string): string {
+	// Whole paragraph = [optional short label] + a single quoted <em>.
+	const pattern =
+		/^\s*(?:<strong>\s*([^<:]{1,24}?)\s*:?\s*<\/strong>\s*:?\s*|([A-Za-z][A-Za-z ]{0,20}?)\s*:\s*)?<em>\s*[“"]([\s\S]+?)[”"]\s*<\/em>\s*[.]?\s*$/;
+	return html.replace(/<p>([\s\S]*?)<\/p>/gi, (match, inner) => {
+		const m = pattern.exec(inner);
+		if (!m) return match;
+		const text = decodeEntities(m[3].replace(/<[^>]+>/g, '')).trim();
+		// Skip throwaway fragments; real prompts are a few words at least.
+		if (text.split(/\s+/).filter(Boolean).length < 4) return match;
+		let label = (m[1] || m[2] || 'Prompt').trim();
+		label = label.charAt(0).toUpperCase() + label.slice(1);
+		return promptCard(label, text);
+	});
+}
+
+// --- Lift quoted blockquote prompts into copyable cards -------------------
+// Most posts store example prompts as
+//   <blockquote>[optional <img>]<p>"You are a ..."</p></blockquote>
+// (a quoted paragraph, sometimes with an example-output image). Those don't
+// match the inline <em> pattern above, so turn them into the same copy card
+// here — every example becomes one tap to copy. Genuine pull-quotes (no
+// surrounding quote marks, or under 4 words) are left as blockquotes.
+function renderBlockquotePrompts(html: string): string {
+	return html.replace(/<blockquote>([\s\S]*?)<\/blockquote>/gi, (match, inner) => {
+		const imgMatch = /<img[^>]*>/i.exec(inner);
+		const img = imgMatch ? imgMatch[0] : '';
+		const pMatch = /<p>\s*[“"]([\s\S]+?)[”"]\s*<\/p>/i.exec(inner);
+		if (!pMatch) {
+			// A blockquote whose only content is an image is an example output,
+			// not a pull-quote — unwrap it so it renders as a plain figure.
+			const textLeft = inner.replace(/<img[^>]*>/gi, '').replace(/<[^>]+>/g, '').trim();
+			if (img && !textLeft) return img;
+			return match;
+		}
+		const text = decodeEntities(pMatch[1].replace(/<[^>]+>/g, '')).trim();
+		if (text.split(/\s+/).filter(Boolean).length < 4) return match;
+		return img + promptCard('Prompt', text);
+	});
+}
+
+const rawBody = post.htmlContent || post.content.intro || '';
+const { html: builtHtml, toc } = buildToc(rawBody);
+// FAQ is rendered outside the prose body, so add it to the TOC by hand — last entry.
+if (post.faqItems.length > 0) toc.push({ level: 2, text: 'FAQ', id: 'faq' });
+const withPrompts = renderBlockquotePrompts(renderPromptBlocks(builtHtml));
+// Lazy-load + async-decode every in-body image (they're below the fold) so the
+// page doesn't eagerly fetch 20 MB of images on load. Only images without an
+// explicit loading attr are touched.
+const bodyHtml = withPrompts.replace(/<img(?![^>]*\bloading=)/gi, '<img loading="lazy" decoding="async"');
+// Mid-article ad: split after the TOC/prompt-card transforms so heading ids
+// stay intact. Falls back to the unsplit body on short posts.
+const articleParts = splitAtNthH2(bodyHtml, 3);
+
+// Strip HTML to plain text for articleBody + wordCount. Truncate body so the
+// JSON-LD payload stays small while still giving AI engines enough to cite.
+const plainBody = bodyHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+const wordCount = plainBody ? plainBody.split(/\s+/).filter(Boolean).length : 0;
+const articleBody = plainBody.length > 5000 ? `${plainBody.slice(0, 5000)}…` : plainBody;
+
+const postUrl = new URL(articlePath, Astro.site).href;
+
+const postSchema = {
+	'@context': 'https://schema.org',
+	'@type': isNews ? 'NewsArticle' : 'BlogPosting',
+	headline: post.title,
+	description: post.excerpt,
+	datePublished: new Date(dateIso).toISOString(),
+	dateModified: new Date(post.updatedAt ?? dateIso).toISOString(),
+	author: { '@type': 'Person', name: authorName },
+	publisher: publisherBlock(),
+	url: postUrl,
+	mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
+	inLanguage: 'en',
+	isAccessibleForFree: true,
+	...(isNews ? { genre: 'AI News', articleSection: 'AI News' } : {}),
+	...(isNews && post.sourceUrl ? { citation: post.sourceUrl } : {}),
+	...(wordCount > 0 ? { wordCount, articleBody } : {}),
+	// `image` is required for Article/BlogPosting rich results. Always emit one —
+	// fall back to the branded, generated OG card (absolute) when the post has no
+	// cover, mirroring the ogImage fallback below.
+	image: post.coverImage
+		? new URL(post.coverImage, Astro.site).href
+		: new URL(`/og/${post.slug}.svg`, Astro.site).href,
+};
+
+// FAQPage schema gets a separate JSON-LD block (Google's preferred shape).
+const faqSchema =
+	post.faqItems.length > 0
+		? {
+				'@context': 'https://schema.org',
+				'@type': 'FAQPage',
+				mainEntity: post.faqItems.map((it) => ({
+					'@type': 'Question',
+					name: it.question,
+					acceptedAnswer: { '@type': 'Answer', text: it.answer },
+				})),
+			}
+		: null;
+
+const breadcrumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name: sectionName, path: sectionPath },
+	{ name: post.title, path: articlePath },
+]);
+---
+
+<Layout
+	title={post.metaTitle || `${post.title} — Free Prompt Base`}
+	description={post.metaDescription || post.excerpt}
+	schema={postSchema}
+	extraSchemas={[breadcrumb, ...(faqSchema ? [faqSchema] : [])]}
+	ogType="article"
+	ogImage={post.coverImage ?? `/og/${post.slug}.svg`}
+	preloadImage={post.coverImage ?? undefined}
+	preloadImageSrcset={post.coverImage ? cfSrcset(post.coverImage, [400, 768, 1200, 1600]) : undefined}
+	preloadImageSizes="(min-width: 1024px) 768px, 92vw"
+>
+	<Header />
+	<div class="read-progress" id="read-progress" aria-hidden="true"></div>
+
+	<main class="blog-shell flex-grow py-8 sm:py-12">
+		<!-- Breadcrumb -->
+		<Breadcrumb
+			class="mb-8"
+			items={[
+				{ label: 'Home', href: '/' },
+				{ label: sectionName, href: sectionPath },
+				{ label: post.title },
+			]}
+		/>
+
+		<div class="blog-grid">
+			<!-- LEFT RAIL: Table of contents (xl+) -->
+			{
+				toc.length > 1 && (
+					<aside class="blog-rail blog-rail--left hidden xl:block">
+						<div class="sticky top-20">
+							<div class="toc-head">
+								<span class="toc-title">Contents</span>
+								<span class="toc-pct" data-read-pct aria-hidden="true">0%</span>
+							</div>
+							<nav class="toc mt-4" aria-label="Table of contents">
+								<div class="toc-track" aria-hidden="true">
+									<span class="toc-progress" data-toc-progress></span>
+								</div>
+								<ol class="toc-list">
+									{toc.map((h) => (
+										<li class:list={[h.level === 3 && 'toc-sub']}>
+											<a
+												href={`#${h.id}`}
+												data-toc-link
+												data-target={h.id}
+												class="toc-link"
+											>
+												{h.text}
+											</a>
+										</li>
+									))}
+								</ol>
+							</nav>
+						</div>
+					</aside>
+				)
+			}
+
+			<!-- ARTICLE COLUMN -->
+			<article class="blog-article min-w-0">
+				<!-- Title + dek -->
+				<header class="mb-8">
+					{
+						post.categoryName && (
+							<p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-4">
+								{post.categoryName}
+							</p>
+						)
+					}
+					<h1 class="text-3xl sm:text-4xl md:text-[2.875rem] font-bold tracking-tight text-text-primary leading-[1.1]">
+						{post.title}
+					</h1>
+				</header>
+
+				<!-- Byline -->
+				<div class="flex items-center gap-3 pb-7 mb-9 border-b border-[var(--hairline)]">
+					{
+						post.authorAvatar ? (
+							<img
+								src={post.authorAvatar}
+								alt={authorName}
+								class="w-11 h-11 rounded-full object-cover shrink-0 ring-1 ring-[var(--hairline)]"
+								width="44"
+								height="44"
+								loading="lazy"
+								decoding="async"
+							/>
+						) : (
+							<div class="w-11 h-11 rounded-full shrink-0 bg-primary/15 text-primary flex items-center justify-center text-sm font-bold ring-1 ring-[var(--hairline)]" aria-hidden="true">
+								{authorInitials}
+							</div>
+						)
+					}
+					<div class="min-w-0">
+						<p class="text-sm font-semibold text-text-primary leading-tight">{authorName}</p>
+						<div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--ink-faint)] mt-0.5">
+							<time datetime={new Date(dateIso).toISOString()}>{dateLabel}</time>
+							<span aria-hidden="true">·</span>
+							<span>{post.readTime || `${mins} min read`}</span>
+						</div>
+					</div>
+				</div>
+
+				{
+					isNews && post.sourceUrl && (
+						<p class="-mt-5 mb-9 text-xs text-[var(--ink-faint)]">
+							Source:{' '}
+							<a
+								href={post.sourceUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="font-semibold text-primary-ink hover:text-secondary transition-colors"
+							>
+								View primary source
+							</a>
+						</p>
+					)
+				}
+
+				<!-- Cover -->
+				{
+					post.coverImage && (
+						<img
+							src={post.coverImage}
+							srcset={cfSrcset(post.coverImage, [400, 768, 1200, 1600])}
+							sizes="(min-width: 1024px) 768px, 92vw"
+							alt={post.title}
+							width="1600"
+							height="900"
+							class="w-full aspect-[16/9] rounded-base mb-12 object-cover bg-[var(--paper-sunken)]"
+							loading="eager"
+							fetchpriority="high"
+							decoding="async"
+						/>
+					)
+				}
+
+				<!-- Collapsible TOC (mobile + lg; left rail takes over at xl) -->
+				{
+					toc.length > 1 && (
+						<details class="xl:hidden mb-10 border border-[var(--hairline)] rounded-md bg-[var(--paper)] group">
+							<summary class="px-4 py-3 cursor-pointer text-sm font-semibold text-text-primary flex items-center gap-2 list-none">
+								<svg class="w-4 h-4 text-[var(--ink-faint)] transition-transform group-open:rotate-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+								<span>On this page</span>
+								<span class="ml-auto text-xs font-normal text-[var(--ink-faint)]">{toc.length}</span>
+							</summary>
+							<nav class="border-t border-[var(--hairline)] px-4 py-3">
+								<ol class="space-y-1.5 text-sm">
+									{toc.map((h) => (
+										<li class={h.level === 3 ? 'pl-4' : ''}>
+											<a href={`#${h.id}`} class="text-[var(--ink-soft)] hover:text-secondary transition-colors block py-0.5">
+												{h.text}
+											</a>
+										</li>
+									))}
+								</ol>
+							</nav>
+						</details>
+					)
+				}
+
+				<!-- Body -->
+				<div class="prose-blog">
+					{
+						articleParts ? (
+							<>
+								<Fragment set:html={articleParts[0]} />
+								<AdSlot placement="blog-article-mid" />
+								<Fragment set:html={articleParts[1]} />
+							</>
+						) : (
+							<Fragment set:html={bodyHtml} />
+						)
+					}
+				</div>
+
+				<!-- Mobile share (rail covers lg+) -->
+				<div class="lg:hidden mt-12 pt-7 border-t border-[var(--hairline)]">
+					<p class="rail-eyebrow mb-3">Share this article</p>
+					<BlogShare url={postUrl} title={post.title} variant="row" />
+				</div>
+
+				<!-- End-of-article CTA -->
+				<aside class="mt-14 rounded-base bg-[var(--paper)] border border-[var(--hairline)] px-6 py-7 sm:px-8 sm:py-8">
+					<p class="text-xs font-semibold uppercase tracking-[0.18em] text-primary mb-2">Now your turn</p>
+					<h2 class="text-xl sm:text-2xl font-bold text-text-primary leading-snug">
+						Stop reading about prompts. Go copy one.
+					</h2>
+					<p class="text-sm text-[var(--ink-soft)] mt-2 leading-relaxed max-w-md">
+						A free, browsable library of ready-to-use prompts for ChatGPT, Claude, Midjourney and more.
+					</p>
+					<a
+						href="/"
+						class="btn-primary inline-flex items-center gap-2 mt-5 btn-feedback group"
+					>
+						Browse the prompt library
+						<svg class="w-4 h-4 transition-transform duration-300 ease-out group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+					</a>
+				</aside>
+
+				<AdSlot placement="blog-end" />
+
+				<!-- FAQ -->
+				{
+					post.faqItems.length > 0 && (
+						<section id="faq" class="mt-14 pt-10 border-t border-[var(--hairline)]">
+							<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">FAQ</p>
+							<h2 class="text-2xl font-bold text-text-primary mb-6">Frequently asked</h2>
+							<div class="space-y-3">
+								{post.faqItems.map((item) => (
+									<details class="border border-[var(--hairline)] rounded-md bg-[var(--paper)] group">
+										<summary class="px-4 py-3.5 cursor-pointer text-sm font-semibold text-text-primary flex items-center gap-2.5 list-none">
+											<svg class="w-4 h-4 text-[var(--ink-faint)] transition-transform group-open:rotate-90 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
+											<h3 class="m-0 text-sm font-semibold">{item.question}</h3>
+										</summary>
+										<div class="px-4 pb-4 pt-0 pl-11 text-[var(--ink-soft)] leading-relaxed whitespace-pre-wrap">
+											{item.answer}
+										</div>
+									</details>
+								))}
+							</div>
+						</section>
+					)
+				}
+			</article>
+
+			<!-- RIGHT RAIL: Share + Related + Promo (lg+) -->
+			<aside class="blog-rail blog-rail--right hidden lg:block">
+				<div class="sticky top-20 space-y-9">
+					<!-- Share -->
+					<div>
+						<p class="rail-eyebrow mb-3">Share</p>
+						<BlogShare url={postUrl} title={post.title} variant="stack" />
+					</div>
+
+					<!-- Promo -->
+					<div class="rail-promo">
+						<p class="rail-promo__eyebrow">Free library</p>
+						<p class="rail-promo__title">Ready-to-use AI prompts</p>
+						<p class="rail-promo__body">Hundreds of copy-paste prompts for ChatGPT, Claude and Midjourney. No signup.</p>
+						<a href="/" class="rail-promo__cta btn-feedback group">
+							Browse prompts
+							<svg class="w-3.5 h-3.5 transition-transform duration-300 ease-out group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+						</a>
+						<a href="/submit" class="rail-promo__link">Or submit your own prompt</a>
+					</div>
+				</div>
+			</aside>
+		</div>
+		<!-- Keep reading (full-width card grid, matches /blog + prompt cards) -->
+		{
+			related.length > 0 && (
+				<section class="blog-keep-reading">
+					<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">More to read</p>
+					<h2 class="blog-section-title">Keep reading</h2>
+					<div class="blog-cards">
+						{related.map((rel) => (
+							<a href={relatedHref(rel)} class="blog-card group">
+								<div class="blog-card__media">
+									{rel.coverImage ? (
+										<img
+											src={rel.coverImage}
+											srcset={cfSrcset(rel.coverImage, [320, 480, 768])}
+											sizes="(min-width: 640px) 360px, 92vw"
+											alt={rel.title}
+											width="720"
+											height="540"
+											loading="lazy"
+											decoding="async"
+										/>
+									) : (
+										<div class="blog-media-fallback">
+											<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4V4z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+										</div>
+									)}
+								</div>
+								<div class="blog-card__body">
+									<div class="flex items-center gap-2 text-xs text-[var(--ink-faint)] mb-1.5">
+										{rel.categoryName && (
+											<>
+												<span class="text-primary-ink font-semibold uppercase tracking-wide">{rel.categoryName}</span>
+												<span aria-hidden="true">·</span>
+											</>
+										)}
+										<span>
+											{new Date(rel.publishedAt ?? rel.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+										</span>
+									</div>
+									<h3 class="blog-card__title">{rel.title}</h3>
+									<p class="blog-card__dek">{rel.excerpt}</p>
+								</div>
+							</a>
+						))}
+					</div>
+				</section>
+			)
+		}
+	</main>
+
+	<Footer />
+</Layout>
+
+<style is:global>
+	/* ---- Reading shell + three-zone grid -------------------------------- */
+	.blog-shell {
+		width: 100%;
+		max-width: 72rem;
+		margin-inline: auto;
+		padding-inline: 1rem;
+	}
+	.blog-grid {
+		display: block;
+	}
+	@media (min-width: 1024px) {
+		.blog-grid {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) 15rem;
+			column-gap: 3rem;
+			/* Cells stretch to the full row height so the sticky rails have the
+			   article's height to travel through (align-items:start would pin
+			   each rail to its own short content and break stickiness). */
+			align-items: stretch;
+		}
+	}
+	@media (min-width: 1280px) {
+		.blog-grid {
+			grid-template-columns: 11rem minmax(0, 1fr) 16rem;
+			column-gap: 2.5rem;
+		}
+	}
+	.blog-rail {
+		min-width: 0;
+	}
+	/* Full-width "Keep reading" band below the reading grid. */
+	.blog-keep-reading {
+		margin-top: 4rem;
+		padding-top: 2.5rem;
+		border-top: 1px solid var(--hairline);
+	}
+	@media (min-width: 1024px) {
+		.blog-keep-reading {
+			margin-top: 5rem;
+		}
+	}
+	.rail-eyebrow {
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.16em;
+		color: var(--ink-faint);
+	}
+
+	/* ---- Table of contents (left rail) ---------------------------------- */
+	/* Deeper, legible gold for the progress fill + you-are-here pin. */
+	.toc {
+		--toc-accent: oklch(0.79 0.15 90);
+		position: relative;
+		padding-left: 0.95rem;
+	}
+	.toc-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.5rem;
+	}
+	/* Minimal, quiet label — no uppercase, no tracking, no bold. */
+	.toc-title {
+		font-size: 0.8125rem;
+		font-weight: 500;
+		letter-spacing: 0;
+		text-transform: none;
+		color: var(--ink-soft);
+	}
+	.toc-pct {
+		font-size: 11px;
+		font-weight: 500;
+		font-variant-numeric: tabular-nums;
+		color: var(--ink-faint);
+	}
+	/* The rail line + the gold fill that tracks the active section. */
+	.toc-track {
+		position: absolute;
+		left: 0;
+		top: 0.35rem;
+		bottom: 0.35rem;
+		width: 2px;
+		border-radius: 2px;
+		background: var(--hairline);
+		overflow: hidden;
+	}
+	.toc-progress {
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 0;
+		background: var(--toc-accent);
+		transition: height 260ms var(--ease-out-quart);
+	}
+	.toc-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+	.toc-link {
+		position: relative;
+		display: block;
+		padding: 0.3rem 0;
+		font-size: 0.8125rem;
+		line-height: 1.35;
+		color: var(--ink-soft);
+		/* One line per entry, ellipsis the rest — keeps a long TOC compact. */
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		transition:
+			color 150ms ease,
+			transform 200ms var(--ease-out-quart);
+	}
+	.toc-link:hover {
+		color: var(--color-text-primary);
+		transform: translateX(2px);
+	}
+	.toc-link.is-active {
+		color: var(--color-text-primary);
+		font-weight: 600;
+	}
+	/* You-are-here pin: a gold dot sitting on the rail at the active row. */
+	.toc-link.is-active::before {
+		content: '';
+		position: absolute;
+		left: calc(-0.95rem + 1px);
+		top: 50%;
+		width: 9px;
+		height: 9px;
+		border-radius: 999px;
+		background: var(--toc-accent);
+		border: 1.5px solid var(--color-text-primary);
+		transform: translate(-50%, -50%);
+	}
+	.toc-sub .toc-link {
+		padding-left: 0.85rem;
+		font-size: 0.78rem;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.toc-progress {
+			transition: none;
+		}
+		.toc-link:hover {
+			transform: none;
+		}
+	}
+
+	/* ---- Related list (right rail) -------------------------------------- */
+	.rail-related {
+		display: flex;
+		flex-direction: column;
+	}
+	.rail-related__item {
+		display: flex;
+		gap: 0.7rem;
+		padding: 0.7rem 0;
+		border-top: 1px solid var(--hairline);
+	}
+	.rail-related li:first-child .rail-related__item {
+		border-top: 0;
+		padding-top: 0;
+	}
+	.rail-related__thumb {
+		width: 3rem;
+		height: 3rem;
+		border-radius: 7px;
+		overflow: hidden;
+		background: var(--paper-sunken);
+		flex-shrink: 0;
+	}
+	.rail-related__thumb img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+	.rail-related__title {
+		font-size: 0.8125rem;
+		font-weight: 700;
+		line-height: 1.3;
+		color: var(--color-text-primary);
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		transition: color 150ms ease;
+	}
+	.rail-related__item:hover .rail-related__title {
+		color: var(--color-secondary);
+	}
+	.rail-related__date {
+		display: block;
+		font-size: 0.7rem;
+		color: var(--ink-faint);
+		margin-top: 0.2rem;
+	}
+
+	/* ---- Promo card (right rail) ---------------------------------------- */
+	.rail-promo {
+		border-radius: 12px;
+		border: 1px solid var(--color-text-primary);
+		background: var(--color-soft);
+		padding: 1.1rem 1.15rem 1.25rem;
+		box-shadow: 3px 3px 0 0 rgba(33, 29, 22, 0.9);
+	}
+	.rail-promo__eyebrow {
+		font-size: 11px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.14em;
+		color: var(--color-text-primary);
+		opacity: 0.6;
+	}
+	.rail-promo__title {
+		font-family: var(--font-heading);
+		font-size: 1.05rem;
+		font-weight: 700;
+		line-height: 1.2;
+		color: var(--color-text-primary);
+		margin-top: 0.4rem;
+	}
+	.rail-promo__body {
+		font-size: 0.8rem;
+		line-height: 1.5;
+		color: var(--ink-soft);
+		margin-top: 0.45rem;
+	}
+	.rail-promo__cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		margin-top: 0.95rem;
+		padding: 0.5rem 0.85rem;
+		border-radius: 8px;
+		background: var(--color-text-primary);
+		color: var(--color-background);
+		font-weight: 700;
+		font-size: 0.8rem;
+		transition: transform 140ms var(--ease-out-quart);
+	}
+	.rail-promo__cta:hover {
+		transform: translateY(-1px);
+	}
+	.rail-promo__link {
+		display: block;
+		margin-top: 0.65rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--color-text-primary);
+		opacity: 0.7;
+		transition: opacity 150ms ease;
+	}
+	.rail-promo__link:hover {
+		opacity: 1;
+		text-decoration: underline;
+		text-underline-offset: 2px;
+	}
+
+	/* FAQ lands below the sticky nav, matching the prose headings' offset. */
+	#faq {
+		scroll-margin-top: 5rem;
+	}
+
+	.prose-blog {
+		max-width: 68ch;
+		color: var(--color-text-primary, #1f2937);
+		font-family: var(--font-serif);
+		font-size: 1.1rem;
+		line-height: 1.75;
+	}
+	@media (min-width: 640px) {
+		.prose-blog {
+			font-size: 1.1875rem;
+			line-height: 1.8;
+		}
+	}
+	.prose-blog > :first-child {
+		margin-top: 0;
+	}
+	/* Headings stay in the brand sans for contrast against the serif body. */
+	.prose-blog h2,
+	.prose-blog h3 {
+		font-family: var(--font-heading);
+	}
+	.prose-blog h2 {
+		font-size: 1.5rem;
+		font-weight: 700;
+		margin-top: 2.75rem;
+		margin-bottom: 0.75rem;
+		letter-spacing: -0.015em;
+		scroll-margin-top: 5rem;
+		line-height: 1.2;
+		color: var(--color-text-primary);
+	}
+	@media (min-width: 640px) {
+		.prose-blog h2 {
+			font-size: 1.75rem;
+			margin-top: 3.25rem;
+		}
+	}
+	.prose-blog h3 {
+		font-size: 1.25rem;
+		font-weight: 700;
+		margin-top: 2.25rem;
+		margin-bottom: 0.5rem;
+		scroll-margin-top: 5rem;
+		line-height: 1.3;
+		color: var(--color-text-primary);
+	}
+	.prose-blog p {
+		margin-top: 1.15rem;
+		margin-bottom: 1.15rem;
+		color: #2b2b2b;
+	}
+	.prose-blog ul,
+	.prose-blog ol {
+		margin: 1.15rem 0;
+		padding-left: 1.5rem;
+		color: #2b2b2b;
+	}
+	.prose-blog ul {
+		list-style: disc;
+	}
+	.prose-blog ol {
+		list-style: decimal;
+	}
+	.prose-blog li {
+		margin: 0.35rem 0;
+	}
+	.prose-blog li::marker {
+		color: var(--color-primary);
+	}
+	.prose-blog a {
+		color: var(--color-text-primary);
+		text-decoration: underline;
+		text-decoration-color: var(--color-primary);
+		text-decoration-thickness: 2px;
+		text-underline-offset: 3px;
+		transition: color 150ms ease;
+	}
+	.prose-blog a:hover {
+		color: var(--color-primary);
+	}
+	.prose-blog strong {
+		color: #111827;
+		font-weight: 700;
+	}
+	.prose-blog em {
+		font-style: italic;
+	}
+	/* Inline code + blocks switch back to mono (serif numerals look wrong in code). */
+	.prose-blog code {
+		background: var(--paper-sunken);
+		border: 1px solid var(--hairline);
+		border-radius: 4px;
+		padding: 0.08rem 0.35rem;
+		font-size: 0.85em;
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		color: #211D16;
+	}
+	.prose-blog pre {
+		background: #211D16;
+		color: #ececf1;
+		padding: 1.1rem 1.25rem;
+		border-radius: 10px;
+		overflow-x: auto;
+		margin: 1.75rem 0;
+		font-size: 0.9rem;
+		line-height: 1.65;
+	}
+	.prose-blog pre code {
+		background: transparent;
+		border: 0;
+		padding: 0;
+		color: inherit;
+	}
+	/* Pull-quote: top/bottom hairlines, no side-stripe. */
+	.prose-blog blockquote {
+		margin: 2.25rem 0;
+		padding: 1.5rem 0;
+		border-top: 1px solid var(--hairline);
+		border-bottom: 1px solid var(--hairline);
+		font-size: 1.3em;
+		line-height: 1.5;
+		font-style: italic;
+		color: var(--color-text-primary);
+	}
+	.prose-blog blockquote p {
+		margin: 0;
+		color: inherit;
+	}
+	.prose-blog img {
+		border-radius: 10px;
+		margin: 1.75rem 0;
+	}
+	.prose-blog hr {
+		border: 0;
+		border-top: 1px solid var(--hairline);
+		margin: 2.75rem 0;
+	}
+	/* Table: warm header wash, rounded outer frame, zebra rows. Scrolls on small screens. */
+	.prose-blog table {
+		width: 100%;
+		border-collapse: separate;
+		border-spacing: 0;
+		margin: 1.85rem 0;
+		font-family: var(--font-heading);
+		font-size: 0.95rem;
+		line-height: 1.5;
+		border: 1px solid var(--color-outline, #e7e1d4);
+		border-radius: var(--radius-base, 10px);
+		overflow: hidden;
+	}
+	.prose-blog thead th {
+		background: var(--color-soft);
+		text-align: left;
+		font-weight: 700;
+		color: var(--color-text-primary);
+	}
+	.prose-blog th,
+	.prose-blog td {
+		padding: 0.65rem 0.85rem;
+		vertical-align: top;
+		border-bottom: 1px solid var(--hairline, #e7e1d4);
+		color: #2b2b2b;
+	}
+	.prose-blog th:not(:last-child),
+	.prose-blog td:not(:last-child) {
+		border-right: 1px solid var(--hairline, #e7e1d4);
+	}
+	.prose-blog tbody tr:last-child td {
+		border-bottom: 0;
+	}
+	.prose-blog tbody tr:nth-child(even) {
+		background: var(--paper-sunken, #f7f3ea);
+	}
+	.prose-blog th > p,
+	.prose-blog td > p {
+		margin: 0;
+		color: inherit;
+	}
+	/* Tiptap wraps tables so wide ones scroll instead of breaking the layout. */
+	.prose-blog .tableWrapper {
+		overflow-x: auto;
+		margin: 1.85rem 0;
+	}
+	.prose-blog .tableWrapper table {
+		margin: 0;
+	}
+</style>
+
+<script>
+	// --- Reading-progress bar ---------------------------------------------
+	// Drives --read-progress (0..1) from scroll position; the CSS scales the
+	// bar with a transform. Hidden under prefers-reduced-motion via CSS.
+	const bar = document.getElementById('read-progress');
+	const pctEls = Array.from(document.querySelectorAll<HTMLElement>('[data-read-pct]'));
+	if (bar) {
+		let ticking = false;
+		let lastPct = -1;
+		const update = () => {
+			const doc = document.documentElement;
+			const max = doc.scrollHeight - doc.clientHeight;
+			const ratio = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+			bar.style.setProperty('--read-progress', String(ratio));
+			const pct = Math.round(ratio * 100);
+			if (pct !== lastPct) {
+				lastPct = pct;
+				pctEls.forEach((el) => (el.textContent = `${pct}%`));
+			}
+			ticking = false;
+		};
+		const onScroll = () => {
+			if (!ticking) {
+				ticking = true;
+				requestAnimationFrame(update);
+			}
+		};
+		window.addEventListener('scroll', onScroll, { passive: true });
+		window.addEventListener('resize', onScroll, { passive: true });
+		update();
+	}
+
+	// --- Copy buttons on inline prompt cards ------------------------------
+	document.querySelectorAll<HTMLElement>('[data-copy-root]').forEach((root) => {
+		const btn = root.querySelector<HTMLButtonElement>('[data-copy-btn]');
+		const source = root.querySelector<HTMLElement>('[data-copy-text]');
+		const label = root.querySelector<HTMLElement>('.copy-label');
+		const iconCopy = root.querySelector<SVGElement>('.copy-icon-copy');
+		const iconDone = root.querySelector<SVGElement>('.copy-icon-done');
+		if (!btn || !source || !label) return;
+		const text = source.textContent ?? '';
+		let resetTimer: ReturnType<typeof setTimeout> | undefined;
+		const reset = () => {
+			label.textContent = 'Copy';
+			iconDone?.classList.add('hidden');
+			iconCopy?.classList.remove('hidden');
+		};
+		btn.addEventListener('click', async () => {
+			try {
+				if (navigator.clipboard?.writeText) {
+					await navigator.clipboard.writeText(text);
+				} else {
+					const ta = document.createElement('textarea');
+					ta.value = text;
+					ta.style.position = 'fixed';
+					ta.style.opacity = '0';
+					document.body.appendChild(ta);
+					ta.select();
+					document.execCommand('copy');
+					document.body.removeChild(ta);
+				}
+				label.textContent = 'Copied!';
+				iconCopy?.classList.add('hidden');
+				iconDone?.classList.remove('hidden');
+			} catch {
+				label.textContent = 'Press Ctrl/⌘+C';
+			}
+			clearTimeout(resetTimer);
+			resetTimer = setTimeout(reset, 2000);
+		});
+	});
+
+	// --- Highlight the TOC item whose section is currently visible. -------
+	const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]'));
+	if (links.length > 0) {
+		const targets = links
+			.map((l) => document.getElementById(l.dataset.target || ''))
+			.filter((el): el is HTMLElement => !!el);
+
+		const map = new Map<HTMLElement, HTMLAnchorElement>();
+		links.forEach((l, i) => {
+			const t = targets[i];
+			if (t) map.set(t, l);
+		});
+
+		const progress = document.querySelector<HTMLElement>('[data-toc-progress]');
+		const track = document.querySelector<HTMLElement>('.toc-track');
+		const moveProgress = (a: HTMLAnchorElement | null) => {
+			if (!progress || !track || !a) return;
+			const tr = track.getBoundingClientRect();
+			const ar = a.getBoundingClientRect();
+			const h = Math.max(0, Math.min(tr.height, ar.top + ar.height / 2 - tr.top));
+			progress.style.height = `${h}px`;
+		};
+
+		const setActive = (a: HTMLAnchorElement | null) => {
+			links.forEach((l) => l.classList.remove('is-active'));
+			if (a) a.classList.add('is-active');
+			moveProgress(a);
+		};
+
+		const observer = new IntersectionObserver(
+			(entries) => {
+				const visible = entries
+					.filter((e) => e.isIntersecting)
+					.sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+				if (visible) {
+					const link = map.get(visible.target as HTMLElement);
+					if (link) setActive(link);
+				}
+			},
+			{ rootMargin: '-80px 0px -70% 0px', threshold: [0, 1] },
+		);
+
+		targets.forEach((t) => observer.observe(t));
+		// Default to first link on load
+		setActive(links[0] || null);
+		// Keep the gold fill aligned when the layout reflows.
+		window.addEventListener(
+			'resize',
+			() => moveProgress(document.querySelector<HTMLAnchorElement>('[data-toc-link].is-active')),
+			{ passive: true },
+		);
+	}
+</script>

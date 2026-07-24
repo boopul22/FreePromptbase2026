@@ -39,6 +39,15 @@ function getEdgeCache(): Cache | null {
 export const onRequest = defineMiddleware(async ({ request, cookies, locals, redirect }, next) => {
   const url = new URL(request.url);
   const path = url.pathname;
+  // Editorial pages are backed by D1 and can change immediately when an author
+  // publishes, edits, or moves an entry between Blog and News. Keeping them out
+  // of the hour-long shared cache prevents stale article routes, canonicals,
+  // section links, and publication timestamps from reaching crawlers.
+  const isEditorialPath =
+    path === '/blog' ||
+    path.startsWith('/blog/') ||
+    path === '/news' ||
+    path.startsWith('/news/');
 
   // Canonical host + scheme: force https://freepromptbase.com (apex, HTTPS).
   // Runs before any session/D1 work so it's the cheapest possible path — a
@@ -147,6 +156,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     request.method === 'GET' &&
     !url.search &&
     !isStaticProxy &&
+    !isEditorialPath &&
     !locals.user &&
     locals.savedSlugs.size === 0 &&
     locals.likedSlugs.size === 0 &&
@@ -252,6 +262,9 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       // Personalized HTML (signed-in user OR an anon who has saved at least one
       // prompt) must not be shared across visitors via the CDN cache.
       response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+    } else if (isEditorialPath) {
+      response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+      response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
     } else {
       // Scheduling-aware edge TTL. Scheduled prompts have no cron — they go live
       // purely because this SSR gate (`publish_at <= now`) is re-evaluated per

@@ -22,3 +22,4 @@ Allow: /
 Disallow: /api/
 
 Sitemap: https://freepromptbase.com/sitemap.xml
+Sitemap: https://freepromptbase.com/news-sitemap.xml

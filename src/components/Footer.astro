@@ -68,8 +68,9 @@ const creatorSlugs = [
 ];
 const creatorLinks = linksFromTags(creatorSlugs);
 
-// LEARN — blog index plus seed posts that map to /blog/<slug>.
+// LEARN — editorial indexes plus seed guides that map to /blog/<slug>.
 const learnLinks = [
+	{ href: '/news', label: 'AI News' },
 	{ href: '/blog', label: 'Blog' },
 	{ href: '/tools/gemini-prompt-generator', label: 'Gemini prompt generator' },
 	...posts.map((p) => ({ href: `/blog/${p.slug}`, label: p.title })),

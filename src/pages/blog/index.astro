@@ -10,7 +10,7 @@ import { cfSrcset } from '../../lib/cfImage';
 // On-demand: read posts from D1 at request time.
 export const prerender = false;
 
-const posts = await getAllPosts();
+const posts = (await getAllPosts()).filter((post) => post.contentType === 'guide');
 
 const fmt = (iso: string) =>
 	new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });

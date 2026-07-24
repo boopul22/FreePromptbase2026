@@ -50,8 +50,12 @@ export const GET: APIRoute = async () => {
 		(acc, p) => maxDay(acc, day(p.updatedAt ?? p.date)),
 		undefined,
 	);
-	const latestPostDate = posts.reduce<string | undefined>(
-		(acc, p) => maxDay(acc, day(p.publishedAt ?? p.createdAt)),
+	const latestGuideDate = posts.filter((p) => p.contentType === 'guide').reduce<string | undefined>(
+		(acc, p) => maxDay(acc, day(p.updatedAt ?? p.publishedAt ?? p.createdAt)),
+		undefined,
+	);
+	const latestNewsDate = posts.filter((p) => p.contentType === 'news').reduce<string | undefined>(
+		(acc, p) => maxDay(acc, day(p.updatedAt ?? p.publishedAt ?? p.createdAt)),
 		undefined,
 	);
 	const catLastmod = new Map<string, string>();
@@ -62,11 +66,11 @@ export const GET: APIRoute = async () => {
 	// lastmod for the static + index pages: content indexes track the newest item,
 	// editorial/legal pages get none (their content rarely changes).
 	const staticLastmod: Record<string, string | undefined> = {
-		'/': maxDay(latestPromptDate, latestPostDate),
+		'/': maxDay(latestPromptDate, maxDay(latestGuideDate, latestNewsDate)),
 		'/categories': latestPromptDate,
 		'/tags': latestPromptDate,
-		'/blog': latestPostDate,
-		'/news': latestPostDate,
+		'/blog': latestGuideDate,
+		'/news': latestNewsDate,
 	};
 
 	const entries: Entry[] = [
@@ -82,8 +86,8 @@ export const GET: APIRoute = async () => {
 			};
 		}),
 		...posts.map((p) => ({
-			loc: `/blog/${p.slug}`,
-			lastmod: (p.publishedAt ?? p.createdAt).slice(0, 10),
+			loc: `/${p.contentType === 'news' ? 'news' : 'blog'}/${p.slug}`,
+			lastmod: (p.updatedAt ?? p.publishedAt ?? p.createdAt).slice(0, 10),
 			images: p.coverImage ? [{ url: p.coverImage, title: p.title }] : [],
 		})),
 		...(pageRows.results ?? []).map((p) => ({

@@ -17,7 +17,7 @@ const readLabel = (post: (typeof posts)[number]) => post.readTime || `${postRead
 const latest = posts[0];
 const remaining = posts.slice(1);
 const list = itemListSchema(
-	posts.slice(0, 30).map((post) => ({ name: post.title, url: `/blog/${post.slug}` })),
+	posts.slice(0, 30).map((post) => ({ name: post.title, url: `/news/${post.slug}` })),
 	'Free Prompt Base AI news',
 );
 const crumb = breadcrumbSchema([
@@ -42,12 +42,12 @@ const crumb = breadcrumbSchema([
 
 		{latest ? (
 			<section class="mt-12 grid gap-7 border-y border-[var(--hairline)] py-7 lg:grid-cols-[1.25fr_1fr] lg:items-center">
-				<a href={`/blog/${latest.slug}`} class="block overflow-hidden rounded-xl bg-[var(--paper-sunken)]">
+				<a href={`/news/${latest.slug}`} class="block overflow-hidden rounded-xl bg-[var(--paper-sunken)]">
 					{latest.coverImage ? <img src={latest.coverImage} srcset={cfSrcset(latest.coverImage, [640, 960, 1280])} sizes="(min-width: 1024px) 55vw, 92vw" alt={latest.title} width="1280" height="720" loading="eager" fetchpriority="high" decoding="async" class="aspect-[16/9] h-full w-full object-cover" /> : <div class="aspect-[16/9]" />}
 				</a>
 				<div>
 					<p class="text-xs font-semibold uppercase tracking-[0.16em] text-primary-ink">Latest report · {fmt(displayDate(latest))}</p>
-					<h2 class="mt-3 font-heading text-3xl font-bold leading-tight tracking-tight text-text-primary sm:text-4xl"><a href={`/blog/${latest.slug}`} class="hover:text-secondary transition-colors">{latest.title}</a></h2>
+					<h2 class="mt-3 font-heading text-3xl font-bold leading-tight tracking-tight text-text-primary sm:text-4xl"><a href={`/news/${latest.slug}`} class="hover:text-secondary transition-colors">{latest.title}</a></h2>
 					<p class="mt-4 leading-relaxed text-[var(--ink-soft)]">{latest.excerpt}</p>
 					<p class="mt-5 text-sm font-medium text-[var(--ink-faint)]">{readLabel(latest)} · Verified primary source</p>
 				</div>
@@ -63,7 +63,7 @@ const crumb = breadcrumbSchema([
 					{remaining.map((post) => (
 						<article class="overflow-hidden rounded-xl border border-[var(--hairline)] bg-[var(--paper)]">
 							{post.coverImage && <img src={post.coverImage} srcset={cfSrcset(post.coverImage, [400, 640, 960])} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw" alt={post.title} width="960" height="540" loading="lazy" decoding="async" class="aspect-[16/9] w-full object-cover" />}
-							<div class="p-5"><p class="text-xs text-[var(--ink-faint)]">{fmt(displayDate(post))} · {readLabel(post)}</p><h3 class="mt-2 font-heading text-xl font-bold leading-snug text-text-primary"><a href={`/blog/${post.slug}`} class="hover:text-secondary transition-colors">{post.title}</a></h3><p class="mt-3 text-sm leading-relaxed text-[var(--ink-soft)]">{post.excerpt}</p></div>
+							<div class="p-5"><p class="text-xs text-[var(--ink-faint)]">{fmt(displayDate(post))} · {readLabel(post)}</p><h3 class="mt-2 font-heading text-xl font-bold leading-snug text-text-primary"><a href={`/news/${post.slug}`} class="hover:text-secondary transition-colors">{post.title}</a></h3><p class="mt-3 text-sm leading-relaxed text-[var(--ink-soft)]">{post.excerpt}</p></div>
 						</article>
 					))}
 				</div>
