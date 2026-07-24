@@ -1,0 +1,64 @@
+---
+import type { AgentSkill } from '../data/skills';
+
+interface Props {
+	skills: AgentSkill[];
+}
+
+const { skills } = Astro.props;
+---
+
+<section class="skill-grid" aria-label="Installable agent skills">
+	{
+		skills.map((skill, index) => (
+			<article class="skill-module" data-skill-card>
+				<header class="skill-module__head">
+					<span class="skill-module__index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+					<span class="skill-module__type">{skill.category}</span>
+					<span class="skill-module__version">v{skill.version}</span>
+				</header>
+				<div class="skill-module__body">
+					<h2>{skill.title}</h2>
+					<p>{skill.description}</p>
+				</div>
+				<div class="skill-module__command" aria-label={`Install command for ${skill.title}`}>
+					<code>{skill.command}</code>
+					<button type="button" class="skill-module__copy" data-copy-command={skill.command} aria-label={`Copy install command for ${skill.title}`}>
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+						<span class="sr-only">Copy install command</span>
+					</button>
+				</div>
+				<footer class="skill-module__actions">
+					<a href={`/skills/${skill.slug}.md`} download={`${skill.slug}-SKILL.md`} class="skill-module__download">
+						<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+						Download SKILL.md
+					</a>
+					<span class="skill-module__status"><i></i> Ready</span>
+				</footer>
+			</article>
+		))
+	}
+</section>
+
+<script>
+	async function copyCommand(button: HTMLButtonElement) {
+		const command = button.dataset.copyCommand;
+		if (!command) return;
+
+		try {
+			await navigator.clipboard.writeText(command);
+			button.classList.add('is-copied');
+			button.setAttribute('aria-label', 'Install command copied');
+			setTimeout(() => {
+				button.classList.remove('is-copied');
+				button.setAttribute('aria-label', 'Copy install command');
+			}, 1800);
+		} catch {
+			button.setAttribute('aria-label', 'Copy failed. Select the command text.');
+		}
+	}
+
+	document.querySelectorAll<HTMLButtonElement>('[data-copy-command]').forEach((button) => {
+		button.addEventListener('click', () => copyCommand(button));
+	});
+</script>

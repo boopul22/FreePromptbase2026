@@ -1,0 +1,115 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import SkillsGrid from '../../components/SkillsGrid.astro';
+import { skills } from '../../data/skills';
+
+const skillsSchema = {
+	'@context': 'https://schema.org',
+	'@type': 'ItemList',
+	name: 'Free Prompt Base Agent Skills',
+	itemListElement: skills.map((skill, position) => ({
+		'@type': 'SoftwareApplication',
+		position: position + 1,
+		name: skill.title,
+		description: skill.description,
+		applicationCategory: 'DeveloperApplication',
+		operatingSystem: 'Any',
+	})),
+};
+---
+
+<Layout
+	title="Free AI Agent Skills: Downloadable SKILL.md Files"
+	description="Download practical AI agent skills for workflow design, MCP tools, security testing, and content operations. Includes a ready-to-run install command."
+	extraSchemas={[skillsSchema]}
+>
+	<Header />
+	<main class="skills-page site-main py-10 sm:py-14">
+		<header class="skills-intro">
+			<p class="skills-intro__kicker">Free Prompt Base / skills</p>
+			<h1>Agent skills you can install.</h1>
+			<p>These are reusable `SKILL.md` packages for coding agents. Download one, or copy the install command and run it in your project.</p>
+		</header>
+		<SkillsGrid skills={skills} />
+	</main>
+	<Footer />
+</Layout>
+
+<style>
+	.skills-page {
+		max-width: 76rem;
+	}
+	.skills-intro {
+		max-width: 42rem;
+		margin-bottom: 2.5rem;
+	}
+	.skills-intro__kicker {
+		margin: 0 0 0.75rem;
+		color: oklch(0.38 0.08 215);
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 0.75rem;
+		font-weight: 700;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+	.skills-intro h1 {
+		margin: 0;
+		font-size: 2.25rem;
+		font-weight: 800;
+		letter-spacing: 0;
+	}
+	.skills-intro > p:last-child {
+		margin: 0.8rem 0 0;
+		color: var(--color-secondary);
+		font-size: 1rem;
+		line-height: 1.6;
+	}
+	:global(.skill-grid) {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1rem;
+	}
+	:global(.skill-module) {
+		display: grid;
+		grid-template-rows: auto 1fr auto auto;
+		min-height: 21rem;
+		overflow: hidden;
+		background: oklch(0.22 0.02 235);
+		border: 1px solid oklch(0.4 0.04 225);
+		border-radius: 8px;
+		box-shadow: 4px 4px 0 oklch(0.12 0.015 235);
+		color: oklch(0.94 0.012 220);
+	}
+	:global(.skill-module__head) {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		gap: 0.7rem;
+		align-items: center;
+		padding: 0.75rem 1rem;
+		border-bottom: 1px solid oklch(0.4 0.04 225);
+		font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+		font-size: 0.6875rem;
+		font-weight: 700;
+	}
+	:global(.skill-module__index) { color: oklch(0.78 0.12 195); }
+	:global(.skill-module__type) { color: oklch(0.78 0.03 225); }
+	:global(.skill-module__version) { color: oklch(0.64 0.03 225); }
+	:global(.skill-module__body) { padding: 1.35rem 1rem 1rem; }
+	:global(.skill-module__body h2) { margin: 0; color: white; font-size: 1.125rem; font-weight: 750; letter-spacing: 0; }
+	:global(.skill-module__body p) { margin: 0.7rem 0 0; color: oklch(0.78 0.025 225); font-size: 0.875rem; line-height: 1.6; }
+	:global(.skill-module__command) { display: flex; align-items: center; gap: 0.5rem; margin: 0 1rem 1rem; padding: 0.6rem 0.65rem; min-width: 0; background: oklch(0.16 0.017 235); border: 1px solid oklch(0.34 0.035 225); }
+	:global(.skill-module__command code) { min-width: 0; overflow: hidden; color: oklch(0.88 0.1 190); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.7rem; text-overflow: ellipsis; white-space: nowrap; }
+	:global(.skill-module__copy) { display: grid; flex: 0 0 auto; place-items: center; width: 1.85rem; height: 1.85rem; margin-left: auto; color: oklch(0.78 0.03 225); background: transparent; border: 0; cursor: pointer; }
+	:global(.skill-module__copy:hover), :global(.skill-module__copy.is-copied) { color: oklch(0.8 0.13 195); background: oklch(0.8 0.13 195 / 0.12); }
+	:global(.skill-module__copy svg) { width: 1rem; height: 1rem; }
+	:global(.skill-module__actions) { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 1rem; border-top: 1px solid oklch(0.4 0.04 225); }
+	:global(.skill-module__download) { display: inline-flex; align-items: center; gap: 0.45rem; color: white; font-size: 0.75rem; font-weight: 700; text-decoration: none; }
+	:global(.skill-module__download:hover) { color: oklch(0.8 0.13 195); }
+	:global(.skill-module__download svg) { width: 1rem; height: 1rem; }
+	:global(.skill-module__status) { display: inline-flex; align-items: center; gap: 0.35rem; color: oklch(0.7 0.03 225); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 0.6875rem; }
+	:global(.skill-module__status i) { width: 0.45rem; height: 0.45rem; background: oklch(0.8 0.13 150); border-radius: 9999px; }
+	@media (max-width: 720px) { :global(.skill-grid) { grid-template-columns: 1fr; } }
+	@media (max-width: 520px) { .skills-intro h1 { font-size: 1.75rem; } :global(.skill-module) { min-height: 19rem; } }
+</style>
