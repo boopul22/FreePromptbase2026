@@ -358,6 +358,19 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					<span class="text-text-primary font-medium">{authorName}</span>
 				)}
 			</span>
+			{
+				prompt.sourceUrl && (
+					<a
+						href={prompt.sourceUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="inline-flex items-center gap-1.5 text-text-primary font-medium hover:text-secondary transition-colors"
+					>
+						<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14 21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg>
+						Source and attribution
+					</a>
+				)
+			}
 		</div>
 
 		<!-- Like + save + share row -->

@@ -15,9 +15,13 @@ interface Props {
 	emptyMessage?: string;
 	/** 1-based card positions after which an in-feed ad card is inserted. */
 	adPositions?: number[];
+	/** Content type that owns this grid on the homepage (images | text). */
+	promptType?: string;
+	/** Cursor for this grid's next all-prompts page, if it has one. */
+	nextCursor?: string | null;
 }
 
-const { prompts, categories, tab, hidden = false, emptyMessage, adPositions = [] } = Astro.props;
+const { prompts, categories, tab, hidden = false, emptyMessage, adPositions = [], promptType, nextCursor } = Astro.props;
 const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));
 // View-driven Prompt of the Day — memoized in the data layer, so multiple grids
 // on one page resolve to the same winner without re-querying.
@@ -29,6 +33,8 @@ const potdSlug = await getPromptOfTheDaySlug();
 	data-purpose="prompt-gallery"
 	data-grid
 	data-tab={tab}
+	data-prompt-type={promptType}
+	data-next-cursor={nextCursor ?? ''}
 >
 	{
 		prompts.map((prompt, i) => (
@@ -53,6 +59,7 @@ const potdSlug = await getPromptOfTheDaySlug();
 		<p
 			class:list={['text-center text-gray-500 py-16', hidden && 'hidden']}
 			data-empty-tab={tab}
+			data-empty-prompt-type={promptType}
 		>
 			{emptyMessage}
 		</p>

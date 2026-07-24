@@ -52,6 +52,7 @@ interface PromptRow {
 	cover_w: number | null;
 	cover_h: number | null;
 	how_to_use: string | null;
+	source_url: string | null;
 	created_by: string | null;
 	status?: string;
 	submitted_by?: string | null;
@@ -90,6 +91,7 @@ function rowToPrompt(r: PromptRow): Prompt {
 		coverW: r.cover_w ?? undefined,
 		coverH: r.cover_h ?? undefined,
 		howToUse: r.how_to_use ?? undefined,
+		sourceUrl: r.source_url ?? undefined,
 		createdBy: r.created_by ?? undefined,
 		status: (r.status as Prompt['status']) ?? 'approved',
 		submittedBy: r.submitted_by ?? undefined,
@@ -101,7 +103,7 @@ function rowToPrompt(r: PromptRow): Prompt {
 }
 
 const PROMPT_COLS =
-	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, view_count, publish_at, updated_at, cover_w, cover_h, how_to_use, created_by, status, submitted_by, submitted_at, reviewed_by, reviewed_at, rejection_reason';
+	'slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, view_count, publish_at, updated_at, cover_w, cover_h, how_to_use, source_url, created_by, status, submitted_by, submitted_at, reviewed_by, reviewed_at, rejection_reason';
 
 // Public visibility gate. A prompt is live only when it's approved AND either
 // has no scheduled time or that time has passed. Centralized here so every
@@ -149,10 +151,11 @@ export async function getNextPublishAt(): Promise<string | null> {
 }
 
 /** The newest N approved prompts — bounded "what's new" view for the home Recent tab. */
-export async function getRecentPrompts(limit = 24): Promise<Prompt[]> {
+export async function getRecentPrompts(limit = 24, category?: string): Promise<Prompt[]> {
+	const categoryFilter = category ? ' AND category = ?' : '';
 	const { results } = await getDB()
-		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE ${APPROVED} ORDER BY ${NEWEST_ORDER} LIMIT ?`)
-		.bind(limit)
+		.prepare(`SELECT ${PROMPT_COLS} FROM prompts WHERE ${APPROVED}${categoryFilter} ORDER BY ${NEWEST_ORDER} LIMIT ?`)
+		.bind(...(category ? [category, limit] : [limit]))
 		.all<PromptRow>();
 	return results.map(rowToPrompt);
 }
@@ -170,10 +173,11 @@ export interface PromptPage {
  * Pass null for the first page. Stable under inserts (no OFFSET drift); we
  * over-fetch one row to learn whether a further page exists.
  */
-export async function getPromptsPage(cursor: string | null, limit = 24): Promise<PromptPage> {
+export async function getPromptsPage(cursor: string | null, limit = 24, category?: string): Promise<PromptPage> {
 	const db = getDB();
 	const probe = limit + 1;
 	const SELECT = `SELECT ${PROMPT_COLS}, ${NEWEST_TS} AS sort_ts FROM prompts`;
+	const categoryFilter = category ? ' AND category = ?' : '';
 	type Row = PromptRow & { sort_ts: string | null };
 
 	let results: Row[];
@@ -184,18 +188,18 @@ export async function getPromptsPage(cursor: string | null, limit = 24): Promise
 		const slug = parts.slice(2).join('|');
 		({ results } = await db
 			.prepare(
-				`${SELECT} WHERE ${APPROVED} AND (
+				`${SELECT} WHERE ${APPROVED}${categoryFilter} AND (
 					date < ?
 					OR (date = ? AND ${NEWEST_TS} < ?)
 					OR (date = ? AND ${NEWEST_TS} = ? AND slug > ?)
 				) ORDER BY ${NEWEST_ORDER} LIMIT ?`,
 			)
-			.bind(date, date, ts, date, ts, slug, probe)
+			.bind(...(category ? [category, date, date, ts, date, ts, slug, probe] : [date, date, ts, date, ts, slug, probe]))
 			.all<Row>());
 	} else {
 		({ results } = await db
-			.prepare(`${SELECT} WHERE ${APPROVED} ORDER BY ${NEWEST_ORDER} LIMIT ?`)
-			.bind(probe)
+			.prepare(`${SELECT} WHERE ${APPROVED}${categoryFilter} ORDER BY ${NEWEST_ORDER} LIMIT ?`)
+			.bind(...(category ? [category, probe] : [probe]))
 			.all<Row>());
 	}
 
@@ -429,12 +433,13 @@ export function readTime(prompt: Prompt): number {
 // ---------------------------------------------------------------------------
 
 /** Approved prompts ordered by all-time saves, newest as tiebreaker. */
-export async function getPopularPrompts(limit = 60): Promise<Prompt[]> {
+export async function getPopularPrompts(limit = 60, category?: string): Promise<Prompt[]> {
+	const categoryFilter = category ? ' AND category = ?' : '';
 	const { results } = await getDB()
 		.prepare(
-			`SELECT ${PROMPT_COLS} FROM prompts WHERE ${APPROVED} ORDER BY save_count DESC, date DESC LIMIT ?`,
+			`SELECT ${PROMPT_COLS} FROM prompts WHERE ${APPROVED}${categoryFilter} ORDER BY save_count DESC, date DESC LIMIT ?`,
 		)
-		.bind(limit)
+		.bind(...(category ? [category, limit] : [limit]))
 		.all<PromptRow>();
 	return results.map(rowToPrompt);
 }
@@ -444,10 +449,11 @@ export async function getPopularPrompts(limit = 60): Promise<Prompt[]> {
  * Computed live; if nothing has happened in a week, the list will be empty
  * (callers should fall back to the Popular list to avoid a dead tab).
  */
-export async function getTrendingPrompts(limit = 60): Promise<Prompt[]> {
+export async function getTrendingPrompts(limit = 60, category?: string): Promise<Prompt[]> {
 	const cols = PROMPT_COLS.split(', ')
 		.map((c) => `p.${c}`)
 		.join(', ');
+	const categoryFilter = category ? ' AND p.category = ?' : '';
 	const { results } = await getDB()
 		.prepare(
 			`SELECT ${cols}, COUNT(e.id) AS score
@@ -456,13 +462,13 @@ export async function getTrendingPrompts(limit = 60): Promise<Prompt[]> {
 			   ON e.prompt_slug = p.slug
 			  AND e.kind IN ('save','like','share')
 			  AND e.created_at > datetime('now','-7 days')
-			 WHERE p.${APPROVED}
+			 WHERE p.${APPROVED}${categoryFilter}
 			 GROUP BY p.slug
 			 HAVING score > 0
 			 ORDER BY score DESC, p.date DESC
 			 LIMIT ?`,
 		)
-		.bind(limit)
+		.bind(...(category ? [category, limit] : [limit]))
 		.all<PromptRow>();
 	return results.map(rowToPrompt);
 }

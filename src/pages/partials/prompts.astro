@@ -14,8 +14,10 @@ import PromptCard from '../../components/PromptCard.astro';
 import { getPromptsPage, getAllCategories } from '../../lib/prompts';
 
 const cursor = Astro.url.searchParams.get('cursor');
+const requestedCategory = Astro.url.searchParams.get('category');
+const category = requestedCategory === 'images' || requestedCategory === 'text' ? requestedCategory : undefined;
 const [{ prompts, nextCursor }, categories] = await Promise.all([
-	getPromptsPage(cursor, 24),
+	getPromptsPage(cursor, 24, category),
 	getAllCategories(),
 ]);
 const categoryBySlug = new Map(categories.map((c) => [c.slug, c]));

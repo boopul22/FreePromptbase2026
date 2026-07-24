@@ -54,6 +54,7 @@ CREATE TABLE prompts (
 	view_count       INTEGER NOT NULL DEFAULT 0,    -- denormalized count of 'view' rows in prompt_events (deduped per actor/day)
 	copy_count       INTEGER NOT NULL DEFAULT 0,    -- denormalized count of 'copy' rows in prompt_events (deduped per actor/minute)
 	how_to_use       TEXT,
+	source_url       TEXT,                           -- canonical original/source attribution URL when supplied
 	created_by       TEXT,                           -- FK to users.id of admin who created via CMS (nullable)
 	-- Lifecycle status (free-text; no CHECK so new values need no migration):
 	--   'draft'    — admin work-in-progress; private, NOT in the review queue.

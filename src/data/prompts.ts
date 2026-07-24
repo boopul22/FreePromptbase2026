@@ -45,6 +45,8 @@ export interface Prompt {
 	coverH?: number;
 	/** Optional extra guidance rendered on the detail page. */
 	howToUse?: string;
+	/** Original publication URL, shown as a clear external attribution link. */
+	sourceUrl?: string;
 	/** Image gallery rendered as a carousel on the detail page. cover_image is used for cards. */
 	images?: string[];
 	/** users.id of the admin who added this prompt (null for seed entries). */

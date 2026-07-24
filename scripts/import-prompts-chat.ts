@@ -37,6 +37,7 @@ interface ImportPrompt {
 	tags: string[];
 	author: string;
 	howToUse: string;
+	sourceUrl: string;
 }
 
 /** RFC 4180-style parser: supports quoted commas, newlines, and escaped quotes. */
@@ -158,8 +159,19 @@ function classify(title: string, prompt: string, sourceType: string): string {
 }
 
 function descriptionFor(title: string, topic: string): string {
-	const friendlyTopic = topic === 'structured prompts' ? 'structured task' : topic;
-	return `Copy this ${title} AI prompt to get a focused ${friendlyTopic} response from ChatGPT, Gemini, Claude, or another AI assistant.`;
+	const purposeByTopic: Record<string, string> = {
+		analysis: 'data analysis, research, and clear findings',
+		business: 'marketing, customer work, and business decisions',
+		coding: 'coding questions, debugging, and technical guidance',
+		creative: 'creative ideas, stories, and role-play',
+		learning: 'lessons, practice, and study support',
+		planning: 'goals, priorities, and practical next steps',
+		productivity: 'everyday work and focused problem-solving',
+		'structured prompts': 'a structured task with clear inputs and outputs',
+		writing: 'writing, editing, translation, and language work',
+	};
+	const purpose = purposeByTopic[topic] ?? 'a focused AI task';
+	return `${title} prompt for ${purpose}. Copy it into ChatGPT, Gemini, Claude, or another AI assistant and tailor it to your task.`;
 }
 
 function sqlText(value: string): string {
@@ -170,7 +182,7 @@ function sqlText(value: string): string {
 }
 
 function toSql(prompt: ImportPrompt): string {
-	return `INSERT OR IGNORE INTO prompts (slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, view_count, copy_count, how_to_use, status, updated_at) VALUES (${sqlText(prompt.slug)}, ${sqlText(prompt.title)}, ${sqlText(prompt.description)}, ${sqlText(prompt.prompt)}, 'text', ${sqlText(JSON.stringify(prompt.tags))}, ${sqlText(prompt.author)}, '${IMPORT_DATE}', NULL, '[]', 0, 0, 0, 0, 0, 0, 0, 0, ${sqlText(prompt.howToUse)}, 'approved', datetime('now'));`;
+	return `INSERT INTO prompts (slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, view_count, copy_count, how_to_use, source_url, status, updated_at) VALUES (${sqlText(prompt.slug)}, ${sqlText(prompt.title)}, ${sqlText(prompt.description)}, ${sqlText(prompt.prompt)}, 'text', ${sqlText(JSON.stringify(prompt.tags))}, ${sqlText(prompt.author)}, '${IMPORT_DATE}', NULL, '[]', 0, 0, 0, 0, 0, 0, 0, 0, ${sqlText(prompt.howToUse)}, ${sqlText(prompt.sourceUrl)}, 'approved', datetime('now')) ON CONFLICT(slug) DO UPDATE SET description = excluded.description, tags = excluded.tags, author = excluded.author, how_to_use = excluded.how_to_use, source_url = excluded.source_url, updated_at = datetime('now') WHERE prompts.category = 'text' AND prompts.author LIKE 'prompts.chat%';`;
 }
 
 function buildImport(rows: SourcePrompt[]): { prompts: ImportPrompt[]; excluded: number; duplicates: number; categories: Map<string, number> } {
@@ -213,6 +225,7 @@ function buildImport(rows: SourcePrompt[]): { prompts: ImportPrompt[]; excluded:
 			tags,
 			author: contributor ? `prompts.chat · ${contributor}` : 'prompts.chat',
 			howToUse: `Copy the prompt, replace any placeholders with your context, then paste it into your preferred AI assistant.\n\nSource: ${SOURCE_PAGE} — prompt data is CC0 1.0 Universal. ${sourceLine}`,
+			sourceUrl: SOURCE_PAGE,
 		});
 		categories.set(topic, (categories.get(topic) ?? 0) + 1);
 	}

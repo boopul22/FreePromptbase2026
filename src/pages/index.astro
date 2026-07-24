@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import Tabs from '../components/Tabs.astro';
+import PromptTypeTabs from '../components/PromptTypeTabs.astro';
 import PromptGrid from '../components/PromptGrid.astro';
 import Footer from '../components/Footer.astro';
 import {
@@ -14,6 +15,7 @@ import {
 	getPromptsPage,
 	getPromptBySlug,
 	getSiteStats,
+	getCategoryCounts,
 	type Prompt,
 } from '../lib/prompts';
 import { getTopContributor } from '../lib/users';
@@ -27,17 +29,35 @@ export const prerender = false;
 // Only the first page of "All" is fetched up front (keyset-paginated, lazy-loaded
 // on scroll); Recent and Trending are bounded sets. The whole catalog is never
 // loaded into one response.
-const [recentPrompts, allPage, categories, popularPrompts, trendingFromEvents, potdSlug, stats, topContributor] =
-	await Promise.all([
-		getRecentPrompts(24),
-		getPromptsPage(null, 24),
-		getAllCategories(),
-		getPopularPrompts(),
-		getTrendingPrompts(),
-		getPromptOfTheDaySlug(),
-		getSiteStats(),
-		getTopContributor(),
-	]);
+const [
+	imageRecent,
+	imageAllPage,
+	textRecent,
+	textAllPage,
+	categories,
+	imagePopular,
+	textPopular,
+	imageTrendingEvents,
+	textTrendingEvents,
+	potdSlug,
+	stats,
+	topContributor,
+	categoryCounts,
+] = await Promise.all([
+	getRecentPrompts(24, 'images'),
+	getPromptsPage(null, 24, 'images'),
+	getRecentPrompts(24, 'text'),
+	getPromptsPage(null, 24, 'text'),
+	getAllCategories(),
+	getPopularPrompts(60, 'images'),
+	getPopularPrompts(60, 'text'),
+	getTrendingPrompts(60, 'images'),
+	getTrendingPrompts(60, 'text'),
+	getPromptOfTheDaySlug(),
+	getSiteStats(),
+	getTopContributor(),
+	getCategoryCounts(),
+]);
 
 // Fetch the Prompt of the Day directly (one indexed lookup) so we can float it
 // into Trending without loading the entire catalog just to find it.
@@ -46,8 +66,8 @@ const potdPrompt = potdSlug ? await getPromptBySlug(potdSlug) : undefined;
 // Float the Prompt of the Day to the first card of Trending so it leads the
 // page. Recent/All stay in strict newest order (no POTD float). The POTD still
 // gets its badge wherever it naturally falls.
-function withPotdFirst(list: Prompt[]): Prompt[] {
-	if (!potdSlug) return list;
+function withPotdFirst(list: Prompt[], category: string): Prompt[] {
+	if (!potdSlug || potdPrompt?.category !== category) return list;
 	const idx = list.findIndex((p) => p.slug === potdSlug);
 	if (idx === 0) return list;
 	if (idx > 0) return [list[idx], ...list.slice(0, idx), ...list.slice(idx + 1)];
@@ -57,23 +77,27 @@ function withPotdFirst(list: Prompt[]): Prompt[] {
 // Trending leads with the past-7-day winners, then pads from Popular so a
 // quiet week doesn't leave the default tab looking thin. Dedup by slug.
 const MIN_TRENDING = 12;
-const trendingSlugs = new Set(trendingFromEvents.map((p) => p.slug));
-const padding = popularPrompts.filter((p) => !trendingSlugs.has(p.slug));
-const trendingPrompts = withPotdFirst(
-	trendingFromEvents.length >= MIN_TRENDING
-		? trendingFromEvents
-		: [...trendingFromEvents, ...padding].slice(0, MIN_TRENDING),
-);
+function makeTrending(events: Prompt[], popular: Prompt[], category: string): Prompt[] {
+	const trendingSlugs = new Set(events.map((p) => p.slug));
+	const padding = popular.filter((p) => !trendingSlugs.has(p.slug));
+	return withPotdFirst(
+		events.length >= MIN_TRENDING ? events : [...events, ...padding].slice(0, MIN_TRENDING),
+		category,
+	);
+}
+
+const imageTrending = makeTrending(imageTrendingEvents, imagePopular, 'images');
+const textTrending = makeTrending(textTrendingEvents, textPopular, 'text');
 
 // ItemList for the homepage collection (cap to 30 so the JSON-LD stays small).
 const homeList = itemListSchema(
-	trendingPrompts.slice(0, 30).map((p) => ({ name: p.title, url: `/${p.slug}` })),
-	'Trending prompts',
+	imageTrending.slice(0, 30).map((p) => ({ name: p.title, url: `/${p.slug}` })),
+	'Trending image prompts',
 );
 
 // Preload the first card's cover — it's the LCP element on the home grid.
 // The All tab is the default open tab, so its first card is the LCP element.
-const firstCover = allPage.prompts[0]?.coverImage ?? trendingPrompts[0]?.coverImage;
+const firstCover = imageAllPage.prompts[0]?.coverImage ?? imageTrending[0]?.coverImage;
 const hasQueryString = Astro.url.search !== '';
 ---
 
@@ -89,26 +113,56 @@ const hasQueryString = Astro.url.search !== '';
 	<Header />
 	<main class="site-main py-12">
 		<Hero promptCount={stats.promptCount} categoryCount={categories.length} topContributor={topContributor} />
+		<PromptTypeTabs imageCount={categoryCounts.images ?? 0} textCount={categoryCounts.text ?? 0} />
 		<Tabs />
 		<PromptGrid
-			prompts={trendingPrompts}
+			prompts={imageTrending}
 			categories={categories}
 			tab="trending"
 			hidden
+			promptType="images"
 			emptyMessage="No trending prompts yet — heart a few to get this section moving."
 		/>
 		<PromptGrid
-			prompts={recentPrompts}
+			prompts={imageRecent}
 			categories={categories}
 			tab="recent"
 			hidden
+			promptType="images"
 			emptyMessage="Nothing here yet. New prompts show up first."
 		/>
 		<PromptGrid
-			prompts={allPage.prompts}
+			prompts={imageAllPage.prompts}
 			categories={categories}
 			tab="all"
-			emptyMessage="No prompts yet."
+			promptType="images"
+			nextCursor={imageAllPage.nextCursor}
+			emptyMessage="No image prompts yet."
+		/>
+		<PromptGrid
+			prompts={textTrending}
+			categories={categories}
+			tab="trending"
+			hidden
+			promptType="text"
+			emptyMessage="No trending text prompts yet — copy or save one to get this section moving."
+		/>
+		<PromptGrid
+			prompts={textRecent}
+			categories={categories}
+			tab="recent"
+			hidden
+			promptType="text"
+			emptyMessage="Nothing here yet. New text prompts show up first."
+		/>
+		<PromptGrid
+			prompts={textAllPage.prompts}
+			categories={categories}
+			tab="all"
+			hidden
+			promptType="text"
+			nextCursor={textAllPage.nextCursor}
+			emptyMessage="No text prompts yet."
 		/>
 		<!-- Pagination for the All tab (shown/hidden with it). The button carries
 		     the keyset cursor; clicking it fetches the next page from
@@ -118,7 +172,6 @@ const hasQueryString = Astro.url.search !== '';
 				type="button"
 				data-load-more
 				data-tab="all"
-				data-cursor={allPage.nextCursor ?? ''}
 				class="btn-secondary"
 			>
 				Load more prompts
@@ -142,23 +195,34 @@ const hasQueryString = Astro.url.search !== '';
 	const emptyState = document.querySelector<HTMLElement>('[data-empty]');
 	const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
 	const searchForm = document.querySelector<HTMLFormElement>('[data-search-form]');
+	const typeTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.prompt-type-tab'));
 	const sortTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.sort-tab'));
 	const tabIndicator = document.querySelector<HTMLElement>('[data-tab-indicator]');
 	const loadMore = document.querySelector<HTMLButtonElement>('[data-load-more]');
 	const loadMoreWrap = document.querySelector<HTMLElement>('[data-load-more-wrap]');
 	const loadEnd = document.querySelector<HTMLElement>('[data-load-end]');
-	const allGrid = grids.find((g) => g.dataset.tab === 'all') ?? null;
+	let activeType = typeTabs.find((tab) => tab.dataset.active === 'true')?.dataset.promptType ?? 'images';
+	let activeSort = sortTabs.find((tab) => tab.dataset.active === 'true')?.dataset.sort ?? 'all';
 
 	function activeGrid(): HTMLElement | null {
 		return grids.find((g) => !g.classList.contains('hidden')) ?? null;
 	}
 
+	function activeAllGrid(): HTMLElement | null {
+		return grids.find((g) => g.dataset.tab === 'all' && g.dataset.promptType === activeType) ?? null;
+	}
+
 	function showTab(id: string) {
-		grids.forEach((g) => g.classList.toggle('hidden', g.dataset.tab !== id));
-		emptyTabMessages.forEach((p) => p.classList.toggle('hidden', p.dataset.emptyTab !== id));
+		activeSort = id;
+		grids.forEach((g) => g.classList.toggle('hidden', g.dataset.tab !== id || g.dataset.promptType !== activeType));
+		emptyTabMessages.forEach((p) =>
+			p.classList.toggle('hidden', p.dataset.emptyTab !== id || p.dataset.emptyPromptType !== activeType),
+		);
 		// All-tab-only pagination controls.
 		const isAll = id === 'all';
-		const hasMore = !!loadMore?.dataset.cursor;
+		const cursor = activeAllGrid()?.dataset.nextCursor ?? '';
+		const hasMore = !!cursor;
+		if (loadMore) loadMore.dataset.cursor = cursor;
 		loadMoreWrap?.classList.toggle('hidden', !isAll || !hasMore);
 		loadEnd?.classList.toggle('hidden', !isAll || hasMore);
 		// Re-run any active search filter against the newly visible grid.
@@ -182,18 +246,31 @@ const hasQueryString = Astro.url.search !== '';
 		});
 	});
 
+	typeTabs.forEach((tab) => {
+		tab.addEventListener('click', () => {
+			activeType = tab.dataset.promptType ?? 'images';
+			typeTabs.forEach((t) => {
+				const on = t === tab;
+				t.dataset.active = String(on);
+				t.setAttribute('aria-selected', String(on));
+			});
+			showTab(activeSort);
+		});
+	});
+
 	// --- Load more: append the next keyset page of the All grid on click -------
 	let loading = false;
 	const loadMoreLabel = loadMore?.textContent ?? 'Load more prompts';
 
 	async function loadNextAllPage() {
-		const cursor = loadMore?.dataset.cursor;
+		const allGrid = activeAllGrid();
+		const cursor = allGrid?.dataset.nextCursor;
 		if (loading || !loadMore || !allGrid || !cursor) return;
 		loading = true;
 		loadMore.disabled = true;
 		loadMore.textContent = 'Loading…';
 		try {
-			const res = await fetch(`/partials/prompts?cursor=${encodeURIComponent(cursor)}`);
+			const res = await fetch(`/partials/prompts?category=${encodeURIComponent(activeType)}&cursor=${encodeURIComponent(cursor)}`);
 			if (!res.ok) throw new Error(String(res.status));
 			const next = res.headers.get('X-Next-Cursor') ?? '';
 			allGrid.insertAdjacentHTML('beforeend', await res.text());
@@ -201,6 +278,7 @@ const hasQueryString = Astro.url.search !== '';
 			wireSave();
 			wireLike();
 			wireShare();
+			allGrid.dataset.nextCursor = next;
 			loadMore.dataset.cursor = next;
 			if (!next) {
 				loadMoreWrap?.classList.add('hidden');
@@ -219,8 +297,7 @@ const hasQueryString = Astro.url.search !== '';
 
 	// Initialise the controls for the default-open tab (hides the button when
 	// the first page already covers everything).
-	const initialTab = sortTabs.find((t) => t.dataset.active === 'true')?.dataset.sort ?? 'all';
-	showTab(initialTab);
+	showTab(activeSort);
 
 	function runSearch(query: string) {
 		const q = query.trim().toLowerCase();
