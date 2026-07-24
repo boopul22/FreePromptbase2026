@@ -130,7 +130,9 @@ const ogImageType = absoluteOgImage
 // we don't know real dimensions, so we skip width/height rather than lie.
 const ogImageKnownSize =
 	!!ogImage && (ogImage === '/og-default.png' || /^\/og\/[^/]+\.svg$/.test(ogImage));
-const robotsContent = noindex ? 'noindex, nofollow' : robots;
+// Allow large, relevant editorial images to be used in Google Discover. Pages
+// that explicitly opt out (admin/drafts) still keep their noindex directive.
+const robotsContent = noindex ? 'noindex, nofollow' : robots ?? 'max-image-preview:large';
 
 // Site-wide WebSite schema with a sitelinks search box action.
 const websiteSchema = {

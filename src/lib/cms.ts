@@ -30,6 +30,10 @@ export interface Post {
   authorAvatar: string;
   featured: boolean;
   status: 'draft' | 'published' | 'archived';
+  /** Guides use BlogPosting; independently reported updates use NewsArticle. */
+  contentType: 'guide' | 'news';
+  /** Primary source used to verify a news report. */
+  sourceUrl: string | null;
   coverImage: string | null;
   iconFallback: string | null;
   iconBg: string | null;
@@ -184,6 +188,8 @@ export function mapPostRow(row: any): Post {
     authorAvatar: row.author_avatar || '',
     featured: !!row.featured,
     status: row.status || 'draft',
+    contentType: row.content_type === 'news' ? 'news' : 'guide',
+    sourceUrl: row.source_url || null,
     coverImage: row.cover_image || null,
     iconFallback: row.icon_fallback || null,
     iconBg: row.icon_bg || null,

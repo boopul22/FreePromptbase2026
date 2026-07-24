@@ -174,6 +174,20 @@ const { id } = Astro.params;
  <span class="sf-label">Author</span>
  <input id="post-author-name" type="text" class="sf-input" />
  </div>
+
+ <div>
+ <span class="sf-label">Content Type</span>
+ <select id="post-content-type" class="sf-input">
+ <option value="guide">Guide / Blog post</option>
+ <option value="news">Verified news report</option>
+ </select>
+ </div>
+
+ <div>
+ <span class="sf-label">Primary Source URL</span>
+ <input id="post-source-url" type="url" placeholder="https://official-source.example/release" class="sf-input !text-xs" />
+ <p class="mt-1 text-[10px] leading-snug text-gray-500">Required for news. It is included as a source citation in the NewsArticle schema.</p>
+ </div>
  <div>
  <span class="sf-label">Role</span>
  <input id="post-author-role" type="text" class="sf-input" />
@@ -740,6 +754,8 @@ const { id } = Astro.params;
  content: editor.getHTML(),
  categoryId: (document.getElementById('post-category') as HTMLSelectElement).value || null,
  featured: (document.getElementById('post-featured') as HTMLInputElement).checked,
+ contentType: (document.getElementById('post-content-type') as HTMLSelectElement).value,
+ sourceUrl: (document.getElementById('post-source-url') as HTMLInputElement).value || null,
  coverImage: coverInput.value || null,
  iconFallback: (document.getElementById('post-icon-fallback') as HTMLInputElement).value || null,
  iconBg: (document.getElementById('post-icon-bg') as HTMLInputElement).value || null,
@@ -863,6 +879,8 @@ const { id } = Astro.params;
  (document.getElementById('post-author-name') as HTMLInputElement).value = p.authorName;
  (document.getElementById('post-author-role') as HTMLInputElement).value = p.authorRole;
  (document.getElementById('post-author-avatar') as HTMLInputElement).value = p.authorAvatar;
+ (document.getElementById('post-content-type') as HTMLSelectElement).value = p.contentType === 'news' ? 'news' : 'guide';
+ (document.getElementById('post-source-url') as HTMLInputElement).value = p.sourceUrl || '';
  (document.getElementById('post-meta-title') as HTMLInputElement).value = p.metaTitle || '';
  (document.getElementById('post-meta-description') as HTMLTextAreaElement).value = p.metaDescription || '';
 

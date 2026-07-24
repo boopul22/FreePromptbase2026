@@ -29,6 +29,7 @@ const updatedIso = post.updatedAt ?? dateIso;
 const wasUpdated = new Date(updatedIso).getTime() - new Date(dateIso).getTime() > 86_400_000;
 const dateLabel = wasUpdated ? `Updated ${fmtDate(updatedIso)}` : fmtDate(dateIso);
 const authorName = post.authorName || 'Admin';
+const isNews = post.contentType === 'news';
 const authorInitials = authorName
 	.trim()
 	.split(/\s+/)
@@ -191,7 +192,7 @@ const postUrl = new URL(`/blog/${post.slug}`, Astro.site).href;
 
 const postSchema = {
 	'@context': 'https://schema.org',
-	'@type': 'BlogPosting',
+	'@type': isNews ? 'NewsArticle' : 'BlogPosting',
 	headline: post.title,
 	description: post.excerpt,
 	datePublished: new Date(dateIso).toISOString(),
@@ -201,6 +202,8 @@ const postSchema = {
 	url: postUrl,
 	mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
 	inLanguage: 'en',
+	...(isNews ? { genre: 'AI News' } : {}),
+	...(isNews && post.sourceUrl ? { citation: post.sourceUrl } : {}),
 	...(wordCount > 0 ? { wordCount, articleBody } : {}),
 	// `image` is required for Article/BlogPosting rich results. Always emit one —
 	// fall back to the branded, generated OG card (absolute) when the post has no

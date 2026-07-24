@@ -1,0 +1,78 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import Footer from '../components/Footer.astro';
+import { getAllPosts, postReadTime } from '../lib/posts';
+import { itemListSchema, breadcrumbSchema } from '../lib/seo';
+import { cfSrcset } from '../lib/cfImage';
+
+export const prerender = false;
+
+const posts = (await getAllPosts()).filter((post) => post.contentType === 'news');
+const fmt = (iso: string) =>
+	new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const displayDate = (post: (typeof posts)[number]) => post.publishedAt ?? post.createdAt;
+const readLabel = (post: (typeof posts)[number]) => post.readTime || `${postReadTime(post)} min read`;
+const latest = posts[0];
+const remaining = posts.slice(1);
+const list = itemListSchema(
+	posts.slice(0, 30).map((post) => ({ name: post.title, url: `/blog/${post.slug}` })),
+	'Free Prompt Base AI news',
+);
+const crumb = breadcrumbSchema([
+	{ name: 'Home', path: '/' },
+	{ name: 'News', path: '/news' },
+]);
+---
+
+<Layout
+	title="AI News — Free Prompt Base"
+	description="Short, verified AI news briefs with direct primary sources."
+	extraSchemas={[list, crumb]}
+>
+	<Header />
+	<main class="flex-grow site-main py-10 sm:py-16">
+		<Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'News' }]} />
+		<header class="max-w-3xl">
+			<p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-ink">Free Prompt Base News</p>
+			<h1 class="mt-3 font-heading text-[clamp(2.5rem,6vw,4.5rem)] font-bold leading-[0.95] tracking-tight text-text-primary">AI news, without the noise.</h1>
+			<p class="mt-5 max-w-2xl text-lg leading-relaxed text-[var(--ink-soft)]">Short, independently written reports on the AI tools and product changes that matter. Every news brief links to its primary source.</p>
+		</header>
+
+		{latest ? (
+			<section class="mt-12 grid gap-7 border-y border-[var(--hairline)] py-7 lg:grid-cols-[1.25fr_1fr] lg:items-center">
+				<a href={`/blog/${latest.slug}`} class="block overflow-hidden rounded-xl bg-[var(--paper-sunken)]">
+					{latest.coverImage ? <img src={latest.coverImage} srcset={cfSrcset(latest.coverImage, [640, 960, 1280])} sizes="(min-width: 1024px) 55vw, 92vw" alt={latest.title} width="1280" height="720" loading="eager" fetchpriority="high" decoding="async" class="aspect-[16/9] h-full w-full object-cover" /> : <div class="aspect-[16/9]" />}
+				</a>
+				<div>
+					<p class="text-xs font-semibold uppercase tracking-[0.16em] text-primary-ink">Latest report · {fmt(displayDate(latest))}</p>
+					<h2 class="mt-3 font-heading text-3xl font-bold leading-tight tracking-tight text-text-primary sm:text-4xl"><a href={`/blog/${latest.slug}`} class="hover:text-secondary transition-colors">{latest.title}</a></h2>
+					<p class="mt-4 leading-relaxed text-[var(--ink-soft)]">{latest.excerpt}</p>
+					<p class="mt-5 text-sm font-medium text-[var(--ink-faint)]">{readLabel(latest)} · Verified primary source</p>
+				</div>
+			</section>
+		) : (
+			<section class="mt-12 rounded-xl border border-[var(--hairline)] bg-[var(--paper)] p-8 text-center"><p class="font-semibold text-text-primary">The first AI news brief is on its way.</p></section>
+		)}
+
+		{remaining.length > 0 && (
+			<section class="mt-12">
+				<h2 class="font-heading text-2xl font-bold tracking-tight text-text-primary">More news</h2>
+				<div class="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+					{remaining.map((post) => (
+						<article class="overflow-hidden rounded-xl border border-[var(--hairline)] bg-[var(--paper)]">
+							{post.coverImage && <img src={post.coverImage} srcset={cfSrcset(post.coverImage, [400, 640, 960])} sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 92vw" alt={post.title} width="960" height="540" loading="lazy" decoding="async" class="aspect-[16/9] w-full object-cover" />}
+							<div class="p-5"><p class="text-xs text-[var(--ink-faint)]">{fmt(displayDate(post))} · {readLabel(post)}</p><h3 class="mt-2 font-heading text-xl font-bold leading-snug text-text-primary"><a href={`/blog/${post.slug}`} class="hover:text-secondary transition-colors">{post.title}</a></h3><p class="mt-3 text-sm leading-relaxed text-[var(--ink-soft)]">{post.excerpt}</p></div>
+						</article>
+					))}
+				</div>
+			</section>
+		)}
+	</main>
+	<Footer />
+</Layout>
+
+<style is:global>
+	.text-primary-ink { color: oklch(0.62 0.13 80); }
+</style>

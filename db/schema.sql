@@ -191,6 +191,10 @@ CREATE TABLE posts (
 	author_avatar TEXT NOT NULL DEFAULT '',
 	featured INTEGER NOT NULL DEFAULT 0,
 	status TEXT NOT NULL DEFAULT 'draft',
+	-- 'guide' uses BlogPosting; verified reporting uses NewsArticle.
+	content_type TEXT NOT NULL DEFAULT 'guide',
+	-- Canonical first-party source for a news report. Rendered as citation.
+	source_url TEXT,
 	cover_image TEXT,
 	icon_fallback TEXT,
 	icon_bg TEXT,
@@ -206,6 +210,7 @@ CREATE TABLE posts (
 CREATE INDEX idx_posts_slug ON posts(slug);
 CREATE INDEX idx_posts_status ON posts(status);
 CREATE INDEX idx_posts_category_id ON posts(category_id);
+CREATE INDEX idx_posts_content_type ON posts(content_type);
 
 CREATE TABLE media (
 	id TEXT PRIMARY KEY,

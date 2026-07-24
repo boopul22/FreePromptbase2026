@@ -14,6 +14,7 @@ const STATIC_PATHS = [
 	'/categories',
 	'/tags',
 	'/blog',
+	'/news',
 	'/tools/gemini-prompt-generator',
 	'/about',
 	'/contact',
@@ -65,6 +66,7 @@ export const GET: APIRoute = async () => {
 		'/categories': latestPromptDate,
 		'/tags': latestPromptDate,
 		'/blog': latestPostDate,
+		'/news': latestPostDate,
 	};
 
 	const entries: Entry[] = [

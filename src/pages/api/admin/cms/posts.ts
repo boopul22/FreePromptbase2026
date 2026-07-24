@@ -80,12 +80,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const content = typeof body.content === 'string' ? body.content : JSON.stringify(body.content || { intro: '', sections: [], outro: '' });
   const readTime = calculateReadTimeAuto(content);
   const status = body.status || 'draft';
+  const contentType = body.contentType === 'news' ? 'news' : 'guide';
+  const sourceUrl = typeof body.sourceUrl === 'string' ? body.sourceUrl.trim() : '';
+  if (contentType === 'news' && !/^https?:\/\/\S+$/i.test(sourceUrl)) {
+    return new Response(JSON.stringify({ error: 'News reports need a valid primary-source URL.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
   const publishedAt = status === 'published' ? new Date().toISOString() : null;
 
   await db
     .prepare(
-      `INSERT INTO posts (id, slug, title, excerpt, content, category_id, author_name, author_role, author_avatar, featured, status, cover_image, icon_fallback, icon_bg, read_time, meta_title, meta_description, related_slugs, faq_items, published_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO posts (id, slug, title, excerpt, content, category_id, author_name, author_role, author_avatar, featured, status, content_type, source_url, cover_image, icon_fallback, icon_bg, read_time, meta_title, meta_description, related_slugs, faq_items, published_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       id, slug,
@@ -98,6 +106,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       body.authorAvatar || locals.user.avatarUrl || '',
       body.featured ? 1 : 0,
       status,
+      contentType,
+      sourceUrl || null,
       body.coverImage || null,
       body.iconFallback || null,
       body.iconBg || null,

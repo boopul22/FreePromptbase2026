@@ -47,6 +47,20 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     : (existing as any).content;
 
   const readTime = calculateReadTimeAuto(content);
+  const contentType = body.contentType === 'news'
+    ? 'news'
+    : body.contentType === 'guide'
+      ? 'guide'
+      : (existing as any).content_type === 'news' ? 'news' : 'guide';
+  const sourceUrl = body.sourceUrl !== undefined
+    ? (typeof body.sourceUrl === 'string' ? body.sourceUrl.trim() : '')
+    : ((existing as any).source_url || '');
+  if (contentType === 'news' && !/^https?:\/\/\S+$/i.test(sourceUrl)) {
+    return new Response(JSON.stringify({ error: 'News reports need a valid primary-source URL.' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 
   // If publishing for the first time
   let publishedAt = (existing as any).published_at;
@@ -59,7 +73,7 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       `UPDATE posts SET
          title = ?, slug = ?, excerpt = ?, content = ?, category_id = ?,
          author_name = ?, author_role = ?, author_avatar = ?,
-         featured = ?, status = ?, cover_image = ?, icon_fallback = ?, icon_bg = ?,
+         featured = ?, status = ?, content_type = ?, source_url = ?, cover_image = ?, icon_fallback = ?, icon_bg = ?,
          read_time = ?, meta_title = ?, meta_description = ?,
          related_slugs = ?, faq_items = ?, published_at = ?, updated_at = datetime('now')
        WHERE id = ?`,
@@ -75,6 +89,8 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       body.authorAvatar ?? (existing as any).author_avatar,
       body.featured !== undefined ? (body.featured ? 1 : 0) : (existing as any).featured,
       body.status ?? (existing as any).status,
+      contentType,
+      sourceUrl || null,
       body.coverImage !== undefined ? body.coverImage : (existing as any).cover_image,
       body.iconFallback !== undefined ? body.iconFallback : (existing as any).icon_fallback,
       body.iconBg !== undefined ? body.iconBg : (existing as any).icon_bg,
