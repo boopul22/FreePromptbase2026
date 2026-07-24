@@ -19,6 +19,7 @@ interface Props {
 }
 
 const { prompt, category, priority = false, index, isPotd = false } = Astro.props;
+const coverAlt = prompt.category === 'text' ? `${prompt.title} AI prompt cover` : prompt.title;
 
 const searchIndex = [prompt.title, prompt.description, ...prompt.tags]
 	.join(' ')
@@ -75,7 +76,7 @@ void index;
 					src={cfImg(prompt.coverImage, 660, 68)}
 					srcset={cfSrcset(prompt.coverImage, [300, 400, 520, 660], 68)}
 					sizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
-					alt={prompt.title}
+					alt={coverAlt}
 					width={prompt.coverW}
 					height={prompt.coverH}
 					class="block w-full h-auto group-hover:scale-105 transition-transform duration-500"

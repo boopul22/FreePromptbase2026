@@ -27,6 +27,7 @@ interface Props {
 	prompt: Prompt;
 }
 const { prompt } = Astro.props;
+const coverAlt = prompt.category === 'text' ? `${prompt.title} AI prompt cover` : prompt.title;
 
 // Fan out the remaining reads in parallel — they only depend on `prompt`, so the
 // serial awaits here were the main server-response-time (TTFB) cost on detail pages.
@@ -288,7 +289,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 							src={cfImg(prompt.coverImage, 1080)}
 							srcset={cfSrcset(prompt.coverImage, [480, 672, 768, 1080])}
 							sizes="(min-width: 1024px) 700px, 92vw"
-							alt={prompt.title}
+							alt={coverAlt}
 							width={prompt.coverW}
 							height={prompt.coverH}
 							class="w-full rounded-base object-contain h-auto lg:h-[calc(100dvh-7rem)] lg:min-h-[360px] lg:max-h-[760px] lg:bg-gray-50"

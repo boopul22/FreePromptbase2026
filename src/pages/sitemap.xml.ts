@@ -37,7 +37,7 @@ export const GET: APIRoute = async () => {
 	interface Entry {
 		loc: string;
 		lastmod?: string;
-		images?: string[];
+		images?: Array<{ url: string; title?: string }>;
 	}
 
 	// Derive freshness signals from content already loaded (no extra queries):
@@ -76,13 +76,13 @@ export const GET: APIRoute = async () => {
 			return {
 				loc: `/${p.slug}`,
 				lastmod: p.date,
-				images: Array.from(new Set(imgs.filter(Boolean))),
+				images: Array.from(new Set(imgs.filter(Boolean))).map((url) => ({ url, title: p.title })),
 			};
 		}),
 		...posts.map((p) => ({
 			loc: `/blog/${p.slug}`,
 			lastmod: (p.publishedAt ?? p.createdAt).slice(0, 10),
-			images: p.coverImage ? [p.coverImage] : [],
+			images: p.coverImage ? [{ url: p.coverImage, title: p.title }] : [],
 		})),
 		...(pageRows.results ?? []).map((p) => ({
 			loc: `/p/${p.slug}`,
@@ -104,7 +104,10 @@ export const GET: APIRoute = async () => {
 				const loc = `${SITE}${e.loc === '/' ? '/' : e.loc}`;
 				const lastmod = e.lastmod ? `<lastmod>${e.lastmod}</lastmod>` : '';
 				const images = (e.images ?? [])
-					.map((u) => `\n    <image:image><image:loc>${escapeXml(u)}</image:loc></image:image>`)
+					.map((image) => {
+						const title = image.title ? `<image:title>${escapeXml(image.title)}</image:title>` : '';
+						return `\n    <image:image><image:loc>${escapeXml(image.url)}</image:loc>${title}</image:image>`;
+					})
 					.join('');
 				return `  <url><loc>${loc}</loc>${lastmod}${images}</url>`;
 			})

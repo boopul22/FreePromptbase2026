@@ -11,6 +11,9 @@
     "preview": "astro preview",
     "astro": "astro",
     "cf-typegen": "wrangler types",
+    "assets:generate-text-covers": "node --experimental-strip-types scripts/generate-text-prompt-covers.ts",
+    "assets:upload-text-covers": "node --experimental-strip-types scripts/upload-text-prompt-covers.ts",
+    "db:backfill-text-covers": "node --experimental-strip-types scripts/backfill-text-prompt-covers.ts",
     "db:import-prompts-chat": "node --experimental-strip-types scripts/import-prompts-chat.ts",
     "db:gen-seed": "node --experimental-strip-types scripts/gen-seed.ts",
     "db:setup:local": "npm run db:gen-seed && wrangler d1 execute freepromptbase-com --local --file=db/schema.sql && wrangler d1 execute freepromptbase-com --local --file=db/seed.sql",
@@ -34,6 +37,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260526.1",
+    "sharp": "^0.34.5",
     "wrangler": "^4.94.0"
   }
 }

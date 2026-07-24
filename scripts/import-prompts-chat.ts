@@ -20,6 +20,7 @@ const SOURCE_PAGE = 'https://github.com/f/prompts.chat';
 const OUTPUT_DIR = resolve('tmp/prompts-chat-import');
 const BATCH_SIZE = 75;
 const IMPORT_DATE = process.env.IMPORT_DATE ?? new Date().toISOString().slice(0, 10);
+const TEXT_COVER_BASE_URL = 'https://freepromptbase.com/cdn/prompts/text';
 
 interface SourcePrompt {
 	act: string;
@@ -38,6 +39,7 @@ interface ImportPrompt {
 	author: string;
 	howToUse: string;
 	sourceUrl: string;
+	coverImage: string;
 }
 
 /** RFC 4180-style parser: supports quoted commas, newlines, and escaped quotes. */
@@ -182,7 +184,7 @@ function sqlText(value: string): string {
 }
 
 function toSql(prompt: ImportPrompt): string {
-	return `INSERT INTO prompts (slug, title, description, prompt_text, category, tags, author, date, cover_image, images, featured, liked, popularity, save_count, like_count, share_count, view_count, copy_count, how_to_use, source_url, status, updated_at) VALUES (${sqlText(prompt.slug)}, ${sqlText(prompt.title)}, ${sqlText(prompt.description)}, ${sqlText(prompt.prompt)}, 'text', ${sqlText(JSON.stringify(prompt.tags))}, ${sqlText(prompt.author)}, '${IMPORT_DATE}', NULL, '[]', 0, 0, 0, 0, 0, 0, 0, 0, ${sqlText(prompt.howToUse)}, ${sqlText(prompt.sourceUrl)}, 'approved', datetime('now')) ON CONFLICT(slug) DO UPDATE SET description = excluded.description, tags = excluded.tags, author = excluded.author, how_to_use = excluded.how_to_use, source_url = excluded.source_url, updated_at = datetime('now') WHERE prompts.category = 'text' AND prompts.author LIKE 'prompts.chat%';`;
+	return `INSERT INTO prompts (slug, title, description, prompt_text, category, tags, author, date, cover_image, cover_w, cover_h, images, featured, liked, popularity, save_count, like_count, share_count, view_count, copy_count, how_to_use, source_url, status, updated_at) VALUES (${sqlText(prompt.slug)}, ${sqlText(prompt.title)}, ${sqlText(prompt.description)}, ${sqlText(prompt.prompt)}, 'text', ${sqlText(JSON.stringify(prompt.tags))}, ${sqlText(prompt.author)}, '${IMPORT_DATE}', ${sqlText(prompt.coverImage)}, 1200, 630, '[]', 0, 0, 0, 0, 0, 0, 0, 0, ${sqlText(prompt.howToUse)}, ${sqlText(prompt.sourceUrl)}, 'approved', datetime('now')) ON CONFLICT(slug) DO UPDATE SET description = excluded.description, tags = excluded.tags, author = excluded.author, how_to_use = excluded.how_to_use, source_url = excluded.source_url, cover_image = excluded.cover_image, cover_w = excluded.cover_w, cover_h = excluded.cover_h, updated_at = datetime('now') WHERE prompts.category = 'text' AND prompts.author LIKE 'prompts.chat%';`;
 }
 
 function buildImport(rows: SourcePrompt[]): { prompts: ImportPrompt[]; excluded: number; duplicates: number; categories: Map<string, number> } {
@@ -226,6 +228,7 @@ function buildImport(rows: SourcePrompt[]): { prompts: ImportPrompt[]; excluded:
 			author: contributor ? `prompts.chat · ${contributor}` : 'prompts.chat',
 			howToUse: `Copy the prompt, replace any placeholders with your context, then paste it into your preferred AI assistant.\n\nSource: ${SOURCE_PAGE} — prompt data is CC0 1.0 Universal. ${sourceLine}`,
 			sourceUrl: SOURCE_PAGE,
+			coverImage: `${TEXT_COVER_BASE_URL}/${slug}.webp`,
 		});
 		categories.set(topic, (categories.get(topic) ?? 0) + 1);
 	}
