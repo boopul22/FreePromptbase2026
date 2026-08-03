@@ -62,6 +62,9 @@
 		// src/pages/cdn/[...key].ts. Keeps every image under the project's
 		// own domain for SEO + branding. Safe to commit; not a secret.
 		"R2_PUBLIC_URL": "https://freepromptbase.com/cdn",
+		// Non-secret admin user id used to credit authenticated agent publishes.
+		// The bearer credential itself is the AGENT_PUBLISH_TOKEN Worker secret.
+		"AGENT_PUBLISH_USER_ID": "oRrwF0SWVY3NqH6iQ8LPf",
 
 		// Newsletter (Cloudflare Email Service) — the custom branded sender address
 		// and reply-to. EMAIL_FROM's domain must be onboarded to Email Sending.

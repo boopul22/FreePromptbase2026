@@ -2,8 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { getDB } from '../../../../lib/db';
-import { generateSlug, logActivity, toScheduleUtc } from '../../../../lib/cms';
-import { generateId } from '../../../../lib/crypto';
+import { publishPrompt, PromptPublishError } from '../../../../lib/promptPublishing';
 
 interface PromptRow {
   slug: string;
@@ -189,110 +188,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  const db = getDB(locals);
-  const body = await request.json();
-
-  if (!body.title || !body.promptText || !body.category) {
-    return new Response(
-      JSON.stringify({ error: 'Missing required fields: title, promptText, category' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } },
-    );
-  }
-
-  // Admins may create either a draft (work-in-progress) or publish directly
-  // (approved). They can never mint a 'pending'/'rejected' row here — that
-  // state belongs to the user-submission review flow.
-  const status = body.status === 'draft' ? 'draft' : 'approved';
-  if (body.status !== undefined && body.status !== 'draft' && body.status !== 'approved') {
-    return new Response(
-      JSON.stringify({ error: "Invalid status. Use 'draft' or 'approved'." }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } },
-    );
-  }
-
-  let slug = body.slug ? generateSlug(body.slug) : generateSlug(body.title);
-  if (!slug) slug = 'prompt-' + generateId(8).toLowerCase();
-
-  // Ensure unique slug
-  const existing = await db.prepare('SELECT slug FROM prompts WHERE slug = ?').bind(slug).first();
-  if (existing) {
-    slug = `${slug}-${generateId(6).toLowerCase()}`;
-  }
-
-  const today = new Date().toISOString().slice(0, 10);
-
-  // Schedule: a future publish time only makes sense for an approved prompt.
-  // For drafts we still persist it so it survives until the admin schedules.
-  const publishAt = toScheduleUtc(body.publishAt);
-  // When scheduling, sort by the scheduled date so it lands in "Newest" on go-live.
-  const effectiveDate = publishAt ? publishAt.slice(0, 10) : body.date || today;
-
-  const images: string[] = Array.isArray(body.images) ? body.images.filter((s: any) => typeof s === 'string' && s.trim()) : [];
-  // Auto-cover: if no explicit cover_image given but images were uploaded, use the first.
-  const coverImage = body.coverImage || (images.length > 0 ? images[0] : null);
-
-  // Resolve author from `createdBy` (user id from the dropdown). The dropdown
-  // is the source of truth for both the byline display name and the
-  // /author/<username> profile link. Fall back to free-text `author` for
-  // legacy clients, then to the current admin's name.
-  let createdById: string = locals.user.id;
-  let authorName: string = body.author || locals.user.name;
-  if (typeof body.createdBy === 'string' && body.createdBy.trim()) {
-    const u = await db
-      .prepare('SELECT id, name FROM users WHERE id = ?')
-      .bind(body.createdBy.trim())
-      .first<{ id: string; name: string }>();
-    if (!u) {
-      return new Response(JSON.stringify({ error: 'Selected author does not exist.' }), {
-        status: 400, headers: { 'Content-Type': 'application/json' },
-      });
-    }
-    createdById = u.id;
-    authorName = u.name;
-  }
-
-  await db
-    .prepare(
-      `INSERT INTO prompts
-        (slug, title, description, prompt_text, category, tags, author, date,
-         cover_image, images, featured, liked, popularity, how_to_use, created_by, status, publish_at, updated_at, cover_w, cover_h)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?)`,
-    )
-    .bind(
-      slug,
-      body.title,
-      body.description || '',
-      body.promptText,
-      body.category,
-      JSON.stringify(Array.isArray(body.tags) ? body.tags : []),
-      authorName,
-      effectiveDate,
-      coverImage,
-      JSON.stringify(images),
-      body.featured ? 1 : 0,
-      0,
-      Number.isFinite(body.popularity) ? body.popularity : 0,
-      body.howToUse || null,
-      createdById,
+  try {
+    const result = await publishPrompt({
+      db: getDB(locals),
+      body: await request.json(),
+      actor: { id: locals.user.id, name: locals.user.name },
+      mode: 'admin',
+    });
+    return new Response(JSON.stringify(result), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    const status = error instanceof PromptPublishError ? error.status : 500;
+    const message = error instanceof Error ? error.message : 'Prompt publishing failed.';
+    return new Response(JSON.stringify({ success: false, error: message }), {
       status,
-      publishAt,
-      Number.isFinite(body.coverW) ? body.coverW : null,
-      Number.isFinite(body.coverH) ? body.coverH : null,
-    )
-    .run();
-
-  await logActivity(db, {
-    userId: locals.user.id,
-    userName: locals.user.name,
-    action: 'create_prompt',
-    entityType: 'prompt',
-    entityId: slug,
-    entityTitle: body.title,
-    details: status === 'draft' ? 'draft' : undefined,
-  });
-
-  return new Response(JSON.stringify({ success: true, slug }), {
-    status: 201,
-    headers: { 'Content-Type': 'application/json' },
-  });
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 };

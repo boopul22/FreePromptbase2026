@@ -21,6 +21,7 @@ pnpm-debug.log*
 # wrangler / cloudflare local state
 .wrangler/
 .dev.vars
+.agent-publish-token
 # generated cloudflare binding types
 worker-configuration.d.ts
 # generated D1 seed (derived from src/data via npm run db:gen-seed)

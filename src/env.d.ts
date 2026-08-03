@@ -12,6 +12,10 @@ declare namespace App {
         GOOGLE_CLIENT_ID: string;
         GOOGLE_CLIENT_SECRET: string;
         AUTH_SECRET: string;
+        /** Bearer secret for /api/agent/cms/* machine publishing routes. */
+        AGENT_PUBLISH_TOKEN: string;
+        /** Active admin user credited for agent API writes. */
+        AGENT_PUBLISH_USER_ID: string;
         CLOUDFLARE_ACCOUNT_ID: string;
         R2_ACCESS_KEY_ID: string;
         R2_SECRET_ACCESS_KEY: string;

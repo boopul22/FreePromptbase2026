@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "prompt:publish": "node scripts/agent-publish.mjs",
     "astro": "astro",
     "cf-typegen": "wrangler types",
     "assets:generate-text-covers": "node --experimental-strip-types scripts/generate-text-prompt-covers.ts",
