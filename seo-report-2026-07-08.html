@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SEO Audit &amp; Growth Report — freepromptbase.com — 8 Jul 2026</title>
+<style>
+  :root{
+    --bg:#0b0d12; --panel:#141821; --panel2:#1b212c; --line:#28303d;
+    --text:#e8ecf3; --muted:#98a3b3; --dim:#6c7787;
+    --brand:#7c9cff; --brand2:#a78bfa;
+    --good:#37d399; --warn:#f5b74a; --bad:#f0616d; --neutral:#8b95a6;
+    --chip:#232b38;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f6f8fc; --panel:#ffffff; --panel2:#f2f5fa; --line:#e2e8f2;
+      --text:#141a24; --muted:#5a6675; --dim:#8a95a5;
+      --chip:#eef2f9;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px;margin:0 auto;padding:32px 20px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:24px;margin-bottom:8px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--brand);font-weight:700;margin:0 0 8px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 10px;letter-spacing:-.02em}
+  .sub{color:var(--muted);font-size:14px;margin:0}
+  .sub b{color:var(--text)}
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .banner{margin:26px 0;padding:16px 18px;border-radius:var(--radius);
+    background:linear-gradient(180deg,rgba(245,183,74,.14),rgba(245,183,74,.05));
+    border:1px solid rgba(245,183,74,.4)}
+  .banner h3{margin:0 0 6px;font-size:14px;color:var(--warn);letter-spacing:.02em}
+  .banner p{margin:0;color:var(--muted);font-size:13.5px}
+  .banner strong{color:var(--text)}
+
+  section{margin:44px 0 0}
+  h2{font-size:20px;margin:0 0 4px;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+  h2 .n{font-size:12px;color:var(--dim);font-weight:600;border:1px solid var(--line);border-radius:6px;padding:1px 7px}
+  .lead{color:var(--muted);font-size:14px;margin:6px 0 20px;max-width:80ch}
+
+  .grid{display:grid;gap:14px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px}
+  .kpi .label{font-size:12px;color:var(--muted);margin:0 0 8px;letter-spacing:.02em}
+  .kpi .val{font-size:26px;font-weight:750;letter-spacing:-.02em;line-height:1}
+  .kpi .delta{font-size:12.5px;margin-top:8px;font-weight:600}
+  .up{color:var(--good)} .down{color:var(--bad)} .flat{color:var(--neutral)}
+  .score-ring{font-size:26px;font-weight:750}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:4px}
+  .tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel)}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);font-weight:700;background:var(--panel2)}
+  tr:last-child td{border-bottom:none}
+  td.num,th.num{text-align:right}
+  .kw{white-space:normal;min-width:180px}
+  .url{color:var(--dim);font-size:12px;white-space:normal;max-width:260px}
+  .pill{display:inline-block;padding:1px 8px;border-radius:20px;font-size:11.5px;font-weight:700}
+  .pill.g{background:rgba(55,211,153,.16);color:var(--good)}
+  .pill.w{background:rgba(245,183,74,.16);color:var(--warn)}
+  .pill.b{background:rgba(240,97,109,.16);color:var(--bad)}
+  .pill.n{background:var(--chip);color:var(--muted)}
+
+  .barrow{display:flex;align-items:center;gap:12px;margin:9px 0}
+  .barrow .bl{width:150px;font-size:13px;color:var(--muted);flex:none}
+  .bar{flex:1;height:10px;background:var(--panel2);border-radius:6px;overflow:hidden}
+  .bar > i{display:block;height:100%;border-radius:6px}
+  .barrow .bv{width:44px;text-align:right;font-size:12.5px;color:var(--dim);flex:none}
+
+  .issue{display:flex;align-items:flex-start;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .issue:last-child{border-bottom:none}
+  .issue .sev{flex:none;width:64px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;padding-top:2px}
+  .issue .body{flex:1}
+  .issue .body b{font-weight:700}
+  .issue .cnt{flex:none;font-variant-numeric:tabular-nums;font-weight:750;font-size:15px}
+  .issue small{color:var(--dim);display:block;margin-top:2px}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:720px){.two{grid-template-columns:1fr}}
+  ul.clean{margin:8px 0 0;padding-left:18px;color:var(--muted)}
+  ul.clean li{margin:6px 0}
+  ul.clean li b{color:var(--text)}
+  .rec{border-left:3px solid var(--brand);padding:2px 0 2px 16px;margin:16px 0}
+  .rec h4{margin:0 0 4px;font-size:15px}
+  .rec .tag{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--brand)}
+  .rec p{margin:4px 0 0;color:var(--muted);font-size:13.5px}
+  .good-list li b{color:var(--good)}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--dim);font-size:12.5px}
+  .legend{font-size:12px;color:var(--dim);margin-top:10px}
+  .flagship{background:var(--panel2);border:1px dashed var(--line);border-radius:var(--radius);padding:14px 16px;margin-top:14px;font-size:13.5px;color:var(--muted)}
+  .flagship b{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <p class="eyebrow">SEO Audit &amp; Growth Report</p>
+    <h1>freepromptbase.com</h1>
+    <p class="sub">Generated <b>8 July 2026</b> · Growth window: <b>last 28 days vs. previous 28 days</b> · Live technical crawl of <b>223 pages</b> · Data via <b>SE Ranking</b></p>
+  </header>
+
+  <div class="banner">
+    <h3>⚠ Read this first — where the "growth" numbers come from</h3>
+    <p>Your true 28-day growth (clicks &amp; impressions) lives in <strong>Google Search Console</strong>, which is not connected to this report. The traffic and ranking figures below are <strong>SE Ranking's third-party estimate</strong>, and their database currently tracks only <strong>4–8 keywords</strong> for this domain (estimated organic traffic: <strong>0</strong>). That sample <strong>excludes every strategic landing page</strong> (nano-banana, gemini photo prompt, free ai prompts), so treat the growth section as a directional signal, not your real numbers. To measure real growth, connect Search Console (see recommendation #4). Everything in the <strong>technical, authority and on-page sections is fully accurate</strong> — those come from a live crawl and live link data.</p>
+  </div>
+
+  <!-- KPIs -->
+  <section style="margin-top:26px">
+    <div class="grid kpis">
+      <div class="card kpi">
+        <p class="label">Site Health Score</p>
+        <div class="val" style="color:var(--good)">92<span style="font-size:15px;color:var(--muted)">/100</span></div>
+        <div class="delta flat">0 errors · 246 warnings</div>
+      </div>
+      <div class="card kpi">
+        <p class="label">Est. Organic Traffic <span style="color:var(--dim)">(SE&nbsp;Ranking)</span></p>
+        <div class="val">0</div>
+        <div class="delta flat">— flat vs last month</div>
+      </div>
+      <div class="card kpi">
+        <p class="label">Tracked Keywords <span style="color:var(--dim)">(worldwide)</span></p>
+        <div class="val">30</div>
+        <div class="delta flat">IN&nbsp;4 · US&nbsp;4 in top&nbsp;100</div>
+      </div>
+      <div class="card kpi">
+        <p class="label">Domain Authority <span style="color:var(--dim)">(InLink Rank)</span></p>
+        <div class="val" style="color:var(--bad)">2<span style="font-size:15px;color:var(--muted)">/100</span></div>
+        <div class="delta down">the main bottleneck</div>
+      </div>
+      <div class="card kpi">
+        <p class="label">Backlinks / Ref. Domains</p>
+        <div class="val">44<span style="font-size:15px;color:var(--muted)"> / 31</span></div>
+        <div class="delta down">only 3 dofollow · spammy</div>
+      </div>
+      <div class="card kpi">
+        <p class="label">28-Day Keyword Movement</p>
+        <div class="val flat">≈0</div>
+        <div class="delta down">US −1 slip · IN flat</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 1. GROWTH -->
+  <section>
+    <h2><span class="n">1</span> Growth — last 28 days vs. previous month</h2>
+    <p class="lead">SE Ranking stores monthly ranking snapshots, so "last 28 days vs. previous period" maps to the <b>June 2026 → July 2026</b> snapshot. Verdict: <b>no measurable growth</b> in the tracked sample — India flat, the US slipped by one keyword.</p>
+
+    <div class="two">
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:10px">🇮🇳 India database</div>
+        <div class="barrow"><span class="bl">Keywords (Jun → Jul)</span><div class="bar"><i style="width:20%;background:var(--neutral)"></i></div><span class="bv">4 → 4</span></div>
+        <div class="barrow"><span class="bl">Position 21–50</span><div class="bar"><i style="width:75%;background:var(--warn)"></i></div><span class="bv">3</span></div>
+        <div class="barrow"><span class="bl">Position 51–100</span><div class="bar"><i style="width:25%;background:var(--bad)"></i></div><span class="bv">1</span></div>
+        <p class="legend">Moved up 0 · down 0 · new 0 · lost 0 · unchanged 4 → <b class="flat">completely flat</b></p>
+      </div>
+      <div class="card">
+        <div style="font-weight:700;margin-bottom:10px">🇺🇸 US database</div>
+        <div class="barrow"><span class="bl">Keywords (Jun → Jul)</span><div class="bar"><i style="width:20%;background:var(--neutral)"></i></div><span class="bv">4 → 4</span></div>
+        <div class="barrow"><span class="bl">Position 21–50</span><div class="bar"><i style="width:25%;background:var(--warn)"></i></div><span class="bv">2 → 1</span></div>
+        <div class="barrow"><span class="bl">Position 51–100</span><div class="bar"><i style="width:75%;background:var(--bad)"></i></div><span class="bv">2 → 3</span></div>
+        <p class="legend">Moved down 1 · up 0 · unchanged 3 → <b class="down">slight slip</b> (one keyword fell out of 21–50)</p>
+      </div>
+    </div>
+
+    <div class="flagship">
+      <b>Longer trend (US tracked-keyword count):</b> Dec&nbsp;2025 = 7 · Jan–Mar&nbsp;2026 = 8 (peak) · Apr = 6 · May = 6 · Jun = 4 · Jul = 4. The sample has drifted <b>down</b> since Q1 2026 — but again, this reflects SE Ranking's small crawl sample, not indexed reality. Notable single mover: <b>"prompt base"</b> (vol 480) fell from <b>#45 → #62</b> in the US this month.
+    </div>
+  </section>
+
+  <!-- 2. RANKINGS -->
+  <section>
+    <h2><span class="n">2</span> Keyword rankings — what SE Ranking currently sees</h2>
+    <p class="lead">The critical insight: <b>every ranking keyword is a brand/navigational term or an incidental one</b>. None of your 50 SEO landing pages appear in the tracked sample yet — the strategic terms (<i>nano banana prompt</i>, <i>gemini ai photo prompt copy paste</i>, <i>free ai prompts</i>) are not yet ranking in SE Ranking's index.</p>
+
+    <div class="tblwrap" style="margin-bottom:14px">
+      <table>
+        <thead><tr><th class="kw">🇮🇳 India keyword</th><th class="num">Vol</th><th class="num">Pos</th><th class="num">Prev</th><th>Δ</th><th class="num">KD</th><th>Ranking URL</th></tr></thead>
+        <tbody>
+          <tr><td class="kw">prompt base com</td><td class="num">70</td><td class="num">22</td><td class="num">22</td><td><span class="pill n">—</span></td><td class="num">63</td><td class="url">/</td></tr>
+          <tr><td class="kw">prompt base free</td><td class="num">10</td><td class="num">22</td><td class="num">22</td><td><span class="pill n">—</span></td><td class="num">61</td><td class="url">/</td></tr>
+          <tr><td class="kw">promptbase free</td><td class="num">30</td><td class="num">44</td><td class="num">44</td><td><span class="pill n">—</span></td><td class="num">19</td><td class="url">/</td></tr>
+          <tr><td class="kw">prompt base .com</td><td class="num">70</td><td class="num">55</td><td class="num">55</td><td><span class="pill n">—</span></td><td class="num">47</td><td class="url">/</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tblwrap">
+      <table>
+        <thead><tr><th class="kw">🇺🇸 US keyword</th><th class="num">Vol</th><th class="num">Pos</th><th class="num">Prev</th><th>Δ</th><th class="num">KD</th><th>Ranking URL</th></tr></thead>
+        <tbody>
+          <tr><td class="kw">ghetto tattoo sleeves</td><td class="num">30</td><td class="num">22</td><td class="num">22</td><td><span class="pill n">—</span></td><td class="num">7</td><td class="url">/prompts/ghetto-gangster-chicano-tattoo-sleeve-ideas</td></tr>
+          <tr><td class="kw">promptbase free</td><td class="num">70</td><td class="num">58</td><td class="num">58</td><td><span class="pill n">—</span></td><td class="num">13</td><td class="url">/</td></tr>
+          <tr><td class="kw">prompt base</td><td class="num">480</td><td class="num">62</td><td class="num">45</td><td><span class="pill b">▼ 17</span></td><td class="num">21</td><td class="url">/</td></tr>
+          <tr><td class="kw">character background story generator</td><td class="num">10</td><td class="num">87</td><td class="num">87</td><td><span class="pill n">—</span></td><td class="num">15</td><td class="url">/backstory</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="legend">KD = keyword difficulty (0–100). Δ = position change vs. previous snapshot. Lower position = better.</p>
+  </section>
+
+  <!-- 3. TECHNICAL -->
+  <section>
+    <h2><span class="n">3</span> Technical SEO audit — live crawl</h2>
+    <p class="lead">SE Ranking crawled <b>223 pages</b>: <b>0 errors</b>, 246 warnings, 983 notices, 106 checks passed. Overall <b>92/100</b> — technically one of the cleanest states a site this young can be in. Security, indexability, canonicals, meta uniqueness, duplicate content, hreflang and mobile all passed with zero issues. What remains is optimization polish, ranked by impact below.</p>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="issue"><div class="sev" style="color:var(--warn)">Fix</div><div class="body"><b>Oversized images</b><small>Largest-Contentful-Paint risk on mobile — resize &amp; serve WebP/AVIF via your /cdn/ transform.</small></div><div class="cnt" style="color:var(--warn)">89</div></div>
+      <div class="issue"><div class="sev" style="color:var(--warn)">Fix</div><div class="body"><b>Internal links pointing to 3XX redirects</b><small>Links hop through a redirect (likely www→non-www or trailing-slash). Point them at the final URL to save crawl budget &amp; link equity.</small></div><div class="cnt" style="color:var(--warn)">152</div></div>
+      <div class="issue"><div class="sev" style="color:var(--warn)">Fix</div><div class="body"><b>Links missing anchor text</b> (internal &amp; external)<small>Icon-only / SVG-sprite links with no text or <code>aria-label</code>. Add accessible labels — helps a11y and link context.</small></div><div class="cnt" style="color:var(--warn)">152</div></div>
+      <div class="issue"><div class="sev" style="color:var(--dim)">Check</div><div class="body"><b>Nofollow internal links</b><small>Confirm these are intentional (e.g. utility links). Unintended nofollow blocks internal PageRank flow.</small></div><div class="cnt" style="color:var(--muted)">152</div></div>
+      <div class="issue"><div class="sev" style="color:var(--dim)">Check</div><div class="body"><b>Pages blocked by noindex + nofollow</b><small>67 pages are noindexed. Verify these are meant to be excluded (admin, account, share, partials) and not real content pages.</small></div><div class="cnt" style="color:var(--muted)">67</div></div>
+      <div class="issue"><div class="sev" style="color:var(--dim)">Polish</div><div class="body"><b>Title tags too long</b> (&gt;65 chars)<small>Get truncated in the SERP — trim to keep the primary keyword visible.</small></div><div class="cnt" style="color:var(--muted)">74</div></div>
+      <div class="issue"><div class="sev" style="color:var(--dim)">Polish</div><div class="body"><b>Meta descriptions too long</b> (&gt;158 chars)<small>Google rewrites/truncates — tighten for click-through control.</small></div><div class="cnt" style="color:var(--muted)">64</div></div>
+      <div class="issue"><div class="sev" style="color:var(--dim)">Polish</div><div class="body"><b>JavaScript not compressed</b><small>Enable Brotli/gzip on JS assets (Cloudflare should handle — verify it's on).</small></div><div class="cnt" style="color:var(--muted)">152</div></div>
+      <div class="issue"><div class="sev" style="color:var(--dim)">Polish</div><div class="body"><b>Near-orphan pages</b> (only 1 internal inbound link)<small>Add contextual internal links so these get discovered and pass equity.</small></div><div class="cnt" style="color:var(--muted)">20</div></div>
+      <div class="issue"><div class="sev" style="color:var(--dim)">Minor</div><div class="body"><b>Temporary redirects</b> (302/307) &amp; 1 slow page<small>Convert intentional permanent redirects to 301; profile the slow page.</small></div><div class="cnt" style="color:var(--muted)">2+1</div></div>
+    </div>
+
+    <p class="legend">Sections that passed with <b>zero</b> issues: HTTPS/Security, Crawling &amp; Indexing (no 4XX/5XX), Sitemap validity, Meta (no missing/duplicate titles or descriptions), Content (no duplicate content), Localization/hreflang, Mobile (viewport OK), broken JS/CSS. Real-world Core Web Vitals field data was empty — the site doesn't yet have enough Chrome UX traffic to report CrUX.</p>
+  </section>
+
+  <!-- 4. AUTHORITY -->
+  <section>
+    <h2><span class="n">4</span> Authority &amp; backlink profile <span class="pill b" style="margin-left:4px">weakest area</span></h2>
+    <p class="lead">This is the single biggest reason strong on-page pages aren't ranking. Domain authority is near-floor and the existing links are low-quality.</p>
+
+    <div class="grid kpis" style="margin-bottom:16px">
+      <div class="card kpi"><p class="label">Domain InLink Rank</p><div class="val" style="color:var(--bad)">2/100</div><div class="delta down">very low</div></div>
+      <div class="card kpi"><p class="label">Dofollow backlinks</p><div class="val">3<span style="font-size:15px;color:var(--muted)"> / 44</span></div><div class="delta down">93% nofollow</div></div>
+      <div class="card kpi"><p class="label">Dofollow ref. domains</p><div class="val" style="color:var(--bad)">2</div><div class="delta down">of 31 total</div></div>
+      <div class="card kpi"><p class="label">Edu / Gov links</p><div class="val">0</div><div class="delta flat">none</div></div>
+    </div>
+
+    <div class="card">
+      <b>Spam signals in the current profile</b>
+      <ul class="clean">
+        <li>Manipulative anchor detected: <b>"Elevate your ranking with freepromptbase.com on seo-high-ranking.shop"</b> — classic auto-generated / PBN spam.</li>
+        <li>Low-trust TLD concentration: <b>.top ×6, .sbs ×3, .cfd, .homes, .fyi</b> — typical throwaway spam domains.</li>
+        <li>Geographic anomaly: <b>19 of 44 links from Finland</b>, 7 from France — unrelated to your India/SE-Asia audience.</li>
+        <li>0 links from any homepage, 0 editorial links from relevant AI/tech sites.</li>
+      </ul>
+      <p class="legend" style="margin-top:12px">Action: monitor these in GSC's Links report; if more spam appears, file a <b>disavow</b>. They're likely harmless noise today, but the real issue is the <b>absence of genuine authority</b> — not the spam itself.</p>
+    </div>
+  </section>
+
+  <!-- 5. ON-PAGE STRENGTHS -->
+  <section>
+    <h2><span class="n">5</span> On-page &amp; content foundation <span class="pill g" style="margin-left:4px">strong</span></h2>
+    <p class="lead">Verified directly from the codebase — the on-page and GEO foundation is excellent and ahead of most competitors at this stage.</p>
+    <div class="two">
+      <div class="card">
+        <b>Content &amp; structured data</b>
+        <ul class="clean good-list">
+          <li><b>50 keyword landing pages</b> live at <code>/&lt;slug&gt;</code>, each with a dedicated article JSON.</li>
+          <li>Every landing page ships <b>FAQPage + ItemList + BreadcrumbList</b> JSON-LD, with the target keyword in the H1.</li>
+          <li>Prompt, blog and author templates all emit valid schema (<b>BlogPosting</b>, etc.).</li>
+          <li>Canonical, Open Graph &amp; Twitter Card tags on every page.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <b>Crawlability &amp; GEO (AI search)</b>
+        <ul class="clean good-list">
+          <li><b>llms.txt</b> present — ready for AI-engine citation.</li>
+          <li>robots.txt <b>explicitly welcomes GPTBot, ClaudeBot, PerplexityBot</b> while blocking private paths.</li>
+          <li>Dynamic <b>sitemap.xml</b> kept in sync with the live database.</li>
+          <li>Edge-cached HTML (Workers Cache API) + SVG icon sprite for speed.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="legend">Note: your docs/memory reference tag pages at <code>/tag/&lt;slug&gt;</code>, but the live sitemap and routes serve them at root <code>/&lt;slug&gt;</code>. Not a bug — just worth aligning the documentation so future SEO work targets the correct live URLs.</p>
+  </section>
+
+  <!-- 6. RECOMMENDATIONS -->
+  <section>
+    <h2><span class="n">6</span> Priority action plan</h2>
+    <p class="lead">The site is <b>built well but has no authority and no measurement of real traffic</b>. Fix those two things and the strong on-page work starts converting into rankings.</p>
+
+    <div class="rec">
+      <span class="tag">Priority 1 · Highest impact</span>
+      <h4>Build real domain authority</h4>
+      <p>DA 2/100 is the ceiling on everything else. Earn a handful of genuine <b>dofollow</b> links: submit to AI-tool directories (Futurepedia, There's An AI For That, Toolify), get listed in "free AI prompt" roundups, share flagship pages in relevant Reddit/Discord/community threads, and pitch 2–3 guest posts. Even 5–10 quality links would move the needle dramatically at this level.</p>
+    </div>
+    <div class="rec">
+      <span class="tag">Priority 2 · Convert on-page into rankings</span>
+      <h4>Get the 50 strategic pages indexed &amp; internally linked</h4>
+      <p>None of your target pages rank yet. Add prominent internal links from the homepage and high-traffic prompt pages to the flagship <code>/nano-banana-prompt</code> and the <i>gemini ai photo prompt copy paste</i> page. Confirm each is indexed in GSC (URL Inspection), and deepen the thinnest articles. Internal linking is the fastest lever you fully control.</p>
+    </div>
+    <div class="rec">
+      <span class="tag">Priority 3 · Technical polish</span>
+      <h4>Clear the crawl warnings</h4>
+      <p>Resize/convert the <b>89 oversized images</b> (LCP), repoint the <b>152 internal links that hit redirects</b> to their final URLs, add <code>aria-label</code>s to the <b>152 icon links</b>, and trim the <b>74 long titles</b> + <b>64 long descriptions</b>. All low-effort, all in your codebase.</p>
+    </div>
+    <div class="rec">
+      <span class="tag">Priority 4 · Measurement — do this first, actually</span>
+      <h4>Connect Google Search Console so real growth is measurable</h4>
+      <p>This report couldn't show your true 28-day clicks/impressions because GSC isn't wired in. Connect it (and ideally create an <b>SE Ranking project</b> with daily rank tracking for your 50 target keywords). Then a month from now you'll have a real growth chart of <i>your</i> traffic — not a 4-keyword third-party estimate.</p>
+    </div>
+  </section>
+
+  <footer>
+    Sources: SE Ranking Data API (domain analytics, backlinks, InLink Rank) + a live SE Ranking site crawl of 223 pages (audit&nbsp;#221968, completed 2026-07-08 10:11 UTC) + direct inspection of the freepromptbase.com codebase. Traffic &amp; ranking figures are SE Ranking estimates and do not represent Google Search Console clicks/impressions. Generated 8 July 2026.
+  </footer>
+
+</div>
+</body>
+</html>
