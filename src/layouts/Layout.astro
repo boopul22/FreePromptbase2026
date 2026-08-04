@@ -38,18 +38,33 @@ const {
 } = Astro.props;
 
 // Offerwall control — must be defined on window BEFORE adsbygoogle.js loads.
-// The messaging library calls controlledMessagingFunction once per page view;
-// we suppress just the Offerwall (consent and other privacy messages still
-// show) so nothing ever interrupts reading or copying a prompt, and fail open
-// if the MessageTypeEnum API is ever missing. Kept as a frontmatter string +
-// set:html because the Astro compiler mangles raw script bodies inside
-// expressions.
+// The messaging library calls controlledMessagingFunction once per page view.
+// Suppress just the Offerwall during the visitor's first minute, then allow it
+// on subsequent page views in the same tab. Consent and other privacy messages
+// remain immediate, and we fail open if the MessageTypeEnum API is ever
+// missing. Kept as a frontmatter string + set:html because the Astro compiler
+// mangles raw script bodies inside expressions.
 const offerwallGateInit = `(function () {
+	var minimumSessionAge = 60000;
+	var sessionStartedAt = Date.now();
+	try {
+		var storedStartedAt = Number(sessionStorage.getItem('fpb-offerwall-session-started-at'));
+		if (Number.isFinite(storedStartedAt) && storedStartedAt > 0 && storedStartedAt <= sessionStartedAt) {
+			sessionStartedAt = storedStartedAt;
+		} else {
+			sessionStorage.setItem('fpb-offerwall-session-started-at', String(sessionStartedAt));
+		}
+	} catch (error) {
+		// Storage can be unavailable in hardened browsers. Treat this page as
+		// a new session so the Offerwall never appears immediately on landing.
+	}
+	var offerwallIsEligible = Date.now() - sessionStartedAt >= minimumSessionAge;
+
 	window.googlefc = window.googlefc || {};
 	window.googlefc.callbackQueue = window.googlefc.callbackQueue || [];
 	window.googlefc.controlledMessagingFunction = function (message) {
 		var types = window.googlefc.MessageTypeEnum;
-		if (types && types.OFFERWALL !== undefined) {
+		if (!offerwallIsEligible && types && types.OFFERWALL !== undefined) {
 			message.proceed(false, [types.OFFERWALL]);
 		} else {
 			message.proceed(true);

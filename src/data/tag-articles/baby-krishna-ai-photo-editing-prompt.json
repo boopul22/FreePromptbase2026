@@ -1,0 +1,26 @@
+{
+	"metaDescription": "Baby Krishna AI photo editing prompt collection with four free scenes and two examples each. Copy a butter-pot, cradle, Yashoda, or meadow prompt.",
+	"bodyHtml": "<p>This Baby Krishna AI photo editing prompt collection gives you four ready-to-copy scenes: Krishna with a butter pot, Krishna asleep in a cradle, Krishna with Maa Yashoda, and Krishna with calves in a Vrindavan meadow. Each prompt has two sample images, so you can see how much the framing may change even when the main idea stays the same.</p><p>These versions create fictional devotional characters from text. You do not need to upload a child's photo, and the samples do not use a real person's face.</p><h2>Why these Baby Krishna prompts are easier to use</h2><p>Long prompts often repeat the same demand for realism five different ways. That does not make the image five times better. It can make the model miss the actual scene.</p><p>The prompts here keep the useful details: where Krishna is, what he is doing, the traditional clothing and ornaments, the light, and the 4:5 frame. They also say what to avoid. That is enough direction for Gemini, ChatGPT Image, and most current image generators.</p><h2>Choose the scene before you copy</h2><table><thead><tr><th>Prompt</th><th>Best for</th><th>Main visual detail</th></tr></thead><tbody><tr><td>Butter-pot Krishna</td><td>Playful morning portrait</td><td>White marble, clay pot, soft window light</td></tr><tr><td>Sleeping Krishna</td><td>Calm cradle portrait</td><td>Silk pillow, flowers, warm temple lamps</td></tr><tr><td>Yashoda and Krishna</td><td>Mother-and-child devotional scene</td><td>Moonlit balcony, blue saree, Yamuna backdrop</td></tr><tr><td>Krishna with calves</td><td>Outdoor Vrindavan scene</td><td>Green meadow, butter pots, cool morning mist</td></tr></tbody></table><h2>How to create a Baby Krishna AI photo</h2><ol><li>Open Gemini, ChatGPT, or another image generator that can make photorealistic images.</li><li>Copy one prompt from the grid above and paste it as a new request. No reference photo is needed for these versions.</li><li>Keep the 4:5 ratio if you want a portrait that matches the examples.</li><li>Check the hands, jewelry, flute, and calves before saving. If one detail looks wrong, ask for that single correction instead of rewriting the whole prompt.</li></ol><blockquote>Change one detail at a time. A short follow-up such as &quot;keep the scene, fix only the left hand&quot; is usually more reliable than pasting a second wall of instructions.</blockquote><h2>Using a real child's photo safely</h2><p>This collection is written for text-only generation, which is the simplest option. If you decide to adapt a prompt with a real child's photo, use an image you have permission to use, avoid public uploads when the service's privacy terms are unclear, and remove identifying background details. A devotional edit does not need a school badge, house number, or location tag in the frame.</p><h2>Small changes that make the result feel natural</h2><p>If the skin looks plastic, remove words such as &quot;flawless&quot; and ask for natural texture. If the jewelry looks heavy, ask for smaller, child-safe ornaments. If the scene feels too orange, request neutral morning light. The meadow prompt already uses a cooler green palette, while the cradle scene is meant to feel warmer.</p><p>Save the first result you like before testing a variation. Image models can produce a better face and a worse hand in the next attempt. Having a keeper makes experimentation less annoying.</p>",
+	"faqs": [
+		{
+			"q": "What is a Baby Krishna AI photo editing prompt?",
+			"a": "It is a written scene description for an AI image tool. It tells the model how Baby Krishna should look, what he is doing, where the scene takes place, and how the light and camera framing should feel."
+		},
+		{
+			"q": "Do I need to upload a baby photo for these prompts?",
+			"a": "No. The four prompts in this collection generate fictional devotional characters from text, and the sample galleries were made without any uploaded face."
+		},
+		{
+			"q": "Can I use these Baby Krishna prompts in Gemini or ChatGPT?",
+			"a": "Yes. Paste a prompt into Gemini or ChatGPT Image as a new image request. The same wording also works in other image generators, although the lighting and faces may vary."
+		},
+		{
+			"q": "What aspect ratio should I use for a Baby Krishna portrait?",
+			"a": "Use 4:5 for a vertical portrait that fits Instagram posts and matches the examples on this page. You can switch to 9:16 for a phone wallpaper, but expect the composition to change."
+		},
+		{
+			"q": "Why do AI-generated hands or jewelry sometimes look wrong?",
+			"a": "Small overlapping objects are hard for image models. Ask the tool to fix only the hand, flute, anklet, or necklace that looks wrong while keeping the rest of the image unchanged."
+		}
+	]
+}

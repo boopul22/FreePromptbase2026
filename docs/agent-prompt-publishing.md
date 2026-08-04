@@ -36,6 +36,31 @@ npm run prompt:publish -- tmp/my-prompt.json
 npm run prompt:publish -- tmp/my-prompt.json --update
 ```
 
+## Image prompt gallery standard
+
+Agent-published image prompts should include four finished gallery samples unless
+the current request explicitly asks for a different count. Use one sample as the
+cover/thumbnail with a short, legible text treatment, and use the other three to
+show useful visual variations of the same prompt. Declare the cover with
+`coverIndex` and provide its exact dimensions with `coverW` and `coverH`.
+
+This four-image standard does not override the sample identity rule below. A
+recognisable face may appear in the cover or gallery only when the current user
+explicitly authorizes that exact identity for that exact prompt. Identity
+permission never carries forward to later publishing requests.
+
+### Identity variation mix
+
+When the current request explicitly authorizes the user's identity, split the
+four gallery samples evenly: generate two samples with the authorized identity
+reference and two samples entirely from scratch without any identity reference.
+The no-reference samples must use fictional, anonymous people and must not derive
+their faces from prior outputs or private files.
+
+When the current request does not explicitly authorize the user's identity, all
+four samples remain fictional. This variation mix never makes identity permission
+persistent; authorization is still required again for every exact prompt.
+
 ## Manifest shape
 
 ```json

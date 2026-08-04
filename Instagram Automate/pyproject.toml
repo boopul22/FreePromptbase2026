@@ -1,0 +1,23 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ig-agent-cli"
+version = "0.1.0"
+description = "A local, JSON-first Instagram scheduler for AI agents using Meta's official API."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Bipul Kumar" }]
+dependencies = []
+
+[project.scripts]
+ig-agent = "ig_agent.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ig_agent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

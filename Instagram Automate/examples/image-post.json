@@ -1,0 +1,14 @@
+{
+  "scheduled_at": "2026-08-10T18:30:00+05:30",
+  "type": "image",
+  "media": [
+    {
+      "type": "image",
+      "url": "https://example.com/instagram/post.jpg"
+    }
+  ],
+  "caption": "A scheduled post from our local AI agent.",
+  "alt_text": "Describe the image for accessibility.",
+  "idempotency_key": "campaign-example-image-001"
+}
+

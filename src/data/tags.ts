@@ -102,6 +102,18 @@ export const tags: Tag[] = [
 		]
 	},
 	{
+		"slug": "baby-krishna-ai-photo-editing-prompt",
+		"name": "Baby Krishna AI Photo Editing Prompt",
+		"query": "baby krishna ai photo editing prompt",
+		"description": "Baby Krishna AI photo editing prompts for butter-pot, cradle, Yashoda, and Vrindavan meadow scenes. Copy any prompt free and create a 4:5 devotional portrait.",
+		"matchTerms": [
+			"baby krishna",
+			"yashoda",
+			"vrindavan",
+			"butter pot"
+		]
+	},
+	{
 		"slug": "chatgpt-photo-editing-prompt",
 		"name": "ChatGPT Photo Editing Prompt",
 		"query": "chatgpt photo editing prompts",

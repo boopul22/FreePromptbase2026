@@ -3,6 +3,21 @@
 Free Prompt Base — a free, browsable directory of ready-to-use AI prompts.
 "Copy, paste, create." See [PRODUCT.md](PRODUCT.md) for brand/product context.
 
+## Prompt publishing — mandatory guide
+
+Before publishing or updating any prompt, read and follow
+[`aiPromptpublishguide.md`](aiPromptpublishguide.md). It contains the required
+four-image gallery workflow, per-request identity authorization rules, 2+2
+identity/fictional variation mix, SEO metadata standards, agent API sequence,
+and production verification checklist.
+
+## Instagram prompt posts — mandatory guide
+
+When a user asks to publish a Free Prompt Base prompt URL on Instagram, read and
+follow [`instagramPostGuide.md`](instagramPostGuide.md). It defines the reusable
+source-gallery + two-slide carousel, branded slide generation, CDN upload,
+Instagram Automator job contract, idempotent recovery, and live verification.
+
 ## SEO — keywords we are targeting (read before SEO/content work)
 
 The site's keyword strategy lives in [`seo/`](seo/). **Treat these as the source of truth**

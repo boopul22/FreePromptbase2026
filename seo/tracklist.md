@@ -58,6 +58,7 @@
 ### Cluster D — Adjacent / seasonal / modifiers / creator
 | Slug | Primary keyword | Note |
 |---|---|---|
+| baby-krishna-ai-photo-editing-prompt | baby krishna ai photo editing prompt | 4-prompt devotional collection; 2 fictional samples per prompt (Aug 2026) |
 | couple-prompt | couple prompt | |
 | couple-prompt-for-gemini-ai | couple prompt for gemini ai | |
 | gemini-couple-photo-prompt | gemini couple photo prompt | |
