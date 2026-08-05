@@ -166,6 +166,33 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 		<!-- Divider -->
 		<div class="h-px bg-white/10 my-10"></div>
 
+		<!-- Fazier launch badges -->
+		<div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-8">
+			<span class="text-[11px] font-semibold uppercase tracking-widest text-white">Featured on Fazier</span>
+			<div class="flex flex-wrap items-center gap-3">
+				<a href="https://fazier.com/launches/freepromptbase.com" target="_blank" rel="noopener noreferrer" aria-label="Free Prompt Base launched on Fazier">
+					<img
+						src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=neutral"
+						width="120"
+						alt="Launched on Fazier"
+						loading="lazy"
+						decoding="async"
+						class="h-auto"
+					/>
+				</a>
+				<a href="https://fazier.com/launches/freepromptbase.com" target="_blank" rel="noopener noreferrer" aria-label="Free Prompt Base featured on Fazier">
+					<img
+						src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=featured&theme=neutral"
+						width="250"
+						alt="Featured on Fazier"
+						loading="lazy"
+						decoding="async"
+						class="h-auto max-w-full"
+					/>
+				</a>
+			</div>
+		</div>
+
 		<!-- Bottom: copyright + legal/utility strip -->
 		<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-gray-400">
 			<p>© {year} Free Prompt Base. Designed by Bipul Kumar.</p>
