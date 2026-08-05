@@ -189,7 +189,9 @@ void index;
 	</div>
 
 	<!-- Stretched link: makes the whole card open the prompt (except the actions) -->
-	<a href={`/${prompt.slug}`} class="absolute inset-0 z-[1]" aria-label={prompt.title}></a>
+	<a href={`/${prompt.slug}`} class="absolute inset-0 z-[1]" aria-label={prompt.title}>
+		<span class="sr-only">Open {prompt.title}</span>
+	</a>
 </article>
 
 <style is:global>

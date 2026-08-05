@@ -111,6 +111,23 @@ const clampDescription = (d: string, max = 158): string => {
 };
 const metaDescription = clampDescription(description);
 
+// Keep the document title within the range search results can usually display.
+// Social cards retain the full editorial title below; this clamp applies only
+// to <title>, where long prompt names previously generated hundreds of audit
+// warnings. Preserve the brand suffix when one is present.
+const clampTitle = (value: string, max = 60): string => {
+	if (!value || value.length <= max) return value;
+	const suffixMatch = value.match(/(\s(?:—|\|)\sFree Prompt Base)$/);
+	const suffix = suffixMatch?.[1] ?? '';
+	const available = Math.max(20, max - suffix.length - 1);
+	const stem = suffix ? value.slice(0, -suffix.length) : value;
+	const cut = stem.slice(0, available);
+	const lastSpace = cut.lastIndexOf(' ');
+	const cleanStem = (lastSpace > 24 ? cut.slice(0, lastSpace) : cut).replace(/[\s,;:.\-–—]+$/, '');
+	return `${cleanStem}…${suffix}`;
+};
+const documentTitle = clampTitle(title);
+
 // Normalize the path for canonical/OG: the `file` build format makes
 // Astro.url.pathname end in ".html" (e.g. /cold-email-writer.html), but the
 // served + sitemap URL is clean (/cold-email-writer). Strip index/.html and any
@@ -263,7 +280,7 @@ const organizationSchema = {
 				/>
 			)
 		}
-		<title>{title}</title>
+		<title>{documentTitle}</title>
 
 		{robotsContent && <meta name="robots" content={robotsContent} />}
 		{noindex && (

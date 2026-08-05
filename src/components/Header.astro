@@ -296,9 +296,11 @@ const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 						</a>
 					</>
 				) : (
-					<a href="/api/auth/login" rel="nofollow" class="btn-primary w-full text-sm">
-						Sign in with Google
-					</a>
+					<form action="/api/auth/login" method="get">
+						<button type="submit" class="btn-primary w-full text-sm">
+							Sign in with Google
+						</button>
+					</form>
 				)
 			}
 		</div>

@@ -56,15 +56,14 @@ const relatedCategoryPills = [...new Set(related.map((r) => r.category))]
 	.filter((c): c is NonNullable<typeof c> => Boolean(c))
 	.slice(0, 6);
 
-// Make each prompt tag a real link: to its curated keyword landing page at
-// /<slug> when one exists, otherwise to the homepage search pre-filtered by the
-// tag (which always returns matching prompts). Free-form prompt tags rarely
-// match the 50 curated slugs, so the search fallback keeps every tag clickable.
+// Only curated tags are links. Linking free-form tags to /?q= generated hundreds
+// of crawlable query URLs that correctly canonicalised to / and were noindexed,
+// but still wasted crawl budget and dominated the SEO audit.
 const curatedTagSlugs = new Set(getAllTags().map((t) => t.slug));
 const slugifyTag = (t: string) => t.toLowerCase().trim().replace(/\s+/g, '-');
 const tagHref = (t: string) => {
 	const s = slugifyTag(t);
-	return curatedTagSlugs.has(s) ? `/${s}` : `/?q=${encodeURIComponent(t)}`;
+	return curatedTagSlugs.has(s) ? `/${s}` : null;
 };
 
 const isSaved = Astro.locals.savedSlugs?.has(prompt.slug) ?? false;
@@ -172,7 +171,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 ---
 
 <Layout
-	title={`${prompt.title} — Free Prompt Base`}
+	title={`${heading} — Free Prompt Base`}
 	description={prompt.description}
 	schema={promptSchema}
 	extraSchemas={[breadcrumb]}
@@ -244,8 +243,8 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 										srcset={cfSrcset(src, [480, 672, 768, 1080])}
 										sizes="(min-width: 1024px) 700px, 92vw"
 										alt={`${prompt.title} — image ${i + 1}`}
-										width={i === 0 ? prompt.coverW : undefined}
-										height={i === 0 ? prompt.coverH : undefined}
+										width={prompt.coverW}
+										height={prompt.coverH}
 										style={prompt.coverW && prompt.coverH ? `aspect-ratio:${prompt.coverW}/${prompt.coverH}` : undefined}
 										class="snap-center shrink-0 w-full rounded-base object-contain lg:h-full lg:rounded-none"
 										loading={i === 0 ? 'eager' : 'lazy'}
@@ -485,9 +484,14 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 				<section class="mt-10 pt-6 border-t border-gray-200">
 					<h3 class="text-xs font-semibold uppercase tracking-wide text-gray-600 mb-3">Tags</h3>
 					<div class="flex flex-wrap gap-1.5">
-						{prompt.tags.map((tag) => (
-							<a href={tagHref(tag)} class={`pill ${pillColor(tag)} hover:opacity-80 transition-opacity`}>#{tag}</a>
-						))}
+						{prompt.tags.map((tag) => {
+							const href = tagHref(tag);
+							return href ? (
+								<a href={href} class={`pill ${pillColor(tag)} hover:opacity-80 transition-opacity`}>#{tag}</a>
+							) : (
+								<span class={`pill ${pillColor(tag)}`}>#{tag}</span>
+							);
+						})}
 					</div>
 				</section>
 			)

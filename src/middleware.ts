@@ -236,6 +236,13 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  // A compact policy compatible with the site's inline scripts, analytics,
+  // advertising, and OAuth while still blocking plugins, hostile base-tag
+  // rewrites, and third-party framing.
+  response.headers.set(
+    'Content-Security-Policy',
+    "object-src 'none'; base-uri 'self'; frame-ancestors 'self'; upgrade-insecure-requests",
+  );
   // Origin isolation. allow-popups keeps share/OAuth popups working while still
   // isolating this document from cross-origin openers.
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
