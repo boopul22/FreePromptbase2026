@@ -338,57 +338,6 @@ a.pill:hover { filter: brightness(0.97); transform: translateY(-1px); }
 }
 
 /* ----------------------------------------------------------------------------
-   Prompt-type tabs (home: Image prompts / Text prompts). This is the primary
-   browsing decision: images open first, while the text library stays one tap
-   away. The control reads as a quiet category switch, not a second sort row.
-   -------------------------------------------------------------------------- */
-.prompt-type-tabs {
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-	width: fit-content;
-	max-width: 100%;
-	padding: 0.25rem;
-	border: 1px solid var(--color-outline);
-	border-radius: 9999px;
-	background: var(--color-background);
-}
-.prompt-type-tab {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	min-height: 2.5rem;
-	padding: 0.5rem 0.875rem;
-	border: 0;
-	border-radius: 9999px;
-	background: transparent;
-	color: var(--color-secondary);
-	font-size: 0.875rem;
-	font-weight: 700;
-	line-height: 1;
-	cursor: pointer;
-	transition: background-color 180ms var(--ease-out-quart), color 180ms var(--ease-out-quart);
-}
-.prompt-type-tab:hover { color: var(--color-text-primary); background: var(--color-soft); }
-.prompt-type-tab:focus-visible { outline: 2px solid var(--color-text-primary); outline-offset: 2px; }
-.prompt-type-tab[data-active='true'] { color: var(--color-link); background: var(--color-primary); }
-.prompt-type-count {
-	display: inline-grid;
-	min-width: 1.75rem;
-	place-items: center;
-	padding: 0.2rem 0.375rem;
-	border-radius: 9999px;
-	background: color-mix(in oklch, var(--color-text-primary) 8%, transparent);
-	font-size: 0.6875rem;
-	font-variant-numeric: tabular-nums;
-}
-.prompt-type-tab[data-active='true'] .prompt-type-count { background: color-mix(in oklch, var(--color-text-primary) 12%, transparent); }
-@media (max-width: 420px) {
-	.prompt-type-tabs { width: 100%; }
-	.prompt-type-tab { flex: 1 1 0%; justify-content: center; padding-inline: 0.5rem; }
-}
-
-/* ----------------------------------------------------------------------------
    Sort tabs (home: Trending / Popular / Recent). A bordered, grid-based
    segmented control: three equal columns split by divider lines, the active
    segment filled solid gold. Active state is driven by [data-active] so the JS

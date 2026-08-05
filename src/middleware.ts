@@ -2,6 +2,7 @@ import { defineMiddleware } from 'astro:middleware';
 import { getSession } from './lib/session';
 import { getDB } from './lib/db';
 import { getNextPublishAt } from './lib/prompts';
+import { publicCacheKey } from './lib/publicCache';
 
 // Single-language middleware. If you want multi-locale routing, use
 // `middleware.i18n.ts` as a starting point — it adds /{locale}/* prefix
@@ -164,7 +165,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   const edgeCacheStore = sharedCacheable ? getEdgeCache() : null;
   if (edgeCacheStore) {
     try {
-      const hit = await edgeCacheStore.match(url.toString());
+      const hit = await edgeCacheStore.match(publicCacheKey(url));
       if (hit) {
         // Stored copies already carry the security/cache headers set below;
         // only the per-visitor cookie is added at serve time.
@@ -317,7 +318,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
           const stored = new Response(response.clone().body, response);
           stored.headers.delete('Set-Cookie');
           stored.headers.set('Cache-Control', `public, s-maxage=${edgeTtl}`);
-          const put = edgeCacheStore.put(url.toString(), stored).catch(() => {});
+          const put = edgeCacheStore.put(publicCacheKey(url), stored).catch(() => {});
           try {
             // Astro v6 cloudflare adapter exposes the Workers execution context
             // as locals.cfContext (locals.runtime.ctx throws a removal error).

@@ -1,0 +1,32 @@
+{
+  "scheduled_at": "2026-08-05T10:00:00+05:30",
+  "type": "carousel",
+  "media": [
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1086,quality=92,format=jpeg/cdn/cms/prompts/e3709df575e871447d5418d75a5e3a5e687fa0cff23ca6b38e8cb81c359c4255.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1086,quality=92,format=jpeg/cdn/cms/prompts/1cc1b1d89ec8deb90bb50f0046330efaab1f26829b93895d56fe2c6f1786f650.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1086,quality=92,format=jpeg/cdn/cms/prompts/1ea550d5393402f5a8a1ef129d4f2548abe7852a1667663001d3ab0cca92c159.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1086,quality=92,format=jpeg/cdn/cms/prompts/5e9fdde05e2f55f3577756bf751cc051473eff8eaa1f1f840820baccf43a4969.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/couple-prompt-clear-umbrella/7656b98b3d1d860823ebcb9fe85c9d5323339a8d648bbd1111aa594e1402df23.jpg"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/couple-prompt-clear-umbrella/7d99fe9b3d4d01b00b3520a6feae2a0ce8df57149c59cef1afba9ace26576e3d.jpg"
+    }
+  ],
+  "caption": "A rainy-day couple moment under one clear umbrella 🌧️❤️\n\nSwipe through the results, then save slide 5 for the exact copy-paste prompt.\n\nUpload a clear couple photo, paste the prompt into Gemini or ChatGPT, and create your version.\n\nFind this prompt and more free prompts at freepromptbase.com\nCopy. Paste. Create.\n\n#GeminiAI #NanoBanana #AIPrompts #AIPhotoEditing #CouplePhotoPrompt #CinematicPortrait #FreePromptBase",
+  "idempotency_key": "freepromptbase-couple-prompt-clear-umbrella-carousel-20260805-v2"
+}

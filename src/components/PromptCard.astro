@@ -19,7 +19,7 @@ interface Props {
 }
 
 const { prompt, category, priority = false, index, isPotd = false } = Astro.props;
-const coverAlt = prompt.category === 'text' ? `${prompt.title} AI prompt cover` : prompt.title;
+const coverAlt = prompt.title;
 
 const searchIndex = [prompt.title, prompt.description, ...prompt.tags]
 	.join(' ')

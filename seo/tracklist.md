@@ -88,7 +88,6 @@
 | URL | Keyword theme |
 |---|---|
 | /category/images | ai image prompts (Midjourney, Gemini, DALL·E) |
-| /category/text | ai text / writing / coding prompts |
 
 ### Cluster E — Photo editing prompts (**SHIPPED 2026-07-14** — see [competitor-promptplum.md](competitor-promptplum.md))
 | Slug | Primary keyword | Vol/KD | Notes |

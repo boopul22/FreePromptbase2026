@@ -17,10 +17,4 @@ export const categories: Category[] = [
 		description: 'Prompts for AI image generators — Midjourney, Gemini, DALL·E, Stable Diffusion.',
 		emoji: '🖼️',
 	},
-	{
-		slug: 'text',
-		name: 'Text',
-		description: 'Prompts for writing, coding, planning, and anything text-based.',
-		emoji: '📝',
-	},
 ];

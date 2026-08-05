@@ -1,11 +1,12 @@
-# Instagram Prompt Carousel Publishing Guide
+# Instagram + Facebook Prompt Publishing Guide
 
 Last updated: 2026-08-05
 
 Use this guide when a user asks to publish a Free Prompt Base prompt URL to
 Instagram. It converts the prompt page's gallery into an Instagram carousel,
-adds two branded slides, publishes through the local Instagram Automator, and
-verifies the live post.
+adds two branded slides, publishes through the local Instagram Automator,
+uses those exact finished images to create a custom multi-photo post specifically
+for the allowlisted Facebook Page, and verifies both live posts.
 
 The normal user request can be as short as:
 
@@ -13,21 +14,27 @@ The normal user request can be as short as:
 Post this prompt on Instagram: https://freepromptbase.com/<prompt-slug>
 ```
 
-A direct request to **post** or **publish** authorizes immediate Instagram
-publishing to the configured Free Prompt Base account. A request to **prepare**,
-**draft**, or **show a preview** does not authorize publishing. Scheduling is
-used only when the user supplies a date or time.
+A direct request to **post** or **publish** on Instagram authorizes immediate
+paired publishing to both configured Free Prompt Base destinations: Instagram
+account `freepromptbase` and Facebook Page `Free Prompt Base`. If the user
+explicitly says **Instagram only**, do not publish to Facebook. A request to
+**prepare**, **draft**, or **show a preview** does not authorize publishing on
+either platform. Scheduling is used only when the user supplies a date or time,
+and the same requested time applies to both destinations unless the user says
+otherwise.
 
-Within a task whose established purpose is publishing these Instagram
-carousels, a bare Free Prompt Base prompt URL is enough to select the next prompt
-and run this standard workflow. Outside that established context, a bare URL is
-not by itself authorization for an external post; ask whether the user wants it
-published.
+Within a task whose established purpose is publishing these Instagram and
+Facebook posts, a bare Free Prompt Base prompt URL is enough to select the next
+prompt and run this standard paired workflow. Outside that established context,
+a bare URL is not by itself authorization for an external post; ask whether the
+user wants it published.
 
 When authorization and all checks are healthy, run the complete workflow
-autonomously: extract → validate → create two slides → upload → publish → verify.
-Do not pause for routine caption or design approval unless the user requested a
-preview or a stop condition in this guide is reached.
+autonomously: extract → validate → create two slides → upload → build the custom
+Facebook post package from the finished images → preflight both destinations →
+publish Instagram → publish Facebook → verify both. Do not pause for routine
+caption or design approval unless the user requested a preview or a stop
+condition in this guide is reached.
 
 ## 1. Read and inspect before acting
 
@@ -37,7 +44,7 @@ Read these current files before starting:
 2. `PRODUCT.md`
 3. `aiPromptpublishguide.md`
 4. This guide
-5. `/Volumes/Mac_ssd1/Instagram Automate/README.md`
+5. `Instagram Automate/README.md` in this repository
 6. The current Instagram Automator CLI implementation when its contract is
    unclear (`src/ig_agent/model.py`, `cli.py`, `service.py`, and `meta.py`)
 
@@ -47,11 +54,19 @@ IDs, or job fields have remained unchanged.
 ### Prerequisites
 
 - `uv` and Python 3.10+ are available.
-- `/Volumes/Mac_ssd1/Instagram Automate/.env` contains a valid Instagram user
+- `Instagram Automate/.env` in this repository contains a valid Instagram user
   access token with `instagram_business_basic` and
   `instagram_business_content_publish`, plus the expected account ID.
 - The target is the allowlisted professional account `freepromptbase`, Instagram
   user ID `28022656494035186`.
+- The same `.env` contains `FB_PAGE_ID=1240248679172928` and the configured
+  Facebook User access token. The current variable is named
+  `FB_PAGE_ACCESS_TOKEN` for compatibility, but the configured value must be
+  resolved through `/me/accounts` to obtain the actual Page access token used
+  for Page API calls.
+- The only allowlisted Facebook destination is Page `Free Prompt Base`, Page ID
+  `1240248679172928`. The resolved Page entry must include `CREATE_CONTENT` and
+  return a Page access token.
 - The Automator SQLite database is initialized with `uv run ig-agent init`.
 - `.agent-publish-token` is available in the Free Prompt Base project for the
   two-slide media upload.
@@ -59,12 +74,13 @@ IDs, or job fields have remained unchanged.
   cross-check.
 - A browser/image renderer and an image inspection tool are available.
 
-Do not request, echo, log, or place either access token in a prompt, graphic,
-job JSON, or completion report.
+Do not request, echo, log, or place any Instagram, Facebook User, Facebook Page,
+or agent upload access token in a prompt, graphic, job JSON, state file, or
+completion report.
 
 ## 2. Required carousel result
 
-The Instagram carousel mirrors the prompt page and appends two slides:
+The finished media set mirrors the prompt page and appends two slides:
 
 1. The existing cover image containing the title/text.
 2. Every remaining image from the prompt page, in the same order.
@@ -72,14 +88,22 @@ The Instagram carousel mirrors the prompt page and appends two slides:
    background.
 4. A new Free Prompt Base website-promotion slide.
 
-For the site's standard four-image gallery, the finished Instagram carousel has
-exactly six slides. Do not regenerate, redesign, replace, or reorder the first
-four images. Downloading, validating, and reusing them is sufficient.
+For the site's standard four-image gallery, the finished Instagram carousel and
+Facebook multi-photo post each use exactly the same six images in the same
+source order. Facebook may render them as a grid or album instead of an
+Instagram-style swipe carousel. Do not regenerate, redesign, replace, or reorder
+the first four images. Downloading, validating, and reusing them is sufficient.
 
-The direct post request authorizes reuse of this already-public gallery on the
-allowlisted Instagram account, including recognizable people already present in
-the public images. It never authorizes publishing raw/private identity
-references or using them to generate new people.
+The Facebook result is not a blind duplicate of the Instagram packaging. Its
+media assets remain the exact verified six images, but the AI must create a
+Facebook-specific creative package from what those images actually show:
+Facebook hook, message, canonical-link CTA, keyword focus, and accessible
+description for every image.
+
+The direct post request authorizes reuse of this already-public gallery on both
+allowlisted destinations, including recognizable people already present in the
+public images. It never authorizes publishing raw/private identity references
+or using them to generate new people.
 
 Instagram accepts at most ten carousel items. If the source page has more than
 eight images, stop and ask which images to include. If it has fewer than two
@@ -281,9 +305,14 @@ Instagram delivery URLs. Each must return HTTP 200/206 with
 content. Reject redirects to login pages, HTML error documents, private URLs,
 local paths, mixed aspect ratios, and non-JPEG responses.
 
-## 6. Write the caption
+## 6. Write platform-specific captions
 
-Use a compact caption with this structure:
+Do not reuse one caption verbatim on both platforms. Write and retain an
+Instagram caption and a Facebook message separately.
+
+### Instagram caption
+
+Use a compact Instagram caption with this structure:
 
 1. One-line hook based on the prompt title or result.
 2. Tell readers to swipe through the results and save the full-prompt slide.
@@ -313,18 +342,102 @@ Replace `<N+1>` with the actual full-prompt slide number. Adapt the wording and
 hashtags to the actual prompt. Do not claim the full domain URL is clickable in
 a feed caption.
 
-## 7. Build the Automator job
+### Facebook creative adaptation — mandatory
 
-The configured Automator normally lives at:
+After the Instagram delivery images are final and visually approved, run a
+separate AI creative pass specifically for Facebook. Give the AI the canonical
+URL, prompt title, description, exact prompt, tags, mapped primary keyword,
+supported AI tool, and the ordered finished images. The AI must inspect the
+actual images rather than write from filenames or metadata alone.
+
+Ask the AI to create one custom Facebook Page post package with:
+
+- a Facebook-specific opening hook grounded in the visible result;
+- a useful short narrative that connects the example images to the copy-paste
+  prompt;
+- the exact canonical prompt URL and a clear website CTA;
+- one naturally used primary SEO keyword selected from the tracklist;
+- three to five relevant hashtags;
+- all exact verified image URLs in their established order, with the cover
+  first, original gallery images next, full-prompt slide after them, and website
+  slide last; and
+- concise, image-specific accessible alt text for every image, describing only
+  visible content and avoiding guesses about identity, ethnicity, relationships,
+  disability, or other sensitive traits.
+
+Use a brief equivalent to:
 
 ```text
-/Volumes/Mac_ssd1/Instagram Automate
+Create a custom Facebook Page post for Free Prompt Base using only the supplied
+verified images. Inspect every image. Write an original Facebook hook and message
+that fit what the images show, naturally use the mapped primary keyword, include
+the exact canonical URL, and end with a clear CTA plus 3–5 relevant hashtags.
+Keep all supplied images unchanged and in the supplied order. Write factual alt text
+for each image. Do not copy the Instagram caption, invent claims, infer sensitive
+personal details, or create any new image.
+```
+
+Retain this Facebook package in the companion state JSON. Reject the output and
+redo the adaptation if it is generic, contradicts the images, changes the media
+order, omits the canonical URL, uses an unsupported tool name, or keyword-stuffs
+the message.
+
+### Facebook SEO message
+
+Write a natural, search-aware Facebook message using the current keyword source
+of truth in `seo/keyword-research.md` and `seo/tracklist.md`:
+
+1. Select the most specific mapped primary keyword supported by the prompt's
+   tags and content. Prefer the relevant long-tail over a broader head term.
+2. Put that keyword naturally in the opening sentence, alongside the prompt's
+   actual subject or result. Do not force `nano banana` or `Gemini` onto a prompt
+   that does not use that tool or topic.
+3. Explain that the post contains examples plus a full copy-paste prompt slide.
+4. Include the canonical `https://freepromptbase.com/<slug>` URL. Unlike an
+   Instagram feed caption, this link is clickable on Facebook.
+5. Give one clear action: open the prompt, upload the required photo, paste it
+   into the relevant AI tool, and create a version.
+6. End with `Copy. Paste. Create.` and three to five closely relevant hashtags.
+
+Use the current priority clusters when relevant: `nano banana prompt`,
+`gemini ai photo prompt copy paste`, the prompt's mapped Gemini/photo-editing
+long-tail, or the evergreen `free ai prompts`. Use one primary phrase naturally
+and supporting terms only where they improve clarity. Never keyword-stuff,
+repeat near-identical phrases, invent search-volume claims, or add unrelated
+trending terms.
+
+Example:
+
+```text
+Golden-hour Gemini couple photo prompt for a warm seaside selfie 🌅
+
+Explore all six examples, then save the full copy-paste prompt slide. Upload
+your couple photo, paste the prompt into Gemini, and create your version.
+
+Get the exact free prompt:
+https://freepromptbase.com/<slug>
+
+Copy. Paste. Create.
+
+#GeminiAIPhotoPrompt #CouplePhotoPrompt #AIPhotoEditing #FreePromptBase
+```
+
+Confirm that the Facebook message contains the exact canonical URL, accurately
+names the supported AI tool, and describes the actual media. It should read like
+useful social copy first and search-targeted copy second.
+
+## 7. Build the Automator job
+
+The configured Automator lives inside this repository at:
+
+```text
+Instagram Automate/
 ```
 
 Confirm the connection before every publish:
 
 ```bash
-cd "/Volumes/Mac_ssd1/Instagram Automate"
+cd "Instagram Automate"
 uv run ig-agent doctor
 ```
 
@@ -354,7 +467,7 @@ The required shape is:
     { "type": "image", "url": "<uploaded-full-prompt-jpeg-url>" },
     { "type": "image", "url": "<uploaded-website-jpeg-url>" }
   ],
-  "caption": "<final caption>",
+  "caption": "<final Instagram caption>",
   "idempotency_key": "freepromptbase-<slug>-carousel-YYYYMMDD-v1"
 }
 ```
@@ -427,6 +540,12 @@ ambiguous job, because that can create a duplicate post.
 
 ## 8. Publish or schedule
 
+Before creating a post on either platform, complete both the Instagram doctor
+check in Section 7 and the Facebook identity/token/duplicate preflight in
+Section 11. If either destination fails preflight, stop before publishing to
+either one and report the failing prerequisite. This avoids preventable
+one-platform-only results.
+
 For an immediate post:
 
 ```bash
@@ -450,6 +569,12 @@ ensure a worker or recurring `run-due` process will be available at publish time
 For immediate jobs, wait until the status is `published`. A successful response
 includes both `container_id` and `media_id`. Do not report success while the job
 is merely `queued` or `running`.
+
+After Instagram reports `published`, publish the paired Facebook post using
+Section 11. If a failure occurs after either platform is already live, do not
+delete the successful post or create a replacement idempotency key. Preserve the
+recorded IDs, recover the incomplete platform safely, and report the result as
+partial until both are verified.
 
 ## 9. Safe recovery from interrupted publishing
 
@@ -583,21 +708,146 @@ so visual swipe-through is the final order check. If the permalink cannot be
 opened, report verification as partial rather than claiming the visual order was
 confirmed.
 
-## 11. Completion report
+## 11. Publish and verify the paired Facebook Page post
+
+Use the custom Facebook post package created from the finished JPEG delivery
+images in Section 6. Do not fall back to copying the Instagram caption if the
+package is missing or invalid. The target is exclusively Facebook Page
+`Free Prompt Base`, Page ID `1240248679172928`.
+
+### Resolve and preflight the Page credential
+
+Read `FB_PAGE_ID`, `FB_PAGE_ACCESS_TOKEN`, `FB_API_HOST`, and `FB_API_VERSION`
+from `Instagram Automate/.env`. Never print any token. The current configured
+`FB_PAGE_ACCESS_TOKEN` value is a Facebook User access token even though the
+legacy variable name says Page. Resolve the actual Page token at runtime:
+
+```text
+GET https://graph.facebook.com/<version>/me/accounts
+fields=id,name,access_token,tasks
+Authorization: Bearer <configured-facebook-user-token>
+```
+
+Select the entry whose ID is exactly `1240248679172928`. Stop unless its name is
+`Free Prompt Base`, its tasks include `CREATE_CONTENT`, and it returns a Page
+access token. Keep that resolved Page token in memory only.
+
+With the resolved Page token, confirm that this succeeds before either platform
+is published:
+
+```text
+GET /1240248679172928?fields=id,name,link
+```
+
+Also inspect recent Page feed posts for the intended canonical URL, exact
+Facebook message, and saved idempotency state. If the paired post already exists,
+reuse and verify it instead of publishing a duplicate.
+
+### Create durable local Facebook state
+
+Create a companion state file inside the same Automator project:
+
+```text
+Instagram Automate/posts/<slug>-facebook-YYYY-MM-DD.json
+```
+
+It must contain the Page ID, canonical URL, custom Facebook message, ordered
+delivery URLs, per-image role and alt text, a deterministic key such as
+`freepromptbase-facebook-<slug>-YYYYMMDD-v1`, status, uploaded photo IDs, final
+post ID, and permalink. Never store an access token in this file. Write each
+returned photo ID to the state before starting the next remote mutation.
+
+The Facebook Graph API does not accept the Instagram Automator's local
+idempotency key. The companion state plus recent-feed reconciliation is the
+duplicate-prevention mechanism for Facebook.
+
+### Publish the multi-photo post
+
+For each finished media URL, in the same order as the Instagram carousel, call:
+
+```text
+POST /1240248679172928/photos
+url=<public-jpeg-url>
+alt_text_custom=<factual-image-specific-alt-text>
+published=false
+Authorization: Bearer <resolved-page-token>
+```
+
+Record every returned photo ID immediately. After all uploads succeed, create
+one Page feed post:
+
+```text
+POST /1240248679172928/feed
+message=<facebook-seo-message>
+attached_media[0]={"media_fbid":"<photo-id-1>"}
+attached_media[1]={"media_fbid":"<photo-id-2>"}
+...
+Authorization: Bearer <resolved-page-token>
+```
+
+Use all finished images once and preserve their order. Submit the custom alt text
+paired with the correct image URL. Do not create separate visible photo posts,
+replace the source images, omit the two branded slides, or reuse the Instagram
+caption as the Facebook message.
+
+For a future time requested by the user, schedule the Facebook parent post for
+the same instant using `published=false`, `scheduled_publish_time=<unix-time>`,
+and `unpublished_content_type=SCHEDULED`. Confirm the current Meta scheduling
+window before use; it is presently 10 minutes to 75 days. If the requested time
+cannot be represented safely on both platforms, stop rather than silently
+changing the time or publishing one platform immediately.
+
+### Safe Facebook recovery
+
+- If the state says `published`, fetch and verify the saved post ID; do not post
+  again.
+- If some unpublished photos have IDs, reuse those IDs and upload only the
+  missing items.
+- If the final `/feed` request times out, query recent Page feed posts for the
+  exact message, canonical URL, expected time window, and attachment count
+  before retrying.
+- If the matching parent post exists, save its ID and continue verification.
+- If the outcome remains ambiguous, stop and request direction. Do not create a
+  new state file or idempotency key to bypass it.
+- Never delete a live Page post or remote photo as part of automatic recovery.
+
+### Verify Facebook
+
+Fetch the returned Page post ID with fields equivalent to:
+
+```text
+id,message,created_time,permalink_url,is_published,scheduled_publish_time,
+attachments{media_type,url,subattachments{media_type,url,target}}
+```
+
+For an immediate post, require `is_published: true`, the exact Facebook message,
+a public permalink, and the expected attachment count. For a scheduled post,
+require the intended `scheduled_publish_time` and an unpublished/scheduled state
+until it goes live; verify it again after publication.
+
+Open the Facebook permalink and visually confirm the cover, media set, and
+ordering as rendered. Facebook may display multiple photos as a grid or album,
+so do not claim Instagram-identical presentation. If the permalink cannot be
+opened, report visual verification as partial.
+
+## 12. Completion report
 
 Tell the user:
 
-- the account that received the post;
+- both destinations that received the posts;
 - whether it was published now or scheduled;
 - the Instagram permalink;
+- the Facebook permalink;
 - the number and order of slides;
-- the Automator job ID and Meta media ID when useful; and
-- local links to the two generated slides and job JSON.
+- the Instagram Automator job ID and Meta media ID when useful;
+- the Facebook Page post ID when useful; and
+- local links to the two generated slides, Instagram job JSON, and Facebook
+  state JSON.
 
 Explicitly disclose source anomalies, caption compromises, or partial
 verification. Do not expose access tokens or private account configuration.
 
-## 12. Stop conditions and prohibitions
+## 13. Stop conditions and prohibitions
 
 Stop before publishing when any of these occurs:
 
@@ -608,6 +858,9 @@ Stop before publishing when any of these occurs:
 - the prompt slide clips or makes the complete prompt unreadable;
 - the finished carousel would exceed ten items;
 - the Automator doctor fails or targets the wrong Instagram account; or
+- the Facebook token cannot resolve the exact allowlisted Page with
+  `CREATE_CONTENT`, the Facebook identity preflight fails, or an earlier
+  Facebook attempt has an ambiguous outcome; or
 - publishing would require an unrequested account, prompt, or production-data
   change.
 
@@ -618,7 +871,8 @@ Never:
 - silently shorten or rewrite the public prompt;
 - bypass the official local Automator or Meta API;
 - create a duplicate job to work around an in-progress one; or
-- delete and repost a live Instagram post without explicit user authorization.
+- delete and repost a live Instagram or Facebook post without explicit user
+  authorization.
 
 ## Final checklist
 
@@ -632,11 +886,24 @@ Never:
 - [ ] Inspected both new 4:5 design masters and delivery JPEGs at full resolution.
 - [ ] Uploaded only finished slides to `cms/instagram/<slug>/`.
 - [ ] Verified every delivery URL returns HTTP 200/206, `image/jpeg`, and 4:5.
-- [ ] Wrote a prompt-specific caption and relevant hashtags.
+- [ ] Ran the mandatory Facebook creative adaptation against the actual finished
+      images and rejected generic or image-inaccurate output.
+- [ ] Wrote separate prompt-specific Instagram and Facebook captions.
+- [ ] Used the prompt's mapped primary keyword naturally in the Facebook opening
+      and included the exact canonical prompt URL.
+- [ ] Wrote factual, image-specific Facebook alt text for every finished image.
 - [ ] Ran `ig-agent doctor` and confirmed the allowlisted username and ID.
+- [ ] Resolved the Facebook Page token in memory and confirmed Page
+      `1240248679172928`, name `Free Prompt Base`, and `CREATE_CONTENT`.
 - [ ] Validated the job JSON, item count, caption length, and idempotency key.
 - [ ] Ran the preflight key lookup and confirmed the normalized payload/status.
-- [ ] Published immediately or scheduled exactly as requested.
-- [ ] Confirmed `published` status, Meta media ID, permalink, and child count.
-- [ ] Opened the permalink and visually confirmed order, or reported partial verification.
+- [ ] Created and maintained a token-free Facebook state JSON with every remote
+      photo ID and the deterministic Facebook idempotency key.
+- [ ] Published or scheduled both platforms for the requested time.
+- [ ] Confirmed Instagram `published` status, Meta media ID, permalink, and child
+      count.
+- [ ] Confirmed Facebook Page post ID, exact message, published/scheduled state,
+      permalink, and attachment count.
+- [ ] Opened both permalinks and visually confirmed media/order, or reported
+      partial verification.
 - [ ] Reported the live result without exposing credentials.

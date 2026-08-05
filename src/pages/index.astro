@@ -3,7 +3,6 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import Tabs from '../components/Tabs.astro';
-import PromptTypeTabs from '../components/PromptTypeTabs.astro';
 import PromptGrid from '../components/PromptGrid.astro';
 import Footer from '../components/Footer.astro';
 import {
@@ -15,7 +14,6 @@ import {
 	getPromptsPage,
 	getPromptBySlug,
 	getSiteStats,
-	getCategoryCounts,
 	type Prompt,
 } from '../lib/prompts';
 import { getTopContributor } from '../lib/users';
@@ -32,31 +30,21 @@ export const prerender = false;
 const [
 	imageRecent,
 	imageAllPage,
-	textRecent,
-	textAllPage,
 	categories,
 	imagePopular,
-	textPopular,
 	imageTrendingEvents,
-	textTrendingEvents,
 	potdSlug,
 	stats,
 	topContributor,
-	categoryCounts,
 ] = await Promise.all([
 	getRecentPrompts(24, 'images'),
 	getPromptsPage(null, 24, 'images'),
-	getRecentPrompts(24, 'text'),
-	getPromptsPage(null, 24, 'text'),
 	getAllCategories(),
 	getPopularPrompts(60, 'images'),
-	getPopularPrompts(60, 'text'),
 	getTrendingPrompts(60, 'images'),
-	getTrendingPrompts(60, 'text'),
 	getPromptOfTheDaySlug(),
 	getSiteStats(),
 	getTopContributor(),
-	getCategoryCounts(),
 ]);
 
 // Fetch the Prompt of the Day directly (one indexed lookup) so we can float it
@@ -87,7 +75,6 @@ function makeTrending(events: Prompt[], popular: Prompt[], category: string): Pr
 }
 
 const imageTrending = makeTrending(imageTrendingEvents, imagePopular, 'images');
-const textTrending = makeTrending(textTrendingEvents, textPopular, 'text');
 
 // ItemList for the homepage collection (cap to 30 so the JSON-LD stays small).
 const homeList = itemListSchema(
@@ -103,7 +90,7 @@ const hasQueryString = Astro.url.search !== '';
 
 <Layout
 	title="Free AI Prompts – Photo Editing Prompts for Gemini & ChatGPT"
-	description="Free AI prompts you can copy and paste: photo editing prompts for Gemini and ChatGPT, image prompts, and writing prompts. No signup. Copy, paste, create."
+	description="Free AI image prompts you can copy and paste for photo editing and image generation with Gemini, ChatGPT, Midjourney, and more. No signup."
 	extraSchemas={[homeList]}
 	robots={hasQueryString ? 'noindex, follow' : undefined}
 	preloadImage={firstCover}
@@ -113,7 +100,6 @@ const hasQueryString = Astro.url.search !== '';
 	<Header />
 	<main class="site-main py-12">
 		<Hero promptCount={stats.promptCount} categoryCount={categories.length} topContributor={topContributor} />
-		<PromptTypeTabs imageCount={categoryCounts.images ?? 0} textCount={categoryCounts.text ?? 0} />
 		<Tabs />
 		<PromptGrid
 			prompts={imageTrending}
@@ -138,31 +124,6 @@ const hasQueryString = Astro.url.search !== '';
 			promptType="images"
 			nextCursor={imageAllPage.nextCursor}
 			emptyMessage="No image prompts yet."
-		/>
-		<PromptGrid
-			prompts={textTrending}
-			categories={categories}
-			tab="trending"
-			hidden
-			promptType="text"
-			emptyMessage="No trending text prompts yet — copy or save one to get this section moving."
-		/>
-		<PromptGrid
-			prompts={textRecent}
-			categories={categories}
-			tab="recent"
-			hidden
-			promptType="text"
-			emptyMessage="Nothing here yet. New text prompts show up first."
-		/>
-		<PromptGrid
-			prompts={textAllPage.prompts}
-			categories={categories}
-			tab="all"
-			hidden
-			promptType="text"
-			nextCursor={textAllPage.nextCursor}
-			emptyMessage="No text prompts yet."
 		/>
 		<!-- Pagination for the All tab (shown/hidden with it). The button carries
 		     the keyset cursor; clicking it fetches the next page from
@@ -195,13 +156,12 @@ const hasQueryString = Astro.url.search !== '';
 	const emptyState = document.querySelector<HTMLElement>('[data-empty]');
 	const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
 	const searchForm = document.querySelector<HTMLFormElement>('[data-search-form]');
-	const typeTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.prompt-type-tab'));
 	const sortTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.sort-tab'));
 	const tabIndicator = document.querySelector<HTMLElement>('[data-tab-indicator]');
 	const loadMore = document.querySelector<HTMLButtonElement>('[data-load-more]');
 	const loadMoreWrap = document.querySelector<HTMLElement>('[data-load-more-wrap]');
 	const loadEnd = document.querySelector<HTMLElement>('[data-load-end]');
-	let activeType = typeTabs.find((tab) => tab.dataset.active === 'true')?.dataset.promptType ?? 'images';
+	const activeType = 'images';
 	let activeSort = sortTabs.find((tab) => tab.dataset.active === 'true')?.dataset.sort ?? 'all';
 
 	function activeGrid(): HTMLElement | null {
@@ -243,18 +203,6 @@ const hasQueryString = Astro.url.search !== '';
 			});
 			moveIndicator(i);
 			showTab(tab.dataset.sort ?? 'trending');
-		});
-	});
-
-	typeTabs.forEach((tab) => {
-		tab.addEventListener('click', () => {
-			activeType = tab.dataset.promptType ?? 'images';
-			typeTabs.forEach((t) => {
-				const on = t === tab;
-				t.dataset.active = String(on);
-				t.setAttribute('aria-selected', String(on));
-			});
-			showTab(activeSort);
 		});
 	});
 

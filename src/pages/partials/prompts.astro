@@ -15,7 +15,7 @@ import { getPromptsPage, getAllCategories } from '../../lib/prompts';
 
 const cursor = Astro.url.searchParams.get('cursor');
 const requestedCategory = Astro.url.searchParams.get('category');
-const category = requestedCategory === 'images' || requestedCategory === 'text' ? requestedCategory : undefined;
+const category = requestedCategory === 'images' ? requestedCategory : undefined;
 const [{ prompts, nextCursor }, categories] = await Promise.all([
 	getPromptsPage(cursor, 24, category),
 	getAllCategories(),

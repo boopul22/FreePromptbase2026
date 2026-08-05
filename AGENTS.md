@@ -11,12 +11,16 @@ four-image gallery workflow, per-request identity authorization rules, 2+2
 identity/fictional variation mix, SEO metadata standards, agent API sequence,
 and production verification checklist.
 
-## Instagram prompt posts — mandatory guide
+## Instagram + Facebook prompt posts — mandatory guide
 
 When a user asks to publish a Free Prompt Base prompt URL on Instagram, read and
-follow [`instagramPostGuide.md`](instagramPostGuide.md). It defines the reusable
-source-gallery + two-slide carousel, branded slide generation, CDN upload,
-Instagram Automator job contract, idempotent recovery, and live verification.
+follow [`instagramPostGuide.md`](instagramPostGuide.md). An Instagram publish
+request authorizes a paired post to the allowlisted Facebook Page by default
+unless the user explicitly says Instagram only. The guide defines the reusable
+source-gallery + two-slide media set, platform-specific SEO captions, CDN
+upload, a custom Facebook creative adaptation using the verified images,
+Instagram Automator job contract, Facebook Page API sequence, idempotent
+recovery, and live verification on both platforms.
 
 ## SEO — keywords we are targeting (read before SEO/content work)
 
@@ -40,7 +44,7 @@ SE Ranking, use the `in` database (use `us` for the broad "nano banana" head ter
 
 ## Where things live
 - Tag landing pages: data in `src/data/tags.ts`, articles in `src/data/tag-articles/<slug>.json`, rendered via `src/components/KeywordLanding.astro`.
-- Categories: `src/data/categories.ts` (`images`, `text`).
+- Categories: `src/data/categories.ts` (`images`).
 - Prompts/content consumed through `src/lib/prompts.ts` (D1 swap kept isolated).
 
 ## When adding a new keyword/page

@@ -1,4 +1,14 @@
 const SITE_ORIGIN = 'https://freepromptbase.com';
+// Bump after a structural public-HTML change that must bypass previously stored
+// Cache API entries immediately. The revision lives only in the internal cache
+// key; visitors and canonical URLs never see it.
+const PUBLIC_CACHE_REVISION = '2026-08-05-image-only';
+
+export function publicCacheKey(url: string | URL): Request {
+  const key = new URL(url.toString());
+  key.searchParams.set('__fpb_cache', PUBLIC_CACHE_REVISION);
+  return new Request(key.toString());
+}
 
 function getCache(): Cache | null {
   try {
@@ -17,7 +27,7 @@ export async function invalidatePublicPaths(paths: string[]): Promise<{ path: st
 
   return Promise.all(uniquePaths.map(async (path) => ({
     path,
-    deleted: await cache.delete(new Request(`${SITE_ORIGIN}${path}`)),
+    deleted: await cache.delete(publicCacheKey(`${SITE_ORIGIN}${path}`)),
   })));
 }
 

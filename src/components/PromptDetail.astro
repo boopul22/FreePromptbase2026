@@ -27,7 +27,7 @@ interface Props {
 	prompt: Prompt;
 }
 const { prompt } = Astro.props;
-const coverAlt = prompt.category === 'text' ? `${prompt.title} AI prompt cover` : prompt.title;
+const coverAlt = prompt.title;
 
 // Fan out the remaining reads in parallel — they only depend on `prompt`, so the
 // serial awaits here were the main server-response-time (TTFB) cost on detail pages.
