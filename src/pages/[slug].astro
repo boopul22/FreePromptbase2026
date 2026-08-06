@@ -2,15 +2,21 @@
 import PromptDetail from '../components/PromptDetail.astro';
 import KeywordLanding from '../components/KeywordLanding.astro';
 import { getPromptBySlug, getTagBySlug } from '../lib/prompts';
+import { tagCanonicalTarget } from '../data/tag-seo';
 
 // Root catch-all. A slug is resolved in priority order:
 //   1. an approved prompt        -> full prompt detail page
 //   2. a curated keyword (CSV)   -> keyword landing page at /<main-keyword>
 //   3. neither                   -> 404
 // Prompts win on collision so existing prompt URLs never change behaviour.
+// Retired near-dupe keyword slugs 301 to their hub (tag-seo.ts).
 export const prerender = false;
 
 const slug = Astro.params.slug!;
+const redirectTo = tagCanonicalTarget(slug);
+if (redirectTo) {
+	return Astro.redirect(`/${redirectTo}`, 301);
+}
 const prompt = await getPromptBySlug(slug);
 const keyword = prompt ? null : getTagBySlug(slug);
 if (!prompt && !keyword) {

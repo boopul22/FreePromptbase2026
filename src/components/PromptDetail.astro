@@ -19,7 +19,8 @@ import {
 	readTime,
 } from '../lib/prompts';
 import { getUserById } from '../lib/users';
-import { breadcrumbSchema } from '../lib/seo';
+import { breadcrumbSchema, publisherBlock } from '../lib/seo';
+import { isTagIndexable } from '../data/tag-seo';
 
 // Full prompt-detail view. Rendered by the root [slug] route once a prompt has
 // been resolved (the route decides prompt vs keyword-landing vs 404).
@@ -59,7 +60,9 @@ const relatedCategoryPills = [...new Set(related.map((r) => r.category))]
 // Only curated tags are links. Linking free-form tags to /?q= generated hundreds
 // of crawlable query URLs that correctly canonicalised to / and were noindexed,
 // but still wasted crawl budget and dominated the SEO audit.
-const curatedTagSlugs = new Set(getAllTags().map((t) => t.slug));
+const curatedTagSlugs = new Set(
+	getAllTags().filter((t) => isTagIndexable(t.slug)).map((t) => t.slug),
+);
 const slugifyTag = (t: string) => t.toLowerCase().trim().replace(/\s+/g, '-');
 const tagHref = (t: string) => {
 	const s = slugifyTag(t);
@@ -144,8 +147,12 @@ const promptSchema: Record<string, unknown> = {
 		name: authorName,
 		...(authorHref ? { url: new URL(authorHref, Astro.site).href } : {}),
 	},
+	publisher: publisherBlock(),
+	isPartOf: { '@id': new URL('/#website', Astro.site).href },
 	keywords: prompt.tags.join(', '),
-	about: category?.name,
+	about: category
+		? { '@type': 'Thing', name: category.name, url: new URL(`/category/${category.slug}`, Astro.site).href }
+		: undefined,
 	url: new URL(`/${prompt.slug}`, Astro.site).href,
 	inLanguage: 'en',
 	isAccessibleForFree: true,
@@ -164,10 +171,8 @@ const breadcrumb = breadcrumbSchema([
 	{ name: prompt.title, path: `/${prompt.slug}` },
 ]);
 
-// Visible H1 is derived from the slug; render it sentence-case (capitalise the
-// first letter, keep the rest lowercase) rather than all-lowercase.
-const slugWords = prompt.slug.replace(/-/g, ' ');
-const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
+// Prefer the editorial title for the visible H1 (Title Case), not the slug casing.
+const heading = prompt.title;
 ---
 
 <Layout
@@ -177,12 +182,12 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 	extraSchemas={[breadcrumb]}
 	ogType="article"
 	ogImage={heroImage}
-	preloadImage={hasHeroImage ? heroImage : undefined}
+	preloadImage={hasHeroImage ? cfImg(heroImage, 672) : undefined}
 	preloadImageSrcset={hasHeroImage ? cfSrcset(heroImage, [480, 672, 768, 1080]) : undefined}
 	preloadImageSizes="(min-width: 1024px) 700px, 92vw"
 >
 	<Header />
-	<main class="flex-grow site-main py-8 sm:py-12">
+	<main class="flex-grow site-main py-8 sm:py-12 pb-24 lg:pb-12">
 		<!-- Breadcrumb — shares the page container's left edge with the H1 below,
 		     so they align. Colour comes from the home glyph + the category pill. -->
 		<Breadcrumb
@@ -202,20 +207,20 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			<h1 class="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-text-primary leading-[1.15]">
 				{heading}
 			</h1>
-			<span class="sr-only">{prompt.title}</span>
+			{
+				prompt.description && (
+					<p class="text-gray-600 text-base sm:text-lg mt-3 max-w-[68ch]">{prompt.description}</p>
+				)
+			}
 		</header>
 
-		<!-- Phone hint: plain, non-clickable text nudging readers to scroll down to
-		     the copyable prompt (which sits below the cover image on small screens).
-		     Deliberately NOT a jump link — we want readers to scroll past the page
-		     content rather than skip straight to the prompt. Hidden on lg, where the
-		     prompt already sits near the top of the right column. The chevron gently
-		     bobs to draw the eye downward. -->
 		<p class="lg:hidden -mt-4 mb-8 flex items-center gap-1.5 text-sm font-medium text-text-primary">
-			Scroll down to copy the prompt
-			<svg class="jump-chevron h-4 w-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-				<polyline points="6 9 12 15 18 9" />
-			</svg>
+			<a href="#the-prompt" class="inline-flex items-center gap-1.5 text-text-primary underline decoration-primary decoration-2 underline-offset-2">
+				Jump to copy the prompt
+				<svg class="jump-chevron h-4 w-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<polyline points="6 9 12 15 18 9" />
+				</svg>
+			</a>
 		</p>
 
 		<!-- Two-column body: image left (sticky viewport), prompt content right.
@@ -401,7 +406,12 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
 				</svg>
 				<span data-like-label>{isLiked ? 'Liked' : 'Like'}</span>
-				<span class="tabular-nums opacity-70 font-normal" data-like-count-text data-raw={likeCount}>
+				<span
+					class="tabular-nums opacity-70 font-normal"
+					data-like-count-text
+					data-raw={likeCount}
+					hidden={likeCount === 0}
+				>
 					{likeCount}
 				</span>
 			</button>
@@ -432,7 +442,7 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 					<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
 				</svg>
 				<span data-save-label>{isSaved ? 'Saved' : 'Save'}</span>
-				<span class="tabular-nums opacity-70 font-normal" data-save-count>{saveCount}</span>
+				<span class="tabular-nums opacity-70 font-normal" data-save-count hidden={saveCount === 0}>{saveCount}</span>
 			</button>
 
 			<button
@@ -451,17 +461,13 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			</button>
 		</div>
 
-		<!-- Guaranteed-fill display unit right above the gated prompt: the
-		     rewarded copy gate below only monetizes when rewarded inventory
-		     exists, so this carries the reliable impressions. -->
-		<AdSlot placement="prompt-above-copy" />
-
-		<!-- The prompt + copy (scroll target for the phone hint under the title).
-		     Fully visible and one-click copy — no ad gate. -->
+		<!-- Copy first (conversion), ads after — never interrupt the copy path on mobile. -->
 		<div id="the-prompt" class="scroll-mt-24">
 			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} />
 			<OpenInTools text={prompt.promptText} />
 		</div>
+
+		<AdSlot placement="prompt-above-copy" class="mt-6" />
 
 		<!-- How to use (tip card) -->
 		{
@@ -588,5 +594,34 @@ const heading = slugWords.charAt(0).toUpperCase() + slugWords.slice(1);
 			)
 		}
 	</main>
+
+	<!-- Sticky mobile Copy CTA — primary conversion when the prompt is below the fold. -->
+	<div
+		class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur-sm p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+		data-sticky-copy
+	>
+		<button
+			type="button"
+			class="btn-primary w-full justify-center py-3 text-base font-semibold"
+			data-sticky-copy-trigger
+		>
+			Copy prompt
+		</button>
+	</div>
+	<script>
+		document.querySelector('[data-sticky-copy-trigger]')?.addEventListener('click', () => {
+			const btn = document.querySelector<HTMLButtonElement>('[data-copy-btn]');
+			btn?.click();
+			const label = document.querySelector('[data-sticky-copy-trigger]');
+			if (label) {
+				const prev = label.textContent;
+				label.textContent = 'Copied!';
+				setTimeout(() => {
+					label.textContent = prev || 'Copy prompt';
+				}, 1800);
+			}
+		});
+	</script>
+
 	<Footer />
 </Layout>

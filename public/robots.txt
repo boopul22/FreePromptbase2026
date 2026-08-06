@@ -22,4 +22,5 @@ Allow: /
 Disallow: /api/
 
 Sitemap: https://freepromptbase.com/sitemap.xml
-Sitemap: https://freepromptbase.com/news-sitemap.xml
+# news-sitemap.xml is omitted while empty (48h Google News window). Re-add the
+# Sitemap line when fresh /news posts are published within that window.

@@ -342,7 +342,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | undefi
 }
 
 // ---------------------------------------------------------------------------
-// SEO tag pages — keyword landing pages at /tag/<slug>. Tags are static
+// SEO tag pages — keyword landing pages at /<slug>. Tags are static
 // (keyword research from src/data/tags.ts); the prompts shown are matched live
 // from D1 by the tag's significant terms, falling back to popular prompts so a
 // page never renders empty (a keyword may not match any prompt's tags/title).

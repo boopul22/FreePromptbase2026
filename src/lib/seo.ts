@@ -50,10 +50,13 @@ export function itemListSchema(
 export function publisherBlock() {
 	return {
 		'@type': 'Organization',
+		'@id': `${SITE_URL}/#organization`,
 		name: SITE_NAME,
 		logo: {
 			'@type': 'ImageObject',
-			url: `${SITE_URL}/logo.svg`,
+			url: `${SITE_URL}/logo-512.png`,
+			width: 512,
+			height: 512,
 		},
 	};
 }

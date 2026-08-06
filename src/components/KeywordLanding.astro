@@ -10,12 +10,12 @@ import { getAllCategories, getAllTags, getPromptsByTag } from '../lib/prompts';
 import type { Tag } from '../lib/prompts';
 import { getTagArticle } from '../lib/tagArticles';
 import { itemListSchema, breadcrumbSchema } from '../lib/seo';
-import { cfSrcset } from '../lib/cfImage';
+import { cfSrcset, cfImg } from '../lib/cfImage';
 import { pillColor } from '../lib/pills';
+import { isTagIndexable, TAG_HUB_SLUG_SET, TAG_NOINDEX_SLUGS } from '../data/tag-seo';
 
-// Keyword landing page, served at the ROOT URL /<main-keyword>. The prompt grid
-// renders first; an editorial, blog-style article + FAQ render below it. Used by
-// the root [slug] route once a slug resolves to a curated keyword (not a prompt).
+// Keyword landing page, served at the ROOT URL /<main-keyword>. Compact answer
+// ATF → prompt grid → editorial guide + FAQ. Used by the root [slug] route.
 interface Props {
 	tag: Tag;
 }
@@ -27,7 +27,7 @@ const [{ prompts, matched }, categories] = await Promise.all([
 ]);
 
 const related = getAllTags()
-	.filter((t) => t.slug !== tag.slug)
+	.filter((t) => t.slug !== tag.slug && isTagIndexable(t.slug) && TAG_HUB_SLUG_SET.has(t.slug))
 	.slice(0, 14);
 
 const name = tag.name;
@@ -36,7 +36,6 @@ const q = tag.query;
 const blob = `${tag.query} ${tag.matchTerms.join(' ')}`.toLowerCase();
 const isImage = /photo|image|foto|edit|caricature|portrait|retro|pic|art|banana|holi/.test(blob);
 
-// Many keywords already contain "prompt(s)"; keep the noun phrases grammatical.
 function plural(s: string): string {
 	if (/prompts$/.test(s)) return s;
 	if (/prompt$/.test(s)) return `${s}s`;
@@ -45,22 +44,12 @@ function plural(s: string): string {
 }
 const lowerPl = plural(lower);
 
-// Deterministic per-slug variant so the H1 wording isn't identical across pages.
-function variant(n: number): number {
-	let h = 0;
-	for (const c of tag.slug) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-	return h % n;
-}
-const h1Tails = isImage
-	? ['to Create Stunning AI Photos', 'for Jaw-Dropping AI Edits', 'to Copy, Paste, and Post']
-	: ['You Can Copy and Paste', 'That Actually Work', 'for Better AI Results'];
-const heading = `${name} ${h1Tails[variant(h1Tails.length)]}`;
+// Plain H1 = primary keyword (no templated marketing tails).
+const heading = name;
 const lead = isImage
-	? `Free ${lowerPl} you can copy in one tap. Paste, add your own photo, and create something worth sharing.`
+	? `Free ${lowerPl} you can copy in one tap. Paste into Gemini or ChatGPT, add your own photo, and create something worth sharing.`
 	: `Free, ready-to-use ${lowerPl}. Copy one, paste it into your favourite AI tool, and get to work.`;
 
-// Written content (authored per keyword). Falls back to a short generic article
-// if a keyword has no JSON file yet, so the page is never thin or broken.
 const article = getTagArticle(tag.slug);
 const bodyHtml =
 	article?.bodyHtml ??
@@ -73,14 +62,25 @@ const faqs =
 		},
 	];
 
-// Mid-article ad: split the authored body before its 3rd h2 so the unit sits
-// between sections. Falls back to the unsplit body on short articles.
+function plainExcerpt(html: string, maxWords = 90): string {
+	const text = html
+		.replace(/<script[\s\S]*?<\/script>/gi, ' ')
+		.replace(/<style[\s\S]*?<\/style>/gi, ' ')
+		.replace(/<[^>]+>/g, ' ')
+		.replace(/\s+/g, ' ')
+		.trim();
+	const words = text.split(' ').filter(Boolean);
+	if (words.length <= maxWords) return text;
+	return `${words.slice(0, maxWords).join(' ')}…`;
+}
+const atfAnswer = plainExcerpt(bodyHtml, 85);
+
 const articleParts = splitAtNthH2(bodyHtml, 3);
 
 const title = `${name} — Free Prompts to Copy & Paste | Free Prompt Base`;
-// Prefer the authored meta description (its opening uses the main keyword);
-// fall back to the keyword's templated description.
 const description = article?.metaDescription ?? tag.description;
+const indexable = isTagIndexable(tag.slug);
+const noindexTag = TAG_NOINDEX_SLUGS.has(tag.slug);
 
 const list = itemListSchema(
 	prompts.slice(0, 30).map((p) => ({ name: p.title, url: `/${p.slug}` })),
@@ -90,6 +90,27 @@ const crumb = breadcrumbSchema([
 	{ name: 'Home', path: '/' },
 	{ name, path: `/${tag.slug}` },
 ]);
+const collectionPage = {
+	'@context': 'https://schema.org',
+	'@type': 'CollectionPage',
+	'@id': `https://freepromptbase.com/${tag.slug}#webpage`,
+	name: title,
+	url: `https://freepromptbase.com/${tag.slug}`,
+	description,
+	isPartOf: { '@id': 'https://freepromptbase.com/#website' },
+	about: { '@type': 'Thing', name },
+	mainEntity: {
+		'@type': 'ItemList',
+		name: `${name} prompts`,
+		numberOfItems: Math.min(prompts.length, 30),
+		itemListElement: prompts.slice(0, 30).map((p, i) => ({
+			'@type': 'ListItem',
+			position: i + 1,
+			name: p.title,
+			url: `https://freepromptbase.com/${p.slug}`,
+		})),
+	},
+};
 const faqSchema = {
 	'@context': 'https://schema.org',
 	'@type': 'FAQPage',
@@ -99,14 +120,19 @@ const faqSchema = {
 		acceptedAnswer: { '@type': 'Answer', text: f.a },
 	})),
 };
+const extraSchemas = indexable
+	? [collectionPage, list, crumb, ...(TAG_HUB_SLUG_SET.has(tag.slug) ? [faqSchema] : [])]
+	: [crumb];
+const firstCover = prompts[0]?.coverImage;
 ---
 
 <Layout
 	title={title}
 	description={description}
-	extraSchemas={[list, crumb, faqSchema]}
-	preloadImage={prompts[0]?.coverImage}
-	preloadImageSrcset={prompts[0]?.coverImage ? cfSrcset(prompts[0].coverImage, [300, 400, 520, 660], 68) : undefined}
+	extraSchemas={extraSchemas}
+	robots={noindexTag ? 'noindex, follow' : undefined}
+	preloadImage={firstCover ? cfImg(firstCover, 400, 68) : undefined}
+	preloadImageSrcset={firstCover ? cfSrcset(firstCover, [300, 400, 520, 660], 68) : undefined}
 	preloadImageSizes="(min-width: 1024px) 300px, (min-width: 640px) 45vw, 92vw"
 >
 	<Header />
@@ -119,25 +145,42 @@ const faqSchema = {
 		]}
 	/>
 
-		<!-- H1 + lead, then the prompts immediately. The article sits below. -->
-		<header class="mb-8 max-w-3xl">
+		<header class="mb-6 max-w-3xl">
 			<p class="text-xs font-semibold uppercase tracking-[0.18em] text-secondary mb-3">AI prompt library</p>
 			<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary leading-[1.15]">
 				{heading}
 			</h1>
 			<p class="text-gray-600 text-lg mt-3">{lead}</p>
 			<p class="text-sm text-gray-600 mt-2">
-				{prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'}
+				{prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'} · free · no signup
 			</p>
 		</header>
 
+		<!-- Compact answer + steps above the fold / before the long grid. -->
+		<section class="mb-8 max-w-3xl rounded-base border border-gray-200 bg-soft/40 p-4 sm:p-5">
+			<p class="text-base text-text-primary leading-relaxed">
+				<strong>{atfAnswer}</strong>
+			</p>
+			<ol class="mt-4 space-y-1.5 text-sm text-gray-700 list-decimal list-inside">
+				<li>Open a prompt card below and tap <strong>Copy</strong>.</li>
+				<li>Paste into Gemini, ChatGPT, or your image app.</li>
+				<li>{isImage ? 'Upload your photo and keep the face-preserve line.' : 'Swap in your details where the prompt asks.'}</li>
+				<li>Generate, tweak one detail, and save what works.</li>
+			</ol>
+			<a href="#prompt-grid" class="btn-primary inline-flex mt-4 text-sm">
+				Browse {prompts.length} free prompts
+			</a>
+		</section>
+
+		<div id="prompt-grid">
 		{
 			prompts.length > 0 ? (
-				<PromptGrid prompts={prompts} categories={categories} adPositions={[8]} />
+				<PromptGrid prompts={prompts} categories={categories} adPositions={[12]} />
 			) : (
 				<p class="text-center text-gray-500 py-16">No prompts here yet. Check back soon!</p>
 			)
 		}
+		</div>
 
 		{
 			!matched && prompts.length > 0 && (
@@ -147,15 +190,13 @@ const faqSchema = {
 			)
 		}
 
-		<!-- ===== Editorial article — same container, font and background as the
-		     prompts above; just a readable text column with warm accents. ===== -->
 		<section class="mt-16 pt-12 border-t border-gray-200 max-w-3xl">
 			<p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-secondary mb-3">
 				<span class="h-1.5 w-1.5 rounded-full bg-secondary"></span>
 				The guide
 			</p>
 			<h2 class="text-2xl md:text-3xl font-bold tracking-tight text-text-primary leading-tight mb-7">
-				Everything about {lowerPl}
+				How to use {lowerPl}
 			</h2>
 
 			<div class="kw-article">
@@ -172,48 +213,50 @@ const faqSchema = {
 				}
 			</div>
 
-			<!-- FAQ -->
-			<div class="mt-16 pt-12 border-t border-gray-200">
-				<p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-secondary mb-3">
-					<span class="h-1.5 w-1.5 rounded-full bg-secondary"></span>
-					Questions
-				</p>
-				<h2 class="text-2xl font-bold tracking-tight text-text-primary mb-6">
-					Frequently asked questions
-				</h2>
-				<div class="divide-y divide-gray-200 border-t border-gray-200">
-					{
-						faqs.map((f) => (
-							<details class="group py-1">
-								<summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold text-text-primary hover:text-secondary transition-colors">
-									<h3 class="m-0 text-base font-semibold">{f.q}</h3>
-									<svg class="w-5 h-5 shrink-0 text-gray-400 transition-transform duration-200 group-open:rotate-180 group-open:text-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-										<polyline points="6 9 12 15 18 9" />
-									</svg>
-								</summary>
-								<p class="text-gray-700 leading-relaxed pb-4 -mt-1 max-w-[68ch]">{f.a}</p>
-							</details>
-						))
-					}
-				</div>
-			</div>
+			{
+				indexable && (
+					<div class="mt-16 pt-12 border-t border-gray-200">
+						<p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-secondary mb-3">
+							<span class="h-1.5 w-1.5 rounded-full bg-secondary"></span>
+							Questions
+						</p>
+						<h2 class="text-2xl font-bold tracking-tight text-text-primary mb-6">
+							Frequently asked questions
+						</h2>
+						<div class="divide-y divide-gray-200 border-t border-gray-200">
+							{faqs.map((f, i) => (
+								<details class="group py-1" open={i === 0 && TAG_HUB_SLUG_SET.has(tag.slug)}>
+									<summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold text-text-primary hover:text-secondary transition-colors">
+										<h3 class="m-0 text-base font-semibold">{f.q}</h3>
+										<svg class="w-5 h-5 shrink-0 text-gray-400 transition-transform duration-200 group-open:rotate-180 group-open:text-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+											<polyline points="6 9 12 15 18 9" />
+										</svg>
+									</summary>
+									<p class="text-gray-700 leading-relaxed pb-4 -mt-1 max-w-[68ch]"><strong>{f.a}</strong></p>
+								</details>
+							))}
+						</div>
+					</div>
+				)
+			}
 		</section>
 
-		<AdSlot placement="tag-after-faq" />
+		{indexable && <AdSlot placement="tag-after-faq" />}
 
-		<!-- Related keywords -->
-		<section class="mt-16 pt-12 border-t border-gray-200">
-			<h2 class="text-xl font-bold tracking-tight text-text-primary mb-4">Related searches</h2>
-			<div class="flex flex-wrap gap-2">
-				{
-					related.map((t) => (
-						<a href={`/${t.slug}`} class={`pill ${pillColor(t.slug)}`}>
-							{t.name}
-						</a>
-					))
-				}
-			</div>
-		</section>
+		{
+			related.length > 0 && (
+				<section class="mt-16 pt-12 border-t border-gray-200">
+					<h2 class="text-xl font-bold tracking-tight text-text-primary mb-4">Related searches</h2>
+					<div class="flex flex-wrap gap-2">
+						{related.map((t) => (
+							<a href={`/${t.slug}`} class={`pill ${pillColor(t.slug)}`}>
+								{t.name}
+							</a>
+						))}
+					</div>
+				</section>
+			)
+		}
 	</main>
 	<Footer />
 </Layout>

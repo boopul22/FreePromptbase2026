@@ -967,11 +967,14 @@ button:disabled.is-loading {
 	padding: 0.75rem;
 }
 
+/* Keep reserved height when AdSense marks a slot unfilled — collapsing with
+   display:none caused homepage CLS (~0.28). Hide the label/ins visually only. */
 .ad-slot:has(> ins[data-ad-status='unfilled']) {
-	display: none;
+	visibility: hidden;
+	pointer-events: none;
 }
 ins.adsbygoogle[data-ad-status='unfilled'] {
-	display: none !important;
+	visibility: hidden !important;
 }
 
 /* ============================================================================

@@ -5,10 +5,18 @@ import Breadcrumb from '../components/Breadcrumb.astro';
 import Footer from '../components/Footer.astro';
 import { getAllTags } from '../lib/prompts';
 import { itemListSchema, breadcrumbSchema } from '../lib/seo';
+import { isTagIndexable, TAG_HUB_SLUG_SET } from '../data/tag-seo';
 
 export const prerender = false;
 
-const tags = getAllTags();
+const tags = getAllTags()
+	.filter((t) => isTagIndexable(t.slug))
+	.sort((a, b) => {
+		const ah = TAG_HUB_SLUG_SET.has(a.slug) ? 0 : 1;
+		const bh = TAG_HUB_SLUG_SET.has(b.slug) ? 0 : 1;
+		if (ah !== bh) return ah - bh;
+		return a.name.localeCompare(b.name);
+	});
 
 const list = itemListSchema(
 	tags.map((t) => ({ name: t.name, url: `/${t.slug}` })),
@@ -33,7 +41,7 @@ const crumb = breadcrumbSchema([
 				Browse by keyword
 			</h1>
 			<p class="text-gray-600 text-lg mt-3">
-				Jump straight to the prompts people are searching for across {tags.length} trending keywords.
+				Jump straight to the prompts people are searching for across {tags.length} curated keywords.
 			</p>
 		</header>
 

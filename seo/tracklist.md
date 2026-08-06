@@ -1,21 +1,22 @@
 # Keyword → Page Tracklist — freepromptbase.com
 
 > The mapping of target keyword → URL. One **primary** keyword per page.
-> Pages live as tag landing pages at `/tag/<slug>` (data in `src/data/tags.ts`,
+> Pages live as keyword landing pages at `/<slug>` (data in `src/data/tags.ts`,
 > articles in `src/data/tag-articles/<slug>.json`). Categories at `/category/<slug>`.
-> See [keyword-research.md](keyword-research.md) for volumes & rationale.
+> Legacy `/tag/<slug>` URLs 301 to `/<slug>`. See [keyword-research.md](keyword-research.md)
+> for volumes & rationale. Index/noindex/redirect policy: `src/data/tag-seo.ts`.
 
 ## Priority targets (work these first)
 
 | Priority | Page (URL) | Primary keyword | Cluster | KD | Status |
 |---|---|---|---|---|---|
-| P0 | `/tag/nano-banana-prompt` | nano banana prompt | A | breakout | **Flagship** — optimized (Jun 2026) |
-| P0 | `/tag/gemini-ai-photo-prompt-copy-paste` | gemini ai photo prompt copy paste | B | 26 | Best low-KD target |
-| P1 | `/tag/nano-banana-ai` | nano banana ai | A | 78–90 | High vol |
-| P1 | `/tag/prompt-for-gemini-ai` | prompt for gemini ai | B | 42 | |
-| P1 | `/tag/gemini-ai-photo-prompt` | gemini ai photo prompt | B | low | Rising |
-| P2 | `/tag/gemini-couple-photo-prompt` | gemini couple photo prompt | B/D | low | Couple sub-niche |
-| P2 | `/tag/trending-gemini-prompt` | trending gemini prompt | B | low | Refresh often |
+| P0 | `/nano-banana-prompt` | nano banana prompt | A | breakout | **Flagship** — optimized (Jun 2026) |
+| P0 | `/gemini-ai-photo-prompt-copy-paste` | gemini ai photo prompt copy paste | B | 26 | Best low-KD target |
+| P1 | `/nano-banana-ai` | nano banana ai | A | 78–90 | High vol |
+| P1 | `/prompt-for-gemini-ai` | prompt for gemini ai | B | 42 | |
+| P1 | `/gemini-ai-photo-prompt` | gemini ai photo prompt | B | low | Rising |
+| P2 | `/gemini-couple-photo-prompt` | gemini couple photo prompt | B/D | low | Couple sub-niche |
+| P2 | `/trending-gemini-prompt` | trending gemini prompt | B | low | Refresh often |
 | P2 | (home) `/` | free ai prompts | C | 37 | Brand match |
 
 ## Full tag → keyword map (existing pages in `src/data/tags.ts`)

@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 export const collection = {
-	title: 'Free Prompt Base — Free AI Prompts',
-	description: 'Free AI prompts and photo editing prompts for Gemini, ChatGPT, Midjourney & Claude. Copy, paste, create.',
+	title: 'Free AI Prompts — Copy, Paste, Create',
+	description:
+		'Free AI prompts and photo editing prompts for Gemini, ChatGPT, Midjourney & Claude. Browse the library, copy in one tap, no signup.',
 };

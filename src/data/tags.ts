@@ -1,7 +1,8 @@
 // ---------------------------------------------------------------------------
 // SEO tag pages — generated from rising-search keyword research.
-// Each tag becomes a landing page at /tag/<slug> that lists matching prompts
+// Each tag becomes a landing page at /<slug> that lists matching prompts
 // (falling back to popular prompts when nothing matches the keyword).
+// Index/noindex/redirect policy lives in src/data/tag-seo.ts.
 // Consumed only through src/lib/prompts.ts so a future D1 move stays isolated.
 // ---------------------------------------------------------------------------
 

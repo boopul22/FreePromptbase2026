@@ -175,6 +175,7 @@ const websiteSchema = {
 	url: siteUrl,
 	description:
 		'A free, curated library of ready-to-use AI prompts for ChatGPT, Midjourney, Claude and Gemini.',
+	publisher: { '@id': `${siteUrl}/#organization` },
 	potentialAction: {
 		'@type': 'SearchAction',
 		target: {
@@ -190,12 +191,19 @@ const websiteSchema = {
 const organizationSchema = {
 	'@context': 'https://schema.org',
 	'@type': 'Organization',
+	'@id': `${siteUrl}/#organization`,
 	name: 'Free Prompt Base',
 	url: siteUrl,
 	logo: {
 		'@type': 'ImageObject',
-		url: `${siteUrl}/logo.svg`,
+		url: `${siteUrl}/logo-512.png`,
+		width: 512,
+		height: 512,
 	},
+	sameAs: [
+		'https://www.instagram.com/freepromptbase/',
+		'https://www.facebook.com/1240248679172928',
+	],
 };
 ---
 

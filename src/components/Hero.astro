@@ -12,33 +12,42 @@ const { promptCount, categoryCount, topContributor } = Astro.props;
 const tcInitial = topContributor?.name?.slice(0, 1).toUpperCase() ?? '';
 ---
 
-<section class="mb-5" data-purpose="collection-hero">
-	<!-- Title + description are kept in the DOM (the H1 anchors the homepage
-	     for SEO) but visually hidden per request — nothing textual shows. -->
-	<h1 class="sr-only">{collection.title}</h1>
-	<p class="sr-only">{collection.description}</p>
+<section class="mb-8" data-purpose="collection-hero">
+	<header class="mb-5 max-w-3xl">
+		<h1 class="text-3xl md:text-4xl font-bold tracking-tight text-text-primary leading-[1.15]">
+			{collection.title}
+		</h1>
+		<p class="text-gray-600 text-lg mt-3">
+			{collection.description}
+		</p>
+		<p class="text-sm text-gray-600 mt-2">
+			{promptCount}+ free prompts · no signup · copy in one tap
+		</p>
+	</header>
 
-	<!-- Actions on the left, contributor + stats on the right, closed by a rule. -->
+	<!-- Primary = browse/use; Submit stays secondary so conversion stays on copy. -->
 	<div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 pb-4 border-b border-black/10">
-		<!-- Actions -->
 		<div class="flex items-center gap-2">
-			<a href="/blog" class="btn-primary text-sm">
+			<a href="#prompt-gallery" class="btn-primary text-sm">
 				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
+					<rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
+				</svg>
+				Browse prompts
+			</a>
+
+			<a href="/tags" class="btn-secondary text-sm">
+				Keywords
+			</a>
+
+			<a href="/blog" class="btn-secondary text-sm">
+				<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
 				</svg>
 				Blog
 			</a>
-
-			<a href="/tags" class="btn-secondary text-sm">
-				<svg class="w-4 h-4 text-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-					<rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" />
-					<rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" />
-				</svg>
-				Browse
-			</a>
 		</div>
 
-		<!-- Right cluster: flashy top-contributor badge + collection stats. -->
 		<div class="flex flex-wrap items-center gap-x-3 gap-y-2.5">
 			{topContributor && (
 				<a
@@ -46,7 +55,6 @@ const tcInitial = topContributor?.name?.slice(0, 1).toUpperCase() ?? '';
 					class="top-contributor group relative inline-flex items-center gap-2.5 rounded-full border border-primary bg-white py-1 pl-1 pr-3.5 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-text-primary"
 					title={`Top contributor: ${topContributor.name}`}
 				>
-					<!-- Avatar + crown badge -->
 					<span class="relative shrink-0">
 						{topContributor.avatarUrl ? (
 							<img
@@ -73,7 +81,6 @@ const tcInitial = topContributor?.name?.slice(0, 1).toUpperCase() ?? '';
 						<span class="text-sm font-bold text-text-primary truncate max-w-[9rem]">{topContributor.name}</span>
 					</span>
 
-					<!-- Periodic shine sweep (overlay only; transform-based, reduced-motion safe). -->
 					<span class="tc-shine pointer-events-none absolute inset-0 rounded-full overflow-hidden" aria-hidden="true"></span>
 				</a>
 			)}
@@ -99,9 +106,6 @@ const tcInitial = topContributor?.name?.slice(0, 1).toUpperCase() ?? '';
 </section>
 
 <style>
-	/* Flashy-but-tasteful: a slow diagonal light sweep across the badge every few
-	   seconds, plus a brighter sweep on hover. Pure transform/opacity, and fully
-	   stilled for visitors who prefer reduced motion. */
 	.tc-shine::before {
 		content: '';
 		position: absolute;
@@ -125,8 +129,6 @@ const tcInitial = topContributor?.name?.slice(0, 1).toUpperCase() ?? '';
 	}
 	@keyframes tc-sweep {
 		0% { transform: translateX(-180%) skewX(-20deg); }
-		/* sweep across in the first ~1s, then hold off-screen so it reads as an
-		   occasional glint rather than a constant strobe */
 		18% { transform: translateX(320%) skewX(-20deg); }
 		100% { transform: translateX(320%) skewX(-20deg); }
 	}

@@ -57,14 +57,31 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   // preview URLs are left untouched. Cloudflare may carry the original scheme in
   // the CF-Visitor header, so we check that alongside url.protocol.
   const CANONICAL_HOST = 'freepromptbase.com';
+  // Legacy /tag/<slug> docs URLs → live root keyword pages.
+  if (path.startsWith('/tag/') && path.length > '/tag/'.length) {
+    const tagSlug = path.slice('/tag/'.length).replace(/\/$/, '').toLowerCase();
+    if (tagSlug && !tagSlug.includes('/')) {
+      const dest = new URL(url.toString());
+      dest.protocol = 'https:';
+      dest.hostname = CANONICAL_HOST;
+      dest.port = '';
+      dest.pathname = `/${tagSlug}`;
+      return redirect(dest.toString(), 301);
+    }
+  }
+
   if (url.hostname === CANONICAL_HOST || url.hostname === `www.${CANONICAL_HOST}`) {
     const viaHttp =
       url.protocol === 'http:' ||
       (request.headers.get('cf-visitor') ?? '').includes('"scheme":"http"');
-    if (viaHttp || url.hostname !== CANONICAL_HOST) {
+    // Collapse www + http + trailing slash into one 301 to the final apex URL.
+    const needsHostFix = viaHttp || url.hostname !== CANONICAL_HOST;
+    const needsSlashFix = path.length > 1 && path.endsWith('/');
+    if (needsHostFix || needsSlashFix) {
       url.protocol = 'https:';
       url.hostname = CANONICAL_HOST;
       url.port = '';
+      if (needsSlashFix) url.pathname = path.replace(/\/+$/, '') || '/';
       return redirect(url.toString(), 301);
     }
   }

@@ -77,7 +77,10 @@ function setSavedVisual(btn: HTMLElement, saved: boolean, countOverride?: number
 
 	if (countOverride !== undefined) {
 		const countEl = btn.querySelector<HTMLElement>('[data-save-count]');
-		if (countEl) countEl.textContent = String(countOverride);
+		if (countEl) {
+			countEl.textContent = String(countOverride);
+			countEl.hidden = countOverride <= 0;
+		}
 	}
 }
 
@@ -164,9 +167,10 @@ function setLikedVisual(btn: HTMLElement, liked: boolean, count?: number) {
 		const countEl = btn.querySelector<HTMLElement>('[data-like-count-text]');
 		if (countEl) {
 			countEl.dataset.raw = String(count);
-			// Card pill hides count via :empty when 0. Detail page always shows.
+			// Card pill hides count via :empty when 0. Detail page hides via [hidden].
 			const isPill = !btn.classList.contains('detail-like-btn');
 			countEl.textContent = isPill && count <= 0 ? '' : fmt(count);
+			if (!isPill) countEl.hidden = count <= 0;
 		}
 	}
 }

@@ -2,73 +2,67 @@
 import { categories } from '../data/categories';
 import { posts } from '../data/posts';
 import { tags } from '../data/tags';
+import { isTagIndexable, TAG_HUB_SLUGS } from '../data/tag-seo';
 
 const year = new Date().getFullYear();
 
-// BROWSE — core discovery routes plus real category pages.
 const browseLinks = [
 	{ href: '/', label: 'All prompts' },
 	{ href: '/categories', label: 'Categories' },
 	...categories.map((c) => ({ href: `/category/${c.slug}`, label: c.name })),
 	{ href: '/tags', label: 'Keyword index' },
+	{ href: '/skills', label: 'Skills' },
 ];
 
-// TRENDING — curated keyword landing pages. Each lives at the root /<slug>
-// (see src/pages/[slug].astro). We pick a high-value subset by slug and pull
-// the label straight from tags.ts, so anything renamed/removed self-corrects
-// and we never emit a dead link.
-const trendingSlugs = [
-	'nano-banana-prompt',
-	'nano-banana',
-	'trending-gemini-prompt',
-	'chatgpt-caricature-prompt',
-	'banana-prompt',
-	'nano-banana-ai',
-	'holi-prompt',
-];
 const tagBySlug = new Map(tags.map((t) => [t.slug, t]));
 const linksFromTags = (slugs: string[]) =>
 	slugs
-	.map((slug) => tagBySlug.get(slug))
-	.filter((t): t is (typeof tags)[number] => Boolean(t))
-	.map((t) => ({ href: `/${t.slug}`, label: t.name }));
+		.map((slug) => tagBySlug.get(slug))
+		.filter((t): t is (typeof tags)[number] => Boolean(t) && isTagIndexable(t.slug))
+		.map((t) => ({ href: `/${t.slug}`, label: t.name }));
 
-const trendingLinks = linksFromTags(trendingSlugs);
+// Prefer curated hubs; fall back to other indexable tags so the footer never
+// points at noindexed or 301'd keyword pages.
+const trendingLinks = linksFromTags([
+	'nano-banana-prompt',
+	'nano-banana',
+	'nano-banana-ai',
+	'trending-gemini-prompt',
+	'holi-prompt',
+	'chatgpt-caricature-prompt',
+	'banana-prompt',
+]);
 
-const geminiSlugs = [
-	'gemini-ai-prompt',
-	'gemini-ai-prompt-copy-paste',
-	'prompt-gemini',
-	'prompt-for-gemini-ai',
-	'google-gemini-ai-photo',
-	'google-gemini-trending-photo-prompt',
-];
-const geminiLinks = linksFromTags(geminiSlugs);
-
-const photoSlugs = [
-	'gemini-ai-photo-prompt',
+const geminiLinks = linksFromTags([
 	'gemini-ai-photo-prompt-copy-paste',
-	'gemini-photo-prompt',
-	'gemini-photo-editing-prompt',
+	'gemini-ai-photo-prompt',
+	'prompt-for-gemini-ai',
 	'gemini-couple-photo-prompt',
-	'google-gemini-ai-photo-prompt',
-	'prompt-for-gemini-ai-girl',
+	'gemini-photo-editing-prompt',
+	'gemini-ai-photo-editor',
+]);
+
+const photoLinks = linksFromTags([
+	'photo-editing-prompt',
+	'chatgpt-photo-editing-prompt',
+	'ai-image-prompt',
+	'gemini-photo-prompt-for-man',
+	'gemini-photo-prompt-for-woman',
 	'couple-prompt',
-];
-const photoLinks = linksFromTags(photoSlugs);
+	'baby-krishna-ai-photo-editing-prompt',
+]);
 
-const creatorSlugs = [
-	'ai-prompt-ghaus-editz',
-	'ai-prompt-razz-suman',
-	'prompt-wala',
-	'prompt-by-vikas-editing',
-	'anup-sagar-prompt',
-	'mk-edit',
-	'banana-prompts',
-];
-const creatorLinks = linksFromTags(creatorSlugs);
+const hubExtraLinks = linksFromTags(
+	TAG_HUB_SLUGS.filter(
+		(s) =>
+			![
+				...trendingLinks.map((l) => l.href.slice(1)),
+				...geminiLinks.map((l) => l.href.slice(1)),
+				...photoLinks.map((l) => l.href.slice(1)),
+			].includes(s),
+	).slice(0, 8),
+);
 
-// LEARN — editorial indexes plus seed guides that map to /blog/<slug>.
 const learnLinks = [
 	{ href: '/news', label: 'AI News' },
 	{ href: '/blog', label: 'Blog' },
@@ -76,7 +70,6 @@ const learnLinks = [
 	...posts.map((p) => ({ href: `/blog/${p.slug}`, label: p.title })),
 ];
 
-// SITE — high-value UGC + account utility pages (legal links live in the bottom strip).
 const siteLinks = [
 	{ href: '/submit', label: 'Submit a prompt' },
 	{ href: '/saved', label: 'Saved prompts' },
@@ -90,14 +83,14 @@ const siteLinks = [
 	{ href: '/sitemap.xml', label: 'Sitemap' },
 ];
 
-// Each group renders as a real accordion at every viewport size. The aria
-// string must start with the visible label (axe: label-content-name-mismatch).
 const navGroups: { label: string; aria: string; items: { href: string; label: string }[] }[] = [
 	{ label: 'Browse', aria: 'Browse', items: browseLinks },
 	{ label: 'Trending', aria: 'Trending prompts', items: trendingLinks },
 	{ label: 'Gemini', aria: 'Gemini prompt links', items: geminiLinks },
 	{ label: 'Photos', aria: 'Photos — prompt links', items: photoLinks },
-	{ label: 'Creators', aria: 'Creators — prompt links', items: creatorLinks },
+	...(hubExtraLinks.length
+		? [{ label: 'More hubs', aria: 'More keyword hubs', items: hubExtraLinks }]
+		: []),
 	{ label: 'Learn', aria: 'Learn', items: learnLinks },
 	{ label: 'Site', aria: 'Site', items: siteLinks },
 ];
@@ -138,6 +131,12 @@ const navGroups: { label: string; aria: string; items: { href: string; label: st
 				<p class="footer-news-msg text-xs text-gray-400 mb-6" role="status" aria-live="polite" hidden></p>
 
 				<div class="flex items-center gap-4">
+					<a href="https://www.instagram.com/freepromptbase/" target="_blank" rel="noopener noreferrer" aria-label="Instagram @freepromptbase" class="text-gray-400 hover:text-primary transition-colors">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg>
+					</a>
+					<a href="https://www.facebook.com/1240248679172928" target="_blank" rel="noopener noreferrer" aria-label="Facebook Free Prompt Base" class="text-gray-400 hover:text-primary transition-colors">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+					</a>
 					<a href="https://github.com/boopul22" target="_blank" rel="noopener" aria-label="GitHub" class="text-gray-400 hover:text-primary transition-colors">
 						<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.009-.868-.013-1.703-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0 1 12 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.579.688.481C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z"/></svg>
 					</a>

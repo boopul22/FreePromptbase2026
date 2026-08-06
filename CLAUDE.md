@@ -10,12 +10,12 @@ for what each page should rank for:
 
 - [`seo/keyword-research.md`](seo/keyword-research.md) — seed keywords, clusters,
   volumes, difficulty, trends, and strategy.
-- [`seo/tracklist.md`](seo/tracklist.md) — the keyword → page (`/tag/<slug>`) mapping.
-  One primary keyword per page.
+- [`seo/tracklist.md`](seo/tracklist.md) — the keyword → page (`/<slug>`) mapping.
+ One primary keyword per page.
 
 **The short version:**
 1. **Nano Banana** cluster — our breakout growth topic (`nano banana prompt`, `nano banana ai`).
-   High volume, high difficulty. Flagship page: `/tag/nano-banana-prompt`.
+ High volume, high difficulty. Flagship page: `/nano-banana-prompt`.
 2. **Gemini AI photo prompt (copy-paste)** cluster — low difficulty, on-brand, India-led.
    Highest ROI. Best target: `gemini ai photo prompt copy paste` (KD 26).
 3. **`free ai prompts`** — evergreen brand anchor for the homepage.

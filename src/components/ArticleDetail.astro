@@ -38,6 +38,8 @@ const wasUpdated = new Date(updatedIso).getTime() - new Date(dateIso).getTime() 
 const formatVisibleDate = isNews ? fmtNewsDate : fmtDate;
 const dateLabel = wasUpdated ? `Updated ${formatVisibleDate(updatedIso)}` : formatVisibleDate(dateIso);
 const authorName = post.authorName || 'Admin';
+const authorProfilePath =
+	/bipul|boopul/i.test(authorName) ? '/author/boopul' : undefined;
 const sectionName = isNews ? 'News' : 'Blog';
 const sectionPath = isNews ? '/news' : '/blog';
 const articlePath = `${sectionPath}/${post.slug}`;
@@ -210,7 +212,13 @@ const postSchema = {
 	description: post.excerpt,
 	datePublished: new Date(dateIso).toISOString(),
 	dateModified: new Date(post.updatedAt ?? dateIso).toISOString(),
-	author: { '@type': 'Person', name: authorName },
+	author: {
+		'@type': 'Person',
+		name: authorName,
+		...(authorProfilePath
+			? { url: new URL(authorProfilePath, Astro.site).href }
+			: {}),
+	},
 	publisher: publisherBlock(),
 	url: postUrl,
 	mainEntityOfPage: { '@type': 'WebPage', '@id': postUrl },
@@ -343,7 +351,13 @@ const breadcrumb = breadcrumbSchema([
 						)
 					}
 					<div class="min-w-0">
-						<p class="text-sm font-semibold text-text-primary leading-tight">{authorName}</p>
+						<p class="text-sm font-semibold text-text-primary leading-tight">
+							{authorProfilePath ? (
+								<a href={authorProfilePath} class="hover:text-secondary transition-colors">{authorName}</a>
+							) : (
+								authorName
+							)}
+						</p>
 						<div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-[var(--ink-faint)] mt-0.5">
 							<time datetime={new Date(dateIso).toISOString()}>{dateLabel}</time>
 							<span aria-hidden="true">·</span>

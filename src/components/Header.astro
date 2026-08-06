@@ -57,12 +57,19 @@ const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 				isAdmin && (
 					<a
 						href="/admin/cms"
-						class="hidden lg:inline-flex shrink-0 whitespace-nowrap btn-primary text-sm"
+						class="hidden lg:inline-flex shrink-0 whitespace-nowrap btn-secondary text-sm"
 					>
 						Admin
 					</a>
 				)
 			}
+
+			<a
+				href="/tags"
+				class="hidden lg:inline-flex shrink-0 whitespace-nowrap btn-primary text-sm"
+			>
+				Browse
+			</a>
 
 			<a
 				href="/liked"
@@ -97,12 +104,12 @@ const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 					{!isAdmin && (
 						<a
 							href="/submit"
-							class="hidden lg:inline-flex shrink-0 whitespace-nowrap btn-primary text-sm"
+							class="hidden lg:inline-flex shrink-0 whitespace-nowrap btn-secondary text-sm"
 						>
 							<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 								<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
 							</svg>
-							Submit prompt
+							Submit
 						</a>
 					)}
 					<div class="hidden lg:block relative ml-2" data-profile-menu>
@@ -158,12 +165,12 @@ const instagramUrl = 'https://www.instagram.com/freepromptbase/';
 				) : (
 					<a
 						href="/submit"
-						class="hidden lg:inline-flex shrink-0 whitespace-nowrap btn-primary text-sm"
+						class="hidden lg:inline-flex shrink-0 whitespace-nowrap btn-secondary text-sm"
 					>
 						<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 							<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
 						</svg>
-						Submit prompt
+						Submit
 					</a>
 				)
 			}
