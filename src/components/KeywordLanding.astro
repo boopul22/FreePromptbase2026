@@ -47,18 +47,18 @@ const lowerPl = plural(lower);
 // Plain H1 = primary keyword (no templated marketing tails).
 const heading = name;
 const lead = isImage
-	? `Free ${lowerPl} you can copy in one tap. Paste into Gemini or ChatGPT, add your own photo, and create something worth sharing.`
-	: `Free, ready-to-use ${lowerPl}. Copy one, paste it into your favourite AI tool, and get to work.`;
+	? `Free ${lowerPl} ready to paste. Drop one into Gemini or ChatGPT, add your photo, and see what comes back.`
+	: `Free ${lowerPl} you can use right away. Copy one, paste it into your AI tool, and go.`;
 
 const article = getTagArticle(tag.slug);
 const bodyHtml =
 	article?.bodyHtml ??
-	`<p>Every ${lowerPl.replace(/\b\w/, (c) => c)} on this page is free to copy. Pick one above, paste it into Gemini, ChatGPT, or your image app, then swap in your own details.</p>`;
+	`<p>These ${lowerPl} are free to copy. Pick one from the grid, paste it into Gemini, ChatGPT, or your image app, then swap in your own details.</p>`;
 const faqs =
 	article?.faqs ?? [
 		{
 			q: `Are these ${lowerPl} free?`,
-			a: `Yes. Every prompt here is free and there is no signup. Copy any prompt and use it as often as you like.`,
+			a: `Yes. No signup. Copy any prompt here and reuse it as much as you want.`,
 		},
 	];
 
@@ -67,6 +67,7 @@ function plainExcerpt(html: string, maxWords = 90): string {
 		.replace(/<script[\s\S]*?<\/script>/gi, ' ')
 		.replace(/<style[\s\S]*?<\/style>/gi, ' ')
 		.replace(/<[^>]+>/g, ' ')
+		.replace(/[—–]/g, ', ')
 		.replace(/\s+/g, ' ')
 		.trim();
 	const words = text.split(' ').filter(Boolean);
@@ -77,8 +78,8 @@ const atfAnswer = plainExcerpt(bodyHtml, 85);
 
 const articleParts = splitAtNthH2(bodyHtml, 3);
 
-const title = `${name} — Free Prompts to Copy & Paste | Free Prompt Base`;
-const description = article?.metaDescription ?? tag.description;
+const title = `${name} | Free copy-paste prompts | Free Prompt Base`;
+const description = (article?.metaDescription ?? tag.description).replace(/[—–]/g, ', ');
 const indexable = isTagIndexable(tag.slug);
 const noindexTag = TAG_NOINDEX_SLUGS.has(tag.slug);
 
@@ -152,23 +153,26 @@ const firstCover = prompts[0]?.coverImage;
 			</h1>
 			<p class="text-gray-600 text-lg mt-3">{lead}</p>
 			<p class="text-sm text-gray-600 mt-2">
-				{prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'} · free · no signup
+				{prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'} here. Free, no signup.
 			</p>
 		</header>
 
-		<!-- Compact answer + steps above the fold / before the long grid. -->
 		<section class="mb-8 max-w-3xl rounded-base border border-gray-200 bg-soft/40 p-4 sm:p-5">
 			<p class="text-base text-text-primary leading-relaxed">
-				<strong>{atfAnswer}</strong>
+				{atfAnswer}
 			</p>
 			<ol class="mt-4 space-y-1.5 text-sm text-gray-700 list-decimal list-inside">
-				<li>Open a prompt card below and tap <strong>Copy</strong>.</li>
-				<li>Paste into Gemini, ChatGPT, or your image app.</li>
-				<li>{isImage ? 'Upload your photo and keep the face-preserve line.' : 'Swap in your details where the prompt asks.'}</li>
-				<li>Generate, tweak one detail, and save what works.</li>
+				<li>Tap <strong>Copy</strong> on a prompt below.</li>
+				<li>Paste it into Gemini, ChatGPT, or the app you use.</li>
+				<li>
+					{isImage
+						? 'Upload your photo. Leave the face-keep line alone if you want to still look like yourself.'
+						: 'Fill in your own names, places, and details where the prompt leaves room.'}
+				</li>
+				<li>Generate once. If it feels off, change one line and try again.</li>
 			</ol>
 			<a href="#prompt-grid" class="btn-primary inline-flex mt-4 text-sm">
-				Browse {prompts.length} free prompts
+				See the {prompts.length} prompts
 			</a>
 		</section>
 
@@ -185,7 +189,7 @@ const firstCover = prompts[0]?.coverImage;
 		{
 			!matched && prompts.length > 0 && (
 				<p class="text-sm text-gray-500 mt-6">
-					Showing popular prompts you can adapt for “{q}”.
+					Nothing matched "{q}" closely yet, so these are popular prompts you can adapt.
 				</p>
 			)
 		}
@@ -232,7 +236,7 @@ const firstCover = prompts[0]?.coverImage;
 											<polyline points="6 9 12 15 18 9" />
 										</svg>
 									</summary>
-									<p class="text-gray-700 leading-relaxed pb-4 -mt-1 max-w-[68ch]"><strong>{f.a}</strong></p>
+									<p class="text-gray-700 leading-relaxed pb-4 -mt-1 max-w-[68ch]">{f.a}</p>
 								</details>
 							))}
 						</div>

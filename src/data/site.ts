@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 export const collection = {
-	title: 'Free AI Prompts — Copy, Paste, Create',
+	title: 'Free AI prompts you can copy and paste',
 	description:
-		'Free AI prompts and photo editing prompts for Gemini, ChatGPT, Midjourney & Claude. Browse the library, copy in one tap, no signup.',
+		'Photo editing and image prompts for Gemini, ChatGPT, Midjourney, and Claude. Find one, paste it, make something. No account needed.',
 };
