@@ -594,33 +594,5 @@ const heading = prompt.title;
 		}
 	</main>
 
-	<!-- Sticky mobile Copy CTA — primary conversion when the prompt is below the fold. -->
-	<div
-		class="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur-sm p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
-		data-sticky-copy
-	>
-		<button
-			type="button"
-			class="btn-primary w-full justify-center py-3 text-base font-semibold"
-			data-sticky-copy-trigger
-		>
-			Copy prompt
-		</button>
-	</div>
-	<script>
-		document.querySelector('[data-sticky-copy-trigger]')?.addEventListener('click', () => {
-			const btn = document.querySelector<HTMLButtonElement>('[data-copy-btn]');
-			btn?.click();
-			const label = document.querySelector('[data-sticky-copy-trigger]');
-			if (label) {
-				const prev = label.textContent;
-				label.textContent = 'Copied!';
-				setTimeout(() => {
-					label.textContent = prev || 'Copy prompt';
-				}, 1800);
-			}
-		});
-	</script>
-
 	<Footer />
 </Layout>
