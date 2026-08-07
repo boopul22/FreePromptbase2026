@@ -461,13 +461,12 @@ const heading = prompt.title;
 			</button>
 		</div>
 
-		<!-- Copy first (conversion), ads after — never interrupt the copy path on mobile. -->
+		<AdSlot placement="prompt-above-copy" class="mb-6 mt-6" />
+
 		<div id="the-prompt" class="scroll-mt-24">
 			<CopyPromptButton text={prompt.promptText} slug={prompt.slug} />
 			<OpenInTools text={prompt.promptText} />
 		</div>
-
-		<AdSlot placement="prompt-above-copy" class="mt-6" />
 
 		<!-- How to use (tip card) -->
 		{
