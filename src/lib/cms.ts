@@ -43,6 +43,8 @@ export interface Post {
   relatedSlugs: string[];
   faqItems: FAQItem[];
   publishedAt: string | null;
+  /** Scheduled go-live (UTC 'YYYY-MM-DD HH:MM:SS'). Future = queued; null/past = live when published. */
+  publishAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -199,6 +201,7 @@ export function mapPostRow(row: any): Post {
     relatedSlugs: parseJsonArray(row.related_slugs),
     faqItems: parseJsonFaq(row.faq_items),
     publishedAt: row.published_at || null,
+    publishAt: row.publish_at || null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -226,6 +229,10 @@ function parseJsonFaq(raw: string | null): FAQItem[] {
 
 // --- Database Queries ---
 
+/** Live editorial posts: published and not still waiting on a future publish_at. */
+const POST_LIVE_P =
+  "p.status = 'published' AND (p.publish_at IS NULL OR p.publish_at <= datetime('now'))";
+
 export async function getPublishedPosts(
   db: D1Database,
   opts: { limit?: number; offset?: number; categoryId?: string; search?: string } = {},
@@ -233,7 +240,7 @@ export async function getPublishedPosts(
   const limit = opts.limit || 20;
   const offset = opts.offset || 0;
   const params: any[] = [];
-  let where = "WHERE p.status = 'published'";
+  let where = `WHERE ${POST_LIVE_P}`;
 
   if (opts.categoryId) {
     where += ' AND p.category_id = ?';
@@ -254,7 +261,7 @@ export async function getPublishedPosts(
     .prepare(
       `SELECT p.*, c.name as category_name, c.color as category_color
        FROM posts p LEFT JOIN categories c ON p.category_id = c.id
-       ${where} ORDER BY p.published_at DESC, p.created_at DESC LIMIT ? OFFSET ?`,
+       ${where} ORDER BY COALESCE(p.publish_at, p.published_at) DESC, p.created_at DESC LIMIT ? OFFSET ?`,
     )
     .bind(...params, limit, offset)
     .all();
@@ -321,7 +328,7 @@ export async function getPostBySlug(db: D1Database, slug: string): Promise<Post 
     .prepare(
       `SELECT p.*, c.name as category_name, c.color as category_color
        FROM posts p LEFT JOIN categories c ON p.category_id = c.id
-       WHERE p.slug = ? AND p.status = 'published'`,
+       WHERE p.slug = ? AND ${POST_LIVE_P}`,
     )
     .bind(slug)
     .first();
@@ -355,7 +362,8 @@ export async function getPostBySlugLocalized(
          FROM post_translations pt
          JOIN posts p ON p.id = pt.post_id
          LEFT JOIN categories c ON p.category_id = c.id
-         WHERE pt.locale = ? AND pt.slug = ? AND p.status = 'published'`,
+         WHERE pt.locale = ? AND pt.slug = ? AND p.status = 'published'
+           AND (p.publish_at IS NULL OR p.publish_at <= datetime('now'))`,
       )
       .bind(locale, slug)
       .first<any>();
@@ -386,7 +394,7 @@ export async function getRelatedPosts(db: D1Database, slugs: string[]): Promise<
     .prepare(
       `SELECT p.*, c.name as category_name, c.color as category_color
        FROM posts p LEFT JOIN categories c ON p.category_id = c.id
-       WHERE p.slug IN (${placeholders}) AND p.status = 'published'`,
+       WHERE p.slug IN (${placeholders}) AND ${POST_LIVE_P}`,
     )
     .bind(...slugs)
     .all();

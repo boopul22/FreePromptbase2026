@@ -21,7 +21,13 @@ export const GET: APIRoute = async ({ locals, url }) => {
   const params: any[] = [];
   let where = 'WHERE 1=1';
 
-  if (status && status !== 'all') {
+  if (status === 'scheduled') {
+    where +=
+      " AND p.status = 'published' AND p.publish_at IS NOT NULL AND p.publish_at > datetime('now')";
+  } else if (status === 'published') {
+    where +=
+      " AND p.status = 'published' AND (p.publish_at IS NULL OR p.publish_at <= datetime('now'))";
+  } else if (status && status !== 'all') {
     where += ' AND p.status = ?';
     params.push(status);
   }
@@ -40,11 +46,33 @@ export const GET: APIRoute = async ({ locals, url }) => {
     .first<{ count: number }>();
   const total = countResult?.count || 0;
 
+  const countsRow = await db
+    .prepare(
+      `SELECT
+         COUNT(*) AS all_n,
+         SUM(CASE WHEN status = 'published' AND (publish_at IS NULL OR publish_at <= datetime('now')) THEN 1 ELSE 0 END) AS published_n,
+         SUM(CASE WHEN status = 'published' AND publish_at IS NOT NULL AND publish_at > datetime('now') THEN 1 ELSE 0 END) AS scheduled_n,
+         SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) AS draft_n,
+         SUM(CASE WHEN status = 'archived' THEN 1 ELSE 0 END) AS archived_n
+       FROM posts`,
+    )
+    .first<{
+      all_n: number;
+      published_n: number;
+      scheduled_n: number;
+      draft_n: number;
+      archived_n: number;
+    }>();
+
   const rows = await db
     .prepare(
       `SELECT p.*, c.name as category_name, c.color as category_color
        FROM posts p LEFT JOIN categories c ON p.category_id = c.id
-       ${where} ORDER BY p.updated_at DESC LIMIT ? OFFSET ?`,
+       ${where} ORDER BY
+         CASE WHEN p.publish_at IS NOT NULL AND p.publish_at > datetime('now') THEN 0 ELSE 1 END,
+         p.publish_at ASC,
+         p.updated_at DESC
+       LIMIT ? OFFSET ?`,
     )
     .bind(...params, limit, offset)
     .all();
@@ -56,6 +84,13 @@ export const GET: APIRoute = async ({ locals, url }) => {
       total,
       page,
       totalPages: Math.ceil(total / limit),
+      counts: {
+        all: countsRow?.all_n ?? 0,
+        published: countsRow?.published_n ?? 0,
+        scheduled: countsRow?.scheduled_n ?? 0,
+        draft: countsRow?.draft_n ?? 0,
+        archived: countsRow?.archived_n ?? 0,
+      },
     }),
     { headers: { 'Content-Type': 'application/json' } },
   );

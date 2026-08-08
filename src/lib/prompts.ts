@@ -144,7 +144,13 @@ const NEWEST_ORDER = `date DESC, ${NEWEST_TS} DESC, slug ASC`;
 export async function getNextPublishAt(): Promise<string | null> {
 	const row = await getDB()
 		.prepare(
-			"SELECT MIN(publish_at) AS next FROM prompts WHERE status = 'approved' AND publish_at IS NOT NULL AND publish_at > datetime('now')",
+			`SELECT MIN(next) AS next FROM (
+				SELECT MIN(publish_at) AS next FROM prompts
+				WHERE status = 'approved' AND publish_at IS NOT NULL AND publish_at > datetime('now')
+				UNION ALL
+				SELECT MIN(publish_at) AS next FROM posts
+				WHERE status = 'published' AND publish_at IS NOT NULL AND publish_at > datetime('now')
+			)`,
 		)
 		.first<{ next: string | null }>();
 	return row?.next ?? null;

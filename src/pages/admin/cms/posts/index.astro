@@ -38,6 +38,7 @@ import Breadcrumb from '../../../../components/Breadcrumb.astro';
  <div class="flex flex-wrap gap-1" id="status-filters">
  <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-text-primary text-surface transition-all" data-status="all">All</button>
  <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="published">Published</button>
+ <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="scheduled">Scheduled</button>
  <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="draft">Drafts</button>
  <button class="px-3 py-1.5 rounded-full border border-gray-200 text-xs font-semibold uppercase bg-white hover:bg-gray-100 transition-all" data-status="archived">Archived</button>
  </div>
@@ -102,7 +103,7 @@ import Breadcrumb from '../../../../components/Breadcrumb.astro';
  currentPage = page;
 
  document.getElementById('post-subtitle')!.textContent =
- `${data.total} posts total`;
+ `${data.total} posts${data.counts?.scheduled ? ` · ${data.counts.scheduled} scheduled` : ''}`;
 
  const table = document.getElementById('posts-table')!;
  if (!data.posts?.length) {
@@ -112,9 +113,28 @@ import Breadcrumb from '../../../../components/Breadcrumb.astro';
  return;
  }
 
- const statusBadge = (status: string) => {
- if (status === 'published') return '<span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-blue-50 text-blue-900 border border-secondary">Published</span>';
- if (status === 'draft') return '<span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-amber-50 text-amber-900 border border-tertiary">Draft</span>';
+ const isScheduled = (p: any) => {
+ if (!p.publishAt || p.status !== 'published') return false;
+ // publish_at is UTC zone-less 'YYYY-MM-DD HH:MM:SS'
+ const t = Date.parse(String(p.publishAt).replace(' ', 'T') + 'Z');
+ return Number.isFinite(t) && t > Date.now();
+ };
+
+ const formatGoLive = (publishAt: string) => {
+ const t = Date.parse(String(publishAt).replace(' ', 'T') + 'Z');
+ if (!Number.isFinite(t)) return publishAt;
+ return new Date(t).toLocaleString(undefined, {
+ dateStyle: 'medium',
+ timeStyle: 'short',
+ });
+ };
+
+ const statusBadge = (p: any) => {
+ if (isScheduled(p)) {
+ return `<span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-violet-50 text-violet-900 border border-violet-300">Scheduled</span><div class="text-[10px] text-violet-700 mt-1">${esc(formatGoLive(p.publishAt))}</div>`;
+ }
+ if (p.status === 'published') return '<span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-blue-50 text-blue-900 border border-secondary">Published</span>';
+ if (p.status === 'draft') return '<span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-amber-50 text-amber-900 border border-tertiary">Draft</span>';
  return '<span class="px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-red-50 text-red-900 border border-red-300">Archived</span>';
  };
 
@@ -135,7 +155,7 @@ import Breadcrumb from '../../../../components/Breadcrumb.astro';
  <span>${esc(p.authorName)}</span>
  </div>
  </div>
- ${statusBadge(p.status)}
+ <div class="text-right shrink-0">${statusBadge(p)}</div>
  </div>
  <div class="flex flex-wrap items-center gap-2 mt-3">
  <a href="/admin/cms/posts/edit/${esc(p.id)}" class="btn-secondary btn-sm inline-flex items-center gap-1.5">
@@ -179,7 +199,7 @@ import Breadcrumb from '../../../../components/Breadcrumb.astro';
  </div>
  </td>
  <td class="px-3 py-2.5 text-sm text-gray-600">${esc(p.categoryName || '—')}</td>
- <td class="px-3 py-2.5 text-sm">${statusBadge(p.status)}</td>
+ <td class="px-3 py-2.5 text-sm">${statusBadge(p)}</td>
  <td class="px-3 py-2.5 text-sm text-gray-600">${esc(p.authorName)}</td>
  <td class="px-3 py-2.5 text-sm text-gray-600">${new Date(p.updatedAt).toLocaleDateString()}</td>
  <td class="px-3 py-2.5 text-sm">
