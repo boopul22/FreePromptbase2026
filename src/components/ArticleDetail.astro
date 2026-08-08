@@ -4,6 +4,7 @@ import Breadcrumb from './Breadcrumb.astro';
 import Header from './Header.astro';
 import Footer from './Footer.astro';
 import BlogShare from './BlogShare.astro';
+import BlogComments from './BlogComments.astro';
 import AdSlot from './AdSlot.astro';
 import { splitAtNthH2 } from '../lib/ads';
 import { getRelatedPosts, postReadTime, type Post } from '../lib/posts';
@@ -487,6 +488,8 @@ const breadcrumb = breadcrumbSchema([
 						</section>
 					)
 				}
+
+				<BlogComments postId={post.id} articlePath={articlePath} />
 			</article>
 
 			<!-- RIGHT RAIL: Share + Related + Promo (lg+) -->

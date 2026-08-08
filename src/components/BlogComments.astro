@@ -1,0 +1,564 @@
+---
+import { listVisibleComments, countVisibleComments, type Comment } from '../lib/comments';
+import { getDB } from '../lib/db';
+
+interface Props {
+	postId: string;
+	articlePath: string;
+}
+
+const { postId, articlePath } = Astro.props as Props;
+const user = Astro.locals.user;
+
+let comments: Comment[] = [];
+let totalCount = 0;
+try {
+	const db = getDB(Astro.locals);
+	[comments, totalCount] = await Promise.all([
+		listVisibleComments(db, postId),
+		countVisibleComments(db, postId),
+	]);
+} catch {
+	// Table may not exist until migration is applied — fail soft.
+}
+
+function initials(name: string): string {
+	return name
+		.trim()
+		.split(/\s+/)
+		.map((w) => w[0])
+		.slice(0, 2)
+		.join('')
+		.toUpperCase() || '?';
+}
+
+function formatRelative(iso: string): string {
+	const then = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T') + 'Z').getTime();
+	const diff = Date.now() - then;
+	const mins = Math.floor(diff / 60_000);
+	if (mins < 1) return 'just now';
+	if (mins < 60) return `${mins}m ago`;
+	const hours = Math.floor(mins / 60);
+	if (hours < 24) return `${hours}h ago`;
+	const days = Math.floor(hours / 24);
+	if (days < 30) return `${days}d ago`;
+	return new Date(then).toLocaleDateString('en-US', {
+		month: 'short',
+		day: 'numeric',
+		year: 'numeric',
+	});
+}
+
+const loginHref = '/api/auth/login';
+const seedJson = JSON.stringify({
+	postId,
+	userId: user?.id ?? null,
+	isAdmin: user?.role === 'admin',
+}).replace(/</g, '\\u003c');
+---
+
+<section
+	id="comments"
+	class="blog-comments mt-14 pt-10 border-t border-[var(--hairline)]"
+	data-blog-comments
+	data-post-id={postId}
+>
+	<p class="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--ink-faint)] mb-2">
+		Community
+	</p>
+	<div class="flex items-baseline justify-between gap-3 mb-6">
+		<h2 class="text-2xl font-bold text-text-primary m-0">
+			Comments
+			{
+				totalCount > 0 && (
+					<span class="text-lg font-semibold text-[var(--ink-faint)]" data-comment-count>
+						({totalCount})
+					</span>
+				)
+			}
+			{
+				totalCount === 0 && (
+					<span class="text-lg font-semibold text-[var(--ink-faint)] hidden" data-comment-count></span>
+				)
+			}
+		</h2>
+	</div>
+
+	{
+		user ? (
+			<form class="blog-comments__compose mb-8" data-comment-form data-parent-id="">
+				<label for="blog-comment-body" class="sr-only">Write a comment</label>
+				<textarea
+					id="blog-comment-body"
+					name="body"
+					rows="3"
+					maxlength="2000"
+					required
+					placeholder="Share a thought about this article…"
+					class="blog-comments__textarea"
+				></textarea>
+				<div class="mt-3 flex items-center justify-between gap-3">
+					<p class="text-xs text-[var(--ink-faint)]">
+						Signed in as {user.name}. No links — spam is blocked.
+					</p>
+					<button type="submit" class="btn-primary btn-sm" data-comment-submit>
+						Post comment
+					</button>
+				</div>
+				<p class="text-xs text-red-600 mt-2 hidden" data-comment-error></p>
+			</form>
+		) : (
+			<div class="mb-8 rounded-base border border-[var(--hairline)] bg-[var(--paper)] px-5 py-5">
+				<p class="text-sm text-[var(--ink-soft)] leading-relaxed m-0">
+					<a href={loginHref} rel="nofollow" class="text-primary font-semibold hover:underline">
+						Sign in with Google
+					</a>
+					{' '}to join the discussion.
+				</p>
+			</div>
+		)
+	}
+
+	<div class="blog-comments__list space-y-6" data-comment-list>
+		{
+			comments.length === 0 ? (
+				<p class="text-sm text-[var(--ink-faint)]" data-comments-empty>
+					No comments yet. Be the first to share your take.
+				</p>
+			) : (
+				comments.map((c) => (
+					<article class="blog-comments__item" data-comment-id={c.id} data-parent="">
+						<div class="flex gap-3">
+							{c.author.avatarUrl ? (
+								<img
+									src={c.author.avatarUrl}
+									alt=""
+									referrerpolicy="no-referrer"
+									class="blog-comments__avatar"
+									width="40"
+									height="40"
+									loading="lazy"
+								/>
+							) : (
+								<div class="blog-comments__avatar blog-comments__avatar--fallback" aria-hidden="true">
+									{initials(c.author.name)}
+								</div>
+							)}
+							<div class="min-w-0 flex-1">
+								<div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+									{c.author.username ? (
+										<a href={`/author/${c.author.username}`} class="text-sm font-semibold text-text-primary hover:text-primary">
+											{c.author.name}
+										</a>
+									) : (
+										<span class="text-sm font-semibold text-text-primary">{c.author.name}</span>
+									)}
+									<time class="text-xs text-[var(--ink-faint)]" datetime={c.createdAt}>
+										{formatRelative(c.createdAt)}
+									</time>
+								</div>
+								<p class="blog-comments__body mt-1.5 text-sm text-[var(--ink-soft)] whitespace-pre-wrap break-words">
+									{c.body}
+								</p>
+								<div class="mt-2 flex flex-wrap items-center gap-3">
+									{user && (
+										<button
+											type="button"
+											class="text-xs font-semibold text-[var(--ink-faint)] hover:text-primary"
+											data-reply-to={c.id}
+											data-reply-name={c.author.name}
+										>
+											Reply
+										</button>
+									)}
+									{(user?.id === c.userId || user?.role === 'admin') && (
+										<button
+											type="button"
+											class="text-xs font-semibold text-[var(--ink-faint)] hover:text-red-600"
+											data-delete-comment={c.id}
+										>
+											Delete
+										</button>
+									)}
+								</div>
+							</div>
+						</div>
+
+						<div
+							class:list={[
+								'blog-comments__replies mt-4 ml-4 sm:ml-12 space-y-4 border-l border-[var(--hairline)] pl-4',
+								c.replies.length === 0 && 'hidden',
+							]}
+							data-replies-for={c.id}
+						>
+							{c.replies.map((r) => (
+								<article class="blog-comments__item" data-comment-id={r.id} data-parent={c.id}>
+									<div class="flex gap-3">
+										{r.author.avatarUrl ? (
+											<img
+												src={r.author.avatarUrl}
+												alt=""
+												referrerpolicy="no-referrer"
+												class="blog-comments__avatar blog-comments__avatar--sm"
+												width="32"
+												height="32"
+												loading="lazy"
+											/>
+										) : (
+											<div
+												class="blog-comments__avatar blog-comments__avatar--sm blog-comments__avatar--fallback"
+												aria-hidden="true"
+											>
+												{initials(r.author.name)}
+											</div>
+										)}
+										<div class="min-w-0 flex-1">
+											<div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+												{r.author.username ? (
+													<a
+														href={`/author/${r.author.username}`}
+														class="text-sm font-semibold text-text-primary hover:text-primary"
+													>
+														{r.author.name}
+													</a>
+												) : (
+													<span class="text-sm font-semibold text-text-primary">{r.author.name}</span>
+												)}
+												<time class="text-xs text-[var(--ink-faint)]" datetime={r.createdAt}>
+													{formatRelative(r.createdAt)}
+												</time>
+											</div>
+											<p class="blog-comments__body mt-1.5 text-sm text-[var(--ink-soft)] whitespace-pre-wrap break-words">
+												{r.body}
+											</p>
+											{(user?.id === r.userId || user?.role === 'admin') && (
+												<div class="mt-2">
+													<button
+														type="button"
+														class="text-xs font-semibold text-[var(--ink-faint)] hover:text-red-600"
+														data-delete-comment={r.id}
+													>
+														Delete
+													</button>
+												</div>
+											)}
+										</div>
+									</div>
+								</article>
+							))}
+						</div>
+					</article>
+				))
+			)
+		}
+	</div>
+
+	{
+		user && (
+			<template data-reply-form-template>
+				<form class="blog-comments__compose mt-3 ml-4 sm:ml-12" data-reply-form>
+					<label class="sr-only">Write a reply</label>
+					<textarea
+						name="body"
+						rows="2"
+						maxlength="2000"
+						required
+						placeholder="Write a reply…"
+						class="blog-comments__textarea"
+					></textarea>
+					<div class="mt-2 flex items-center gap-2">
+						<button type="submit" class="btn-primary btn-sm">Reply</button>
+						<button type="button" class="btn-secondary btn-sm" data-cancel-reply>Cancel</button>
+					</div>
+					<p class="text-xs text-red-600 mt-2 hidden" data-comment-error></p>
+				</form>
+			</template>
+		)
+	}
+</section>
+
+<style>
+	.blog-comments__textarea {
+		width: 100%;
+		resize: vertical;
+		min-height: 5rem;
+		padding: 0.75rem 0.9rem;
+		border: 1px solid var(--hairline);
+		border-radius: var(--radius-md, 0.5rem);
+		background: var(--paper);
+		color: var(--ink, inherit);
+		font-size: 0.875rem;
+		line-height: 1.5;
+	}
+	.blog-comments__textarea:focus {
+		outline: 2px solid color-mix(in srgb, var(--primary, #2563eb) 40%, transparent);
+		outline-offset: 1px;
+		border-color: var(--primary, #2563eb);
+	}
+	.blog-comments__avatar {
+		width: 40px;
+		height: 40px;
+		border-radius: 9999px;
+		object-fit: cover;
+		background: var(--paper);
+		flex-shrink: 0;
+	}
+	.blog-comments__avatar--sm {
+		width: 32px;
+		height: 32px;
+	}
+	.blog-comments__avatar--fallback {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--ink-faint);
+		background: color-mix(in srgb, var(--hairline) 60%, white);
+	}
+</style>
+
+<script define:vars={{ seedJson, articlePath }}>
+	const seed = JSON.parse(seedJson);
+	const root = document.querySelector('[data-blog-comments]');
+	if (!root) {
+		/* no-op */
+	} else {
+		const list = root.querySelector('[data-comment-list]');
+		const compose = root.querySelector('[data-comment-form]');
+		const countEl = root.querySelector('[data-comment-count]');
+		const emptyEl = root.querySelector('[data-comments-empty]');
+		const replyTpl = root.querySelector('[data-reply-form-template]');
+
+		function escapeHtml(s) {
+			return String(s)
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;');
+		}
+
+		function setError(form, msg) {
+			const el = form.querySelector('[data-comment-error]');
+			if (!el) return;
+			if (msg) {
+				el.textContent = msg;
+				el.classList.remove('hidden');
+			} else {
+				el.textContent = '';
+				el.classList.add('hidden');
+			}
+		}
+
+		function bumpCount(delta) {
+			if (!countEl) return;
+			const current = Number((countEl.textContent || '').replace(/[^\d]/g, '') || '0');
+			const next = Math.max(0, current + delta);
+			if (next === 0) {
+				countEl.textContent = '';
+				countEl.classList.add('hidden');
+			} else {
+				countEl.textContent = `(${next})`;
+				countEl.classList.remove('hidden');
+			}
+		}
+
+		function authorLink(author) {
+			const name = escapeHtml(author.name || 'User');
+			if (author.username) {
+				return `<a href="/author/${escapeHtml(author.username)}" class="text-sm font-semibold text-text-primary hover:text-primary">${name}</a>`;
+			}
+			return `<span class="text-sm font-semibold text-text-primary">${name}</span>`;
+		}
+
+		function avatarHtml(author, sm) {
+			const size = sm ? 'blog-comments__avatar blog-comments__avatar--sm' : 'blog-comments__avatar';
+			if (author.avatarUrl) {
+				return `<img src="${escapeHtml(author.avatarUrl)}" alt="" referrerpolicy="no-referrer" class="${size}" width="${sm ? 32 : 40}" height="${sm ? 32 : 40}" />`;
+			}
+			const ini = escapeHtml(
+				String(author.name || '?')
+					.trim()
+					.split(/\s+/)
+					.map((w) => w[0])
+					.slice(0, 2)
+					.join('')
+					.toUpperCase() || '?',
+			);
+			return `<div class="${size} blog-comments__avatar--fallback" aria-hidden="true">${ini}</div>`;
+		}
+
+		function canDelete(comment) {
+			return seed.userId && (seed.userId === comment.userId || seed.isAdmin);
+		}
+
+		function renderComment(comment, isReply) {
+			const delBtn = canDelete(comment)
+				? `<button type="button" class="text-xs font-semibold text-[var(--ink-faint)] hover:text-red-600" data-delete-comment="${escapeHtml(comment.id)}">Delete</button>`
+				: '';
+			const replyBtn =
+				!isReply && seed.userId
+					? `<button type="button" class="text-xs font-semibold text-[var(--ink-faint)] hover:text-primary" data-reply-to="${escapeHtml(comment.id)}" data-reply-name="${escapeHtml(comment.author.name)}">Reply</button>`
+					: '';
+			const actions =
+				replyBtn || delBtn
+					? `<div class="mt-2 flex flex-wrap items-center gap-3">${replyBtn}${delBtn}</div>`
+					: '';
+
+			return `<article class="blog-comments__item" data-comment-id="${escapeHtml(comment.id)}" data-parent="${escapeHtml(comment.parentId || '')}">
+				<div class="flex gap-3">
+					${avatarHtml(comment.author, !!isReply)}
+					<div class="min-w-0 flex-1">
+						<div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+							${authorLink(comment.author)}
+							<time class="text-xs text-[var(--ink-faint)]" datetime="${escapeHtml(comment.createdAt)}">just now</time>
+						</div>
+						<p class="blog-comments__body mt-1.5 text-sm text-[var(--ink-soft)] whitespace-pre-wrap break-words">${escapeHtml(comment.body)}</p>
+						${actions}
+					</div>
+				</div>
+				${!isReply ? `<div class="blog-comments__replies mt-4 ml-4 sm:ml-12 space-y-4 border-l border-[var(--hairline)] pl-4" data-replies-for="${escapeHtml(comment.id)}"></div>` : ''}
+			</article>`;
+		}
+
+		async function postComment(body, parentId) {
+			const res = await fetch('/api/blog/comments', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					postId: seed.postId,
+					body,
+					parentId: parentId || null,
+				}),
+			});
+			const data = await res.json().catch(() => ({}));
+			if (!res.ok) throw new Error(data.error || 'Failed to post comment');
+			return data.comment;
+		}
+
+		if (compose) {
+			compose.addEventListener('submit', async (e) => {
+				e.preventDefault();
+				const form = e.currentTarget;
+				const ta = form.querySelector('textarea');
+				const btn = form.querySelector('[data-comment-submit]');
+				const text = (ta?.value || '').trim();
+				if (!text) return;
+				setError(form, '');
+				if (btn) btn.disabled = true;
+				try {
+					const comment = await postComment(text, null);
+					emptyEl?.remove();
+					const wrap = document.createElement('div');
+					wrap.innerHTML = renderComment(comment, false);
+					const node = wrap.firstElementChild;
+					if (node && list) list.appendChild(node);
+					if (ta) ta.value = '';
+					bumpCount(1);
+				} catch (err) {
+					setError(form, err.message || 'Something went wrong');
+				} finally {
+					if (btn) btn.disabled = false;
+				}
+			});
+		}
+
+		root.addEventListener('click', async (e) => {
+			const target = e.target;
+			if (!(target instanceof HTMLElement)) return;
+
+			const replyBtn = target.closest('[data-reply-to]');
+			if (replyBtn && replyTpl && list) {
+				const parentId = replyBtn.getAttribute('data-reply-to');
+				const item = replyBtn.closest('[data-comment-id]');
+				if (!parentId || !item) return;
+				root.querySelectorAll('[data-reply-form]').forEach((f) => f.remove());
+				const clone = replyTpl.content.cloneNode(true);
+				const form = clone.querySelector('[data-reply-form]');
+				if (!form) return;
+				form.dataset.parentId = parentId;
+				let replies = item.querySelector(`[data-replies-for="${parentId}"]`);
+				if (!replies) {
+					replies = document.createElement('div');
+					replies.className =
+						'blog-comments__replies mt-4 ml-4 sm:ml-12 space-y-4 border-l border-[var(--hairline)] pl-4';
+					replies.setAttribute('data-replies-for', parentId);
+					item.appendChild(replies);
+				}
+				replies.classList.remove('hidden');
+				replies.appendChild(clone);
+				form.querySelector('textarea')?.focus();
+				return;
+			}
+
+			const cancel = target.closest('[data-cancel-reply]');
+			if (cancel) {
+				cancel.closest('[data-reply-form]')?.remove();
+				return;
+			}
+
+			const del = target.closest('[data-delete-comment]');
+			if (del) {
+				const id = del.getAttribute('data-delete-comment');
+				if (!id || !confirm('Delete this comment?')) return;
+				del.disabled = true;
+				try {
+					const res = await fetch(`/api/blog/comments/${encodeURIComponent(id)}`, {
+						method: 'DELETE',
+					});
+					const data = await res.json().catch(() => ({}));
+					if (!res.ok) throw new Error(data.error || 'Failed to delete');
+					const article = root.querySelector(`[data-comment-id="${id}"]`);
+					if (article) {
+						const nested = article.querySelectorAll('[data-comment-id]').length;
+						article.remove();
+						bumpCount(-(1 + nested));
+					}
+				} catch (err) {
+					alert(err.message || 'Failed to delete');
+					del.disabled = false;
+				}
+			}
+		});
+
+		root.addEventListener('submit', async (e) => {
+			const form = e.target;
+			if (!(form instanceof HTMLFormElement) || !form.matches('[data-reply-form]')) return;
+			e.preventDefault();
+			const parentId = form.dataset.parentId || '';
+			const ta = form.querySelector('textarea');
+			const text = (ta?.value || '').trim();
+			if (!text || !parentId) return;
+			setError(form, '');
+			const btn = form.querySelector('button[type="submit"]');
+			if (btn) btn.disabled = true;
+			try {
+				const comment = await postComment(text, parentId);
+				const parent = root.querySelector(`[data-comment-id="${parentId}"]`);
+				let replies = parent?.querySelector(`[data-replies-for="${parentId}"]`);
+				if (parent && !replies) {
+					replies = document.createElement('div');
+					replies.className =
+						'blog-comments__replies mt-4 ml-4 sm:ml-12 space-y-4 border-l border-[var(--hairline)] pl-4';
+					replies.setAttribute('data-replies-for', parentId);
+					parent.appendChild(replies);
+				}
+				if (replies) {
+					replies.classList.remove('hidden');
+					const wrap = document.createElement('div');
+					wrap.innerHTML = renderComment(comment, true);
+					const node = wrap.firstElementChild;
+					if (node) replies.appendChild(node);
+				}
+				form.remove();
+				bumpCount(1);
+			} catch (err) {
+				setError(form, err.message || 'Something went wrong');
+				if (btn) btn.disabled = false;
+			}
+		});
+
+		// Keep articlePath referenced so define:vars isn't tree-shaken unused in some builds.
+		void articlePath;
+	}
+</script>

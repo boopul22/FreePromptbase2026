@@ -10,6 +10,7 @@ DROP TABLE IF EXISTS subscribers;
 DROP TABLE IF EXISTS activity_log;
 DROP TABLE IF EXISTS pages;
 DROP TABLE IF EXISTS media;
+DROP TABLE IF EXISTS post_comments;
 DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS sessions;
@@ -204,6 +205,9 @@ CREATE TABLE posts (
 	related_slugs TEXT NOT NULL DEFAULT '[]',
 	faq_items TEXT NOT NULL DEFAULT '[]',
 	published_at TEXT,
+	-- Scheduled go-live (UTC 'YYYY-MM-DD HH:MM:SS'). NULL = live as soon as
+	-- status='published'. Public routes gate with publish_at <= now (no cron).
+	publish_at TEXT,
 	created_at TEXT NOT NULL DEFAULT (datetime('now')),
 	updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -211,6 +215,24 @@ CREATE INDEX idx_posts_slug ON posts(slug);
 CREATE INDEX idx_posts_status ON posts(status);
 CREATE INDEX idx_posts_category_id ON posts(category_id);
 CREATE INDEX idx_posts_content_type ON posts(content_type);
+CREATE INDEX idx_posts_publish_at ON posts(publish_at);
+
+-- Blog/news comments (Google-login community discussion under articles).
+CREATE TABLE post_comments (
+	id          TEXT PRIMARY KEY,
+	post_id     TEXT NOT NULL,
+	user_id     TEXT NOT NULL,
+	parent_id   TEXT,
+	body        TEXT NOT NULL,
+	status      TEXT NOT NULL DEFAULT 'visible',  -- 'visible' | 'hidden' | 'deleted'
+	created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+	updated_at  TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX idx_post_comments_post_status_created
+	ON post_comments(post_id, status, created_at);
+CREATE INDEX idx_post_comments_user_id ON post_comments(user_id);
+CREATE INDEX idx_post_comments_parent_id ON post_comments(parent_id);
+CREATE INDEX idx_post_comments_created_at ON post_comments(created_at);
 
 CREATE TABLE media (
 	id TEXT PRIMARY KEY,
