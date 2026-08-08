@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import IconSprite from '../components/IconSprite.astro';
+import BackToTop from '../components/BackToTop.astro';
 
 interface Props {
 	title?: string;
@@ -323,5 +324,6 @@ const organizationSchema = {
 	<body class="min-h-screen flex flex-col">
 		<IconSprite />
 		<slot />
+		{!noindex && <BackToTop />}
 	</body>
 </html>
