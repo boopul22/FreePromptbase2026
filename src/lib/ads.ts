@@ -33,7 +33,9 @@ export const AD_SLOTS: Record<AdPlacement, AdSlotConfig> = {
 	// display fill alongside the rewarded copy gate, which only monetizes when
 	// rewarded inventory exists. ("FPB - Copy gate" 6138440036 stays unused.)
 	'prompt-above-copy': { slot: '1615184167', format: 'display', minHeight: 280 },
-	'prompt-above-related': { slot: '7689637921', format: 'display', minHeight: 100 },
+	// Responsive display inventory commonly resolves to a 250px creative on
+	// phones. Reserve the full frame instead of allowing it to grow from 100px.
+	'prompt-above-related': { slot: '7689637921', format: 'display', minHeight: 280 },
 	'infeed-card': { slot: '9681376442', format: 'in-feed', layoutKey: '-6t+ed+2i-1n-4w', minHeight: 320 },
 	'tag-article-mid': { slot: '5731321905', format: 'in-article', minHeight: 250 },
 	'tag-after-faq': { slot: '1650843185', format: 'display', minHeight: 280 },

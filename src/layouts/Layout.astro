@@ -73,13 +73,11 @@ const offerwallGateInit = `(function () {
 	};
 })();`;
 
-// Ad script loader — injects adsbygoogle.js after window load instead of as a
-// blocking-bandwidth <script async> tag in the head. The ad stack was
-// contending with the LCP image on slow mobile connections (Lighthouse LCP
-// 6.2s). The API is queue-based (the adsbygoogle array), so AdSlot pushes made
-// before the script arrives are processed on load. A fallback timer still
-// loads it if a hanging resource delays the load event, so no pageview ever
-// skips ads entirely.
+// Start AdSense once the DOM is ready. Waiting for window.load made ads depend
+// on every image/font request and regularly left mobile visitors staring at an
+// empty reserved slot for several seconds. requestIdleCallback keeps the fetch
+// out of the parser/LCP path, while its short timeout prevents a busy page from
+// starving the request. AdSlot can safely queue pushes before this arrives.
 const adScriptsInit = `(function () {
 	var done = false;
 	function load() {
@@ -91,11 +89,17 @@ const adScriptsInit = `(function () {
 		s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7803867089582138';
 		document.head.appendChild(s);
 	}
-	if (document.readyState === 'complete') {
-		load();
+	function schedule() {
+		if ('requestIdleCallback' in window) {
+			window.requestIdleCallback(load, { timeout: 1200 });
+		} else {
+			setTimeout(load, 250);
+		}
+	}
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', schedule, { once: true });
 	} else {
-		window.addEventListener('load', load, { once: true });
-		setTimeout(load, 6000);
+		schedule();
 	}
 })();`;
 
@@ -237,8 +241,10 @@ const organizationSchema = {
 		{/* Google AdSense loader — site-wide on public pages; skipped on
 		   noindex admin/CMS pages so ads never render in the dashboard. The
 		   Offerwall-control script must come first (see offerwallGateInit);
-		   the actual ad scripts are injected post-load (see adScriptsInit). */}
+		   the ad script is scheduled after DOM ready (see adScriptsInit). */}
 		{!noindex && <script is:inline set:html={offerwallGateInit} />}
+		{!noindex && <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin="anonymous" />}
+		{!noindex && <link rel="dns-prefetch" href="https://googleads.g.doubleclick.net" />}
 		{!noindex && <script is:inline set:html={adScriptsInit} />}
 
 		<link rel="icon" type="image/svg+xml" href="/logo.svg" />

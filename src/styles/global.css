@@ -942,7 +942,10 @@ button:disabled.is-loading {
    ========================================================================== */
 .ad-slot {
 	margin-block: 1.75rem;
+	height: var(--ad-reserved-height, 280px);
+	min-height: var(--ad-reserved-height, 280px);
 	overflow: hidden;
+	contain: layout paint;
 }
 
 .ad-slot__label {
@@ -965,6 +968,15 @@ button:disabled.is-loading {
 	border-radius: var(--radius-base);
 	box-shadow: 3px 3px 0 0 rgba(33, 29, 22, 0.9);
 	padding: 0.75rem;
+}
+
+/* AdSense may stamp a larger inline height on responsive units after its
+   auction completes. Keep that late mutation inside the already-reserved
+   frame so the document and masonry columns never reflow. */
+.ad-slot > ins.adsbygoogle {
+	width: 100% !important;
+	max-height: calc(var(--ad-reserved-height, 280px) - 20px);
+	overflow: hidden;
 }
 
 /* Keep reserved height when AdSense marks a slot unfilled — collapsing with

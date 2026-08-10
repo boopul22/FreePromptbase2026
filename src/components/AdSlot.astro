@@ -24,7 +24,7 @@ const enabled = ADS_ENABLED && !!cfg.slot && (cfg.format !== 'in-feed' || !!cfg.
 	enabled && (
 		<div
 			class:list={['ad-slot', variant === 'card' && 'ad-slot--card masonry-item', className]}
-			style={`min-height:${cfg.minHeight}px`}
+			style={`--ad-reserved-height:${cfg.minHeight}px`}
 			data-ad-box
 			data-ad-card={variant === 'card' ? '' : undefined}
 			data-client={AD_CLIENT}
@@ -76,7 +76,9 @@ const enabled = ADS_ENABLED && !!cfg.slot && (cfg.format !== 'in-feed' || !!cfg.
 				}
 			}
 		},
-		{ rootMargin: '400px 0px' },
+		// Fetch far enough ahead that an ad is normally ready before a mobile
+		// user reaches it. This does not create ins elements for hidden tabs.
+		{ rootMargin: '1200px 0px' },
 	);
 
 	(window as any).__fpbAdsObserve = () => {
