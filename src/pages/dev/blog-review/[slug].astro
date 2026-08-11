@@ -1,0 +1,146 @@
+---
+/**
+ * LOCAL DRAFT REVIEW — renders any draft from content/blog-drafts via ArticleDetail.
+ * Not available in production.
+ */
+import ArticleDetail from '../../../components/ArticleDetail.astro';
+import type { Post } from '../../../lib/posts';
+
+export const prerender = false;
+
+if (import.meta.env.PROD) {
+	return Astro.rewrite('/404');
+}
+
+const { slug } = Astro.params;
+if (!slug) {
+	return Astro.rewrite('/404');
+}
+
+const htmlModules = import.meta.glob('../../../../content/blog-drafts/*.html', {
+	eager: true,
+	query: '?raw',
+	import: 'default',
+}) as Record<string, string>;
+
+const metaModules = import.meta.glob('../../../../content/blog-drafts/*.meta.json', {
+	eager: true,
+}) as Record<string, { default?: Record<string, unknown> } | Record<string, unknown>>;
+
+const catalogModules = import.meta.glob('../../../../content/blog-drafts/catalog-30.json', {
+	eager: true,
+}) as Record<
+	string,
+	| {
+			default?: {
+				blogs: Array<{ id: string; slug: string; title: string; primaryKw: string }>;
+			};
+	  }
+	| { blogs: Array<{ id: string; slug: string; title: string; primaryKw: string }> }
+>;
+
+function unwrap<T>(mod: { default?: T } | T): T {
+	if (mod && typeof mod === 'object' && 'default' in mod && mod.default !== undefined) {
+		return mod.default as T;
+	}
+	return mod as T;
+}
+
+const catalog = unwrap(Object.values(catalogModules)[0]);
+const blogList = catalog.blogs;
+const blog = blogList.find((b) => b.slug === slug);
+const idx = blogList.findIndex((b) => b.slug === slug);
+const prev = idx > 0 ? blogList[idx - 1] : null;
+const next = idx >= 0 && idx < blogList.length - 1 ? blogList[idx + 1] : null;
+
+const htmlKey = Object.keys(htmlModules).find((k) => k.endsWith(`/${slug}.html`));
+const metaKey = Object.keys(metaModules).find((k) => k.endsWith(`/${slug}.meta.json`));
+
+if (!htmlKey || !metaKey) {
+	return Astro.rewrite('/404');
+}
+
+const htmlContent = htmlModules[htmlKey];
+const meta = unwrap(metaModules[metaKey]) as {
+	slug: string;
+	title?: string;
+	primaryKw?: string;
+	coverImage?: string;
+	promptImages?: string[];
+	status?: string;
+	excerpt?: string;
+	metaTitle?: string;
+	metaDescription?: string;
+};
+
+const title = meta.title || blog?.title || slug;
+const primaryKw = meta.primaryKw || blog?.primaryKw || slug;
+const coverImage = meta.coverImage || '';
+const now = new Date().toISOString();
+
+const post: Post = {
+	id: `local-draft-${blog?.id || slug}`,
+	slug,
+	title,
+	excerpt:
+		meta.excerpt ||
+		`Local draft preview by Bipul Kumar. Primary keyword: ${primaryKw}.`,
+	content: { intro: '', sections: [], outro: '' },
+	htmlContent,
+	categoryId: null,
+	categoryName: null,
+	categoryColor: null,
+	authorName: 'Bipul Kumar',
+	authorRole: 'Founder',
+	authorAvatar: '',
+	featured: false,
+	status: 'draft',
+	contentType: 'guide',
+	sourceUrl: null,
+	coverImage,
+	iconFallback: null,
+	iconBg: null,
+	readTime: '8 min read',
+	metaTitle: meta.metaTitle || title,
+	metaDescription:
+		meta.metaDescription ||
+		`Copy-paste ${primaryKw} prompts. Local draft review only.`,
+	relatedSlugs: [],
+	faqItems: [],
+	publishedAt: now,
+	createdAt: now,
+	updatedAt: now,
+};
+---
+
+<div class="fixed top-0 inset-x-0 z-[100] bg-amber-500 text-black text-sm font-semibold">
+	<div class="max-w-5xl mx-auto px-3 py-2 flex flex-wrap items-center justify-between gap-2">
+		<a href="/dev/blog-review" class="underline underline-offset-2">← All drafts</a>
+		<span>
+			LOCAL DRAFT {blog?.id || ''} — not published
+		</span>
+		<span class="flex gap-3">
+			{
+				prev ? (
+					<a class="underline underline-offset-2" href={`/dev/blog-review/${prev.slug}`}>
+						Prev
+					</a>
+				) : (
+					<span class="opacity-50">Prev</span>
+				)
+			}
+			{
+				next ? (
+					<a class="underline underline-offset-2" href={`/dev/blog-review/${next.slug}`}>
+						Next
+					</a>
+				) : (
+					<span class="opacity-50">Next</span>
+				)
+			}
+		</span>
+	</div>
+</div>
+<div class="pt-10">
+	<ArticleDetail post={post} />
+</div>

@@ -1,0 +1,40 @@
+{
+  "scheduled_at": "2026-08-10T19:30:00+05:30",
+  "type": "carousel",
+  "media": [
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/3c004ae2c4e18bc7dcb462a52ba10478d31ab573f7d34b8c7916e5db4007475b.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/1f3d7081c1d59bc1c3c1a3092dd9aeba4665e3b9cbe416ef53bf37ad6833250a.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/6d7fa5074dda4253064aa6036ee1e7513f95a92c7081fb70297e16d61ae6c0c6.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/8b82f45bf6e1233cbb3e5fd48d2f486eaebe0bcd50e0efdf8d43aa3cdabace18.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/patriotic-indian-motorcycle-poster-ai-prompt/afcf1eb7134717cb409023d4515f15a44403638c5f286d6650cd2ec189d2020c.jpg"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/patriotic-indian-motorcycle-poster-ai-prompt/02666b97a5eca3b82d8b871df40a12bf6431b49ac1a177d971a4c7e08f789e72.jpg"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/patriotic-indian-motorcycle-poster-ai-prompt/483958ca73321883e0dbe349a9d20f9811c128fedbbb9095de95a81440d77a91.jpg"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/patriotic-indian-motorcycle-poster-ai-prompt/b8eb598717704de3eaf0c1ab06137a824653f2ed490592cbc3338069dea06721.jpg"
+    }
+  ],
+  "caption": "Independence Day motorcycle poster energy 🇮🇳🏍️\n\nSwipe the results, then save slides 5–7 for the exact full copy-paste prompt.\n\nUpload your photo, paste the prompt into Gemini, and create your own patriotic Bullet poster with tricolor INDIAN lettering, jets, and sunset light.\n\nFind this prompt and more free prompts at freepromptbase.com\nCopy. Paste. Create.\n\n#GeminiAI #AIPrompts #AIPhotoEditing #IndependenceDay #MotorcyclePoster #BulletBike #FreePromptBase",
+  "idempotency_key": "freepromptbase-patriotic-indian-motorcycle-poster-ai-prompt-carousel-20260810-v1"
+}

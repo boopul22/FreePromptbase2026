@@ -1,0 +1,32 @@
+{
+  "scheduled_at": "2026-08-06T10:40:00+05:30",
+  "type": "carousel",
+  "media": [
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1122,quality=92,format=jpeg/cdn/cms/prompts/ad3a8c014dc66f3baa212a3cbd438afc22f2a68b0d6f4130bdd0177527aef379.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1122,quality=92,format=jpeg/cdn/cms/prompts/d154ec5496604ca1c754ad4ed817e9f07d889c6129e87aaf750e6bc93bb59647.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1122,quality=92,format=jpeg/cdn/cms/prompts/8b756b31a80d7061354459aa37972cf034d57a4caee2e05f1a0dd965061e780b.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1122,quality=92,format=jpeg/cdn/cms/prompts/9d8423681545ad999b3501c8cdaa44281f44fe04b4d160dec377756c0156eede.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/emotional-release-field-headphones-photo-prompt/f4593d396c6c3d8324ee86b6eec4eaf173df25d13acbd78bf6abaa0771b2add4.jpg"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/emotional-release-field-headphones-photo-prompt/f13c8846633af5b63edbf82f88a3532527808204ac73965085ebf23aa7419b07.jpg"
+    }
+  ],
+  "caption": "Let the wind carry the weight away. 🎧🌾\n\nSwipe through the results, then save slide 5 for the exact copy-paste prompt.\n\nOptionally upload a portrait, paste the prompt into Gemini, and create your own windswept field version.\n\nFind this prompt and more free prompts at freepromptbase.com\nCopy. Paste. Create.\n\n#GeminiAI #AIPhotoPrompt #FieldPortrait #HeadphonesPhotography #CinematicPortrait #AIPhotoEditing #FreePromptBase",
+  "idempotency_key": "freepromptbase-emotional-release-field-headphones-photo-prompt-carousel-20260806-v1"
+}

@@ -1,0 +1,320 @@
+{
+  "total": 31,
+  "liveNow": 2,
+  "scheduled": 29,
+  "status": "publishing-scheduled",
+  "note": "Blog 01 and the Independence Day seasonal guide are live. Blogs 02\u201330 auto-reveal daily at 09:00 IST via posts.publish_at SSR gate.",
+  "liveUrl": "https://freepromptbase.com/blog/15-august-ai-photo-prompts-independence-day",
+  "schedule": [
+    {
+      "id": "independence-day-2026",
+      "slug": "15-august-ai-photo-prompts-independence-day",
+      "title": "5 15 August AI Photo Prompts for Independence Day",
+      "status": "published",
+      "publish_at_utc": null,
+      "published_at": "2026-08-10T02:55:30.333Z",
+      "go_live_ist": "NOW",
+      "url": "https://freepromptbase.com/blog/15-august-ai-photo-prompts-independence-day"
+    },
+    {
+      "id": "01",
+      "slug": "viral-gemini-prompts-for-men-instagram-editorial",
+      "title": "5 Stunning Gemini Prompt for Men That Go Viral on Instagram",
+      "status": "published",
+      "publish_at_utc": null,
+      "published_at": "2026-08-08T21:25:57.000Z",
+      "go_live_ist": "NOW",
+      "url": "https://freepromptbase.com/blog/viral-gemini-prompts-for-men-instagram-editorial"
+    },
+    {
+      "id": "02",
+      "slug": "instagram-boy-photo-editing-prompts-copy-paste",
+      "title": "5 Best Viral Instagram Boy Photo Editing Prompts That Actually Work",
+      "status": "published",
+      "publish_at_utc": "2026-08-10 03:30:00",
+      "published_at": "2026-08-10T03:30:00.000Z",
+      "go_live_ist": "2026-08-10T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/instagram-boy-photo-editing-prompts-copy-paste"
+    },
+    {
+      "id": "03",
+      "slug": "couple-chatgpt-photo-editing-prompts-instagram-2026",
+      "title": "5 Viral Couple ChatGPT Photo Editing Prompts Trending on Instagram 2026",
+      "status": "published",
+      "publish_at_utc": "2026-08-11 03:30:00",
+      "published_at": "2026-08-11T03:30:00.000Z",
+      "go_live_ist": "2026-08-11T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/couple-chatgpt-photo-editing-prompts-instagram-2026"
+    },
+    {
+      "id": "04",
+      "slug": "viral-ai-photo-editing-prompts-for-girls-bardot",
+      "title": "5 Viral AI Photo Editing Prompts for Girls Stunning Bardot Style Looks",
+      "status": "published",
+      "publish_at_utc": "2026-08-12 03:30:00",
+      "published_at": "2026-08-12T03:30:00.000Z",
+      "go_live_ist": "2026-08-12T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/viral-ai-photo-editing-prompts-for-girls-bardot"
+    },
+    {
+      "id": "05",
+      "slug": "girls-gemini-ai-college-photo-prompts",
+      "title": "5 Stunning Girls Prompt Ideas for Gemini AI College Photos",
+      "status": "published",
+      "publish_at_utc": "2026-08-13 03:30:00",
+      "published_at": "2026-08-13T03:30:00.000Z",
+      "go_live_ist": "2026-08-13T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/girls-gemini-ai-college-photo-prompts"
+    },
+    {
+      "id": "06",
+      "slug": "college-boy-stylish-gemini-photo-editing-prompts",
+      "title": "5 Best Viral College Boy Stylish Gemini Photo Editing Prompts 2026",
+      "status": "published",
+      "publish_at_utc": "2026-08-14 03:30:00",
+      "published_at": "2026-08-14T03:30:00.000Z",
+      "go_live_ist": "2026-08-14T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/college-boy-stylish-gemini-photo-editing-prompts"
+    },
+    {
+      "id": "07",
+      "slug": "gemini-romantic-couple-ai-photo-prompts",
+      "title": "5 Stunning Gemini Romantic Couple AI Photo Prompts 2026",
+      "status": "published",
+      "publish_at_utc": "2026-08-15 03:30:00",
+      "published_at": "2026-08-15T03:30:00.000Z",
+      "go_live_ist": "2026-08-15T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/gemini-romantic-couple-ai-photo-prompts"
+    },
+    {
+      "id": "08",
+      "slug": "gemini-luxury-yacht-ai-photo-prompts-for-boys",
+      "title": "5 Stunning Gemini Luxury Yacht AI Photo Prompt for Boys",
+      "status": "published",
+      "publish_at_utc": "2026-08-16 03:30:00",
+      "published_at": "2026-08-16T03:30:00.000Z",
+      "go_live_ist": "2026-08-16T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/gemini-luxury-yacht-ai-photo-prompts-for-boys"
+    },
+    {
+      "id": "09",
+      "slug": "retro-girl-in-saree-gemini-ai-photo-prompts",
+      "title": "5 Best Retro Girl in Saree Photo Prompts for Gemini AI",
+      "status": "published",
+      "publish_at_utc": "2026-08-17 03:30:00",
+      "published_at": "2026-08-17T03:30:00.000Z",
+      "go_live_ist": "2026-08-17T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/retro-girl-in-saree-gemini-ai-photo-prompts"
+    },
+    {
+      "id": "10",
+      "slug": "indian-couple-gemini-ai-photo-prompt-saree-look",
+      "title": "5 Stunning Indian Couple Gemini AI Photo Prompts Saree Look",
+      "status": "published",
+      "publish_at_utc": "2026-08-18 03:30:00",
+      "published_at": "2026-08-18T03:30:00.000Z",
+      "go_live_ist": "2026-08-18T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/indian-couple-gemini-ai-photo-prompt-saree-look"
+    },
+    {
+      "id": "11",
+      "slug": "south-indian-girl-ai-photo-prompt-saree",
+      "title": "5 Stunning South Indian Girl AI Photo Prompts in Saree 2026",
+      "status": "published",
+      "publish_at_utc": "2026-08-19 03:30:00",
+      "published_at": "2026-08-19T03:30:00.000Z",
+      "go_live_ist": "2026-08-19T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/south-indian-girl-ai-photo-prompt-saree"
+    },
+    {
+      "id": "12",
+      "slug": "mahadev-shivling-ai-photo-editing-prompts",
+      "title": "5 Stunning Mahadev Shivling AI Photo Editing Prompts for Sawan 2026",
+      "status": "published",
+      "publish_at_utc": "2026-08-20 03:30:00",
+      "published_at": "2026-08-20T03:30:00.000Z",
+      "go_live_ist": "2026-08-20T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/mahadev-shivling-ai-photo-editing-prompts"
+    },
+    {
+      "id": "13",
+      "slug": "viral-photo-editing-prompt-for-boys-gemini-2026",
+      "title": "5 Stunning Viral Photo Editing Prompts for Boys Gemini AI 2026",
+      "status": "published",
+      "publish_at_utc": "2026-08-21 03:30:00",
+      "published_at": "2026-08-21T03:30:00.000Z",
+      "go_live_ist": "2026-08-21T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/viral-photo-editing-prompt-for-boys-gemini-2026"
+    },
+    {
+      "id": "14",
+      "slug": "gemini-horse-lover-ai-photo-editing-prompts",
+      "title": "5 Stunning Gemini Horse Lover AI Photo Editing Prompts",
+      "status": "published",
+      "publish_at_utc": "2026-08-22 03:30:00",
+      "published_at": "2026-08-22T03:30:00.000Z",
+      "go_live_ist": "2026-08-22T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/gemini-horse-lover-ai-photo-editing-prompts"
+    },
+    {
+      "id": "15",
+      "slug": "gemini-boys-car-ai-photo-prompts",
+      "title": "5 Best Gemini Boys Car AI Photo Prompts",
+      "status": "published",
+      "publish_at_utc": "2026-08-23 03:30:00",
+      "published_at": "2026-08-23T03:30:00.000Z",
+      "go_live_ist": "2026-08-23T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/gemini-boys-car-ai-photo-prompts"
+    },
+    {
+      "id": "16",
+      "slug": "luxury-lehenga-gemini-ai-prompts",
+      "title": "5 Stunning Luxury Lehenga Gemini AI Prompts for Girls",
+      "status": "published",
+      "publish_at_utc": "2026-08-24 03:30:00",
+      "published_at": "2026-08-24T03:30:00.000Z",
+      "go_live_ist": "2026-08-24T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/luxury-lehenga-gemini-ai-prompts"
+    },
+    {
+      "id": "17",
+      "slug": "foggy-forest-ai-photo-editing-prompts",
+      "title": "5 Stunning Foggy Forest AI Photo Editing Prompts",
+      "status": "published",
+      "publish_at_utc": "2026-08-25 03:30:00",
+      "published_at": "2026-08-25T03:30:00.000Z",
+      "go_live_ist": "2026-08-25T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/foggy-forest-ai-photo-editing-prompts"
+    },
+    {
+      "id": "18",
+      "slug": "gemini-2x2-grid-collage-prompt",
+      "title": "5 Best Gemini 2x2 Grid Collage Prompts Copy Paste",
+      "status": "published",
+      "publish_at_utc": "2026-08-26 03:30:00",
+      "published_at": "2026-08-26T03:30:00.000Z",
+      "go_live_ist": "2026-08-26T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/gemini-2x2-grid-collage-prompt"
+    },
+    {
+      "id": "19",
+      "slug": "kurti-and-denim-jeans-gemini-prompt",
+      "title": "5 Viral Stunning Kurti and Denim Jeans Gemini Prompts for Girls",
+      "status": "published",
+      "publish_at_utc": "2026-08-27 03:30:00",
+      "published_at": "2026-08-27T03:30:00.000Z",
+      "go_live_ist": "2026-08-27T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/kurti-and-denim-jeans-gemini-prompt"
+    },
+    {
+      "id": "20",
+      "slug": "best-friend-photo-prompt-gemini-ai-girls",
+      "title": "5 Best Friend Photo Prompts Gemini AI for Girls",
+      "status": "published",
+      "publish_at_utc": "2026-08-28 03:30:00",
+      "published_at": "2026-08-28T03:30:00.000Z",
+      "go_live_ist": "2026-08-28T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/best-friend-photo-prompt-gemini-ai-girls"
+    },
+    {
+      "id": "21",
+      "slug": "gemini-ai-mirror-selfie-prompt-boys",
+      "title": "5 Best Gemini AI Mirror Selfie Prompts for Boys 2026",
+      "status": "published",
+      "publish_at_utc": "2026-08-29 03:30:00",
+      "published_at": "2026-08-29T03:30:00.000Z",
+      "go_live_ist": "2026-08-29T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/gemini-ai-mirror-selfie-prompt-boys"
+    },
+    {
+      "id": "22",
+      "slug": "bullet-bike-ai-photo-editing-prompt-for-boys",
+      "title": "5 Viral Bullet Bike AI Photo Editing Prompts for Boys",
+      "status": "published",
+      "publish_at_utc": "2026-08-30 03:30:00",
+      "published_at": "2026-08-30T03:30:00.000Z",
+      "go_live_ist": "2026-08-30T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/bullet-bike-ai-photo-editing-prompt-for-boys"
+    },
+    {
+      "id": "23",
+      "slug": "gemini-ai-airport-look-prompts-for-boys",
+      "title": "5 Stunning Gemini AI Airport Look Prompts for Boys",
+      "status": "published",
+      "publish_at_utc": "2026-08-31 03:30:00",
+      "published_at": "2026-08-31T03:30:00.000Z",
+      "go_live_ist": "2026-08-31T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/gemini-ai-airport-look-prompts-for-boys"
+    },
+    {
+      "id": "24",
+      "slug": "gemini-ai-dandiya-garba-looks-prompts",
+      "title": "5 Viral Gemini AI Dandiya Garba Looks Prompts 2026",
+      "status": "published",
+      "publish_at_utc": "2026-09-01 03:30:00",
+      "published_at": "2026-09-01T03:30:00.000Z",
+      "go_live_ist": "2026-09-01T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/gemini-ai-dandiya-garba-looks-prompts"
+    },
+    {
+      "id": "25",
+      "slug": "eid-mubarak-ai-photo-prompts-for-boys",
+      "title": "5 Best Eid Mubarak AI Photo Prompts for Boys",
+      "status": "published",
+      "publish_at_utc": "2026-09-02 03:30:00",
+      "published_at": "2026-09-02T03:30:00.000Z",
+      "go_live_ist": "2026-09-02T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/eid-mubarak-ai-photo-prompts-for-boys"
+    },
+    {
+      "id": "26",
+      "slug": "gemini-ai-gym-girl-prompt",
+      "title": "5 Viral Gemini AI Gym Girl Prompts Copy Paste",
+      "status": "published",
+      "publish_at_utc": "2026-09-03 03:30:00",
+      "published_at": "2026-09-03T03:30:00.000Z",
+      "go_live_ist": "2026-09-03T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/gemini-ai-gym-girl-prompt"
+    },
+    {
+      "id": "27",
+      "slug": "kashmir-ice-mountains-ai-photo-editing-prompts",
+      "title": "5 Stunning Kashmir Ice Mountains AI Photo Editing Prompts",
+      "status": "published",
+      "publish_at_utc": "2026-09-04 03:30:00",
+      "published_at": "2026-09-04T03:30:00.000Z",
+      "go_live_ist": "2026-09-04T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/kashmir-ice-mountains-ai-photo-editing-prompts"
+    },
+    {
+      "id": "28",
+      "slug": "wedding-ai-photo-prompt-indian-couple-gemini",
+      "title": "5 Stunning Wedding AI Photo Prompts Indian Couple Gemini",
+      "status": "published",
+      "publish_at_utc": "2026-09-05 03:30:00",
+      "published_at": "2026-09-05T03:30:00.000Z",
+      "go_live_ist": "2026-09-05T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/wedding-ai-photo-prompt-indian-couple-gemini"
+    },
+    {
+      "id": "29",
+      "slug": "gemini-cinematic-studio-portrait-prompt-boys",
+      "title": "5 Best Gemini Cinematic Studio Portrait Prompts for Boys",
+      "status": "published",
+      "publish_at_utc": "2026-09-06 03:30:00",
+      "published_at": "2026-09-06T03:30:00.000Z",
+      "go_live_ist": "2026-09-06T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/gemini-cinematic-studio-portrait-prompt-boys"
+    },
+    {
+      "id": "30",
+      "slug": "chatgpt-prompts-for-night-photos-indian-boy",
+      "title": "5 Viral ChatGPT Prompts for Night Photos Indian Boy",
+      "status": "published",
+      "publish_at_utc": "2026-09-07 03:30:00",
+      "published_at": "2026-09-07T03:30:00.000Z",
+      "go_live_ist": "2026-09-07T09:00:00+05:30",
+      "url": "https://freepromptbase.com/blog/chatgpt-prompts-for-night-photos-indian-boy"
+    }
+  ]
+}

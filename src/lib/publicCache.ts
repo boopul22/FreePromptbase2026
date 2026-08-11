@@ -2,7 +2,7 @@ const SITE_ORIGIN = 'https://freepromptbase.com';
 // Bump after a structural public-HTML change that must bypass previously stored
 // Cache API entries immediately. The revision lives only in the internal cache
 // key; visitors and canonical URLs never see it.
-const PUBLIC_CACHE_REVISION = '2026-08-05-image-only';
+const PUBLIC_CACHE_REVISION = '2026-08-09-prompt-edit';
 
 export function publicCacheKey(url: string | URL): Request {
   const key = new URL(url.toString());

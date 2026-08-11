@@ -1,0 +1,32 @@
+{
+  "scheduled_at": "2026-08-08T00:20:00+05:30",
+  "type": "carousel",
+  "media": [
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/404c3427300e6db64a2ba93d084db6f126b81765681694620a3fca20c89571ed.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/346bb9dd8a409a7afd185da3b060223700c15a06d9017382034bd14bb0ffd288.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/c70d2718361cc920735f530da2713b7c22f85f2143b03fa530e7c1601432390d.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/527ddfaae5bfe5f3ed34705f9ce59025d62bbee0f1c4df61db30fa910587b1fa.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/vintage-fisheye-night-flash-streetwear-photo-prompt/dd112677f79369a5dcddcc8612e65959506d23ebda4a381860c9cb7c9d6a1a80.jpg"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/vintage-fisheye-night-flash-streetwear-photo-prompt/011d4d599f228c989b5de829b35f06ac82ca6b11036512d44174fc587a4f79dd.jpg"
+    }
+  ],
+  "caption": "Vintage fisheye night flash streetwear 🔴📸\n\nSwipe through the results, then save slide 5 for the exact copy-paste prompt.\n\nUpload your photo, paste the prompt into Gemini, and create your own night-flash portrait.\n\nFind this prompt and more free prompts at freepromptbase.com\nCopy. Paste. Create.\n\n#GeminiAI #NightFlash #FisheyePortrait #StreetwearPhoto #AIPhotoEditing #AIPrompts #FreePromptBase",
+  "idempotency_key": "freepromptbase-vintage-fisheye-night-flash-streetwear-photo-prompt-carousel-20260808-v1"
+}

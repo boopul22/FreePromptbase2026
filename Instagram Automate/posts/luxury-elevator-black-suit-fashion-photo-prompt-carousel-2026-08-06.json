@@ -1,0 +1,32 @@
+{
+  "scheduled_at": "2026-08-06T12:00:00+05:30",
+  "type": "carousel",
+  "media": [
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1122,quality=92,format=jpeg/cdn/cms/prompts/19752dbfe664bf0cd3ff9421948009855ee48f189dcea0e9fa6f8f9daf5275e6.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1122,quality=92,format=jpeg/cdn/cms/prompts/e0707a5b83f4db4f6dba243f01a6c068470f0d4a27f07827b58dbf7891ebb9bd.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1122,quality=92,format=jpeg/cdn/cms/prompts/cc80c2f67b6a46a01aecaf0f514176117c76d23e06bc54e467bc7caa58306435.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1122,quality=92,format=jpeg/cdn/cms/prompts/fb31bf7504f68e232a25149a5c01edb6ba76e65959bf179f97c975d9bf6b2263.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/luxury-elevator-black-suit-fashion-photo-prompt/a7b977a5904078a2f5881dc5e05b77945bdcde126eb53f947687f143a07d1be5.jpg"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/luxury-elevator-black-suit-fashion-photo-prompt/32810c20f48ebc440002281afe71cffd8dabf50568ca3fa6d2df85e6cebd52ac.jpg"
+    }
+  ],
+  "caption": "Black-suit elevator energy, polished like a fashion campaign. 🖤☕\n\nSwipe through the results, then save slide 5 for the exact copy-paste prompt.\n\nUpload a full-body reference photo, paste the prompt into Gemini, and create your own luxury elevator portrait.\n\nFind this prompt and more free prompts at freepromptbase.com\nCopy. Paste. Create.\n\n#GeminiAI #AIPhotoPrompt #FashionPhotoPrompt #ElevatorPortrait #AIPhotoEditing #MensFashion #FreePromptBase",
+  "idempotency_key": "freepromptbase-luxury-elevator-black-suit-fashion-photo-prompt-carousel-20260806-v1"
+}

@@ -104,6 +104,11 @@ Supporting blog posts shipped same day (in D1, see `seo/blog-posts-2026-07-14.sq
 `/blog/trending-gemini-prompts`, `/blog/gemini-couple-photo-prompt-ideas`.
 Free tool: `/tools/gemini-prompt-generator`. Homepage title now carries the cluster.
 
+### Seasonal editorial blogs
+| Page (URL) | Primary keyword | Cluster | Status |
+|---|---|---|---|
+| `/blog/15-august-ai-photo-prompts-independence-day` | 15 august ai photo prompts | Seasonal India | Published 2026-08-10 |
+
 ### Nano banana follow-ons + person-type tags (**SHIPPED 2026-07-14**)
 | Slug | Primary keyword | Notes |
 |---|---|---|

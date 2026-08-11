@@ -1,0 +1,74 @@
+---
+/**
+ * LOCAL DRAFT PREVIEW ONLY — not available in production.
+ * Renders the draft blog through the real ArticleDetail layout.
+ */
+import ArticleDetail from '../../components/ArticleDetail.astro';
+import type { Post } from '../../lib/posts';
+import htmlContent from '../../../content/blog-drafts/viral-gemini-prompts-for-men-instagram-editorial.html?raw';
+
+export const prerender = false;
+
+if (import.meta.env.PROD) {
+	return Astro.rewrite('/404');
+}
+
+const slug = 'viral-gemini-prompts-for-men-instagram-editorial';
+const coverImage =
+	'https://freepromptbase.com/cdn/cms/blog/5506e598bf2ec5a0d709063ab5cb977e6028af5e054492206374fb2ecbf70730.webp';
+const now = new Date().toISOString();
+
+const post: Post = {
+	id: 'local-draft-preview',
+	slug,
+	title: '5 Stunning Gemini Prompt for Men That Go Viral on Instagram',
+	excerpt:
+		"Hi, I'm Bipul Kumar. Five copy-paste gemini prompt for men setups for Gemini Nano Banana Pro — elevator cold edit, studio backlight, escalator rise, Times Square crowd freeze, and luxury bathroom mirror.",
+	content: { intro: '', sections: [], outro: '' },
+	htmlContent,
+	categoryId: null,
+	categoryName: null,
+	categoryColor: null,
+	authorName: 'Bipul Kumar',
+	authorRole: 'Founder',
+	authorAvatar: '',
+	featured: false,
+	status: 'draft',
+	contentType: 'guide',
+	sourceUrl: null,
+	coverImage,
+	iconFallback: null,
+	iconBg: null,
+	readTime: '8 min read',
+	metaTitle: '5 Stunning Gemini Prompt for Men That Go Viral on Instagram',
+	metaDescription:
+		'Copy-paste gemini prompt for men for Instagram. Five Nano Banana Pro prompts by Bipul Kumar.',
+	relatedSlugs: [],
+	faqItems: [
+		{
+			question: 'Which Gemini model works best with these gemini prompt for men setups?',
+			answer:
+				'Use Gemini with Nano Banana Pro image creation turned on. Upload a clear front-facing reference photo first, then paste the prompt.',
+		},
+		{
+			question: 'What aspect ratio should I use for Instagram?',
+			answer: '3:4 vertical. It fits Instagram feed posts, Pinterest pins, and WhatsApp profile crops.',
+		},
+		{
+			question: 'Why does my face change between generations?',
+			answer:
+				'Add this at the very top: preserve facial identity 100 percent, do not alter facial features or proportions. Then regenerate two or three times.',
+		},
+	],
+	publishedAt: now,
+	createdAt: now,
+	updatedAt: now,
+};
+---
+
+<div class="fixed top-0 inset-x-0 z-[100] bg-amber-500 text-black text-center text-sm font-semibold py-2 px-3">
+	LOCAL DRAFT PREVIEW — not published on freepromptbase.com
+</div>
+<div class="pt-8">
+	<ArticleDetail post={post} />
+</div>

@@ -1,0 +1,32 @@
+{
+  "scheduled_at": "2026-08-07T08:13:00+00:00",
+  "type": "carousel",
+  "media": [
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/0b0189e1532a904a8320d4bd90c68e7e166b96c675bf73bc57c6e18cc8d3de3a.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/5a8c0e0792ca079b7893c803597418e7df0b5a3940fd47a16bb73e798900b70b.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/9b2a7b7f3194d80acfb56bb2b99cf3d6f5d7716b1c4708791082867141187387.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=941,quality=92,format=jpeg/cdn/cms/prompts/6cf2dfec00f645a57e0ab103075b368d2e1cae06953f5b80b06482e5b1bf7b6c.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/blue-hour-beach-editorial-triptych-photo-prompt/da9d644d722ce06ad6913e8222c27388685f7944226060685dbd014d38c169c8.jpg"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/blue-hour-beach-editorial-triptych-photo-prompt/f33b65094c41b8e51da597faeab6711dde0c51517764ff1d0033653a41d46da7.jpg"
+    }
+  ],
+  "caption": "Blue-hour beach editorial \u2014 three frames, one photo \ud83c\udf0a\u2728\n\nSwipe through the results, then save the full-prompt slide for the exact copy-paste prompt.\n\nUpload your photo, paste the prompt into Gemini or ChatGPT, and create your own three-frame triptych.\n\nFind this prompt and more free prompts at freepromptbase.com\nCopy. Paste. Create.\n\n#BlueHourPhotography #BeachEditorial #TriptychCollage #PhotoEditingPrompt #AIPrompts #GeminiAI #FreePromptBase",
+  "idempotency_key": "freepromptbase-blue-hour-beach-editorial-triptych-photo-prompt-carousel-20260807-v1"
+}

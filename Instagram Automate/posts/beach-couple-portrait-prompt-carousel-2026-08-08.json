@@ -1,0 +1,32 @@
+{
+  "scheduled_at": "2026-08-08T09:30:00+05:30",
+  "type": "carousel",
+  "media": [
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1086,quality=92,format=jpeg/cdn/cms/prompts/pdTJSSypcOgFD00YROz26-w.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1792,quality=92,format=jpeg/cdn/cms/prompts/wlH4MeTCwCTMyPJtWYuza.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1792,quality=92,format=jpeg/cdn/cms/prompts/6t4uGnVgJmdkczadJjGpl.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn-cgi/image/width=1086,quality=92,format=jpeg/cdn/cms/prompts/aMxtXwBqDdaquFhVBA9hp.webp"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/beach-couple-portrait-prompt/a89bd9eb741082a32a704e936856bd022929a712249ecd7a2fbf5ea0b0ac8d25.jpg"
+    },
+    {
+      "type": "image",
+      "url": "https://freepromptbase.com/cdn/cms/instagram/beach-couple-portrait-prompt/fa4aef043e23ba95882ae131565f70204dc32ef7fe775ee20ec4057ce2b31db7.jpg"
+    }
+  ],
+  "caption": "Dreamy beach couple portrait at sunset 🌅 guitars, flowers & soft coastal vibes\n\nSwipe through the results, then save slide 5 for the exact copy-paste prompt.\n\nUpload your couple photos, paste the prompt into Gemini, and create your version.\n\nFind this prompt and more free prompts at freepromptbase.com\nCopy. Paste. Create.\n\n#GeminiAI #CouplePhotoPrompt #BeachPortrait #AIPhotoEditing #AIPrompts #FreePromptBase",
+  "idempotency_key": "freepromptbase-beach-couple-portrait-prompt-carousel-20260808-v1"
+}

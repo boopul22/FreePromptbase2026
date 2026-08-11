@@ -1,0 +1,117 @@
+{
+  "batch": "B",
+  "ids": [
+    "06",
+    "07",
+    "08",
+    "09",
+    "10"
+  ],
+  "blogs": {
+    "college-boy-stylish-gemini-photo-editing-prompts": {
+      "id": "06",
+      "coverImage": "https://freepromptbase.com/cdn/cms/blog/bb05373eef4a31211d10a05edf344f637127ffbc2bb3c5109dd59fb2d91c1d1a.webp",
+      "promptImages": [
+        "https://freepromptbase.com/cdn/cms/blog/c71567be858072011d0ecda47d3a0f3327a95e31696e4af3c0d2579db94d3a38.webp",
+        "https://freepromptbase.com/cdn/cms/blog/0ef06feaa6ad031a1ea2f3053b69d77c792394da917a675416a4db896eba171d.webp",
+        "https://freepromptbase.com/cdn/cms/blog/2aa5b773265e1bb873fd2bf33245fd6a67de63fe5ba0dfe53475acb8fc9a9096.webp",
+        "https://freepromptbase.com/cdn/cms/blog/54cc7395d083750c30d0e71f2eb225e2e616effdb7934a6991ca28569f8c3b0a.webp",
+        "https://freepromptbase.com/cdn/cms/blog/9bae40571c507b46fc2a8adbdda1086f9651f4a1ad5b0e0fe339033485d1e6cd.webp"
+      ],
+      "sha256": {
+        "featured": "bb05373eef4a31211d10a05edf344f637127ffbc2bb3c5109dd59fb2d91c1d1a",
+        "prompts": [
+          "c71567be858072011d0ecda47d3a0f3327a95e31696e4af3c0d2579db94d3a38",
+          "0ef06feaa6ad031a1ea2f3053b69d77c792394da917a675416a4db896eba171d",
+          "2aa5b773265e1bb873fd2bf33245fd6a67de63fe5ba0dfe53475acb8fc9a9096",
+          "54cc7395d083750c30d0e71f2eb225e2e616effdb7934a6991ca28569f8c3b0a",
+          "9bae40571c507b46fc2a8adbdda1086f9651f4a1ad5b0e0fe339033485d1e6cd"
+        ]
+      }
+    },
+    "gemini-romantic-couple-ai-photo-prompts": {
+      "id": "07",
+      "coverImage": "https://freepromptbase.com/cdn/cms/blog/8dcc8eceb8a9966fd157352d0a7a19f2425a0f74e51fc6ece591091a9fcdffd4.webp",
+      "promptImages": [
+        "https://freepromptbase.com/cdn/cms/blog/5737b48838c6678ddadcf13e08cf51f5c32acdaf8120fd3943a9136aeeb5703f.webp",
+        "https://freepromptbase.com/cdn/cms/blog/7accf8081666fff981721cfe9fffe68832d824afc012fefbee1c9ac975196c88.webp",
+        "https://freepromptbase.com/cdn/cms/blog/0ad5eab620d18d82863276f06f57f8d3473d69f0f193805220ff7918343f27d0.webp",
+        "https://freepromptbase.com/cdn/cms/blog/bb68a7c6b06cf439757f6ab15925b99533987be9fc3d574d70bfc59a51e34c9f.webp",
+        "https://freepromptbase.com/cdn/cms/blog/fbdc5a51fec82dc0b685616ab255adc64e9865a16509b83c2b87cd034ce26158.webp"
+      ],
+      "sha256": {
+        "featured": "8dcc8eceb8a9966fd157352d0a7a19f2425a0f74e51fc6ece591091a9fcdffd4",
+        "prompts": [
+          "5737b48838c6678ddadcf13e08cf51f5c32acdaf8120fd3943a9136aeeb5703f",
+          "7accf8081666fff981721cfe9fffe68832d824afc012fefbee1c9ac975196c88",
+          "0ad5eab620d18d82863276f06f57f8d3473d69f0f193805220ff7918343f27d0",
+          "bb68a7c6b06cf439757f6ab15925b99533987be9fc3d574d70bfc59a51e34c9f",
+          "fbdc5a51fec82dc0b685616ab255adc64e9865a16509b83c2b87cd034ce26158"
+        ]
+      }
+    },
+    "gemini-luxury-yacht-ai-photo-prompts-for-boys": {
+      "id": "08",
+      "coverImage": "https://freepromptbase.com/cdn/cms/blog/0dc39a18a2eadca99f6cea7a218965316e79cac7a8bd537f91642c06bcdd6683.webp",
+      "promptImages": [
+        "https://freepromptbase.com/cdn/cms/blog/e6827ab08aedd3fa4d958679bf1c504b86d08b180d853b40052cb1a328b22cc8.webp",
+        "https://freepromptbase.com/cdn/cms/blog/c4e478a242d185a17072cd9eb961a5ededdadf1c44744108c0ef46ca0f4513f7.webp",
+        "https://freepromptbase.com/cdn/cms/blog/b35972138db8896939674fa8e5faa2082cd81b54655ed03bee87f52a0348b326.webp",
+        "https://freepromptbase.com/cdn/cms/blog/57adf949799e5a1ad9ee85965eb8e15479c4bcb1b47a7d6c4d44a3a75f244108.webp",
+        "https://freepromptbase.com/cdn/cms/blog/8b7c2e4a9893f05982c24930ea960a5a9c3d2312ae9abd9e22d7077cbfadaf88.webp"
+      ],
+      "sha256": {
+        "featured": "0dc39a18a2eadca99f6cea7a218965316e79cac7a8bd537f91642c06bcdd6683",
+        "prompts": [
+          "e6827ab08aedd3fa4d958679bf1c504b86d08b180d853b40052cb1a328b22cc8",
+          "c4e478a242d185a17072cd9eb961a5ededdadf1c44744108c0ef46ca0f4513f7",
+          "b35972138db8896939674fa8e5faa2082cd81b54655ed03bee87f52a0348b326",
+          "57adf949799e5a1ad9ee85965eb8e15479c4bcb1b47a7d6c4d44a3a75f244108",
+          "8b7c2e4a9893f05982c24930ea960a5a9c3d2312ae9abd9e22d7077cbfadaf88"
+        ]
+      }
+    },
+    "retro-girl-in-saree-gemini-ai-photo-prompts": {
+      "id": "09",
+      "coverImage": "https://freepromptbase.com/cdn/cms/blog/4eb5818567e05b9aa15eb0f3602c1b5eb8de1923cfe7fc08432610b84517f6c1.webp",
+      "promptImages": [
+        "https://freepromptbase.com/cdn/cms/blog/41f3948c5eb5e72ecaa0764329e3e041c5ccc220476b4e29aff20ee1f2bcd717.webp",
+        "https://freepromptbase.com/cdn/cms/blog/2af075c84ddcb7923e9a5583aef985e848f9dade03050b70ffc97c6400bc35fb.webp",
+        "https://freepromptbase.com/cdn/cms/blog/87040e14f72ec60c12a5e1edbcf556e66cd9362025d949be7a3bb4d234d7c581.webp",
+        "https://freepromptbase.com/cdn/cms/blog/535845f86c7bae15b2363be71748105629c233b6ef749aa02d14a1bc6406bee8.webp",
+        "https://freepromptbase.com/cdn/cms/blog/5dd0f0cb7e4465e10bbb24c5a87b3225871f1d65a673665898404e7a77d6b3d3.webp"
+      ],
+      "sha256": {
+        "featured": "4eb5818567e05b9aa15eb0f3602c1b5eb8de1923cfe7fc08432610b84517f6c1",
+        "prompts": [
+          "41f3948c5eb5e72ecaa0764329e3e041c5ccc220476b4e29aff20ee1f2bcd717",
+          "2af075c84ddcb7923e9a5583aef985e848f9dade03050b70ffc97c6400bc35fb",
+          "87040e14f72ec60c12a5e1edbcf556e66cd9362025d949be7a3bb4d234d7c581",
+          "535845f86c7bae15b2363be71748105629c233b6ef749aa02d14a1bc6406bee8",
+          "5dd0f0cb7e4465e10bbb24c5a87b3225871f1d65a673665898404e7a77d6b3d3"
+        ]
+      }
+    },
+    "indian-couple-gemini-ai-photo-prompt-saree-look": {
+      "id": "10",
+      "coverImage": "https://freepromptbase.com/cdn/cms/blog/7db6714c2fba43c2d09a7d20947ab35cefd3e7478f4b7f1bde4cb4289d619f1c.webp",
+      "promptImages": [
+        "https://freepromptbase.com/cdn/cms/blog/598c7006a1b3aa743588555d50ddd844538f50ae91363196c41ae9f8598a186f.webp",
+        "https://freepromptbase.com/cdn/cms/blog/a0648d4d5273716bcd19aaef4d7fbf21f46a75c2164ee89d6fb39d088ed4ab15.webp",
+        "https://freepromptbase.com/cdn/cms/blog/93d57b978b0a55b28716558cdddc86ed0e52345a927eb95733bee59d576f2552.webp",
+        "https://freepromptbase.com/cdn/cms/blog/15de0448b71e038c9d4978aeb988c94e0806deef132e8b23bffbc23803bcf41f.webp",
+        "https://freepromptbase.com/cdn/cms/blog/81e8a9cddd02c17fbfa81f56d92491ba6a66723609d717781487f10d625ca807.webp"
+      ],
+      "sha256": {
+        "featured": "7db6714c2fba43c2d09a7d20947ab35cefd3e7478f4b7f1bde4cb4289d619f1c",
+        "prompts": [
+          "598c7006a1b3aa743588555d50ddd844538f50ae91363196c41ae9f8598a186f",
+          "a0648d4d5273716bcd19aaef4d7fbf21f46a75c2164ee89d6fb39d088ed4ab15",
+          "93d57b978b0a55b28716558cdddc86ed0e52345a927eb95733bee59d576f2552",
+          "15de0448b71e038c9d4978aeb988c94e0806deef132e8b23bffbc23803bcf41f",
+          "81e8a9cddd02c17fbfa81f56d92491ba6a66723609d717781487f10d625ca807"
+        ]
+      }
+    }
+  }
+}

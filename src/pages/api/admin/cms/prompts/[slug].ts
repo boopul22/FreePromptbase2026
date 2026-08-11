@@ -3,6 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getDB } from '../../../../../lib/db';
 import { generateSlug, logActivity, toScheduleUtc } from '../../../../../lib/cms';
+import { invalidatePromptPublish, invalidatePublicPaths } from '../../../../../lib/publicCache';
 
 interface PromptRow {
   slug: string;
@@ -250,6 +251,20 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     entityTitle: body.title ?? existing.title,
   });
 
+  // Admin saves previously skipped cache busting, so public pages could keep
+  // serving the pre-edit gallery/text for up to ~1h (and longer across colos).
+  const nextCategory = (body.category ?? existing.category) as string;
+  const paths = [
+    `/${encodeURIComponent(currentSlug)}`,
+    `/${encodeURIComponent(newSlug)}`,
+    '/',
+    `/category/${encodeURIComponent(existing.category)}`,
+    `/category/${encodeURIComponent(nextCategory)}`,
+    '/categories',
+    '/sitemap.xml',
+  ];
+  await invalidatePublicPaths(paths);
+
   return new Response(JSON.stringify({ success: true, slug: newSlug }), {
     headers: { 'Content-Type': 'application/json' },
   });
@@ -261,9 +276,9 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
   const slug = params.slug!;
 
   const existing = await db
-    .prepare('SELECT title FROM prompts WHERE slug = ?')
+    .prepare('SELECT title, category FROM prompts WHERE slug = ?')
     .bind(slug)
-    .first<{ title: string }>();
+    .first<{ title: string; category: string }>();
   if (!existing) {
     return new Response(JSON.stringify({ error: 'Prompt not found' }), {
       status: 404,
@@ -281,6 +296,8 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     entityId: slug,
     entityTitle: existing.title,
   });
+
+  await invalidatePromptPublish(slug, existing.category);
 
   return new Response(JSON.stringify({ success: true }), {
     headers: { 'Content-Type': 'application/json' },

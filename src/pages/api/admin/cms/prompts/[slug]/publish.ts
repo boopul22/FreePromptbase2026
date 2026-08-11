@@ -3,6 +3,7 @@ export const prerender = false;
 import type { APIRoute } from 'astro';
 import { getDB } from '../../../../../../lib/db';
 import { logActivity } from '../../../../../../lib/cms';
+import { invalidatePromptPublish } from '../../../../../../lib/publicCache';
 
 // Publish an admin draft → 'approved' (the public/live state). Refreshes `date`
 // so the prompt sorts into "Newest" at the publish moment. This is the admin
@@ -17,9 +18,9 @@ export const POST: APIRoute = async ({ params, locals }) => {
   const slug = params.slug!;
 
   const prompt = await db
-    .prepare('SELECT title, status FROM prompts WHERE slug = ?')
+    .prepare('SELECT title, status, category FROM prompts WHERE slug = ?')
     .bind(slug)
-    .first<{ title: string; status: string }>();
+    .first<{ title: string; status: string; category: string }>();
   if (!prompt) {
     return new Response(JSON.stringify({ error: 'Prompt not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
   }
@@ -46,6 +47,8 @@ export const POST: APIRoute = async ({ params, locals }) => {
     entityId: slug,
     entityTitle: prompt.title,
   });
+
+  await invalidatePromptPublish(slug, prompt.category);
 
   return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
 };

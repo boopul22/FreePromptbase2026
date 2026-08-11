@@ -1,0 +1,288 @@
+{
+  "author": "Bipul Kumar",
+  "authorRole": "Founder",
+  "status": "draft",
+  "notes": "Blog 01 already drafted. Blogs 02-30 = 29 remaining. Prompts from Aura rewritten; watermark freepromptbase.com. No publish until approved. Featured covers: 1600x900 Discover-safe (no text).",
+  "blogs": [
+    {
+      "id": "01",
+      "status": "drafted",
+      "slug": "viral-gemini-prompts-for-men-instagram-editorial",
+      "title": "5 Stunning Gemini Prompt for Men That Go Viral on Instagram",
+      "primaryKw": "gemini prompt for men",
+      "auraUrl": "https://auraprompt.in/gemini-prompt-for-men-instagram-viral/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "02",
+      "status": "draft_ready",
+      "slug": "instagram-boy-photo-editing-prompts-copy-paste",
+      "title": "5 Best Viral Instagram Boy Photo Editing Prompts That Actually Work",
+      "primaryKw": "instagram boy photo editing prompt",
+      "auraUrl": "https://auraprompt.in/instagram-boy-photo-editing-prompt/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "03",
+      "status": "draft_ready",
+      "slug": "couple-chatgpt-photo-editing-prompts-instagram-2026",
+      "title": "5 Viral Couple ChatGPT Photo Editing Prompts Trending on Instagram 2026",
+      "primaryKw": "couple chatgpt photo editing prompt",
+      "auraUrl": "https://auraprompt.in/couple-chatgpt-photo-editing-prompt-instagram-2026/",
+      "cluster": "Couple"
+    },
+    {
+      "id": "04",
+      "status": "draft_ready",
+      "slug": "viral-ai-photo-editing-prompts-for-girls-bardot",
+      "title": "5 Viral AI Photo Editing Prompts for Girls Stunning Bardot Style Looks",
+      "primaryKw": "ai photo editing prompts for girls",
+      "auraUrl": "https://auraprompt.in/viral-ai-photo-editing-prompts-for-girls-bardot/",
+      "cluster": "Girls"
+    },
+    {
+      "id": "05",
+      "status": "draft_ready",
+      "slug": "girls-gemini-ai-college-photo-prompts",
+      "title": "5 Stunning Girls Prompt Ideas for Gemini AI College Photos",
+      "primaryKw": "girls prompt gemini ai college photo",
+      "auraUrl": "https://auraprompt.in/girls-prompt-gemini-ai-college-photo/",
+      "cluster": "Girls"
+    },
+    {
+      "id": "06",
+      "status": "draft_ready",
+      "slug": "college-boy-stylish-gemini-photo-editing-prompts",
+      "title": "5 Best Viral College Boy Stylish Gemini Photo Editing Prompts 2026",
+      "primaryKw": "college boy stylish gemini photo editing prompt",
+      "auraUrl": "https://auraprompt.in/college-boy-stylish-gemini-photo-editing-prompt/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "07",
+      "status": "draft_ready",
+      "slug": "gemini-romantic-couple-ai-photo-prompts",
+      "title": "5 Stunning Gemini Romantic Couple AI Photo Prompts 2026",
+      "primaryKw": "gemini romantic couple ai photo prompt",
+      "auraUrl": "https://auraprompt.in/gemini-romantic-couple-ai-photo-prompt/",
+      "cluster": "Couple"
+    },
+    {
+      "id": "08",
+      "status": "draft_ready",
+      "slug": "gemini-luxury-yacht-ai-photo-prompts-for-boys",
+      "title": "5 Stunning Gemini Luxury Yacht AI Photo Prompt for Boys",
+      "primaryKw": "gemini luxury yacht ai photo prompt for boys",
+      "auraUrl": "https://auraprompt.in/gemini-luxury-yacht-ai-photo-prompt-for-boys/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "09",
+      "status": "draft_ready",
+      "slug": "retro-girl-in-saree-gemini-ai-photo-prompts",
+      "title": "5 Best Retro Girl in Saree Photo Prompts for Gemini AI",
+      "primaryKw": "retro girl in saree photo prompt gemini",
+      "auraUrl": "https://auraprompt.in/retro-girl-in-saree-photo-prompt-gemini-ai/",
+      "cluster": "Girls"
+    },
+    {
+      "id": "10",
+      "status": "draft_ready",
+      "slug": "indian-couple-gemini-ai-photo-prompt-saree-look",
+      "title": "5 Stunning Indian Couple Gemini AI Photo Prompts Saree Look",
+      "primaryKw": "indian couple gemini ai photo prompt saree",
+      "auraUrl": "https://auraprompt.in/indian-couple-gemini-ai-photo-prompt-saree-look/",
+      "cluster": "Couple"
+    },
+    {
+      "id": "11",
+      "status": "draft_ready",
+      "slug": "south-indian-girl-ai-photo-prompt-saree",
+      "title": "5 Stunning South Indian Girl AI Photo Prompts in Saree 2026",
+      "primaryKw": "south indian girl ai photo prompt saree",
+      "auraUrl": "https://auraprompt.in/south-indian-girl-ai-photo-prompt-saree-2026/",
+      "cluster": "Girls"
+    },
+    {
+      "id": "12",
+      "status": "draft_ready",
+      "slug": "mahadev-shivling-ai-photo-editing-prompts",
+      "title": "5 Stunning Mahadev Shivling AI Photo Editing Prompts for Sawan 2026",
+      "primaryKw": "mahadev shivling ai photo editing prompt",
+      "auraUrl": "https://auraprompt.in/mahadev-shivling-ai-photo-editing-prompt-sawan-2026/",
+      "cluster": "Festival"
+    },
+    {
+      "id": "13",
+      "status": "draft_ready",
+      "slug": "viral-photo-editing-prompt-for-boys-gemini-2026",
+      "title": "5 Stunning Viral Photo Editing Prompts for Boys Gemini AI 2026",
+      "primaryKw": "viral photo editing prompt for boys gemini",
+      "auraUrl": "https://auraprompt.in/viral-photo-editing-prompt-for-boys-gemini-ai-2026/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "14",
+      "status": "draft_ready",
+      "slug": "gemini-horse-lover-ai-photo-editing-prompts",
+      "title": "5 Stunning Gemini Horse Lover AI Photo Editing Prompts",
+      "primaryKw": "gemini horse lover ai photo editing prompt",
+      "auraUrl": "https://auraprompt.in/gemini-horse-lover-ai-photo-editing-prompt/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "15",
+      "status": "draft_ready",
+      "slug": "gemini-boys-car-ai-photo-prompts",
+      "title": "5 Best Gemini Boys Car AI Photo Prompts",
+      "primaryKw": "gemini boys car ai photo prompts",
+      "auraUrl": "https://auraprompt.in/gemini-boys-car-ai-photo-prompts/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "16",
+      "status": "draft_ready",
+      "slug": "luxury-lehenga-gemini-ai-prompts",
+      "title": "5 Stunning Luxury Lehenga Gemini AI Prompts for Girls",
+      "primaryKw": "luxury lehenga gemini ai prompts",
+      "auraUrl": "https://auraprompt.in/luxury-lehenga-gemini-ai-prompts/",
+      "cluster": "Girls"
+    },
+    {
+      "id": "17",
+      "status": "draft_ready",
+      "slug": "foggy-forest-ai-photo-editing-prompts",
+      "title": "5 Stunning Foggy Forest AI Photo Editing Prompts",
+      "primaryKw": "foggy forest ai photo editing prompt",
+      "auraUrl": "https://auraprompt.in/foggy-forest-ai-photo-editing-prompt/",
+      "cluster": "Travel"
+    },
+    {
+      "id": "18",
+      "status": "draft_ready",
+      "slug": "gemini-2x2-grid-collage-prompt",
+      "title": "5 Best Gemini 2x2 Grid Collage Prompts Copy Paste",
+      "primaryKw": "gemini 2x2 grid collage prompt",
+      "auraUrl": "https://auraprompt.in/gemini-2x2-grid-collage-prompt/",
+      "cluster": "Format"
+    },
+    {
+      "id": "19",
+      "status": "draft_ready",
+      "slug": "kurti-and-denim-jeans-gemini-prompt",
+      "title": "5 Viral Stunning Kurti and Denim Jeans Gemini Prompts for Girls",
+      "primaryKw": "kurti and denim jeans gemini prompt",
+      "auraUrl": "https://auraprompt.in/kurti-and-denim-jeans-gemini-prompt/",
+      "cluster": "Girls"
+    },
+    {
+      "id": "20",
+      "status": "draft_ready",
+      "slug": "best-friend-photo-prompt-gemini-ai-girls",
+      "title": "5 Best Friend Photo Prompts Gemini AI for Girls",
+      "primaryKw": "best friend photo prompt gemini ai girls",
+      "auraUrl": "https://auraprompt.in/best-friend-photo-prompt-gemini-ai-girls/",
+      "cluster": "Girls"
+    },
+    {
+      "id": "21",
+      "status": "draft_ready",
+      "newIdea": true,
+      "slug": "gemini-ai-mirror-selfie-prompt-boys",
+      "title": "5 Best Gemini AI Mirror Selfie Prompts for Boys 2026",
+      "primaryKw": "gemini ai mirror selfie prompt boys",
+      "auraUrl": "https://auraprompt.in/gemini-ai-mirror-selfie-prompt-boys-2026/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "22",
+      "status": "draft_ready",
+      "newIdea": true,
+      "slug": "bullet-bike-ai-photo-editing-prompt-for-boys",
+      "title": "5 Viral Bullet Bike AI Photo Editing Prompts for Boys",
+      "primaryKw": "bullet bike ai photo editing prompt for boys",
+      "auraUrl": "https://auraprompt.in/bullet-bike-ai-photo-editing-prompt-for-boys/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "23",
+      "status": "draft_ready",
+      "newIdea": true,
+      "slug": "gemini-ai-airport-look-prompts-for-boys",
+      "title": "5 Stunning Gemini AI Airport Look Prompts for Boys",
+      "primaryKw": "gemini ai airport look prompts for boys",
+      "auraUrl": "https://auraprompt.in/gemini-ai-airport-look-prompts-for-boys/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "24",
+      "status": "draft_ready",
+      "newIdea": true,
+      "slug": "gemini-ai-dandiya-garba-looks-prompts",
+      "title": "5 Viral Gemini AI Dandiya Garba Looks Prompts 2026",
+      "primaryKw": "gemini ai dandiya garba looks prompts",
+      "auraUrl": "https://auraprompt.in/gemini-ai-dandiya-garba-looks-prompts-2026/",
+      "cluster": "Festival"
+    },
+    {
+      "id": "25",
+      "status": "draft_ready",
+      "newIdea": true,
+      "slug": "eid-mubarak-ai-photo-prompts-for-boys",
+      "title": "5 Best Eid Mubarak AI Photo Prompts for Boys",
+      "primaryKw": "eid mubarak ai photo prompts for boys",
+      "auraUrl": "https://auraprompt.in/eid-mubarak-ai-photo-prompts-for-boys/",
+      "cluster": "Festival"
+    },
+    {
+      "id": "26",
+      "status": "draft_ready",
+      "newIdea": true,
+      "slug": "gemini-ai-gym-girl-prompt",
+      "title": "5 Viral Gemini AI Gym Girl Prompts Copy Paste",
+      "primaryKw": "gemini ai gym girl prompt",
+      "auraUrl": "https://auraprompt.in/gemini-ai-gym-girl-prompt/",
+      "cluster": "Girls"
+    },
+    {
+      "id": "27",
+      "status": "draft_ready",
+      "newIdea": true,
+      "slug": "kashmir-ice-mountains-ai-photo-editing-prompts",
+      "title": "5 Stunning Kashmir Ice Mountains AI Photo Editing Prompts",
+      "primaryKw": "kashmir ice mountains ai photo editing prompt",
+      "auraUrl": "https://auraprompt.in/kashmir-ice-mountains-ai-photo-editing-prompt/",
+      "cluster": "Travel"
+    },
+    {
+      "id": "28",
+      "status": "draft_ready",
+      "newIdea": true,
+      "slug": "wedding-ai-photo-prompt-indian-couple-gemini",
+      "title": "5 Stunning Wedding AI Photo Prompts Indian Couple Gemini",
+      "primaryKw": "wedding ai photo prompt indian couple gemini",
+      "auraUrl": "https://auraprompt.in/wedding-ai-photo-prompt-indian-couple-gemini/",
+      "cluster": "Couple"
+    },
+    {
+      "id": "29",
+      "status": "draft_ready",
+      "newIdea": true,
+      "slug": "gemini-cinematic-studio-portrait-prompt-boys",
+      "title": "5 Best Gemini Cinematic Studio Portrait Prompts for Boys",
+      "primaryKw": "gemini cinematic studio portrait prompt boys",
+      "auraUrl": "https://auraprompt.in/gemini-cinematic-studio-portrait-prompt-boys/",
+      "cluster": "Boys"
+    },
+    {
+      "id": "30",
+      "status": "draft_ready",
+      "newIdea": true,
+      "slug": "chatgpt-prompts-for-night-photos-indian-boy",
+      "title": "5 Viral ChatGPT Prompts for Night Photos Indian Boy",
+      "primaryKw": "chatgpt prompts for night photos indian boy",
+      "auraUrl": "https://auraprompt.in/chatgpt-prompts-for-night-photos-indian-boy/",
+      "cluster": "Boys"
+    }
+  ]
+}

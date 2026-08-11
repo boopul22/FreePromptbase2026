@@ -1,0 +1,3205 @@
+[
+  {
+    "page": "homepage",
+    "viewport": "desktop",
+    "url": "https://freepromptbase.com/",
+    "screenshot": "/Volumes/Mac_ssd1/Websites/Bipul/freepromptbase.com/screenshots/cro-audit/homepage-desktop-atf.png",
+    "title": "Free AI Prompts \u2013 Photo Editing Prompts for Gemini & ChatGPT",
+    "h1": {
+      "text": "Free Prompt Base \u2014 Free AI Prompts",
+      "top": 112,
+      "bottom": 113,
+      "fontSize": "18px",
+      "color": "oklch(0.255 0.011 75)",
+      "visible": true
+    },
+    "scrollHeight": 4528,
+    "viewportHeight": 1080,
+    "hasMoreContentBelowFold": true,
+    "emptySpaceAtBottomPx": 15,
+    "falseScrollBottomRisk": false,
+    "stickyFixed": [
+      {
+        "tag": "HEADER",
+        "id": "",
+        "class": "sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3",
+        "text": "Prompts Skills News Saved Submit Blog About Search prompts Liked prompts Submit prompt",
+        "top": 0,
+        "bottom": 65,
+        "height": 65,
+        "pos": "sticky",
+        "bg": "rgb(255, 255, 255)"
+      }
+    ],
+    "starMentions": [],
+    "socialHits": [
+      "users",
+      "prompts",
+      "copy"
+    ],
+    "orangeHighContrastCtas": [],
+    "atfCtas": [
+      {
+        "text": "Liked prompts",
+        "href": "/liked",
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 1262
+      },
+      {
+        "text": "Instagram @Freepromptbase",
+        "href": "https://www.instagram.com/freepromptbase/",
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 1318
+      },
+      {
+        "text": "Submit prompt",
+        "href": "/submit",
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "w": 162,
+        "h": 36,
+        "top": 14,
+        "left": 1374
+      },
+      {
+        "text": "Free Prompt Base \u2014 home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 34,
+        "h": 34,
+        "top": 15,
+        "left": 384
+      },
+      {
+        "text": "Prompts",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 56,
+        "h": 20,
+        "top": 22,
+        "left": 450
+      },
+      {
+        "text": "Skills",
+        "href": "/skills",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 35,
+        "h": 20,
+        "top": 22,
+        "left": 530
+      },
+      {
+        "text": "News",
+        "href": "/news",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 37,
+        "h": 20,
+        "top": 22,
+        "left": 588
+      },
+      {
+        "text": "Saved",
+        "href": "/saved",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 40,
+        "h": 20,
+        "top": 22,
+        "left": 649
+      },
+      {
+        "text": "Submit",
+        "href": "/submit",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 47,
+        "h": 20,
+        "top": 22,
+        "left": 713
+      },
+      {
+        "text": "Blog",
+        "href": "/blog",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 30,
+        "h": 20,
+        "top": 22,
+        "left": 784
+      },
+      {
+        "text": "About",
+        "href": "/about",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 40,
+        "h": 20,
+        "top": 22,
+        "left": 838
+      },
+      {
+        "text": "TOP CONTRIBUTOR Sheenam Middha",
+        "href": "/author/sheenam-middha",
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 181,
+        "h": 43,
+        "top": 113,
+        "left": 1057
+      },
+      {
+        "text": "Blog",
+        "href": "/blog",
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "w": 90,
+        "h": 36,
+        "top": 116,
+        "left": 400
+      },
+      {
+        "text": "Browse",
+        "href": "/tags",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "600",
+        "w": 109,
+        "h": 36,
+        "top": 116,
+        "left": 498
+      },
+      {
+        "text": "Trending",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "15px",
+        "fontWeight": "600",
+        "w": 136,
+        "h": 33,
+        "top": 497,
+        "left": 404
+      },
+      {
+        "text": "Recent",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "15px",
+        "fontWeight": "600",
+        "w": 136,
+        "h": 33,
+        "top": 497,
+        "left": 540
+      },
+      {
+        "text": "All",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "w": 136,
+        "h": 33,
+        "top": 497,
+        "left": 676
+      },
+      {
+        "text": "Open Ultra-Realistic Typography Word Collage Portrait Prompt",
+        "href": "/ultra-realistic-typography-word-collage-portrait-prompt",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 551,
+        "top": 567,
+        "left": 401
+      },
+      {
+        "text": "Open Blue Hour Beach Editorial Triptych Photo Prompt",
+        "href": "/blue-hour-beach-editorial-triptych-photo-prompt",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 608,
+        "top": 567,
+        "left": 686
+      },
+      {
+        "text": "Open Nano Banana Surreal AI Identity Portrait Prompt",
+        "href": "/nano-banana-surreal-ai-identity-portrait-prompt",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 470,
+        "top": 567,
+        "left": 971
+      },
+      {
+        "text": "Open Ivy Cottage Bible Golden Hour Portrait Prompt",
+        "href": "/ivy-cottage-bible-golden-hour-portrait-prompt",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 469,
+        "top": 567,
+        "left": 1256
+      },
+      {
+        "text": "Like prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 35,
+        "h": 32,
+        "top": 999,
+        "left": 1266
+      },
+      {
+        "text": "Save prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 999,
+        "left": 1441
+      },
+      {
+        "text": "Share prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 999,
+        "left": 1477
+      },
+      {
+        "text": "Like prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 35,
+        "h": 32,
+        "top": 1000,
+        "left": 981
+      }
+    ],
+    "foldTextSample": "Prompts Skills News Saved Submit Blog About Search prompts Liked prompts Submit prompt Free Prompt Base \u2014 Free AI Prompts Free AI prompts and photo editing prompts for Gemini, ChatGPT, Midjourney & Claude. Copy, paste, create. Blog Browse TOP CONTRIBUTOR Sheenam Middha Prompts 170 prompts Categories 1 categories Trending Recent All Ultra-Realistic Typography Word Collage Portrait Prompt Create a premium identity-preserving portrait constructed from motivational typography that follows facial contours, hair, skin, neck, and clothing folds. 2 Open Ultra-Realistic Typography Word Collage Portrait Prompt Wildflower Meadow Asian Woman Fashion Photo Prompt Create a photorealistic countryside fashion portrait with a dreamy meadow pose, cream floral sundress, golden daylight, and cinematic bokeh. 2 Open Wildflower Meadow Asian Woman Fashion Photo Prompt Indian Man Vintage Sedan Street Fashion Prompt Create a luxury Indian street-fashion portrait beside a vintage black sedan on a rain-slick road, with a confident editorial pose and reflections. 1 Open Indian Man Vintage Sedan Street Fashion Prompt Golden Hour High Angle Cinematic Woman Portrait Prompt Create a melancholic high-angle portrai",
+    "foldElements": [
+      {
+        "tag": "IMG",
+        "text": "Free Prompt Base",
+        "top": 20,
+        "bottom": 44,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Prompts",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Skills",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "News",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Saved",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Submit",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Liked prompts",
+        "top": 12,
+        "bottom": 52,
+        "fontSize": "18px",
+        "bg": "rgb(255, 255, 255)"
+      },
+      {
+        "tag": "A",
+        "text": "Submit prompt",
+        "top": 14,
+        "bottom": 50,
+        "fontSize": "14px",
+        "bg": "oklch(0.925 0.135 99)"
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "top": 116,
+        "bottom": 152,
+        "fontSize": "14px",
+        "bg": "oklch(0.925 0.135 99)"
+      },
+      {
+        "tag": "A",
+        "text": "Browse",
+        "top": 116,
+        "bottom": 152,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "TOP CONTRIBUTOR Sheenam Middha",
+        "top": 113,
+        "bottom": 156,
+        "fontSize": "18px",
+        "bg": "rgb(255, 255, 255)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Sheenam Middha",
+        "top": 118,
+        "bottom": 150,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Trending",
+        "top": 497,
+        "bottom": 530,
+        "fontSize": "15px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Recent",
+        "top": 497,
+        "bottom": 530,
+        "fontSize": "15px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "All",
+        "top": 497,
+        "bottom": 530,
+        "fontSize": "15px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Ultra-Realistic Typography Word Collage Portrait Prompt",
+        "top": 567,
+        "bottom": 977,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Ultra-Realistic Typography Word Collage Portrait Prompt",
+        "top": 989,
+        "bottom": 1029,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Create a premium identity-preserving portrait constructed from motivational typography that follows facial contours, hair, skin, neck, and c",
+        "top": 1033,
+        "bottom": 1065,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Ultra-Realistic Typography Word Collage Portrait Prompt",
+        "top": 567,
+        "bottom": 1118,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Blue Hour Beach Editorial Triptych Photo Prompt",
+        "top": 567,
+        "bottom": 1034,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Blue Hour Beach Editorial Triptych Photo Prompt",
+        "top": 1046,
+        "bottom": 1086,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Blue Hour Beach Editorial Triptych Photo Prompt",
+        "top": 567,
+        "bottom": 1175,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Nano Banana Surreal AI Identity Portrait Prompt",
+        "top": 567,
+        "bottom": 895,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Nano Banana Surreal AI Identity Portrait Prompt",
+        "top": 907,
+        "bottom": 947,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Create a viral surreal identity portrait with glass fragments, luminous neural details, realistic skin, and cinematic 4:5 framing for Nano B",
+        "top": 951,
+        "bottom": 983,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Nano Banana Surreal AI Identity Portrait Prompt",
+        "top": 567,
+        "bottom": 1036,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Vintage Fisheye Night Flash Streetwear Photo Prompt",
+        "top": 1058,
+        "bottom": 1526,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Vintage Fisheye Night Flash Streetwear Photo Prompt",
+        "top": 1058,
+        "bottom": 1667,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Ivy Cottage Bible Golden Hour Portrait Prompt",
+        "top": 567,
+        "bottom": 894,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Ivy Cottage Bible Golden Hour Portrait Prompt",
+        "top": 906,
+        "bottom": 946,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Create an overhead golden-hour cottage portrait with an earth-tone sweater, Holy Bible, ivy-covered stone, colorful blossoms, and soft foreg",
+        "top": 950,
+        "bottom": 982,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Ivy Cottage Bible Golden Hour Portrait Prompt",
+        "top": 567,
+        "bottom": 1035,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Flower Field Holy Bible Cinematic Portrait Prompt",
+        "top": 1057,
+        "bottom": 1385,
+        "fontSize": "18px",
+        "bg": null
+      }
+    ]
+  },
+  {
+    "page": "homepage",
+    "viewport": "mobile",
+    "url": "https://freepromptbase.com/",
+    "screenshot": "/Volumes/Mac_ssd1/Websites/Bipul/freepromptbase.com/screenshots/cro-audit/homepage-mobile-atf.png",
+    "title": "Free AI Prompts \u2013 Photo Editing Prompts for Gemini & ChatGPT",
+    "h1": {
+      "text": "Free Prompt Base \u2014 Free AI Prompts",
+      "top": 112,
+      "bottom": 113,
+      "fontSize": "18px",
+      "color": "oklch(0.255 0.011 75)",
+      "visible": true
+    },
+    "scrollHeight": 17124,
+    "viewportHeight": 812,
+    "hasMoreContentBelowFold": true,
+    "emptySpaceAtBottomPx": 491,
+    "falseScrollBottomRisk": true,
+    "stickyFixed": [
+      {
+        "tag": "HEADER",
+        "id": "",
+        "class": "sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3",
+        "text": "Search prompts Submit prompt",
+        "top": 0,
+        "bottom": 65,
+        "height": 65,
+        "pos": "sticky",
+        "bg": "rgb(255, 255, 255)"
+      }
+    ],
+    "starMentions": [],
+    "socialHits": [
+      "users",
+      "prompts",
+      "copy"
+    ],
+    "orangeHighContrastCtas": [],
+    "atfCtas": [
+      {
+        "text": "Open menu",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 327
+      },
+      {
+        "text": "Submit prompt",
+        "href": "/submit",
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "w": 162,
+        "h": 36,
+        "top": 14,
+        "left": 157
+      },
+      {
+        "text": "Free Prompt Base \u2014 home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 34,
+        "h": 34,
+        "top": 15,
+        "left": 16
+      },
+      {
+        "text": "Blog",
+        "href": "/blog",
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "w": 90,
+        "h": 36,
+        "top": 113,
+        "left": 16
+      },
+      {
+        "text": "Browse",
+        "href": "/tags",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "600",
+        "w": 109,
+        "h": 36,
+        "top": 113,
+        "left": 114
+      },
+      {
+        "text": "TOP CONTRIBUTOR Sheenam Middha",
+        "href": "/author/sheenam-middha",
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 181,
+        "h": 43,
+        "top": 161,
+        "left": 16
+      },
+      {
+        "text": "Trending",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "15px",
+        "fontWeight": "600",
+        "w": 112,
+        "h": 33,
+        "top": 288,
+        "left": 20
+      },
+      {
+        "text": "Recent",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "15px",
+        "fontWeight": "600",
+        "w": 112,
+        "h": 33,
+        "top": 288,
+        "left": 132
+      },
+      {
+        "text": "All",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "15px",
+        "fontWeight": "700",
+        "w": 112,
+        "h": 33,
+        "top": 288,
+        "left": 243
+      },
+      {
+        "text": "Open Ultra-Realistic Typography Word Collage Portrait Prompt",
+        "href": "/ultra-realistic-typography-word-collage-portrait-prompt",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 341,
+        "h": 674,
+        "top": 765,
+        "left": 17
+      }
+    ],
+    "foldTextSample": "Search prompts Submit prompt Free Prompt Base \u2014 Free AI Prompts Free AI prompts and photo editing prompts for Gemini, ChatGPT, Midjourney & Claude. Copy, paste, create. Blog Browse TOP CONTRIBUTOR Sheenam Middha Prompts 170 prompts Categories 1 categories Trending Recent All Discover more Photographic & Digital Arts Business & Productivity Software Movies Photo & Video Software Graphics & Animation Software Ultra-Realistic Typography Word Collage Portrait Prompt Create a premium identity-preserving portrait constructed from motivational typography that follows facial contours, hair, skin, neck, and clothing folds. 2 Open Ultra-Realistic Typography Word Collage Portrait Prompt Wildflower Meadow Asian Woman Fashion Photo Prompt Create a photorealistic countryside fashion portrait with a dreamy meadow pose, cream floral sundress, golden daylight, and cinematic bokeh. 2 Open Wildflower Meadow Asian Woman Fashion Photo Prompt Indian Man Vintage Sedan Street Fashion Prompt Create a luxury Indian street-fashion portrait beside a vintage black sedan on a rain-slick road, with a confident editorial pose and reflections. 1 Open Indian Man Vintage Sedan Street Fashion Prompt Golden Hour High ",
+    "foldElements": [
+      {
+        "tag": "IMG",
+        "text": "Free Prompt Base",
+        "top": 20,
+        "bottom": 44,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Submit prompt",
+        "top": 14,
+        "bottom": 50,
+        "fontSize": "14px",
+        "bg": "oklch(0.925 0.135 99)"
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "top": 113,
+        "bottom": 149,
+        "fontSize": "14px",
+        "bg": "oklch(0.925 0.135 99)"
+      },
+      {
+        "tag": "A",
+        "text": "Browse",
+        "top": 113,
+        "bottom": 149,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "TOP CONTRIBUTOR Sheenam Middha",
+        "top": 161,
+        "bottom": 203,
+        "fontSize": "18px",
+        "bg": "rgb(255, 255, 255)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Sheenam Middha",
+        "top": 166,
+        "bottom": 198,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Trending",
+        "top": 288,
+        "bottom": 321,
+        "fontSize": "15px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Recent",
+        "top": 288,
+        "bottom": 321,
+        "fontSize": "15px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "All",
+        "top": 288,
+        "bottom": 321,
+        "fontSize": "15px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Ultra-Realistic Typography Word Collage Portrait Prompt",
+        "top": 765,
+        "bottom": 1298,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Ultra-Realistic Typography Word Collage Portrait Prompt",
+        "top": 765,
+        "bottom": 1439,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      }
+    ]
+  },
+  {
+    "page": "prompt-detail",
+    "viewport": "desktop",
+    "url": "https://freepromptbase.com/wildflower-meadow-asian-woman-fashion-photo-prompt",
+    "screenshot": "/Volumes/Mac_ssd1/Websites/Bipul/freepromptbase.com/screenshots/cro-audit/prompt-detail-desktop-atf.png",
+    "title": "Wildflower meadow asian woman fashion\u2026 \u2014 Free Prompt Base",
+    "h1": {
+      "text": "Wildflower meadow asian woman fashion photo prompt",
+      "top": 149,
+      "bottom": 259,
+      "fontSize": "48px",
+      "color": "oklch(0.255 0.011 75)",
+      "visible": true
+    },
+    "scrollHeight": 4111,
+    "viewportHeight": 1080,
+    "hasMoreContentBelowFold": true,
+    "emptySpaceAtBottomPx": 29,
+    "falseScrollBottomRisk": false,
+    "stickyFixed": [
+      {
+        "tag": "HEADER",
+        "id": "",
+        "class": "sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3",
+        "text": "Prompts Skills News Saved Submit Blog About Search prompts Liked prompts Submit prompt",
+        "top": 0,
+        "bottom": 65,
+        "height": 65,
+        "pos": "sticky",
+        "bg": "rgb(255, 255, 255)"
+      },
+      {
+        "tag": "DIV",
+        "id": "",
+        "class": "lg:sticky lg:top-24",
+        "text": "1 / 4",
+        "top": 291,
+        "bottom": 1051,
+        "height": 760,
+        "pos": "sticky",
+        "bg": "rgba(0, 0, 0, 0)"
+      }
+    ],
+    "starMentions": [],
+    "socialHits": [
+      "copied",
+      "prompts",
+      "copy"
+    ],
+    "orangeHighContrastCtas": [],
+    "atfCtas": [
+      {
+        "text": "Liked prompts",
+        "href": "/liked",
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 1262
+      },
+      {
+        "text": "Instagram @Freepromptbase",
+        "href": "https://www.instagram.com/freepromptbase/",
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 1318
+      },
+      {
+        "text": "Submit prompt",
+        "href": "/submit",
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "w": 162,
+        "h": 36,
+        "top": 14,
+        "left": 1374
+      },
+      {
+        "text": "Free Prompt Base \u2014 home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 34,
+        "h": 34,
+        "top": 15,
+        "left": 384
+      },
+      {
+        "text": "Prompts",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 56,
+        "h": 20,
+        "top": 22,
+        "left": 450
+      },
+      {
+        "text": "Skills",
+        "href": "/skills",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 35,
+        "h": 20,
+        "top": 22,
+        "left": 530
+      },
+      {
+        "text": "News",
+        "href": "/news",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 37,
+        "h": 20,
+        "top": 22,
+        "left": 588
+      },
+      {
+        "text": "Saved",
+        "href": "/saved",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 40,
+        "h": 20,
+        "top": 22,
+        "left": 649
+      },
+      {
+        "text": "Submit",
+        "href": "/submit",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 47,
+        "h": 20,
+        "top": 22,
+        "left": 713
+      },
+      {
+        "text": "Blog",
+        "href": "/blog",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 30,
+        "h": 20,
+        "top": 22,
+        "left": 784
+      },
+      {
+        "text": "About",
+        "href": "/about",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 40,
+        "h": 20,
+        "top": 22,
+        "left": 838
+      },
+      {
+        "text": "Home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.52 0.014 75)",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "w": 52,
+        "h": 16,
+        "top": 113,
+        "left": 400
+      },
+      {
+        "text": "Images",
+        "href": "/category/images",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.52 0.014 75)",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "w": 42,
+        "h": 16,
+        "top": 113,
+        "left": 478
+      },
+      {
+        "text": "Images",
+        "href": "/category/images",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "12px",
+        "fontWeight": "600",
+        "w": 63,
+        "h": 16,
+        "top": 291,
+        "left": 954
+      },
+      {
+        "text": "Boopul",
+        "href": "/author/boopul",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "w": 40,
+        "h": 16,
+        "top": 291,
+        "left": 1407
+      },
+      {
+        "text": "Like 0",
+        "href": null,
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "600",
+        "w": 102,
+        "h": 38,
+        "top": 327,
+        "left": 954
+      },
+      {
+        "text": "Save 0",
+        "href": null,
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "600",
+        "w": 107,
+        "h": 38,
+        "top": 327,
+        "left": 1064
+      },
+      {
+        "text": "Share",
+        "href": null,
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "600",
+        "w": 97,
+        "h": 38,
+        "top": 327,
+        "left": 1179
+      },
+      {
+        "text": "Previous image",
+        "href": null,
+        "bg": "oklab(0.999994 0.0000455678 0.0000200868 / 0.9)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 651,
+        "left": 412
+      },
+      {
+        "text": "Next image",
+        "href": null,
+        "bg": "oklab(0.999994 0.0000455678 0.0000200868 / 0.9)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 651,
+        "left": 862
+      },
+      {
+        "text": "Copy",
+        "href": null,
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "13px",
+        "fontWeight": "700",
+        "w": 82,
+        "h": 31,
+        "top": 736,
+        "left": 1417
+      }
+    ],
+    "foldTextSample": "Prompts Skills News Saved Submit Blog About Search prompts Liked prompts Submit prompt Home Images Wildflower Meadow Asian Woman Fashion Photo Prompt Wildflower meadow asian woman fashion photo prompt Wildflower Meadow Asian Woman Fashion Photo Prompt 1 / 4 Images Updated Aug 6, 2026 2 min read 5 views by Boopul Like 0 Save 0 Share ADVERTISEMENT Discover more Women's Clothing Music & Audio Romance THE PROMPT 326 words \u00b7 2390 chars Copy Ultra-photorealistic outdoor fashion portrait of the same young Asian woman from the reference image, preserving her exact facial identity, soft facial structure, natural skin texture, dark brown eyes, subtle pink lips, and dark brown hair tied in a loose low ponytail with wispy strands blowing naturally across her face. She is seated gracefully in a vast wildflower meadow, leaning back on one arm with her legs softly folded to one side, looking away toward the horizon with a calm, dreamy expression. The pose feels candid rather than posed, as if captured during a real editorial photoshoot. She wears the same cream-colored floral sundress featuring tiny pastel flowers, thin shoulder straps tied into bows, a sweetheart neckline with delicate ruffle tr",
+    "foldElements": [
+      {
+        "tag": "IMG",
+        "text": "Free Prompt Base",
+        "top": 20,
+        "bottom": 44,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Prompts",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Skills",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "News",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Saved",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Submit",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Liked prompts",
+        "top": 12,
+        "bottom": 52,
+        "fontSize": "18px",
+        "bg": "rgb(255, 255, 255)"
+      },
+      {
+        "tag": "A",
+        "text": "Submit prompt",
+        "top": 14,
+        "bottom": 50,
+        "fontSize": "14px",
+        "bg": "oklch(0.925 0.135 99)"
+      },
+      {
+        "tag": "A",
+        "text": "Home",
+        "top": 113,
+        "bottom": 129,
+        "fontSize": "12px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Images",
+        "top": 113,
+        "bottom": 129,
+        "fontSize": "12px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "H1",
+        "text": "Wildflower meadow asian woman fashion photo prompt",
+        "top": 149,
+        "bottom": 259,
+        "fontSize": "48px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Wildflower Meadow Asian Woman Fashion Photo Prompt \u2014 image 1",
+        "top": 291,
+        "bottom": 1051,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Wildflower Meadow Asian Woman Fashion Photo Prompt \u2014 image 2",
+        "top": 291,
+        "bottom": 1051,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Wildflower Meadow Asian Woman Fashion Photo Prompt \u2014 image 3",
+        "top": 291,
+        "bottom": 1051,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Wildflower Meadow Asian Woman Fashion Photo Prompt \u2014 image 4",
+        "top": 291,
+        "bottom": 1051,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Images",
+        "top": 291,
+        "bottom": 307,
+        "fontSize": "12px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Boopul",
+        "top": 291,
+        "bottom": 307,
+        "fontSize": "12px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Like 0",
+        "top": 327,
+        "bottom": 365,
+        "fontSize": "14px",
+        "bg": "rgb(255, 255, 255)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Save 0",
+        "top": 327,
+        "bottom": 365,
+        "fontSize": "14px",
+        "bg": "rgb(255, 255, 255)"
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Share",
+        "top": 327,
+        "bottom": 365,
+        "fontSize": "14px",
+        "bg": "rgb(255, 255, 255)"
+      },
+      {
+        "tag": "H2",
+        "text": "THE PROMPT",
+        "top": 743,
+        "bottom": 759,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "BUTTON",
+        "text": "Copy",
+        "top": 736,
+        "bottom": 767,
+        "fontSize": "13px",
+        "bg": "oklch(0.925 0.135 99)"
+      }
+    ]
+  },
+  {
+    "page": "prompt-detail",
+    "viewport": "mobile",
+    "url": "https://freepromptbase.com/wildflower-meadow-asian-woman-fashion-photo-prompt",
+    "screenshot": "/Volumes/Mac_ssd1/Websites/Bipul/freepromptbase.com/screenshots/cro-audit/prompt-detail-mobile-atf.png",
+    "title": "Wildflower meadow asian woman fashion\u2026 \u2014 Free Prompt Base",
+    "h1": {
+      "text": "Wildflower meadow asian woman fashion photo prompt",
+      "top": 133,
+      "bottom": 237,
+      "fontSize": "30px",
+      "color": "oklch(0.255 0.011 75)",
+      "visible": true
+    },
+    "scrollHeight": 7400,
+    "viewportHeight": 812,
+    "hasMoreContentBelowFold": true,
+    "emptySpaceAtBottomPx": 539,
+    "falseScrollBottomRisk": true,
+    "stickyFixed": [
+      {
+        "tag": "HEADER",
+        "id": "",
+        "class": "sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3",
+        "text": "Search prompts Submit prompt",
+        "top": 0,
+        "bottom": 65,
+        "height": 65,
+        "pos": "sticky",
+        "bg": "rgb(255, 255, 255)"
+      }
+    ],
+    "starMentions": [],
+    "socialHits": [
+      "copied",
+      "prompts",
+      "copy"
+    ],
+    "orangeHighContrastCtas": [],
+    "atfCtas": [
+      {
+        "text": "Open menu",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 327
+      },
+      {
+        "text": "Submit prompt",
+        "href": "/submit",
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "w": 162,
+        "h": 36,
+        "top": 14,
+        "left": 157
+      },
+      {
+        "text": "Free Prompt Base \u2014 home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 34,
+        "h": 34,
+        "top": 15,
+        "left": 16
+      },
+      {
+        "text": "Home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.52 0.014 75)",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "w": 52,
+        "h": 16,
+        "top": 97,
+        "left": 16
+      },
+      {
+        "text": "Images",
+        "href": "/category/images",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.52 0.014 75)",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "w": 42,
+        "h": 16,
+        "top": 97,
+        "left": 94
+      },
+      {
+        "text": "Previous image",
+        "href": null,
+        "bg": "oklab(0.999994 0.0000455678 0.0000200868 / 0.9)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 548,
+        "left": 28
+      },
+      {
+        "text": "Next image",
+        "href": null,
+        "bg": "oklab(0.999994 0.0000455678 0.0000200868 / 0.9)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 548,
+        "left": 307
+      }
+    ],
+    "foldTextSample": "Search prompts Submit prompt Home Images Wildflower Meadow Asian Woman Fashion Photo Prompt Wildflower meadow asian woman fashion photo prompt Wildflower Meadow Asian Woman Fashion Photo Prompt Scroll down to copy the prompt 1 / 4 Images Updated Aug 6, 2026 2 min read 6 views by Boopul Like 0 Save 0 Share ADVERTISEMENT Discover more Photo & Image Sharing Photo Online Image Galleries Machine Learning & Artificial Intelligence photo THE PROMPT Copy Ultra-photorealistic outdoor fashion portrait of the same young Asian woman from the reference image, preserving her exact facial identity, soft facial structure, natural skin texture, dark brown eyes, subtle pink lips, and dark brown hair tied in a loose low ponytail with wispy strands blowing naturally across her face. She is seated gracefully in a vast wildflower meadow, leaning back on one arm with her legs softly folded to one side, looking away toward the horizon with a calm, dreamy expression. The pose feels candid rather than posed, as if captured during a real editorial photoshoot. She wears the same cream-colored floral sundress featuring tiny pastel flowers, thin shoulder straps tied into bows, a sweetheart neckline with delicat",
+    "foldElements": [
+      {
+        "tag": "IMG",
+        "text": "Free Prompt Base",
+        "top": 20,
+        "bottom": 44,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Submit prompt",
+        "top": 14,
+        "bottom": 50,
+        "fontSize": "14px",
+        "bg": "oklch(0.925 0.135 99)"
+      },
+      {
+        "tag": "A",
+        "text": "Home",
+        "top": 97,
+        "bottom": 113,
+        "fontSize": "12px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Images",
+        "top": 97,
+        "bottom": 113,
+        "fontSize": "12px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "H1",
+        "text": "Wildflower meadow asian woman fashion photo prompt",
+        "top": 133,
+        "bottom": 237,
+        "fontSize": "30px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Scroll down to copy the prompt",
+        "top": 253,
+        "bottom": 273,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Wildflower Meadow Asian Woman Fashion Photo Prompt \u2014 image 1",
+        "top": 305,
+        "bottom": 819,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Wildflower Meadow Asian Woman Fashion Photo Prompt \u2014 image 2",
+        "top": 305,
+        "bottom": 819,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Wildflower Meadow Asian Woman Fashion Photo Prompt \u2014 image 3",
+        "top": 305,
+        "bottom": 819,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Wildflower Meadow Asian Woman Fashion Photo Prompt \u2014 image 4",
+        "top": 305,
+        "bottom": 819,
+        "fontSize": "18px",
+        "bg": null
+      }
+    ]
+  },
+  {
+    "page": "tag-nano-banana",
+    "viewport": "desktop",
+    "url": "https://freepromptbase.com/nano-banana-prompt",
+    "screenshot": "/Volumes/Mac_ssd1/Websites/Bipul/freepromptbase.com/screenshots/cro-audit/tag-nano-banana-desktop-atf.png",
+    "title": "Nano Banana Prompt \u2014 Free Prompts to\u2026 | Free Prompt Base",
+    "h1": {
+      "text": "Nano Banana Prompt to Create Stunning AI Photos",
+      "top": 169,
+      "bottom": 252,
+      "fontSize": "36px",
+      "color": "oklch(0.255 0.011 75)",
+      "visible": true
+    },
+    "scrollHeight": 13313,
+    "viewportHeight": 1080,
+    "hasMoreContentBelowFold": true,
+    "emptySpaceAtBottomPx": 201,
+    "falseScrollBottomRisk": true,
+    "stickyFixed": [
+      {
+        "tag": "HEADER",
+        "id": "",
+        "class": "sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3",
+        "text": "Prompts Skills News Saved Submit Blog About Search prompts Liked prompts Submit prompt",
+        "top": 0,
+        "bottom": 65,
+        "height": 65,
+        "pos": "sticky",
+        "bg": "rgb(255, 255, 255)"
+      }
+    ],
+    "starMentions": [
+      "star"
+    ],
+    "socialHits": [
+      "users",
+      "prompts",
+      "people",
+      "copy"
+    ],
+    "orangeHighContrastCtas": [],
+    "atfCtas": [
+      {
+        "text": "Liked prompts",
+        "href": "/liked",
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 1262
+      },
+      {
+        "text": "Instagram @Freepromptbase",
+        "href": "https://www.instagram.com/freepromptbase/",
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 1318
+      },
+      {
+        "text": "Submit prompt",
+        "href": "/submit",
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "w": 162,
+        "h": 36,
+        "top": 14,
+        "left": 1374
+      },
+      {
+        "text": "Free Prompt Base \u2014 home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 34,
+        "h": 34,
+        "top": 15,
+        "left": 384
+      },
+      {
+        "text": "Prompts",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 56,
+        "h": 20,
+        "top": 22,
+        "left": 450
+      },
+      {
+        "text": "Skills",
+        "href": "/skills",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 35,
+        "h": 20,
+        "top": 22,
+        "left": 530
+      },
+      {
+        "text": "News",
+        "href": "/news",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 37,
+        "h": 20,
+        "top": 22,
+        "left": 588
+      },
+      {
+        "text": "Saved",
+        "href": "/saved",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 40,
+        "h": 20,
+        "top": 22,
+        "left": 649
+      },
+      {
+        "text": "Submit",
+        "href": "/submit",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 47,
+        "h": 20,
+        "top": 22,
+        "left": 713
+      },
+      {
+        "text": "Blog",
+        "href": "/blog",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 30,
+        "h": 20,
+        "top": 22,
+        "left": 784
+      },
+      {
+        "text": "About",
+        "href": "/about",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 40,
+        "h": 20,
+        "top": 22,
+        "left": 838
+      },
+      {
+        "text": "Home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.52 0.014 75)",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "w": 52,
+        "h": 16,
+        "top": 105,
+        "left": 400
+      },
+      {
+        "text": "Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "href": "/pixar-chibi-scrapbook-collage",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 470,
+        "top": 381,
+        "left": 401
+      },
+      {
+        "text": "Open Black Blazer Studio Portrait \u2013 Gemini AI Photo Prompt",
+        "href": "/black-blazer-studio-portrait-prompt",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 499,
+        "top": 381,
+        "left": 686
+      },
+      {
+        "text": "Open Ferris Wheel Couple \u2013 Gemini AI Photo Prompt",
+        "href": "/couple-prompt-ferris-wheel",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 492,
+        "top": 381,
+        "left": 971
+      },
+      {
+        "text": "Open Overhead Grass Couple \u2013 Gemini AI Photo Prompt",
+        "href": "/couple-prompt-overhead-grass",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 492,
+        "top": 381,
+        "left": 1256
+      },
+      {
+        "text": "Like prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 35,
+        "h": 32,
+        "top": 815,
+        "left": 411
+      },
+      {
+        "text": "Save prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 815,
+        "left": 586
+      },
+      {
+        "text": "Share prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 815,
+        "left": 622
+      },
+      {
+        "text": "Like prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 35,
+        "h": 32,
+        "top": 836,
+        "left": 981
+      },
+      {
+        "text": "Save prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 836,
+        "left": 1156
+      },
+      {
+        "text": "Share prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 836,
+        "left": 1192
+      },
+      {
+        "text": "Like prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 35,
+        "h": 32,
+        "top": 836,
+        "left": 1266
+      },
+      {
+        "text": "Save prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 836,
+        "left": 1441
+      },
+      {
+        "text": "Share prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 836,
+        "left": 1477
+      }
+    ],
+    "foldTextSample": "Prompts Skills News Saved Submit Blog About Search prompts Liked prompts Submit prompt Home Nano Banana Prompt AI PROMPT LIBRARY Nano Banana Prompt to Create Stunning AI Photos Free nano banana prompts you can copy in one tap. Paste, add your own photo, and create something worth sharing. 60 prompts Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt Turn one photo into a Pixar chibi scrapbook collage \u2014 3D chibi poses with doodles and stickers. A copy-paste Gemini AI photo prompt for Nano Banana and ChatGPT. 11 Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt Add playful doodles, motion lines, and captions that react to your subject. A free Gemini AI photo prompt \u2014 copy, paste your photo, and run it in Nano Banana or ChatGPT. 21 Open Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt World Cup Football Poster \u2013 Gemini AI Photo Prompt Make a cinematic World Cup poster \u2014 two players back-to-back, neon flags, smoky stadium haze. A copy-paste Gemini AI photo prompt for Nano Banana and ChatGPT. 20 Open World Cup Football Poster \u2013 Gemini AI Photo Prompt Back-Flash Night Portrait \u2013 Gemini AI Photo Prompt Get the viral night-",
+    "foldElements": [
+      {
+        "tag": "IMG",
+        "text": "Free Prompt Base",
+        "top": 20,
+        "bottom": 44,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Prompts",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Skills",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "News",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Saved",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Submit",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Liked prompts",
+        "top": 12,
+        "bottom": 52,
+        "fontSize": "18px",
+        "bg": "rgb(255, 255, 255)"
+      },
+      {
+        "tag": "A",
+        "text": "Submit prompt",
+        "top": 14,
+        "bottom": 50,
+        "fontSize": "14px",
+        "bg": "oklch(0.925 0.135 99)"
+      },
+      {
+        "tag": "A",
+        "text": "Home",
+        "top": 105,
+        "bottom": 121,
+        "fontSize": "12px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "P",
+        "text": "AI PROMPT LIBRARY",
+        "top": 141,
+        "bottom": 157,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "H1",
+        "text": "Nano Banana Prompt to Create Stunning AI Photos",
+        "top": 169,
+        "bottom": 252,
+        "fontSize": "36px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Free nano banana prompts you can copy in one tap. Paste, add your own photo, and create something worth sharing.",
+        "top": 264,
+        "bottom": 320,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "60 prompts",
+        "top": 328,
+        "bottom": 348,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "top": 381,
+        "bottom": 710,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "top": 722,
+        "bottom": 762,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Turn one photo into a Pixar chibi scrapbook collage \u2014 3D chibi poses with doodles and stickers. A copy-paste Gemini AI photo prompt for Nano",
+        "top": 766,
+        "bottom": 798,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "top": 381,
+        "bottom": 851,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt",
+        "top": 873,
+        "bottom": 1201,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt",
+        "top": 873,
+        "bottom": 1342,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Black Blazer Studio Portrait \u2013 Gemini AI Photo Prompt",
+        "top": 381,
+        "bottom": 738,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Black Blazer Studio Portrait \u2013 Gemini AI Photo Prompt",
+        "top": 750,
+        "bottom": 790,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Clean Gemini AI photo prompt for men \u2014 a professional studio portrait in an open black blazer and white shirt, warm genuine smile, soft key ",
+        "top": 794,
+        "bottom": 826,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Black Blazer Studio Portrait \u2013 Gemini AI Photo Prompt",
+        "top": 381,
+        "bottom": 879,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Kiss Marks Couple Selfie \u2013 Gemini AI Photo Prompt",
+        "top": 901,
+        "bottom": 1252,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Kiss Marks Couple Selfie \u2013 Gemini AI Photo Prompt",
+        "top": 901,
+        "bottom": 1393,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Ferris Wheel Couple \u2013 Gemini AI Photo Prompt",
+        "top": 381,
+        "bottom": 731,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Ferris Wheel Couple \u2013 Gemini AI Photo Prompt",
+        "top": 743,
+        "bottom": 783,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Gemini AI couple photo prompt \u2014 a laughing dip pose at a dusk carnival, illuminated ferris wheel behind, film grain and golden-to-blue-hour ",
+        "top": 787,
+        "bottom": 819,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Ferris Wheel Couple \u2013 Gemini AI Photo Prompt",
+        "top": 381,
+        "bottom": 872,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Rain Kiss Couple \u2013 Gemini AI Photo Prompt",
+        "top": 894,
+        "bottom": 1245,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Rain Kiss Couple \u2013 Gemini AI Photo Prompt",
+        "top": 894,
+        "bottom": 1386,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Overhead Grass Couple \u2013 Gemini AI Photo Prompt",
+        "top": 381,
+        "bottom": 731,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Overhead Grass Couple \u2013 Gemini AI Photo Prompt",
+        "top": 743,
+        "bottom": 783,
+        "fontSize": "14px",
+        "bg": null
+      }
+    ]
+  },
+  {
+    "page": "tag-nano-banana",
+    "viewport": "mobile",
+    "url": "https://freepromptbase.com/nano-banana-prompt",
+    "screenshot": "/Volumes/Mac_ssd1/Websites/Bipul/freepromptbase.com/screenshots/cro-audit/tag-nano-banana-mobile-atf.png",
+    "title": "Nano Banana Prompt \u2014 Free Prompts to\u2026 | Free Prompt Base",
+    "h1": {
+      "text": "Nano Banana Prompt to Create Stunning AI Photos",
+      "top": 169,
+      "bottom": 273,
+      "fontSize": "30px",
+      "color": "oklch(0.255 0.011 75)",
+      "visible": true
+    },
+    "scrollHeight": 45070,
+    "viewportHeight": 812,
+    "hasMoreContentBelowFold": true,
+    "emptySpaceAtBottomPx": 148,
+    "falseScrollBottomRisk": true,
+    "stickyFixed": [
+      {
+        "tag": "HEADER",
+        "id": "",
+        "class": "sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3",
+        "text": "Search prompts Submit prompt",
+        "top": 0,
+        "bottom": 65,
+        "height": 65,
+        "pos": "sticky",
+        "bg": "rgb(255, 255, 255)"
+      }
+    ],
+    "starMentions": [
+      "star"
+    ],
+    "socialHits": [
+      "users",
+      "prompts",
+      "people",
+      "copy"
+    ],
+    "orangeHighContrastCtas": [],
+    "atfCtas": [
+      {
+        "text": "Open menu",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 327
+      },
+      {
+        "text": "Submit prompt",
+        "href": "/submit",
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "w": 162,
+        "h": 36,
+        "top": 14,
+        "left": 157
+      },
+      {
+        "text": "Free Prompt Base \u2014 home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 34,
+        "h": 34,
+        "top": 15,
+        "left": 16
+      },
+      {
+        "text": "Home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.52 0.014 75)",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "w": 52,
+        "h": 16,
+        "top": 105,
+        "left": 16
+      },
+      {
+        "text": "Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "href": "/pixar-chibi-scrapbook-collage",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 341,
+        "h": 567,
+        "top": 697,
+        "left": 17
+      }
+    ],
+    "foldTextSample": "Search prompts Submit prompt Home Nano Banana Prompt AI PROMPT LIBRARY Nano Banana Prompt to Create Stunning AI Photos Free nano banana prompts you can copy in one tap. Paste, add your own photo, and create something worth sharing. 60 prompts Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt Turn one photo into a Pixar chibi scrapbook collage \u2014 3D chibi poses with doodles and stickers. A copy-paste Gemini AI photo prompt for Nano Banana and ChatGPT. 11 Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt Add playful doodles, motion lines, and captions that react to your subject. A free Gemini AI photo prompt \u2014 copy, paste your photo, and run it in Nano Banana or ChatGPT. 21 Open Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt World Cup Football Poster \u2013 Gemini AI Photo Prompt Make a cinematic World Cup poster \u2014 two players back-to-back, neon flags, smoky stadium haze. A copy-paste Gemini AI photo prompt for Nano Banana and ChatGPT. 20 Open World Cup Football Poster \u2013 Gemini AI Photo Prompt Back-Flash Night Portrait \u2013 Gemini AI Photo Prompt Get the viral night-flash look: a glowing rim-light halo, lens flare, and grai",
+    "foldElements": [
+      {
+        "tag": "IMG",
+        "text": "Free Prompt Base",
+        "top": 20,
+        "bottom": 44,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Submit prompt",
+        "top": 14,
+        "bottom": 50,
+        "fontSize": "14px",
+        "bg": "oklch(0.925 0.135 99)"
+      },
+      {
+        "tag": "A",
+        "text": "Home",
+        "top": 105,
+        "bottom": 121,
+        "fontSize": "12px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "P",
+        "text": "AI PROMPT LIBRARY",
+        "top": 141,
+        "bottom": 157,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "H1",
+        "text": "Nano Banana Prompt to Create Stunning AI Photos",
+        "top": 169,
+        "bottom": 273,
+        "fontSize": "30px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Free nano banana prompts you can copy in one tap. Paste, add your own photo, and create something worth sharing.",
+        "top": 285,
+        "bottom": 369,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "60 prompts",
+        "top": 644,
+        "bottom": 664,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "top": 697,
+        "bottom": 1123,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "top": 697,
+        "bottom": 1264,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      }
+    ]
+  },
+  {
+    "page": "tag-gemini-copy-paste",
+    "viewport": "desktop",
+    "url": "https://freepromptbase.com/gemini-ai-photo-prompt-copy-paste",
+    "screenshot": "/Volumes/Mac_ssd1/Websites/Bipul/freepromptbase.com/screenshots/cro-audit/tag-gemini-copy-paste-desktop-atf.png",
+    "title": "Gemini AI Photo Prompt Copy Paste\u2026 | Free Prompt Base",
+    "h1": {
+      "text": "Gemini AI Photo Prompt Copy Paste to Create Stunning AI Photos",
+      "top": 169,
+      "bottom": 252,
+      "fontSize": "36px",
+      "color": "oklch(0.255 0.011 75)",
+      "visible": true
+    },
+    "scrollHeight": 15013,
+    "viewportHeight": 1080,
+    "hasMoreContentBelowFold": true,
+    "emptySpaceAtBottomPx": 148,
+    "falseScrollBottomRisk": true,
+    "stickyFixed": [
+      {
+        "tag": "HEADER",
+        "id": "",
+        "class": "sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3",
+        "text": "Prompts Skills News Saved Submit Blog About Search prompts Liked prompts Submit prompt",
+        "top": 0,
+        "bottom": 65,
+        "height": 65,
+        "pos": "sticky",
+        "bg": "rgb(255, 255, 255)"
+      }
+    ],
+    "starMentions": [
+      "star"
+    ],
+    "socialHits": [
+      "users",
+      "prompts",
+      "people",
+      "copy"
+    ],
+    "orangeHighContrastCtas": [],
+    "atfCtas": [
+      {
+        "text": "Liked prompts",
+        "href": "/liked",
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 1262
+      },
+      {
+        "text": "Instagram @Freepromptbase",
+        "href": "https://www.instagram.com/freepromptbase/",
+        "bg": "rgb(255, 255, 255)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 1318
+      },
+      {
+        "text": "Submit prompt",
+        "href": "/submit",
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "w": 162,
+        "h": 36,
+        "top": 14,
+        "left": 1374
+      },
+      {
+        "text": "Free Prompt Base \u2014 home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 34,
+        "h": 34,
+        "top": 15,
+        "left": 384
+      },
+      {
+        "text": "Prompts",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 56,
+        "h": 20,
+        "top": 22,
+        "left": 450
+      },
+      {
+        "text": "Skills",
+        "href": "/skills",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 35,
+        "h": 20,
+        "top": 22,
+        "left": 530
+      },
+      {
+        "text": "News",
+        "href": "/news",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 37,
+        "h": 20,
+        "top": 22,
+        "left": 588
+      },
+      {
+        "text": "Saved",
+        "href": "/saved",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 40,
+        "h": 20,
+        "top": 22,
+        "left": 649
+      },
+      {
+        "text": "Submit",
+        "href": "/submit",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 47,
+        "h": 20,
+        "top": 22,
+        "left": 713
+      },
+      {
+        "text": "Blog",
+        "href": "/blog",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 30,
+        "h": 20,
+        "top": 22,
+        "left": 784
+      },
+      {
+        "text": "About",
+        "href": "/about",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.446 0.03 256.802)",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "w": 40,
+        "h": 20,
+        "top": 22,
+        "left": 838
+      },
+      {
+        "text": "Home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.52 0.014 75)",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "w": 52,
+        "h": 16,
+        "top": 105,
+        "left": 400
+      },
+      {
+        "text": "Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "href": "/pixar-chibi-scrapbook-collage",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 470,
+        "top": 381,
+        "left": 401
+      },
+      {
+        "text": "Open Monochromatic Editorial Fashion Portrait AI Prompt",
+        "href": "/monochromatic-editorial-fashion-portrait-ai-prompt",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 536,
+        "top": 381,
+        "left": 686
+      },
+      {
+        "text": "Open Cozy Night Couple Selfie Photo Editing Prompt",
+        "href": "/cozy-night-couple-selfie-photo-editing-prompt",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 551,
+        "top": 381,
+        "left": 971
+      },
+      {
+        "text": "Open Vintage Fisheye Night Flash Streetwear Photo Prompt",
+        "href": "/vintage-fisheye-night-flash-streetwear-photo-prompt",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 608,
+        "top": 381,
+        "left": 1256
+      },
+      {
+        "text": "Like prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 35,
+        "h": 32,
+        "top": 815,
+        "left": 411
+      },
+      {
+        "text": "Save prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 815,
+        "left": 586
+      },
+      {
+        "text": "Share prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 815,
+        "left": 622
+      },
+      {
+        "text": "Open Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt",
+        "href": "/hand-drawn-doodle-overlay",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 263,
+        "h": 470,
+        "top": 873,
+        "left": 401
+      },
+      {
+        "text": "Like prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 35,
+        "h": 32,
+        "top": 880,
+        "left": 696
+      },
+      {
+        "text": "Save prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 880,
+        "left": 871
+      },
+      {
+        "text": "Share prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 880,
+        "left": 907
+      },
+      {
+        "text": "Like prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 35,
+        "h": 32,
+        "top": 896,
+        "left": 981
+      },
+      {
+        "text": "Save prompt",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "rgb(107, 114, 128)",
+        "fontSize": "12px",
+        "fontWeight": "700",
+        "w": 32,
+        "h": 32,
+        "top": 896,
+        "left": 1156
+      }
+    ],
+    "foldTextSample": "Prompts Skills News Saved Submit Blog About Search prompts Liked prompts Submit prompt Home Gemini AI Photo Prompt Copy Paste AI PROMPT LIBRARY Gemini AI Photo Prompt Copy Paste to Create Stunning AI Photos Free gemini ai photo prompt copy paste you can copy in one tap. Paste, add your own photo, and create something worth sharing. 60 prompts Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt Turn one photo into a Pixar chibi scrapbook collage \u2014 3D chibi poses with doodles and stickers. A copy-paste Gemini AI photo prompt for Nano Banana and ChatGPT. 11 Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt Add playful doodles, motion lines, and captions that react to your subject. A free Gemini AI photo prompt \u2014 copy, paste your photo, and run it in Nano Banana or ChatGPT. 21 Open Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt World Cup Football Poster \u2013 Gemini AI Photo Prompt Make a cinematic World Cup poster \u2014 two players back-to-back, neon flags, smoky stadium haze. A copy-paste Gemini AI photo prompt for Nano Banana and ChatGPT. 20 Open World Cup Football Poster \u2013 Gemini AI Photo Prompt Back-Flash Night Portrait \u2013",
+    "foldElements": [
+      {
+        "tag": "IMG",
+        "text": "Free Prompt Base",
+        "top": 20,
+        "bottom": 44,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Prompts",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Skills",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "News",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Saved",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Submit",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Blog",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "About",
+        "top": 22,
+        "bottom": 42,
+        "fontSize": "14px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "A",
+        "text": "Liked prompts",
+        "top": 12,
+        "bottom": 52,
+        "fontSize": "18px",
+        "bg": "rgb(255, 255, 255)"
+      },
+      {
+        "tag": "A",
+        "text": "Submit prompt",
+        "top": 14,
+        "bottom": 50,
+        "fontSize": "14px",
+        "bg": "oklch(0.925 0.135 99)"
+      },
+      {
+        "tag": "A",
+        "text": "Home",
+        "top": 105,
+        "bottom": 121,
+        "fontSize": "12px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "P",
+        "text": "AI PROMPT LIBRARY",
+        "top": 141,
+        "bottom": 157,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "H1",
+        "text": "Gemini AI Photo Prompt Copy Paste to Create Stunning AI Photos",
+        "top": 169,
+        "bottom": 252,
+        "fontSize": "36px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Free gemini ai photo prompt copy paste you can copy in one tap. Paste, add your own photo, and create something worth sharing.",
+        "top": 264,
+        "bottom": 320,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "60 prompts",
+        "top": 328,
+        "bottom": 348,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "top": 381,
+        "bottom": 710,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "top": 722,
+        "bottom": 762,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Turn one photo into a Pixar chibi scrapbook collage \u2014 3D chibi poses with doodles and stickers. A copy-paste Gemini AI photo prompt for Nano",
+        "top": 766,
+        "bottom": 798,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "top": 381,
+        "bottom": 851,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt",
+        "top": 873,
+        "bottom": 1201,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt",
+        "top": 873,
+        "bottom": 1342,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Monochromatic Editorial Fashion Portrait AI Prompt",
+        "top": 381,
+        "bottom": 775,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Monochromatic Editorial Fashion Portrait AI Prompt",
+        "top": 787,
+        "bottom": 827,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Create an ultra-realistic monochromatic fashion portrait with luxury campaign lighting, natural skin texture, bold brush typography, and cle",
+        "top": 831,
+        "bottom": 863,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Monochromatic Editorial Fashion Portrait AI Prompt",
+        "top": 381,
+        "bottom": 916,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Soft Anime 4-Panel Collage Photo Editing Prompt",
+        "top": 938,
+        "bottom": 1492,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Soft Anime 4-Panel Collage Photo Editing Prompt",
+        "top": 938,
+        "bottom": 1633,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Cozy Night Couple Selfie Photo Editing Prompt",
+        "top": 381,
+        "bottom": 791,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Cozy Night Couple Selfie Photo Editing Prompt",
+        "top": 803,
+        "bottom": 843,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Create a playful close-up couple selfie at a warmly lit outdoor restaurant with natural skin, cheek-squishing expressions, plants, and night",
+        "top": 847,
+        "bottom": 879,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Cozy Night Couple Selfie Photo Editing Prompt",
+        "top": 381,
+        "bottom": 932,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Dual Tone Light Streak Fashion Editorial Prompt",
+        "top": 954,
+        "bottom": 1282,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Dual Tone Light Streak Fashion Editorial Prompt",
+        "top": 954,
+        "bottom": 1423,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "IMG",
+        "text": "Vintage Fisheye Night Flash Streetwear Photo Prompt",
+        "top": 381,
+        "bottom": 848,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "H2",
+        "text": "Vintage Fisheye Night Flash Streetwear Photo Prompt",
+        "top": 860,
+        "bottom": 900,
+        "fontSize": "14px",
+        "bg": null
+      }
+    ]
+  },
+  {
+    "page": "tag-gemini-copy-paste",
+    "viewport": "mobile",
+    "url": "https://freepromptbase.com/gemini-ai-photo-prompt-copy-paste",
+    "screenshot": "/Volumes/Mac_ssd1/Websites/Bipul/freepromptbase.com/screenshots/cro-audit/tag-gemini-copy-paste-mobile-atf.png",
+    "title": "Gemini AI Photo Prompt Copy Paste\u2026 | Free Prompt Base",
+    "h1": {
+      "text": "Gemini AI Photo Prompt Copy Paste to Create Stunning AI Photos",
+      "top": 169,
+      "bottom": 273,
+      "fontSize": "30px",
+      "color": "oklch(0.255 0.011 75)",
+      "visible": true
+    },
+    "scrollHeight": 48581,
+    "viewportHeight": 812,
+    "hasMoreContentBelowFold": true,
+    "emptySpaceAtBottomPx": 92,
+    "falseScrollBottomRisk": false,
+    "stickyFixed": [
+      {
+        "tag": "HEADER",
+        "id": "",
+        "class": "sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3",
+        "text": "Search prompts Submit prompt",
+        "top": 0,
+        "bottom": 65,
+        "height": 65,
+        "pos": "sticky",
+        "bg": "rgb(255, 255, 255)"
+      }
+    ],
+    "starMentions": [
+      "star"
+    ],
+    "socialHits": [
+      "users",
+      "prompts",
+      "people",
+      "copy"
+    ],
+    "orangeHighContrastCtas": [],
+    "atfCtas": [
+      {
+        "text": "Open menu",
+        "href": null,
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 40,
+        "h": 40,
+        "top": 12,
+        "left": 327
+      },
+      {
+        "text": "Submit prompt",
+        "href": "/submit",
+        "bg": "oklch(0.925 0.135 99)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "14px",
+        "fontWeight": "700",
+        "w": 162,
+        "h": 36,
+        "top": 14,
+        "left": 157
+      },
+      {
+        "text": "Free Prompt Base \u2014 home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 34,
+        "h": 34,
+        "top": 15,
+        "left": 16
+      },
+      {
+        "text": "Home",
+        "href": "/",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.52 0.014 75)",
+        "fontSize": "12px",
+        "fontWeight": "500",
+        "w": 52,
+        "h": 16,
+        "top": 105,
+        "left": 16
+      },
+      {
+        "text": "Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "href": "/pixar-chibi-scrapbook-collage",
+        "bg": "rgba(0, 0, 0, 0)",
+        "color": "oklch(0.255 0.011 75)",
+        "fontSize": "18px",
+        "fontWeight": "400",
+        "w": 341,
+        "h": 567,
+        "top": 753,
+        "left": 17
+      }
+    ],
+    "foldTextSample": "Search prompts Submit prompt Home Gemini AI Photo Prompt Copy Paste AI PROMPT LIBRARY Gemini AI Photo Prompt Copy Paste to Create Stunning AI Photos Free gemini ai photo prompt copy paste you can copy in one tap. Paste, add your own photo, and create something worth sharing. 60 prompts Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt Turn one photo into a Pixar chibi scrapbook collage \u2014 3D chibi poses with doodles and stickers. A copy-paste Gemini AI photo prompt for Nano Banana and ChatGPT. 11 Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt Add playful doodles, motion lines, and captions that react to your subject. A free Gemini AI photo prompt \u2014 copy, paste your photo, and run it in Nano Banana or ChatGPT. 21 Open Hand-Drawn Doodle Overlay \u2013 Gemini AI Photo Prompt World Cup Football Poster \u2013 Gemini AI Photo Prompt Make a cinematic World Cup poster \u2014 two players back-to-back, neon flags, smoky stadium haze. A copy-paste Gemini AI photo prompt for Nano Banana and ChatGPT. 20 Open World Cup Football Poster \u2013 Gemini AI Photo Prompt Back-Flash Night Portrait \u2013 Gemini AI Photo Prompt Get the viral night-flash look: a ",
+    "foldElements": [
+      {
+        "tag": "IMG",
+        "text": "Free Prompt Base",
+        "top": 20,
+        "bottom": 44,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Submit prompt",
+        "top": 14,
+        "bottom": 50,
+        "fontSize": "14px",
+        "bg": "oklch(0.925 0.135 99)"
+      },
+      {
+        "tag": "A",
+        "text": "Home",
+        "top": 105,
+        "bottom": 121,
+        "fontSize": "12px",
+        "bg": "rgba(0, 0, 0, 0)"
+      },
+      {
+        "tag": "P",
+        "text": "AI PROMPT LIBRARY",
+        "top": 141,
+        "bottom": 157,
+        "fontSize": "12px",
+        "bg": null
+      },
+      {
+        "tag": "H1",
+        "text": "Gemini AI Photo Prompt Copy Paste to Create Stunning AI Photos",
+        "top": 169,
+        "bottom": 273,
+        "fontSize": "30px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "Free gemini ai photo prompt copy paste you can copy in one tap. Paste, add your own photo, and create something worth sharing.",
+        "top": 285,
+        "bottom": 397,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "P",
+        "text": "60 prompts",
+        "top": 700,
+        "bottom": 720,
+        "fontSize": "14px",
+        "bg": null
+      },
+      {
+        "tag": "IMG",
+        "text": "Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "top": 753,
+        "bottom": 1179,
+        "fontSize": "18px",
+        "bg": null
+      },
+      {
+        "tag": "A",
+        "text": "Open Pixar Chibi Scrapbook Collage \u2013 Gemini AI Photo Prompt",
+        "top": 753,
+        "bottom": 1320,
+        "fontSize": "18px",
+        "bg": "rgba(0, 0, 0, 0)"
+      }
+    ]
+  }
+]

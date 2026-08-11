@@ -4,8 +4,58 @@ import type { APIRoute } from 'astro';
 import { getDB } from '../../../../lib/db';
 import { logActivity } from '../../../../lib/cms';
 import { publishMediaFile } from '../../../../lib/mediaPublishing';
+import { invalidatePublicPaths } from '../../../../lib/publicCache';
 // @ts-ignore - cloudflare:workers is a Workers-only built-in module
 import { env as cfEnv } from 'cloudflare:workers';
+
+function safeJsonArray(raw: string | null): string[] {
+  if (!raw) return [];
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) ? v : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Drop a deleted media URL from every prompt that still references it. */
+async function scrubMediaUrlFromPrompts(
+  db: D1Database,
+  mediaUrl: string,
+): Promise<{ slug: string; category: string }[]> {
+  const rows = await db
+    .prepare(
+      `SELECT slug, category, cover_image, images
+       FROM prompts
+       WHERE cover_image = ? OR images LIKE ?`,
+    )
+    .bind(mediaUrl, `%${mediaUrl}%`)
+    .all<{ slug: string; category: string; cover_image: string | null; images: string | null }>();
+
+  const touched: { slug: string; category: string }[] = [];
+  for (const row of rows.results || []) {
+    const images = safeJsonArray(row.images);
+    const nextImages = images.filter((u) => u !== mediaUrl);
+    const nextCover =
+      row.cover_image === mediaUrl
+        ? nextImages[0] || null
+        : row.cover_image;
+    const imagesChanged = nextImages.length !== images.length;
+    const coverChanged = nextCover !== row.cover_image;
+    if (!imagesChanged && !coverChanged) continue;
+
+    await db
+      .prepare(
+        `UPDATE prompts
+         SET images = ?, cover_image = ?, updated_at = datetime('now')
+         WHERE slug = ?`,
+      )
+      .bind(JSON.stringify(nextImages), nextCover, row.slug)
+      .run();
+    touched.push({ slug: row.slug, category: row.category });
+  }
+  return touched;
+}
 
 export const GET: APIRoute = async ({ locals, url }) => {
   if (!locals.user || locals.user.role !== 'admin') {
@@ -100,29 +150,57 @@ export const DELETE: APIRoute = async ({ request, locals }) => {
 
   const db = getDB(locals);
   const body = await request.json();
-  const { id } = body;
+  const id = typeof body.id === 'string' ? body.id.trim() : '';
+  const url = typeof body.url === 'string' ? body.url.trim() : '';
 
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Missing media id' }), { status: 400, headers: { 'Content-Type': 'application/json' } });
+  if (!id && !url) {
+    return new Response(JSON.stringify({ error: 'Missing media id or url' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
-  const media = await db.prepare('SELECT r2_key, filename FROM media WHERE id = ?').bind(id).first<{ r2_key: string; filename: string }>();
+  const media = id
+    ? await db
+        .prepare('SELECT id, r2_key, url, filename FROM media WHERE id = ?')
+        .bind(id)
+        .first<{ id: string; r2_key: string; url: string; filename: string }>()
+    : await db
+        .prepare('SELECT id, r2_key, url, filename FROM media WHERE url = ?')
+        .bind(url)
+        .first<{ id: string; r2_key: string; url: string; filename: string }>();
+
   if (!media) {
-    return new Response(JSON.stringify({ error: 'Media not found' }), { status: 404, headers: { 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: 'Media not found' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 
   await (cfEnv as any).R2.delete(media.r2_key);
+  await db.prepare('DELETE FROM media WHERE id = ?').bind(media.id).run();
 
-  await db.prepare('DELETE FROM media WHERE id = ?').bind(id).run();
+  // Keep prompt galleries in sync so a deleted file cannot reappear via stale
+  // images[] JSON after the next public cache refresh.
+  const touched = await scrubMediaUrlFromPrompts(db, media.url);
+  const paths = [
+    '/',
+    '/categories',
+    '/sitemap.xml',
+    ...touched.flatMap((p) => [`/${encodeURIComponent(p.slug)}`, `/category/${encodeURIComponent(p.category)}`]),
+  ];
+  await invalidatePublicPaths(paths);
 
   await logActivity(db, {
     userId: locals.user.id,
     userName: locals.user.name,
     action: 'delete_media',
     entityType: 'media',
-    entityId: id,
+    entityId: media.id,
     entityTitle: media.filename,
   });
 
-  return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
+  return new Response(JSON.stringify({ success: true, scrubbedPrompts: touched.map((p) => p.slug) }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
 };
