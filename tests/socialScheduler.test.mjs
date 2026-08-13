@@ -63,13 +63,14 @@ test('retries a transient media preflight response', async () => {
 	assert.equal(attempts, 2);
 });
 
-test('validates a JPEG transform through its source CDN image', async () => {
-	let checked;
-	await validateMediaAvailability([{ ...campaign.media[0], url: 'https://freepromptbase.com/cdn-cgi/image/width=1120,format=jpeg/cdn/source.webp' }], async (url) => {
-		checked = url;
-		return new Response(null, { status: 200, headers: { 'content-type': 'image/webp' } });
+test('accepts only trusted JPEG CDN transform syntax', async () => {
+	let called = false;
+	await validateMediaAvailability([{ ...campaign.media[0], url: 'https://freepromptbase.com/cdn-cgi/image/width=1120,format=jpeg/cdn/source.webp' }], async () => {
+		called = true;
+		throw new Error('transformed media is externally preflighted');
 	});
-	assert.equal(checked, 'https://freepromptbase.com/cdn/source.webp');
+	assert.equal(called, false);
+	await assert.rejects(() => validateMediaAvailability([{ ...campaign.media[0], url: 'https://freepromptbase.com/cdn-cgi/image/width=1120/cdn/source.webp' }]), /JPEG CDN transformation/);
 });
 
 test('derives partial status and bounded retry policy', () => {

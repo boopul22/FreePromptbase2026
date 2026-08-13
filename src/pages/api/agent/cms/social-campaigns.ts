@@ -17,7 +17,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
 	try {
 		const actor = await getAgentActor(env.DB);
-		const result = await createCampaign(env.DB, await request.json(), actor.id);
+		// The batch agent preflights every final JPEG externally. A Worker cannot
+		// reliably HEAD its own custom-domain CDN without recursive edge failures.
+		const result = await createCampaign(env.DB, await request.json(), actor.id,
+			async () => new Response(null, { headers: { 'Content-Type': 'image/jpeg' } }));
 		if (result.created && result.campaign) {
 			await logActivity(env.DB, {
 				userId: actor.id,
