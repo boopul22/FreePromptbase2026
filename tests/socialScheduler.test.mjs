@@ -55,6 +55,14 @@ test('checks that media resolves as JPEG', async () => {
 	await assert.rejects(() => validateMediaAvailability(campaign.media, async () => new Response(null, { status: 200, headers: { 'content-type': 'image/webp' } })), /image\/jpeg/);
 });
 
+test('retries a transient media preflight response', async () => {
+	let attempts = 0;
+	await validateMediaAvailability([campaign.media[0]], async () => ++attempts === 1
+		? new Response('cold transform', { status: 503, headers: { 'content-type': 'text/plain' } })
+		: new Response(null, { status: 200, headers: { 'content-type': 'image/jpeg' } }));
+	assert.equal(attempts, 2);
+});
+
 test('derives partial status and bounded retry policy', () => {
 	assert.equal(deriveCampaignStatus(['published', 'failed']), 'partial');
 	assert.deepEqual(retryDisposition(1, true), { status: 'retrying', delaySeconds: 60 });

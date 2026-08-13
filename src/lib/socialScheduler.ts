@@ -145,11 +145,15 @@ export function normalizeCampaignInput(raw: unknown, now = Date.now()): Campaign
 
 export async function validateMediaAvailability(media: SocialMedia[], fetcher: typeof fetch = fetch): Promise<void> {
 	await Promise.all(media.map(async (item, index) => {
-		let response: Response;
-		try { response = await fetcher(item.url, { method: 'HEAD', redirect: 'follow' }); }
-		catch { throw new SocialError(`media[${index}] is not publicly reachable.`); }
-		const type = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
-		if (!response.ok || type !== 'image/jpeg') throw new SocialError(`media[${index}] must return a public image/jpeg response.`);
+		for (let attempt = 0; attempt < 3; attempt++) {
+			try {
+				const response = await fetcher(item.url, { method: 'HEAD', redirect: 'follow' });
+				const type = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
+				if (response.ok && type === 'image/jpeg') return;
+			} catch { /* retry the same public URL */ }
+			if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 150 * (attempt + 1)));
+		}
+		throw new SocialError(`media[${index}] must return a public image/jpeg response.`);
 	}));
 }
 
