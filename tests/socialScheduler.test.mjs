@@ -63,6 +63,15 @@ test('retries a transient media preflight response', async () => {
 	assert.equal(attempts, 2);
 });
 
+test('validates a JPEG transform through its source CDN image', async () => {
+	let checked;
+	await validateMediaAvailability([{ ...campaign.media[0], url: 'https://freepromptbase.com/cdn-cgi/image/width=1120,format=jpeg/cdn/source.webp' }], async (url) => {
+		checked = url;
+		return new Response(null, { status: 200, headers: { 'content-type': 'image/webp' } });
+	});
+	assert.equal(checked, 'https://freepromptbase.com/cdn/source.webp');
+});
+
 test('derives partial status and bounded retry policy', () => {
 	assert.equal(deriveCampaignStatus(['published', 'failed']), 'partial');
 	assert.deepEqual(retryDisposition(1, true), { status: 'retrying', delaySeconds: 60 });

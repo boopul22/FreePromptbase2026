@@ -240,6 +240,19 @@ async function uploadPair(campaign, token) {
 	return body.uploads.map((upload) => upload.url);
 }
 
+async function verifyFinalJpegs(media) {
+	await Promise.all(media.map(async ({ url }, index) => {
+		for (let attempt = 0; attempt < 3; attempt++) {
+			try {
+				const response = await fetch(url, { method: 'HEAD', redirect: 'follow' });
+				if (response.ok && response.headers.get('content-type')?.split(';')[0] === 'image/jpeg') return;
+			} catch { /* retry */ }
+			if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 250 * (attempt + 1)));
+		}
+		throw new Error(`${campaign.slug}: final media ${index + 1} is not a public JPEG`);
+	}));
+}
+
 async function schedule() {
 	const state = JSON.parse(await readFile(statePath, 'utf8'));
 	const token = (await readFile(tokenPath, 'utf8')).toString().trim();
@@ -254,6 +267,7 @@ async function schedule() {
 			{ url: campaign.uploads[0], role: 'full-prompt', altText: `Full copy-paste prompt for ${campaign.title} displayed over a darkened source image.` },
 			{ url: campaign.uploads[1], role: 'website-promo', altText: `Free Prompt Base promotion for ${campaign.title} with the words Copy. Paste. Create.` },
 		];
+		await verifyFinalJpegs(media);
 		const body = { idempotencyKey: `fpb-social-${campaign.slug}-${campaign.scheduledAt.slice(0, 10).replaceAll('-', '')}-v1`, canonicalUrl: `https://freepromptbase.com/${campaign.slug}`, scheduledAt: campaign.scheduledAt, media, instagram: { caption: campaign.captions.instagram }, facebook: { message: campaign.captions.facebook } };
 		const response = await fetch('https://freepromptbase.com/api/agent/cms/social-campaigns', { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 		const result = await response.json();

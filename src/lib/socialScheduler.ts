@@ -145,11 +145,18 @@ export function normalizeCampaignInput(raw: unknown, now = Date.now()): Campaign
 
 export async function validateMediaAvailability(media: SocialMedia[], fetcher: typeof fetch = fetch): Promise<void> {
 	await Promise.all(media.map(async (item, index) => {
+		const requested = new URL(item.url);
+		const sourceIndex = requested.pathname.indexOf('/cdn/');
+		const transformed = requested.pathname.startsWith('/cdn-cgi/image/');
+		if (transformed && (sourceIndex < 0 || !requested.pathname.slice(0, sourceIndex).includes('format=jpeg'))) {
+			throw new SocialError(`media[${index}] must use a JPEG CDN transformation.`);
+		}
+		const checkUrl = transformed ? `${requested.origin}${requested.pathname.slice(sourceIndex)}` : item.url;
 		for (let attempt = 0; attempt < 3; attempt++) {
 			try {
-				const response = await fetcher(item.url, { method: 'HEAD', redirect: 'follow' });
+				const response = await fetcher(checkUrl, { method: 'HEAD', redirect: 'follow' });
 				const type = response.headers.get('content-type')?.split(';')[0].trim().toLowerCase();
-				if (response.ok && type === 'image/jpeg') return;
+				if (response.ok && (transformed ? type?.startsWith('image/') : type === 'image/jpeg')) return;
 			} catch { /* retry the same public URL */ }
 			if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 150 * (attempt + 1)));
 		}
