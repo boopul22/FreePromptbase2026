@@ -7,7 +7,7 @@
 	// The auth token may have access to multiple CF accounts; pin the one that
 	// owns this project's domain/D1/R2/email so wrangler never prompts to choose.
 	"account_id": "ab54ca2d01df4886aa0c3f240ace806d",
-	"main": "@astrojs/cloudflare/entrypoints/server",
+	"main": "./src/worker.ts",
 	"compatibility_date": "2026-05-25",
 	"compatibility_flags": ["nodejs_compat"],
 	"assets": {
@@ -17,6 +17,7 @@
 		"not_found_handling": "none"
 	},
 	"observability": { "enabled": true },
+	"triggers": { "crons": ["* * * * *"] },
 	"d1_databases": [
 		{
 			// Accessed in code as env.DB (see src/lib/prompts.ts + src/lib/db.ts).
@@ -72,6 +73,10 @@
 		"EMAIL_FROM": "updates@freepromptbase.com",
 		"EMAIL_FROM_NAME": "Free Prompt Base",
 		"EMAIL_REPLY_TO": "hello@freepromptbase.com",
-		"SITE_URL": "https://freepromptbase.com"
+		"SITE_URL": "https://freepromptbase.com",
+		"FB_PAGE_ID": "1240248679172928",
+		"META_API_VERSION": "v25.0",
+		"IG_API_HOST": "https://graph.instagram.com",
+		"FB_API_HOST": "https://graph.facebook.com"
 	}
 }

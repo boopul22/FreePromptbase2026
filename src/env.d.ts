@@ -38,6 +38,13 @@ declare namespace App {
         EMAIL_FROM_NAME: string;
         EMAIL_REPLY_TO: string;
         SITE_URL: string;
+        IG_ACCESS_TOKEN: string;
+        IG_USER_ID: string;
+        FB_PAGE_ACCESS_TOKEN: string;
+        FB_PAGE_ID: string;
+        META_API_VERSION: string;
+        IG_API_HOST: string;
+        FB_API_HOST: string;
         // Optional — only needed if using translate feature
         OPENROUTER_API_KEY?: string;
       };

@@ -1,0 +1,252 @@
+---
+export const prerender = false;
+
+import Layout from '../../../layouts/Layout.astro';
+import AdminSidebar from '../../../components/AdminSidebar.astro';
+import { getDB } from '../../../lib/db';
+import { listCampaigns } from '../../../lib/socialScheduler';
+
+let initial: any = { campaigns: [], total: 0, counts: {} };
+try { initial = await listCampaigns(getDB(Astro.locals), { limit: 50 }); } catch {}
+const initialJson = JSON.stringify(initial).replace(/</g, '\\u003c');
+---
+
+<Layout title="Social Scheduler - Admin - Free Prompt Base" noindex={true}>
+	<div class="flex flex-col md:flex-row min-h-screen md:h-screen md:overflow-hidden">
+		<AdminSidebar activePage="social" />
+		<main class="flex-1 min-w-0 p-3 sm:p-5 bg-gray-50 md:overflow-y-auto md:h-screen">
+			<div class="max-w-7xl mx-auto space-y-4">
+				<header class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+					<div>
+						<h1 class="text-xl font-semibold text-text-primary">Social scheduler</h1>
+						<p class="text-xs text-gray-500 mt-1">Paired Instagram + Facebook publishing from Cloudflare.</p>
+					</div>
+					<button id="new-campaign" class="btn-primary inline-flex items-center justify-center gap-1.5">
+						<span class="material-symbols-outlined text-base">add</span> New campaign
+					</button>
+				</header>
+
+				<section class="grid grid-cols-2 lg:grid-cols-5 gap-2" aria-label="Campaign counts">
+					{['scheduled', 'publishing', 'partial', 'failed', 'published'].map(status => (
+						<div class="bg-white border border-gray-200 rounded-md p-3">
+							<p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500">{status}</p>
+							<p class="text-2xl font-semibold mt-1" data-count={status}>0</p>
+						</div>
+					))}
+				</section>
+
+				<section class="bg-white border border-gray-200 rounded-md p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3" aria-labelledby="health-title">
+					<div>
+						<h2 id="health-title" class="text-sm font-semibold">Meta account health</h2>
+						<p id="health-copy" class="text-xs text-gray-500 mt-1">Not checked yet.</p>
+					</div>
+					<button id="check-health" class="btn-secondary text-xs">Check connections</button>
+				</section>
+
+				<section class="bg-white border border-gray-200 rounded-md">
+					<div class="p-3 border-b border-gray-200 flex flex-col lg:flex-row gap-2 lg:items-center justify-between">
+						<div class="flex flex-1 gap-2">
+							<input id="search" type="search" placeholder="Search prompt slug" class="sf-input max-w-sm" />
+							<select id="status-filter" class="sf-input max-w-40" aria-label="Filter status">
+								<option value="">All statuses</option>
+								<option value="scheduled">Scheduled</option><option value="publishing">Publishing</option>
+								<option value="partial">Partial</option><option value="failed">Failed</option>
+								<option value="published">Published</option><option value="canceled">Canceled</option>
+							</select>
+						</div>
+						<div class="inline-flex rounded-md border border-gray-200 p-0.5 self-start">
+							<button data-view="list" class="view-toggle px-3 py-1.5 rounded text-xs font-semibold bg-primary text-link">Queue</button>
+							<button data-view="calendar" class="view-toggle px-3 py-1.5 rounded text-xs font-semibold">Calendar</button>
+						</div>
+					</div>
+					<div id="list-view" class="divide-y divide-gray-200"></div>
+					<div id="calendar-view" class="hidden p-3">
+						<div class="flex items-center justify-between mb-3">
+							<button id="calendar-prev" class="w-9 h-9 rounded-md hover:bg-gray-100" aria-label="Previous month"><span class="material-symbols-outlined">chevron_left</span></button>
+							<h2 id="calendar-title" class="font-semibold"></h2>
+							<button id="calendar-next" class="w-9 h-9 rounded-md hover:bg-gray-100" aria-label="Next month"><span class="material-symbols-outlined">chevron_right</span></button>
+						</div>
+						<div class="grid grid-cols-7 text-center text-[10px] font-semibold uppercase text-gray-500 mb-1">
+							{['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(day => <div class="py-1">{day}</div>)}
+						</div>
+						<div id="calendar-grid" class="grid grid-cols-7 border-l border-t border-gray-200"></div>
+					</div>
+				</section>
+			</div>
+		</main>
+	</div>
+
+	<dialog id="campaign-dialog" class="w-[min(960px,calc(100%-1rem))] max-h-[94vh] rounded-lg p-0 backdrop:bg-black/40">
+		<form id="campaign-form" class="bg-white" method="dialog">
+			<header class="sticky top-0 z-10 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+				<div><h2 id="dialog-title" class="font-semibold text-lg">New campaign</h2><p class="text-xs text-gray-500">All times use this browser’s local timezone.</p></div>
+				<button type="button" data-close class="w-10 h-10 rounded-md hover:bg-gray-100" aria-label="Close"><span class="material-symbols-outlined">close</span></button>
+			</header>
+			<div class="p-4 space-y-5 overflow-y-auto">
+				<input id="campaign-id" type="hidden" />
+				<input id="idempotency-key" type="hidden" />
+				<div class="grid sm:grid-cols-2 gap-3">
+					<label class="text-xs font-semibold">Canonical prompt URL<input id="canonical-url" required type="url" placeholder="https://freepromptbase.com/prompt-slug" class="sf-input mt-1" /></label>
+					<label class="text-xs font-semibold">Publish date and time<input id="scheduled-at" required type="datetime-local" class="sf-input mt-1" /></label>
+				</div>
+
+				<section>
+					<div class="flex items-center justify-between mb-2"><h3 class="text-sm font-semibold">Ordered JPEG media</h3><button id="add-media" type="button" class="btn-secondary text-xs">Add image</button></div>
+					<div id="media-rows" class="space-y-2"></div>
+					<p class="text-[11px] text-gray-500 mt-2">Use 1 image or a 2–10 image carousel from freepromptbase.com/cdn.</p>
+				</section>
+
+				<div class="grid lg:grid-cols-2 gap-4">
+					<label class="text-xs font-semibold">Instagram caption <span id="ig-count" class="font-normal text-gray-500">0 / 2,200</span>
+						<textarea id="instagram-caption" required maxlength="2200" rows="10" class="sf-input mt-1 resize-y"></textarea>
+					</label>
+					<label class="text-xs font-semibold">Facebook message
+						<textarea id="facebook-message" required rows="10" class="sf-input mt-1 resize-y"></textarea>
+					</label>
+				</div>
+				<div id="form-error" class="hidden rounded-md bg-red-50 border border-red-200 text-red-700 text-sm p-3" role="alert"></div>
+			</div>
+			<footer class="sticky bottom-0 bg-white border-t border-gray-200 p-3 flex justify-end gap-2">
+				<button type="button" data-close class="btn-secondary">Cancel</button>
+				<button id="save-now" type="button" class="btn-secondary">Save & queue now</button>
+				<button id="save-campaign" type="submit" class="btn-primary">Schedule campaign</button>
+			</footer>
+		</form>
+	</dialog>
+
+	<script type="application/json" id="social-initial" set:html={initialJson}></script>
+</Layout>
+
+<script>
+	type Delivery = { platform: 'instagram' | 'facebook'; content: string; status: string; attempts: number; lastError: string | null; permalink: string | null };
+	type Media = { url: string; role: string; altText: string };
+	type Campaign = { id: string; idempotencyKey: string; promptSlug: string; canonicalUrl: string; scheduledAt: string; status: string; media: Media[]; deliveries: Delivery[] };
+	let data: { campaigns: Campaign[]; total: number; counts: Record<string, number> } = JSON.parse(document.getElementById('social-initial')?.textContent || '{"campaigns":[],"counts":{}}');
+	let calendarDate = new Date();
+	let activeView = 'list';
+
+	const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+	const esc = (value: unknown) => { const node = document.createElement('div'); node.textContent = String(value ?? ''); return node.innerHTML; };
+	const local = (value: string) => new Date(value).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
+	const localInput = (value: string) => { const date = new Date(value); date.setMinutes(date.getMinutes() - date.getTimezoneOffset()); return date.toISOString().slice(0, 16); };
+	const delivery = (campaign: Campaign, platform: string) => campaign.deliveries.find(item => item.platform === platform);
+	const badge = (status: string) => ({ published: 'bg-green-50 text-green-700', failed: 'bg-red-50 text-red-700', partial: 'bg-amber-50 text-amber-800', publishing: 'bg-blue-50 text-blue-700', canceled: 'bg-gray-100 text-gray-600' }[status] || 'bg-violet-50 text-violet-800');
+
+	function renderCounts() {
+		for (const element of document.querySelectorAll<HTMLElement>('[data-count]')) element.textContent = String(data.counts[element.dataset.count || ''] || 0);
+	}
+
+	function actions(campaign: Campaign) {
+		const ig = delivery(campaign, 'instagram'); const fb = delivery(campaign, 'facebook');
+		return `<div class="flex flex-wrap gap-1.5 mt-3">
+			${campaign.status === 'scheduled' && campaign.deliveries.every(item => item.attempts === 0) ? `<button data-edit="${campaign.id}" class="btn-secondary text-xs">Edit</button>` : ''}
+			${campaign.status === 'scheduled' && campaign.deliveries.every(item => item.attempts === 0) ? `<button data-action="publish-now" data-id="${campaign.id}" class="btn-secondary text-xs">Queue now</button><button data-action="cancel" data-id="${campaign.id}" class="text-xs px-3 py-1.5 rounded-md border border-red-200 text-red-700">Cancel</button>` : ''}
+			${ig?.status === 'failed' ? `<button data-action="retry" data-platform="instagram" data-id="${campaign.id}" class="btn-secondary text-xs">Retry Instagram</button>` : ''}
+			${fb?.status === 'failed' ? `<button data-action="retry" data-platform="facebook" data-id="${campaign.id}" class="btn-secondary text-xs">Retry Facebook</button>` : ''}
+			${ig?.permalink ? `<a href="${esc(ig.permalink)}" target="_blank" rel="noopener" class="text-xs font-semibold text-primary px-2 py-1.5">Instagram ↗</a>` : ''}
+			${fb?.permalink ? `<a href="${esc(fb.permalink)}" target="_blank" rel="noopener" class="text-xs font-semibold text-primary px-2 py-1.5">Facebook ↗</a>` : ''}
+		</div>`;
+	}
+
+	function renderList() {
+		const list = $('list-view');
+		if (!data.campaigns.length) { list.innerHTML = '<div class="p-10 text-center text-sm text-gray-500">No social campaigns found.</div>'; return; }
+		list.innerHTML = data.campaigns.map(campaign => {
+			const ig = delivery(campaign, 'instagram'); const fb = delivery(campaign, 'facebook');
+			const errors = [ig, fb].filter(item => item?.lastError).map(item => `<p class="text-xs text-red-700 mt-1"><strong>${item!.platform}:</strong> ${esc(item!.lastError)}</p>`).join('');
+			return `<article class="p-3 sm:p-4 flex gap-3">
+				<img src="${esc(campaign.media[0]?.url)}" alt="" class="w-16 h-20 sm:w-20 sm:h-24 object-cover rounded-md bg-gray-100 shrink-0" />
+				<div class="min-w-0 flex-1"><div class="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+					<div><a href="${esc(campaign.canonicalUrl)}" target="_blank" class="font-semibold text-sm hover:underline">${esc(campaign.promptSlug)}</a><p class="text-xs text-gray-500 mt-1">${local(campaign.scheduledAt)} · ${campaign.media.length} image${campaign.media.length === 1 ? '' : 's'}</p></div>
+					<span class="self-start px-2 py-1 rounded text-[10px] uppercase font-bold ${badge(campaign.status)}">${esc(campaign.status)}</span>
+				</div>
+				<div class="flex gap-3 mt-2 text-[11px] text-gray-600"><span>Instagram: <b>${esc(ig?.status || 'missing')}</b> (${ig?.attempts || 0})</span><span>Facebook: <b>${esc(fb?.status || 'missing')}</b> (${fb?.attempts || 0})</span></div>
+				${errors}${actions(campaign)}</div>
+			</article>`;
+		}).join('');
+	}
+
+	function renderCalendar() {
+		const year = calendarDate.getFullYear(); const month = calendarDate.getMonth();
+		$('calendar-title').textContent = calendarDate.toLocaleDateString([], { month: 'long', year: 'numeric' });
+		const start = new Date(year, month, 1); const days = new Date(year, month + 1, 0).getDate();
+		const cells: string[] = [];
+		for (let index = 0; index < start.getDay(); index++) cells.push('<div class="min-h-24 border-r border-b border-gray-200 bg-gray-50"></div>');
+		for (let day = 1; day <= days; day++) {
+			const campaigns = data.campaigns.filter(item => { const date = new Date(item.scheduledAt); return date.getFullYear() === year && date.getMonth() === month && date.getDate() === day; });
+			cells.push(`<div class="min-h-24 border-r border-b border-gray-200 p-1"><span class="text-[11px] font-semibold">${day}</span>${campaigns.map(item => `<button data-scroll-id="${item.id}" class="block w-full text-left truncate mt-1 p-1 rounded text-[10px] ${badge(item.status)}">${new Date(item.scheduledAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ${esc(item.promptSlug)}</button>`).join('')}</div>`);
+		}
+		$('calendar-grid').innerHTML = cells.join('');
+	}
+
+	function render() { renderCounts(); renderList(); renderCalendar(); }
+
+	async function refresh() {
+		const params = new URLSearchParams({ limit: '100' });
+		const search = $('search') as HTMLInputElement; const status = $('status-filter') as HTMLSelectElement;
+		if (search.value.trim()) params.set('search', search.value.trim()); if (status.value) params.set('status', status.value);
+		const response = await fetch(`/api/admin/social-campaigns?${params}`); data = await response.json(); render();
+	}
+
+	function mediaRow(item: Media = { url: '', role: '', altText: '' }) {
+		const row = document.createElement('div'); row.className = 'media-row grid grid-cols-[64px_1fr_auto] gap-2 border border-gray-200 rounded-md p-2';
+		row.innerHTML = `<img src="${esc(item.url)}" alt="" class="media-preview w-16 h-20 object-cover rounded bg-gray-100" /><div class="space-y-1.5"><input required type="url" value="${esc(item.url)}" placeholder="JPEG CDN URL" class="media-url sf-input !text-xs" /><div class="grid sm:grid-cols-[130px_1fr] gap-1.5"><input required value="${esc(item.role)}" placeholder="Role" class="media-role sf-input !text-xs" /><input required value="${esc(item.altText)}" placeholder="Accessible image description" class="media-alt sf-input !text-xs" /></div></div><div class="flex flex-col"><button type="button" data-move="up" class="w-8 h-7" aria-label="Move up">↑</button><button type="button" data-move="down" class="w-8 h-7" aria-label="Move down">↓</button><button type="button" data-remove class="w-8 h-7 text-red-600" aria-label="Remove">×</button></div>`;
+		row.querySelector<HTMLInputElement>('.media-url')!.addEventListener('input', event => row.querySelector<HTMLImageElement>('.media-preview')!.src = (event.target as HTMLInputElement).value);
+		return row;
+	}
+
+	function resetForm(campaign?: Campaign) {
+		($('campaign-id') as HTMLInputElement).value = campaign?.id || '';
+		($('idempotency-key') as HTMLInputElement).value = campaign?.idempotencyKey || crypto.randomUUID();
+		($('canonical-url') as HTMLInputElement).value = campaign?.canonicalUrl || '';
+		const defaultDate = new Date(Date.now() + 60 * 60_000); defaultDate.setSeconds(0, 0);
+		($('scheduled-at') as HTMLInputElement).value = localInput(campaign?.scheduledAt || defaultDate.toISOString());
+		($('instagram-caption') as HTMLTextAreaElement).value = campaign ? delivery(campaign, 'instagram')?.content || '' : '';
+		($('facebook-message') as HTMLTextAreaElement).value = campaign ? delivery(campaign, 'facebook')?.content || '' : '';
+		$('media-rows').replaceChildren(...(campaign?.media?.length ? campaign.media : [{ url: '', role: 'cover', altText: '' }]).map(mediaRow));
+		$('dialog-title').textContent = campaign ? 'Edit campaign' : 'New campaign'; $('form-error').classList.add('hidden'); updateCount();
+	}
+
+	function payload() {
+		const media = [...document.querySelectorAll<HTMLElement>('.media-row')].map(row => ({ url: (row.querySelector('.media-url') as HTMLInputElement).value.trim(), role: (row.querySelector('.media-role') as HTMLInputElement).value.trim(), altText: (row.querySelector('.media-alt') as HTMLInputElement).value.trim() }));
+		return { idempotencyKey: ($('idempotency-key') as HTMLInputElement).value, canonicalUrl: ($('canonical-url') as HTMLInputElement).value.trim(), scheduledAt: new Date(($('scheduled-at') as HTMLInputElement).value).toISOString(), media, instagram: { caption: ($('instagram-caption') as HTMLTextAreaElement).value }, facebook: { message: ($('facebook-message') as HTMLTextAreaElement).value } };
+	}
+
+	function updateCount() { $('ig-count').textContent = `${($('instagram-caption') as HTMLTextAreaElement).value.length.toLocaleString()} / 2,200`; }
+	async function save(queueNow = false) {
+		const form = $('campaign-form') as HTMLFormElement; if (!form.reportValidity()) return;
+		const error = $('form-error'); error.classList.add('hidden');
+		try {
+			const id = ($('campaign-id') as HTMLInputElement).value; const method = id ? 'PATCH' : 'POST';
+			const response = await fetch(id ? `/api/admin/social-campaigns/${id}` : '/api/admin/social-campaigns', { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload()) });
+			const body = await response.json(); if (!response.ok) throw new Error(body.error || 'Save failed.');
+			const saved = body.campaign; if (queueNow) await runAction(saved.id, 'publish-now');
+			($('campaign-dialog') as HTMLDialogElement).close(); await refresh();
+		} catch (cause) { error.textContent = cause instanceof Error ? cause.message : 'Save failed.'; error.classList.remove('hidden'); }
+	}
+
+	async function runAction(id: string, action: string, platform?: string) {
+		const response = await fetch(`/api/admin/social-campaigns/${id}/actions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, platform }) });
+		const body = await response.json(); if (!response.ok) throw new Error(body.error || 'Action failed.'); return body;
+	}
+
+	$('new-campaign').addEventListener('click', () => { resetForm(); ($('campaign-dialog') as HTMLDialogElement).showModal(); });
+	for (const button of document.querySelectorAll('[data-close]')) button.addEventListener('click', () => ($('campaign-dialog') as HTMLDialogElement).close());
+	$('add-media').addEventListener('click', () => { if ($('media-rows').children.length < 10) $('media-rows').append(mediaRow({ url: '', role: `image-${$('media-rows').children.length + 1}`, altText: '' })); });
+	$('media-rows').addEventListener('click', event => { const target = (event.target as HTMLElement).closest('button'); const row = target?.closest('.media-row'); if (!target || !row) return; if (target.hasAttribute('data-remove') && $('media-rows').children.length > 1) row.remove(); const direction = target.dataset.move; if (direction === 'up' && row.previousElementSibling) row.parentElement!.insertBefore(row, row.previousElementSibling); if (direction === 'down' && row.nextElementSibling) row.parentElement!.insertBefore(row.nextElementSibling, row); });
+	$('instagram-caption').addEventListener('input', updateCount);
+	$('campaign-form').addEventListener('submit', event => { event.preventDefault(); void save(false); });
+	$('save-now').addEventListener('click', () => void save(true));
+	$('list-view').addEventListener('click', async event => {
+		const edit = (event.target as HTMLElement).closest<HTMLElement>('[data-edit]'); if (edit) { const campaign = data.campaigns.find(item => item.id === edit.dataset.edit); if (campaign) { resetForm(campaign); ($('campaign-dialog') as HTMLDialogElement).showModal(); } return; }
+		const button = (event.target as HTMLElement).closest<HTMLElement>('[data-action]'); if (!button) return;
+		if (button.dataset.action === 'cancel' && !confirm('Cancel this scheduled campaign?')) return;
+		try { button.setAttribute('disabled', ''); await runAction(button.dataset.id!, button.dataset.action!, button.dataset.platform); await refresh(); } catch (error) { alert(error instanceof Error ? error.message : 'Action failed.'); } finally { button.removeAttribute('disabled'); }
+	});
+	let searchTimer = 0; $('search').addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = window.setTimeout(refresh, 250); }); $('status-filter').addEventListener('change', refresh);
+	for (const toggle of document.querySelectorAll<HTMLElement>('.view-toggle')) toggle.addEventListener('click', () => { activeView = toggle.dataset.view!; $('list-view').classList.toggle('hidden', activeView !== 'list'); $('calendar-view').classList.toggle('hidden', activeView !== 'calendar'); for (const item of document.querySelectorAll<HTMLElement>('.view-toggle')) item.classList.toggle('bg-primary', item === toggle); });
+	$('calendar-prev').addEventListener('click', () => { calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1); renderCalendar(); }); $('calendar-next').addEventListener('click', () => { calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1); renderCalendar(); });
+	$('calendar-grid').addEventListener('click', event => { const item = (event.target as HTMLElement).closest<HTMLElement>('[data-scroll-id]'); if (!item) return; document.querySelector<HTMLElement>('[data-view="list"]')?.click(); const edit = document.querySelector<HTMLElement>(`[data-edit="${item.dataset.scrollId}"]`); edit?.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
+	$('check-health').addEventListener('click', async () => { const copy = $('health-copy'); copy.textContent = 'Checking…'; try { const response = await fetch('/api/admin/social-campaigns/health'); const health = await response.json(); copy.textContent = health.ok ? `Connected: Instagram @${health.instagram.username} and Facebook ${health.facebook.name}.` : `Needs attention: ${health.instagram.error || health.facebook.error}`; copy.className = `text-xs mt-1 ${health.ok ? 'text-green-700' : 'text-red-700'}`; } catch { copy.textContent = 'Health check failed.'; } });
+	render();
+</script>

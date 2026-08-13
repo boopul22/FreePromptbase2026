@@ -4,9 +4,10 @@ Last updated: 2026-08-05
 
 Use this guide when a user asks to publish a Free Prompt Base prompt URL to
 Instagram. It converts the prompt page's gallery into an Instagram carousel,
-adds two branded slides, publishes through the local Instagram Automator,
-uses those exact finished images to create a custom multi-photo post specifically
-for the allowlisted Facebook Page, and verifies both live posts.
+adds two branded slides, schedules or publishes the paired campaign through the
+Cloudflare social scheduler, uses those exact finished images to create a custom
+multi-photo post for the allowlisted Facebook Page, and verifies both live posts.
+The local Instagram Automator remains a rollback-only fallback.
 
 The normal user request can be as short as:
 
@@ -428,6 +429,28 @@ useful social copy first and search-targeted copy second.
 
 ## 7. Build the Automator job
 
+### Cloudflare paired campaign — production default
+
+For new publishes, create one paired campaign through `/admin/cms/social` or:
+
+```text
+POST /api/admin/social-campaigns
+```
+
+The authenticated admin request contains a unique `idempotencyKey`, canonical
+prompt URL, timezone-aware `scheduledAt`, the ordered JPEG media array with
+role and alt text, `instagram.caption`, and `facebook.message`. The Facebook
+message must include the exact canonical URL. Cloudflare stores time in UTC,
+and a one-minute Cron Trigger publishes Instagram first and Facebook second.
+
+The scheduler persists each Instagram child/parent container and each Facebook
+unpublished photo ID in D1. A repeated idempotency key is accepted only when the
+normalized payload is identical. Manage edits, cancellation, account health,
+per-platform errors, retries, and live permalinks in `/admin/cms/social`.
+
+The legacy JSON and SQLite instructions below are fallback-only. Never submit
+the same campaign to both Cloudflare and the local Automator.
+
 The configured Automator lives inside this repository at:
 
 ```text
@@ -540,6 +563,21 @@ ambiguous job, because that can create a duplicate post.
 
 ## 8. Publish or schedule
 
+The Cloudflare scheduler is the production source of truth. Use **Save & queue
+now** for an immediate paired campaign, or select a future local date/time and
+use **Schedule campaign**. Cloudflare checks D1 once per minute, so publication
+may begin up to roughly one minute after the requested instant. Do not also use
+Meta's native Facebook scheduled-post fields; the Cron worker controls both
+destinations and their retry state.
+
+Before reporting a scheduled campaign as ready, require two delivery rows,
+`status: scheduled`, the intended UTC time, and a healthy account check. For an
+immediate campaign, wait for `published` on both deliveries before reporting
+success. If one destination succeeds and the other fails, keep the campaign in
+`partial` and retry only the failed delivery from the CMS.
+
+The local commands below apply only when explicitly using the rollback CLI.
+
 Before creating a post on either platform, complete both the Instagram doctor
 check in Section 7 and the Facebook identity/token/duplicate preflight in
 Section 11. If either destination fails preflight, stop before publishing to
@@ -577,6 +615,16 @@ recorded IDs, recover the incomplete platform safely, and report the result as
 partial until both are verified.
 
 ## 9. Safe recovery from interrupted publishing
+
+For Cloudflare campaigns, inspect the campaign in `/admin/cms/social`. The D1
+delivery state is authoritative: the worker reuses recorded Instagram
+containers and Facebook photo IDs, reconciles an ambiguous final publish against
+recent posts, and recovers an expired Worker lease. Use the platform-specific
+Retry button only when that delivery is `failed`; never create a replacement
+campaign or idempotency key to bypass an ambiguous result.
+
+The CLI recovery procedure below is only for jobs originally created in the
+legacy local SQLite scheduler.
 
 First inspect the existing job:
 
@@ -744,6 +792,9 @@ Facebook message, and saved idempotency state. If the paired post already exists
 reuse and verify it instead of publishing a duplicate.
 
 ### Create durable local Facebook state
+
+This companion file is required only for rollback CLI publishing. Cloudflare
+campaigns keep the equivalent token-free Facebook progress in D1.
 
 Create a companion state file inside the same Automator project:
 

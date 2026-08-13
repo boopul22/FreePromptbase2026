@@ -1,6 +1,12 @@
-# ig-agent-cli
+# ig-agent-cli (legacy local fallback)
 
 A small local Instagram scheduler for AI agents. It uses Meta's official Instagram API directly and stores scheduled jobs in SQLite.
+
+The production scheduler now lives in the Free Prompt Base Cloudflare Worker and
+stores paired Instagram/Facebook campaigns in D1. Use the private CMS page at
+`/admin/cms/social` or its `/api/admin/social-campaigns` endpoints for new work.
+Keep this CLI only as a rollback tool until the hosted scheduler has completed a
+verified live campaign. Do not schedule the same post in both systems.
 
 There is no web dashboard, Docker stack, paid scheduler, or hosted database.
 
