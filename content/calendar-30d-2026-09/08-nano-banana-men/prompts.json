@@ -1,0 +1,57 @@
+[
+  {
+    "title": "Wool Coat Overcast Nano Banana Photo Prompt for Men",
+    "slug": "wool-coat-overcast-nano-banana-prompt-men",
+    "description": "A wool coat portrait on a grey overcast street. Copy paste Nano Banana prompt for men with face lock and soft daylight.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline, hairstyle and skin tone the same. Recast me as an adult man aged 21 or older on an overcast street. Charcoal wool coat over black sweater, hands in pockets, wet road and soft shop lights behind. Diffused daylight on face. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a clear front photo. Paste in Nano Banana mode in Gemini. Keep overcast line for soft shadows.",
+    "tags": ["nano-banana", "men", "coat", "street", "overcast"],
+    "landingSlugs": ["nano-banana-prompt", "nano-banana-ai"],
+    "category": "images",
+    "headline": "Coat"
+  },
+  {
+    "title": "Black Tee Studio Nano Banana Photo Prompt for Men",
+    "slug": "black-tee-studio-nano-banana-prompt-men",
+    "description": "A clean studio portrait in black tee. Copy paste Nano Banana prompt for men with face lock and seamless grey backdrop.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older in a studio with seamless grey backdrop. Plain black tee, arms relaxed, soft key light, calm confident look. Sharp eyes, natural skin with pores. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a well lit photo. Paste the text unchanged. Use 3:4 for profile and portfolio use.",
+    "tags": ["nano-banana", "studio", "men", "black-tee", "portrait"],
+    "landingSlugs": ["nano-banana-prompt", "gemini-ai-photo-prompt"],
+    "category": "images",
+    "headline": "Studio"
+  },
+  {
+    "title": "Heritage Corridor Nano Banana Photo Prompt for Men",
+    "slug": "heritage-corridor-nano-banana-prompt-men",
+    "description": "A heritage corridor portrait in cream shirt. Copy paste Nano Banana prompt for men with face lock and stone arches.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older in a heritage stone corridor. Cream shirt with rolled sleeves, beige trousers, leaning lightly on a pillar, arches fading behind. Soft daylight. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a daylight photo. Paste the full text in Gemini. Keep corridor line for depth.",
+    "tags": ["nano-banana", "heritage", "corridor", "men", "cream-shirt"],
+    "landingSlugs": ["nano-banana-prompt", "nano-banana-ai"],
+    "category": "images",
+    "headline": "Heritage"
+  },
+  {
+    "title": "Night Market Denim Nano Banana Photo Prompt Men",
+    "slug": "night-market-denim-nano-banana-prompt",
+    "description": "A night market portrait in denim jacket. Copy paste Nano Banana prompt for men with face lock and warm shop glow.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older in a night market lane. Denim jacket over white tee, relaxed walk pose, warm shop lights blurred behind, street food stalls far. Photorealistic night skin. 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a clear indoor or night photo. Paste the text as is. Keep market blur line for focus on face.",
+    "tags": ["nano-banana", "night", "market", "denim", "men"],
+    "landingSlugs": ["nano-banana-prompt", "gemini-ai-photo-prompt"],
+    "category": "images",
+    "headline": "Market"
+  },
+  {
+    "title": "Rooftop Golden Hour Nano Banana Photo Prompt Men",
+    "slug": "rooftop-golden-hour-nano-banana-prompt",
+    "description": "A rooftop portrait at golden hour in white shirt. Copy paste Nano Banana prompt for men with face lock and warm sun.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older on a rooftop at golden hour. White shirt with open collar, sleeves rolled, arms crossed, city skyline soft behind, warm sun on face. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a daylight front photo. Paste in Nano Banana mode. Keep golden hour line for warm tone.",
+    "tags": ["nano-banana", "rooftop", "golden-hour", "men", "white-shirt"],
+    "landingSlugs": ["nano-banana-prompt", "nano-banana-ai"],
+    "category": "images",
+    "headline": "Rooftop"
+  }
+]

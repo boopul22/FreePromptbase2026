@@ -1,0 +1,57 @@
+[
+  {
+    "title": "Grey Studio Headshot ChatGPT Photo Editing Prompt",
+    "slug": "grey-studio-headshot-chatgpt-prompt",
+    "description": "A clean grey studio headshot with soft key light. Copy the exact ChatGPT prompt text with face lock for office use.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult aged 21 or older in a grey studio headshot. Plain grey backdrop, soft key light, navy shirt, gentle closed smile, shoulders square to camera. Sharp eyes, natural skin with pores. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Copy the full blockquote text. Paste after your photo upload in ChatGPT. Keep 3:4 for LinkedIn and resumes.",
+    "tags": ["chatgpt", "headshot", "studio", "prompt-text", "office"],
+    "landingSlugs": ["chatgpt-photo-editing-prompt", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Headshot"
+  },
+  {
+    "title": "Warm Lamp Indoor ChatGPT Photo Editing Prompt Man",
+    "slug": "warm-lamp-indoor-chatgpt-prompt-man",
+    "description": "A warm indoor portrait with table lamp glow. Copy the exact ChatGPT prompt text for men with face lock and home backdrop.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older in a warm living room. Table lamp glow, beige wall, brown sweater, relaxed smile, seated pose. Photorealistic skin texture, soft shadows. 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Copy all lines exactly. Paste in ChatGPT with image mode on. Use a daylight upload for clean tone.",
+    "tags": ["chatgpt", "lamp", "indoor", "men", "prompt-text"],
+    "landingSlugs": ["chatgpt-photo-editing-prompt", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Lamp"
+  },
+  {
+    "title": "Outdoor Canopy ChatGPT Photo Editing Prompt Woman",
+    "slug": "outdoor-canopy-chatgpt-prompt-woman",
+    "description": "A fresh outdoor portrait under green canopy. Copy the exact ChatGPT prompt text for women with face lock and daylight.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult woman aged 21 or older under a green outdoor canopy. Soft daylight through leaves, white kurta, open hair, gentle smile, park path behind. Photorealistic, natural skin. 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Copy the text word for word. Paste after upload. Keep canopy line for soft light on face.",
+    "tags": ["chatgpt", "outdoor", "canopy", "women", "daylight"],
+    "landingSlugs": ["chatgpt-photo-editing-prompt", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Canopy"
+  },
+  {
+    "title": "Black Backdrop Rim Light ChatGPT Photo Prompt Man",
+    "slug": "black-backdrop-rim-light-chatgpt-prompt",
+    "description": "A bold black backdrop portrait with rim light. Copy the exact ChatGPT prompt text for men with face lock and sharp eyes.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older before a black backdrop. Soft rim light on hair and shoulders, black shirt, calm confident look, face lit cleanly. Photorealistic, sharp focus. 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Copy the full wording. Paste in ChatGPT. Keep rim light line so edges stay defined.",
+    "tags": ["chatgpt", "rim-light", "black", "men", "studio"],
+    "landingSlugs": ["chatgpt-photo-editing-prompt", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Rim light"
+  },
+  {
+    "title": "Window Seat Candid ChatGPT Photo Editing Prompt",
+    "slug": "window-seat-candid-chatgpt-prompt",
+    "description": "A calm window seat candid with morning light. Copy the exact ChatGPT prompt text with face lock and home interior.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult woman aged 21 or older seated by a window seat. Morning light on face, cushion and books nearby, pastel sweater, soft candid smile looking slightly aside then back at lens feel. Photorealistic. 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Copy every line. Paste after photo upload. Morning uploads give the closest skin match.",
+    "tags": ["chatgpt", "window", "candid", "women", "morning"],
+    "landingSlugs": ["chatgpt-photo-editing-prompt", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Window"
+  }
+]

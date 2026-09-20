@@ -1,0 +1,57 @@
+[
+  {
+    "title": "Navy Kurta Balcony Diyas Gemini Diwali Photo Prompt",
+    "slug": "navy-kurta-balcony-diyas-diwali-prompt",
+    "description": "A navy kurta portrait on a balcony with diyas. Copy paste Diwali Gemini prompt for boys with face lock and evening glow.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older on a balcony lined with diyas. Navy kurta with gold buttons, gentle smile, railing with marigold and diya rows, city lights far. Warm evening glow. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a clear evening or daylight photo. Paste the text in Gemini. Keep diya rows line for full glow.",
+    "tags": ["diwali", "diyas", "kurta", "balcony", "gemini"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "trending-gemini-prompt"],
+    "category": "images",
+    "headline": "Diyas"
+  },
+  {
+    "title": "Silk Saree Rangoli Gemini Diwali Photo Prompt Woman",
+    "slug": "silk-saree-rangoli-diwali-prompt-woman",
+    "description": "A silk saree portrait beside a bright rangoli. Copy paste Diwali Gemini prompt for women with face lock and diya light.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult woman aged 21 or older beside a bright rangoli. Deep green silk saree with gold border, small bindi, diyas around rangoli, home veranda behind. Warm light on face. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a front photo with hair neat. Paste the full text. Keep rangoli line for colour balance.",
+    "tags": ["diwali", "rangoli", "saree", "silk", "gemini"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Rangoli"
+  },
+  {
+    "title": "String Lights Gemini Diwali Couple Photo Prompt",
+    "slug": "string-lights-diwali-couple-photo-prompt",
+    "description": "A warm couple portrait under string lights. Copy paste Diwali Gemini prompt with both face locks and festive glow.",
+    "promptText": "Lock BOTH faces from the two uploaded photos with full identity preservation. Keep facial features exact for each adult aged 21 or older. Recast the couple under warm string lights on a terrace. Man in beige kurta, woman in red silk saree, standing close, smiling at camera, diya trays and marigold nearby. Festive glow. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload two clear photos, one per person. Paste the text unchanged. Keep string lights line intact.",
+    "tags": ["diwali", "couple", "string-lights", "terrace", "gemini"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Lights"
+  },
+  {
+    "title": "Festive Family Card Gemini Diwali Photo Prompt",
+    "slug": "festive-family-card-diwali-photo-prompt",
+    "description": "A festive family card with every face preserved. Copy paste Diwali Gemini prompt for home groups with warm diya glow.",
+    "promptText": "Lock every face from the uploaded family photos with full identity preservation. Keep eyes, nose, lips and skin tone exact for each adult aged 21 or older and natural features for kids. Recast the family in a living room with diya rows and torans. Festive kurtas and sarees in warm tones, seated and standing rows, smiling at camera. Photorealistic group, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload clear photos for each member. Paste the text as is. Name each person plainly in the upload.",
+    "tags": ["diwali", "family", "card", "festive", "gemini"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "trending-gemini-prompt"],
+    "category": "images",
+    "headline": "Family"
+  },
+  {
+    "title": "Street of Diyas Gemini Diwali Photo Prompt for Men",
+    "slug": "street-of-diyas-diwali-photo-prompt-men",
+    "description": "A man walking through a street of diyas. Copy paste Diwali Gemini prompt with face lock and rows of lamps only.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older walking through a street lined with diyas. Cream kurta with brown Nehru jacket, calm smile, rows of clay lamps along walls, no handheld fireworks anywhere. Night glow, safe festive mood. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a sharp full face photo. Paste the full text. Keep no fireworks line for a safe render.",
+    "tags": ["diwali", "street", "diyas", "men", "night"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Street"
+  }
+]

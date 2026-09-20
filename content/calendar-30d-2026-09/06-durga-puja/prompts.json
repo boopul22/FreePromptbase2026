@@ -1,0 +1,57 @@
+[
+  {
+    "title": "White Red Indoor Gemini Durga Puja Photo Prompt",
+    "slug": "white-red-indoor-durga-puja-prompt",
+    "description": "A white red saree portrait indoors for Puja mornings. Copy paste Gemini prompt with face lock and soft window light.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult woman aged 21 or older in a white saree with red border indoors. Small bindi, open hair with side part, gentle smile, brass lamp and alpana floor art nearby. Soft window light. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a clear daylight photo. Paste the text in Gemini. Keep indoor lamp line for warm tone.",
+    "tags": ["durga-puja", "white-red", "saree", "gemini", "indoor"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "trending-gemini-prompt"],
+    "category": "images",
+    "headline": "White red"
+  },
+  {
+    "title": "Dhoti Kurta Dhak Bokeh Gemini Puja Photo Prompt",
+    "slug": "dhoti-kurta-dhak-bokeh-puja-prompt",
+    "description": "A dhoti kurta portrait with dhak blur behind. Copy paste Gemini Puja prompt for boys with face lock and evening glow.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older in white dhoti kurta near dhak players. Warm bokeh of pandal lights behind, gentle smile, hands folded, festive street at dusk. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a sharp dusk or daylight photo. Paste the full text. Keep bokeh line for depth.",
+    "tags": ["durga-puja", "dhoti", "dhak", "boys", "bokeh"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "trending-gemini-prompt"],
+    "category": "images",
+    "headline": "Dhak"
+  },
+  {
+    "title": "Pandal Night Gemini Durga Puja Photo Prompt Solo",
+    "slug": "pandal-night-durga-puja-photo-prompt",
+    "description": "A solo pandal night portrait with glowing decor. Copy paste Gemini Puja prompt with face lock and festive lights.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult aged 21 or older before a lit Durga Puja pandal at night. Festive kurta or saree in cream with red trim, soft smile, glowing decor blurred behind, crowd kept far. Photorealistic night skin tone. 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a clear night or indoor photo. Paste the text as is. Keep crowd far line for clean focus.",
+    "tags": ["durga-puja", "pandal", "night", "gemini", "solo"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "trending-gemini-prompt"],
+    "category": "images",
+    "headline": "Pandal"
+  },
+  {
+    "title": "White Red Street Gemini Puja Friends Photo Prompt",
+    "slug": "white-red-street-puja-friends-prompt",
+    "description": "Two adult friends in white red on a Puja street. Copy paste Gemini prompt with both face locks and morning light.",
+    "promptText": "Lock BOTH faces from the two uploaded photos with full identity preservation. Keep facial features exact for each adult aged 21 or older. Recast the two friends on a Kolkata Puja street in morning. Both in white red festive dress, standing side by side, smiling at camera, pandal flags and rickshaw soft behind. Daylight. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload two clear photos, one per friend. Paste the text unchanged. Use morning uploads for best light.",
+    "tags": ["durga-puja", "friends", "white-red", "street", "gemini"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "trending-gemini-prompt"],
+    "category": "images",
+    "headline": "Friends"
+  },
+  {
+    "title": "River Ghat Morning Gemini Durga Puja Photo Prompt",
+    "slug": "river-ghat-morning-durga-puja-prompt",
+    "description": "A calm river ghat morning portrait for men. Copy paste Gemini Puja prompt with face lock and soft sunrise mist.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older on a river ghat in morning. Off white kurta, shawl over shoulder, soft sunrise mist over water, boats far behind, calm expression. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a calm daylight photo. Paste the full text. Keep mist line for soft background.",
+    "tags": ["durga-puja", "ghat", "morning", "men", "gemini"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "trending-gemini-prompt"],
+    "category": "images",
+    "headline": "Ghat"
+  }
+]

@@ -1,0 +1,57 @@
+[
+  {
+    "title": "1970s Film Still Retro Gemini Couple Photo Prompt",
+    "slug": "seventies-film-still-gemini-couple-prompt",
+    "description": "A 1970s film still with a vintage car and warm grain. Copy paste Gemini couple prompt with both face locks intact.",
+    "promptText": "Lock BOTH faces from the two uploaded photos with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same for each adult aged 21 or older. Recast the couple beside a vintage car on an empty road. 1970s film still look, warm grain, soft daylight, man in flared shirt, woman in printed saree with sunglasses on head. Standing close, calm expressions. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload two front photos, one per person. Paste the full text in Gemini. Keep grain wording unchanged.",
+    "tags": ["gemini", "retro", "couple", "70s", "film-still"],
+    "landingSlugs": ["gemini-couple-photo-prompt", "gemini-ai-photo-prompt-copy-paste"],
+    "category": "images",
+    "headline": "Film still"
+  },
+  {
+    "title": "Black White Studio Retro Gemini Couple Photo Prompt",
+    "slug": "black-white-studio-gemini-couple-prompt",
+    "description": "A black and white studio portrait with soft key light. Copy paste Gemini couple prompt with both face locks and clean backdrop.",
+    "promptText": "Lock BOTH faces from the two uploaded photos with full identity preservation. Keep facial features and skin tone accurate for each adult aged 21 or older. Recast the couple in a black and white studio portrait. Plain grey backdrop, soft key light, man in dark blazer, woman in light saree, seated side by side, gentle smiles. Classic 1960s studio mood, subtle grain. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload two clear photos with even light. Paste the text as is. Save in 3:4 for print style posts.",
+    "tags": ["gemini", "studio", "black-white", "couple", "retro"],
+    "landingSlugs": ["gemini-couple-photo-prompt", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Studio"
+  },
+  {
+    "title": "Hill Station Film Grain Gemini Couple Photo Prompt",
+    "slug": "hill-station-film-grain-couple-prompt",
+    "description": "A misty hill station portrait with film grain. Copy paste Gemini couple prompt with both face locks and woollen layers.",
+    "promptText": "Lock BOTH faces from the two uploaded photos with full identity preservation. Keep eyes, nose, lips and skin tone the same for each adult aged 21 or older. Recast the couple on a misty hill station road with pine trees. Morning fog, film grain, man in sweater and jacket, woman in shawl and sweater, standing close with hands folded. Soft daylight on faces. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload two outdoor clear photos if possible. Paste the text. Run twice if fog softens faces.",
+    "tags": ["gemini", "hill-station", "couple", "film-grain", "retro"],
+    "landingSlugs": ["gemini-couple-photo-prompt", "gemini-ai-photo-prompt-copy-paste"],
+    "category": "images",
+    "headline": "Hills"
+  },
+  {
+    "title": "Vintage Living Room Retro Gemini Couple Photo Prompt",
+    "slug": "vintage-living-room-gemini-couple-prompt",
+    "description": "A vintage living room with tube TV and warm lamp. Copy paste Gemini couple prompt with both face locks and 80s decor.",
+    "promptText": "Lock BOTH faces from the two uploaded photos with full identity preservation. Keep facial structure and skin tone exact for each adult aged 21 or older. Recast the couple in a vintage living room with a tube TV and wooden cabinet. Warm lamp light, patterned curtains, man in striped shirt, woman in cotton saree, seated on a sofa, relaxed smiles. Photorealistic interior, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload two indoor clear photos. Paste the full prompt. Keep lamp light line for warm skin tone.",
+    "tags": ["gemini", "vintage", "couple", "living-room", "retro"],
+    "landingSlugs": ["gemini-couple-photo-prompt", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Living room"
+  },
+  {
+    "title": "Safari Jacket 70s Retro Gemini Couple Photo Prompt",
+    "slug": "safari-jacket-70s-gemini-couple-prompt",
+    "description": "A 70s outdoor look with safari jacket and printed saree. Copy paste Gemini couple prompt with both face locks and sunny field.",
+    "promptText": "Lock BOTH faces from the two uploaded photos with full identity preservation. Keep eyes, nose, lips and skin tone the same for each adult aged 21 or older. Recast the couple in a sunny field in 70s style. Man in safari jacket and sunglasses on collar, woman in printed saree with tied hair, standing side by side, soft wind in clothes. Warm film tones, light grain. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload two sharp daylight photos. Paste the text unchanged. Use 3:4 for Instagram reels covers.",
+    "tags": ["gemini", "70s", "safari", "couple", "saree"],
+    "landingSlugs": ["gemini-couple-photo-prompt", "gemini-ai-photo-prompt-copy-paste"],
+    "category": "images",
+    "headline": "Safari"
+  }
+]

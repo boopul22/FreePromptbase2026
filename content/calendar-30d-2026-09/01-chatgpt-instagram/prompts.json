@@ -1,0 +1,57 @@
+[
+  {
+    "title": "Polaroid Younger Self ChatGPT Photo Editing Prompt",
+    "slug": "polaroid-younger-self-chatgpt-prompt",
+    "description": "A tabletop Polaroid that shows the same adult a few years younger. Copy paste ChatGPT photo edit with face lock and soft film grain.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult aged 21 or older, shown as the same adult a few years younger on a Polaroid print lying on a wooden table. The Polaroid shows a smiling indoor portrait in soft daylight. Film grain, white Polaroid border, shallow depth of field on the table. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload one clear front photo. Paste the full text in Gemini with image creation on. Keep 3:4 for Instagram.",
+    "tags": ["chatgpt", "polaroid", "instagram", "face-lock", "film"],
+    "landingSlugs": ["chatgpt-photo-editing-prompt", "photo-editing-prompt", "ai-image-prompt"],
+    "category": "images",
+    "headline": "Polaroid"
+  },
+  {
+    "title": "Butterfly Dream ChatGPT Photo Editing Prompt Woman",
+    "slug": "butterfly-dream-chatgpt-photo-prompt",
+    "description": "A soft dream portrait with butterflies around the face. Copy paste ChatGPT photo edit for women with face lock and gentle morning light.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult woman aged 21 or older in a butterfly dream portrait. Soft morning light, pastel background, a few butterflies near the hair, natural makeup, loose hair over one shoulder. Calm expression looking at camera. Photorealistic skin with pores, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload one clear photo with hair visible. Paste the text as is. Regenerate once if butterflies cover the face.",
+    "tags": ["chatgpt", "butterfly", "women", "portrait", "instagram"],
+    "landingSlugs": ["chatgpt-photo-editing-prompt", "photo-editing-prompt", "ai-image-prompt"],
+    "category": "images",
+    "headline": "Butterfly"
+  },
+  {
+    "title": "Old Money Balcony ChatGPT Photo Editing Prompt",
+    "slug": "old-money-balcony-chatgpt-photo-prompt",
+    "description": "A clean old money balcony portrait for men. Copy paste ChatGPT photo edit with face lock, cream shirt and soft evening light.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline, hairstyle and skin tone the same. Recast me as an adult man aged 21 or older standing on a stone balcony in the evening. Cream shirt with rolled sleeves, tailored trousers, watch, relaxed pose with hands in pockets. City blur behind, soft warm light on face. Photorealistic, sharp eyes, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a front photo with a neutral expression. Paste the text. Use 3:4 for feed posts.",
+    "tags": ["chatgpt", "men", "old-money", "balcony", "portrait"],
+    "landingSlugs": ["chatgpt-photo-editing-prompt", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Balcony"
+  },
+  {
+    "title": "Rainy Window Night ChatGPT Photo Editing Prompt",
+    "slug": "rainy-window-night-chatgpt-photo-prompt",
+    "description": "A moody night portrait beside a rainy window. Copy paste ChatGPT photo edit for men with face lock and warm indoor lamp glow.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older seated beside a large window at night. Rain drops on glass, city lights outside, warm lamp glow inside, dark sweater, calm look toward camera. Photorealistic skin texture, sharp focus on eyes, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a clear photo without harsh shadows. Paste the text. Keep lamp glow by leaving the prompt unchanged.",
+    "tags": ["chatgpt", "rain", "night", "men", "moody"],
+    "landingSlugs": ["chatgpt-photo-editing-prompt", "ai-image-prompt"],
+    "category": "images",
+    "headline": "Rain"
+  },
+  {
+    "title": "Warm Library Light ChatGPT Photo Editing Prompt",
+    "slug": "warm-library-light-chatgpt-photo-prompt",
+    "description": "A warm library portrait with soft lamp light. Copy paste ChatGPT photo edit for women with face lock and wooden bookshelf backdrop.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult woman aged 21 or older standing in a warm library. Wooden shelves with books behind, soft lamp light on face, maroon sweater, gentle smile, hair neatly open. Photorealistic, natural skin with pores, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload one well lit photo. Paste the text in Gemini. Save at 3:4 for Instagram and Pinterest.",
+    "tags": ["chatgpt", "library", "women", "warm-light", "portrait"],
+    "landingSlugs": ["chatgpt-photo-editing-prompt", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Library"
+  }
+]

@@ -1,0 +1,57 @@
+[
+  {
+    "title": "Red Yellow Home Mandir Gemini Navratri Photo Prompt",
+    "slug": "red-yellow-home-mandir-navratri-prompt",
+    "description": "A home mandir portrait in red and yellow saree. Copy paste Navratri Gemini prompt with face lock and warm diya light.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult woman aged 21 or older standing before a home mandir. Red and yellow cotton saree, small bindi, folded hands, diya lamps glowing nearby, marigold strings above. Soft warm light on face. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a clear photo with tied or open hair. Paste the text in Gemini. Keep diya light wording unchanged.",
+    "tags": ["navratri", "mandir", "saree", "gemini", "diya"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "trending-gemini-prompt"],
+    "category": "images",
+    "headline": "Mandir"
+  },
+  {
+    "title": "Cream Kurta Marigold Gemini Navratri Photo Prompt Boy",
+    "slug": "cream-kurta-marigold-navratri-prompt-boy",
+    "description": "A festive cream kurta look with marigold backdrop. Copy paste Navratri Gemini prompt for boys with face lock and daylight.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older standing before a marigold wall. Cream kurta with Nehru jacket, gentle smile, hands folded, marigold strings and diya stand nearby. Bright daylight, festive mood. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a front daylight photo. Paste the full text. Save in 3:4 for Instagram posts.",
+    "tags": ["navratri", "kurta", "marigold", "boys", "gemini"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Kurta"
+  },
+  {
+    "title": "Pastel Balcony Gemini Navratri Couple Photo Prompt",
+    "slug": "pastel-balcony-navratri-couple-prompt",
+    "description": "A pastel balcony portrait for couples at Navratri. Copy paste Gemini prompt with both face locks and soft evening light.",
+    "promptText": "Lock BOTH faces from the two uploaded photos with full identity preservation. Keep facial features exact for each adult aged 21 or older. Recast the couple on a balcony with pastel drapes and diya lights. Man in pastel kurta, woman in pastel lehenga, standing close, smiling at camera, marigold pots nearby. Soft evening glow. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload two clear photos, one per person. Paste the text unchanged. Keep evening glow line intact.",
+    "tags": ["navratri", "couple", "balcony", "pastel", "gemini"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "trending-gemini-prompt"],
+    "category": "images",
+    "headline": "Balcony"
+  },
+  {
+    "title": "Ashtami White Red Gemini Navratri Photo Prompt",
+    "slug": "ashtami-white-red-navratri-photo-prompt",
+    "description": "An Ashtami white and red saree portrait. Copy paste Navratri Gemini prompt with face lock and calm morning light.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, face shape and skin tone the same. Recast me as an adult woman aged 21 or older in a white saree with red border for Ashtami. Small red bindi, jasmine in hair, holding a steel puja thali, temple corridor behind with soft morning light. Serene expression. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a calm front photo. Paste the text as is. Use morning light photos for best match.",
+    "tags": ["navratri", "ashtami", "saree", "white-red", "gemini"],
+    "landingSlugs": ["gemini-ai-photo-prompt-copy-paste", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Ashtami"
+  },
+  {
+    "title": "Marigold Wall Gemini Navratri Photo Prompt for Men",
+    "slug": "marigold-wall-navratri-photo-prompt-men",
+    "description": "A marigold wall portrait for men at Navratri. Copy paste Gemini prompt with face lock, rust shirt and warm daylight.",
+    "promptText": "Lock my face from the uploaded photo with full identity preservation. Keep eyes, nose, lips, jawline and skin tone the same. Recast me as an adult man aged 21 or older before a marigold wall. Rust shirt with rolled sleeves, cream trousers, arms crossed, marigold strings dense behind, small diya shelf to the side. Warm daylight on face. Photorealistic, 3:4 vertical. Add small watermark text freepromptbase.com at bottom-left in Petit Formal Script.",
+    "howToUse": "Upload a sharp daylight photo. Paste the full prompt. Keep marigold wall line for full backdrop.",
+    "tags": ["navratri", "marigold", "men", "gemini", "festive"],
+    "landingSlugs": ["trending-gemini-prompt", "photo-editing-prompt"],
+    "category": "images",
+    "headline": "Marigold"
+  }
+]
