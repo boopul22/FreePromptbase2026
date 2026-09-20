@@ -3,6 +3,7 @@ import { getSession } from './lib/session';
 import { getDB } from './lib/db';
 import { getNextPublishAt } from './lib/prompts';
 import { publicCacheKey } from './lib/publicCache';
+import { legacyEditorialTarget } from './data/legacy-redirects';
 
 // Single-language middleware. If you want multi-locale routing, use
 // `middleware.i18n.ts` as a starting point — it adds /{locale}/* prefix
@@ -57,6 +58,18 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   // preview URLs are left untouched. Cloudflare may carry the original scheme in
   // the CF-Visitor header, so we check that alongside url.protocol.
   const CANONICAL_HOST = 'freepromptbase.com';
+  // Dead Search Console URLs → equivalent live pages in one 301 hop, before
+  // www/slash canonicalization. Unknown paths stay 404.
+  const legacyTarget = legacyEditorialTarget(path);
+  if (legacyTarget) {
+    const dest = new URL(url.toString());
+    dest.protocol = 'https:';
+    dest.hostname = CANONICAL_HOST;
+    dest.port = '';
+    dest.pathname = legacyTarget;
+    return redirect(dest.toString(), 301);
+  }
+
   // Legacy /tag/<slug> docs URLs → live root keyword pages.
   if (path.startsWith('/tag/') && path.length > '/tag/'.length) {
     const tagSlug = path.slice('/tag/'.length).replace(/\/$/, '').toLowerCase();
