@@ -1,12 +1,14 @@
 # Instagram + Facebook Prompt Publishing Guide
 
-Last updated: 2026-08-05
+Last updated: 2026-08-22
 
 Use this guide when a user asks to publish a Free Prompt Base prompt URL to
 Instagram. It converts the prompt page's gallery into an Instagram carousel,
-adds two branded slides, schedules or publishes the paired campaign through the
+adds two branded slides, schedules or publishes the campaign through the
 Cloudflare social scheduler, uses those exact finished images to create a custom
-multi-photo post for the allowlisted Facebook Page, and verifies both live posts.
+multi-photo post for the allowlisted Free Prompt Base Facebook Page, and
+verifies both live posts. Raga whisper is a separate project and is never a
+destination in this workflow.
 The local Instagram Automator remains a rollback-only fallback.
 
 The normal user request can be as short as:
@@ -16,24 +18,24 @@ Post this prompt on Instagram: https://freepromptbase.com/<prompt-slug>
 ```
 
 A direct request to **post** or **publish** on Instagram authorizes immediate
-paired publishing to both configured Free Prompt Base destinations: Instagram
-account `freepromptbase` and Facebook Page `Free Prompt Base`. If the user
+publishing to both configured destinations: Instagram account `freepromptbase`
+and Facebook Page `Free Prompt Base`. If the user
 explicitly says **Instagram only**, do not publish to Facebook. A request to
 **prepare**, **draft**, or **show a preview** does not authorize publishing on
-either platform. Scheduling is used only when the user supplies a date or time,
-and the same requested time applies to both destinations unless the user says
+any platform. Scheduling is used only when the user supplies a date or time,
+and the same requested time applies to all destinations unless the user says
 otherwise.
 
 Within a task whose established purpose is publishing these Instagram and
 Facebook posts, a bare Free Prompt Base prompt URL is enough to select the next
-prompt and run this standard paired workflow. Outside that established context,
+prompt and run this standard two-destination workflow. Outside that established context,
 a bare URL is not by itself authorization for an external post; ask whether the
 user wants it published.
 
 When authorization and all checks are healthy, run the complete workflow
 autonomously: extract → validate → create two slides → upload → build the custom
-Facebook post package from the finished images → preflight both destinations →
-publish Instagram → publish Facebook → verify both. Do not pause for routine
+Facebook post package from the finished images → preflight all destinations →
+publish Instagram → publish Free Prompt Base Facebook → verify both. Do not pause for routine
 caption or design approval unless the user requested a preview or a stop
 condition in this guide is reached.
 
@@ -65,9 +67,10 @@ IDs, or job fields have remained unchanged.
   `FB_PAGE_ACCESS_TOKEN` for compatibility, but the configured value must be
   resolved through `/me/accounts` to obtain the actual Page access token used
   for Page API calls.
-- The only allowlisted Facebook destination is Page `Free Prompt Base`, Page ID
-  `1240248679172928`. The resolved Page entry must include `CREATE_CONTENT` and
-  return a Page access token.
+- The only Facebook destination in this PromptBase workflow is Page
+  `Free Prompt Base`, Page ID `1240248679172928`. Its resolved Page entry must
+  include `CREATE_CONTENT` and return a Page access token. Raga whisper is not
+  an allowed destination for PromptBase campaigns.
 - The Automator SQLite database is initialized with `uv run ig-agent init`.
 - `.agent-publish-token` is available in the Free Prompt Base project for the
   two-slide media upload.
@@ -429,9 +432,9 @@ useful social copy first and search-targeted copy second.
 
 ## 7. Build the Automator job
 
-### Cloudflare paired campaign — production default
+### Cloudflare two-destination campaign — production default
 
-For new publishes, create one paired campaign through `/admin/cms/social` or:
+For new publishes, create one campaign through `/admin/cms/social` or:
 
 ```text
 POST /api/admin/social-campaigns
@@ -440,8 +443,10 @@ POST /api/admin/social-campaigns
 The authenticated admin request contains a unique `idempotencyKey`, canonical
 prompt URL, timezone-aware `scheduledAt`, the ordered JPEG media array with
 role and alt text, `instagram.caption`, and `facebook.message`. The Facebook
-message must include the exact canonical URL. Cloudflare stores time in UTC,
-and a one-minute Cron Trigger publishes Instagram first and Facebook second.
+message is only for the Free Prompt Base Page and must include the exact
+canonical URL. Cloudflare stores time in UTC, and a one-minute Cron Trigger
+publishes Instagram first and Free Prompt Base Facebook second. It must never
+call the Raga Page; Raga-only Reels use the separate `raga_reel_jobs` queue.
 
 The scheduler persists each Instagram child/parent container and each Facebook
 unpublished photo ID in D1. A repeated idempotency key is accepted only when the
@@ -564,17 +569,19 @@ ambiguous job, because that can create a duplicate post.
 ## 8. Publish or schedule
 
 The Cloudflare scheduler is the production source of truth. Use **Save & queue
-now** for an immediate paired campaign, or select a future local date/time and
+now** for an immediate two-destination campaign, or select a future local date/time and
 use **Schedule campaign**. Cloudflare checks D1 once per minute, so publication
 may begin up to roughly one minute after the requested instant. Do not also use
-Meta's native Facebook scheduled-post fields; the Cron worker controls both
+Meta's native Facebook scheduled-post fields; the Cron worker controls all
 destinations and their retry state.
 
-Before reporting a scheduled campaign as ready, require two delivery rows,
-`status: scheduled`, the intended UTC time, and a healthy account check. For an
-immediate campaign, wait for `published` on both deliveries before reporting
-success. If one destination succeeds and the other fails, keep the campaign in
-`partial` and retry only the failed delivery from the CMS.
+Before reporting a scheduled campaign as ready, require the existing Instagram
+and Facebook delivery rows, `status: scheduled`, the intended UTC time, and a
+healthy check for both destinations. For an immediate campaign, wait for
+both delivery rows to be `published` and verify the Free Prompt Base Facebook
+permalink. If one destination
+succeeds and another fails, keep the campaign in `partial` and retry only the
+failed delivery from the CMS.
 
 The local commands below apply only when explicitly using the rollback CLI.
 
@@ -608,11 +615,11 @@ For immediate jobs, wait until the status is `published`. A successful response
 includes both `container_id` and `media_id`. Do not report success while the job
 is merely `queued` or `running`.
 
-After Instagram reports `published`, publish the paired Facebook post using
-Section 11. If a failure occurs after either platform is already live, do not
+After Instagram reports `published`, publish the Facebook Page posts using
+Section 11. If a failure occurs after any destination is already live, do not
 delete the successful post or create a replacement idempotency key. Preserve the
 recorded IDs, recover the incomplete platform safely, and report the result as
-partial until both are verified.
+partial until every requested destination is verified.
 
 ## 9. Safe recovery from interrupted publishing
 
@@ -756,12 +763,17 @@ so visual swipe-through is the final order check. If the permalink cannot be
 opened, report verification as partial rather than claiming the visual order was
 confirmed.
 
-## 11. Publish and verify the paired Facebook Page post
+## 11. Publish and verify the Facebook Page post
 
 Use the custom Facebook post package created from the finished JPEG delivery
 images in Section 6. Do not fall back to copying the Instagram caption if the
-package is missing or invalid. The target is exclusively Facebook Page
-`Free Prompt Base`, Page ID `1240248679172928`.
+package is missing or invalid. The only production target is Facebook Page
+`Free Prompt Base` (`1240248679172928`). Never send this package to Raga.
+
+The manual instructions below describe the rollback-only Free Prompt Base Page
+flow. They do not authorize a Raga post. Use the standalone Raga uploader only
+for a separate, explicitly immediate Raga-only request after confirming the
+Raga Reel queue does not own that content.
 
 ### Resolve and preflight the Page credential
 
@@ -788,7 +800,7 @@ GET /1240248679172928?fields=id,name,link
 ```
 
 Also inspect recent Page feed posts for the intended canonical URL, exact
-Facebook message, and saved idempotency state. If the paired post already exists,
+Facebook message, and saved idempotency state. If the Page post already exists,
 reuse and verify it instead of publishing a duplicate.
 
 ### Create durable local Facebook state
@@ -885,13 +897,13 @@ opened, report visual verification as partial.
 
 Tell the user:
 
-- both destinations that received the posts;
+- every destination that received the posts;
 - whether it was published now or scheduled;
 - the Instagram permalink;
-- the Facebook permalink;
+- the Free Prompt Base Facebook permalink;
 - the number and order of slides;
 - the Instagram Automator job ID and Meta media ID when useful;
-- the Facebook Page post ID when useful; and
+- the Free Prompt Base Facebook Page post ID when useful; and
 - local links to the two generated slides, Instagram job JSON, and Facebook
   state JSON.
 

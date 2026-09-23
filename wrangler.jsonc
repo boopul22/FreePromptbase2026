@@ -13,6 +13,24 @@
 	"assets": {
 		"directory": "./dist",
 		"binding": "ASSETS",
+		// Let redirect families reach Astro before the asset layer performs its
+		// own trailing-slash normalization; this keeps every mapping one hop.
+		"run_worker_first": [
+			"/tag/*",
+			"/blog/*",
+			"/gemini-ai-photo*",
+			"/gemini-photo-prompt*",
+			"/google-gemini-ai-photo*",
+			"/gemini-prompt-for-image-generation*",
+			"/google-gemini-trending-photo-prompt*",
+			"/prompt-for-gemini*",
+			"/gemini-ai-prompt*",
+			"/ai-gemini*",
+			"/nano-banana*",
+			"/banana-ai*",
+			"/banana-prompt*",
+			"/couple-prompt-for-gemini-ai*"
+		],
 		// The SSR worker renders 404.astro for unmatched routes.
 		"not_found_handling": "none"
 	},
@@ -74,7 +92,10 @@
 		"EMAIL_FROM_NAME": "Free Prompt Base",
 		"EMAIL_REPLY_TO": "hello@freepromptbase.com",
 		"SITE_URL": "https://freepromptbase.com",
+		// Primary Page owned by Free Prompt Base.
 		"FB_PAGE_ID": "1240248679172928",
+		// Extra external project; published only after the primary Page succeeds.
+		"RAGA_FB_PAGE_ID": "1277300398800100",
 		"META_API_VERSION": "v25.0",
 		"IG_API_HOST": "https://graph.instagram.com",
 		"FB_API_HOST": "https://graph.facebook.com"

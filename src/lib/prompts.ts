@@ -16,6 +16,7 @@ import type { Category } from '../data/categories';
 import type { Tag } from '../data/tags';
 import { tags as ALL_TAGS } from '../data/tags';
 import { generateSlug, logActivity } from './cms';
+import { promptSlugConflict } from '../data/route-policy';
 
 export type { Prompt, Category, Tag };
 
@@ -348,10 +349,8 @@ export async function getCategoryBySlug(slug: string): Promise<Category | undefi
 }
 
 // ---------------------------------------------------------------------------
-// SEO tag pages — keyword landing pages at /<slug>. Tags are static
-// (keyword research from src/data/tags.ts); the prompts shown are matched live
-// from D1 by the tag's significant terms, falling back to popular prompts so a
-// page never renders empty (a keyword may not match any prompt's tags/title).
+// SEO tag pages — keyword landing pages at /<slug>. Tags are static keyword
+// research; prompt membership is an explicit editorial assignment in D1.
 // ---------------------------------------------------------------------------
 
 /** All keyword tags, in research order. */
@@ -364,42 +363,51 @@ export function getTagBySlug(slug: string): Tag | undefined {
 	return ALL_TAGS.find((t) => t.slug === slug);
 }
 
-/**
- * Approved prompts relevant to a tag's keyword. A prompt matches when any of the
- * tag's significant terms appears in its tags, title, or description; results are
- * ranked by how many distinct terms match, then popularity. When nothing matches
- * (the keyword has no related prompts yet) we fall back to the most popular
- * prompts so the page still has content. `matched` reports whether the rows are a
- * real keyword match (true) or the popular fallback (false).
- */
-export async function getPromptsByTag(
-	tag: Tag,
-	limit = 60,
-): Promise<{ prompts: Prompt[]; matched: boolean }> {
-	const terms = tag.matchTerms.filter(Boolean);
-	if (terms.length > 0) {
-		// One LIKE-across-fields predicate per term; score = count of matching terms.
-		const cond = (t: string) =>
-			'(LOWER(tags) LIKE ? OR LOWER(title) LIKE ? OR LOWER(description) LIKE ?)';
-		const where = terms.map(cond).join(' OR ');
-		const score = terms.map((t) => `(CASE WHEN ${cond(t)} THEN 1 ELSE 0 END)`).join(' + ');
-		// Binds: score block (3/term) first, then the WHERE block (3/term).
-		const like = terms.map((t) => `%${t.toLowerCase()}%`);
-		const binds = [...like.flatMap((l) => [l, l, l]), ...like.flatMap((l) => [l, l, l]), limit];
-		const { results } = await getDB()
-			.prepare(
-				`SELECT ${PROMPT_COLS}, (${score}) AS rank FROM prompts
-				 WHERE ${APPROVED} AND (${where})
-				 ORDER BY rank DESC, save_count DESC, date DESC
-				 LIMIT ?`,
-			)
-			.bind(...binds)
-			.all<PromptRow>();
-		if (results.length > 0) return { prompts: results.map(rowToPrompt), matched: true };
+/** Approved, already-published prompts explicitly assigned to a landing. */
+export async function getPromptsForLanding(tag: Tag, limit = 24): Promise<Prompt[]> {
+	const safeLimit = Math.min(24, Math.max(0, Math.floor(limit)));
+	if (safeLimit === 0) return [];
+	const cols = PROMPT_COLS.split(', ').map((column) => `p.${column}`).join(', ');
+	const { results } = await getDB()
+		.prepare(
+			`SELECT ${cols}
+			 FROM prompt_landing_memberships m
+			 INNER JOIN prompts p ON p.slug = m.prompt_slug
+			 WHERE m.landing_slug = ? AND p.${APPROVED}
+			 ORDER BY m.position IS NULL, m.position ASC, p.date DESC, p.slug ASC
+			 LIMIT ?`,
+		)
+		.bind(tag.slug, safeLimit)
+		.all<PromptRow>();
+	return results.map(rowToPrompt);
+}
+
+export interface LandingMembershipStats {
+	count: number;
+	lastmod?: string;
+}
+
+/** Published membership counts and material dates used by sitemap gating. */
+export async function getLandingMembershipStats(): Promise<Record<string, LandingMembershipStats>> {
+	const { results } = await getDB()
+		.prepare(
+			`SELECT m.landing_slug,
+			        COUNT(*) AS count,
+			        MAX(CASE
+			          WHEN COALESCE(p.updated_at, '') > p.date THEN substr(p.updated_at, 1, 10)
+			          ELSE substr(p.date, 1, 10)
+			        END) AS lastmod
+			 FROM prompt_landing_memberships m
+			 INNER JOIN prompts p ON p.slug = m.prompt_slug
+			 WHERE p.${APPROVED}
+			 GROUP BY m.landing_slug`,
+		)
+		.all<{ landing_slug: string; count: number; lastmod: string | null }>();
+	const stats: Record<string, LandingMembershipStats> = {};
+	for (const row of results) {
+		stats[row.landing_slug] = { count: row.count, lastmod: row.lastmod ?? undefined };
 	}
-	// Fallback: keyword matched nothing — show popular prompts so the page isn't empty.
-	const popular = await getPopularPrompts(limit);
-	return { prompts: popular, matched: false };
+	return stats;
 }
 
 /**
@@ -605,11 +613,13 @@ export interface PromptSubmissionResult {
 async function uniqueSlug(db: ReturnType<typeof getDB>, base: string): Promise<string> {
 	let candidate = base;
 	for (let n = 2; ; n++) {
-		const taken = await db
-			.prepare('SELECT 1 FROM prompts WHERE slug = ?')
-			.bind(candidate)
-			.first();
-		if (!taken) return candidate;
+		if (!promptSlugConflict(candidate)) {
+			const taken = await db
+				.prepare('SELECT 1 FROM prompts WHERE slug = ?')
+				.bind(candidate)
+				.first();
+			if (!taken) return candidate;
+		}
 		candidate = `${base}-${n}`;
 	}
 }

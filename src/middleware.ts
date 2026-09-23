@@ -4,6 +4,7 @@ import { getDB } from './lib/db';
 import { getNextPublishAt } from './lib/prompts';
 import { publicCacheKey } from './lib/publicCache';
 import { legacyEditorialTarget } from './data/legacy-redirects';
+import { tagCanonicalTarget } from './data/tag-seo';
 
 // Single-language middleware. If you want multi-locale routing, use
 // `middleware.i18n.ts` as a starting point — it adds /{locale}/* prefix
@@ -58,8 +59,8 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   // preview URLs are left untouched. Cloudflare may carry the original scheme in
   // the CF-Visitor header, so we check that alongside url.protocol.
   const CANONICAL_HOST = 'freepromptbase.com';
-  // Dead Search Console URLs → equivalent live pages in one 301 hop, before
-  // www/slash canonicalization. Unknown paths stay 404.
+  // Only verified equivalent editorial URLs are redirected. This runs before
+  // the general host/slash canonicalization so every mapping is one 301 hop.
   const legacyTarget = legacyEditorialTarget(path);
   if (legacyTarget) {
     const dest = new URL(url.toString());
@@ -78,7 +79,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       dest.protocol = 'https:';
       dest.hostname = CANONICAL_HOST;
       dest.port = '';
-      dest.pathname = `/${tagSlug}`;
+      dest.pathname = `/${tagCanonicalTarget(tagSlug) ?? tagSlug}`;
       return redirect(dest.toString(), 301);
     }
   }
@@ -284,6 +285,12 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     response.headers.set('content-type', 'text/html; charset=utf-8');
   }
 
+  // Tracking, filter, and other query variants share the clean URL's content
+  // but must never become separate indexable pages.
+  if (url.search && response.headers.get('content-type')?.includes('text/html')) {
+    response.headers.set('X-Robots-Tag', 'noindex, follow');
+  }
+
   // Public HTML caching — skip API/admin/dashboard. Logged-in users get private,
   // no-cache so personalized nav isn't served from the CDN.
   if (isPubliclyCacheablePath(path) && response.headers.get('content-type')?.includes('text/html')) {
@@ -291,7 +298,10 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       locals.user ||
       (locals.savedSlugs && locals.savedSlugs.size > 0) ||
       (locals.likedSlugs && locals.likedSlugs.size > 0);
-    if (response.status >= 400) {
+    if (url.search) {
+      response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+      response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
+    } else if (response.status >= 400) {
       // Don't let the CDN hold an error (esp. a 404 for a slug that's about to be
       // published) for up to an hour — a freshly-added page would keep serving a
       // stale 404 to crawlers. Make error responses revalidate immediately.

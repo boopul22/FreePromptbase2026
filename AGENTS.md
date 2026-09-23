@@ -15,12 +15,23 @@ and production verification checklist.
 
 When a user asks to publish a Free Prompt Base prompt URL on Instagram, read and
 follow [`instagramPostGuide.md`](instagramPostGuide.md). An Instagram publish
-request authorizes a paired post to the allowlisted Facebook Page by default
+request authorizes the standard two-destination campaign by default
 unless the user explicitly says Instagram only. The guide defines the reusable
 source-gallery + two-slide media set, platform-specific SEO captions, CDN
 upload, a custom Facebook creative adaptation using the verified images,
 Instagram Automator job contract, Facebook Page API sequence, idempotent
-recovery, and live verification on both platforms.
+recovery, and live verification on all destinations.
+
+## Raga whisper Facebook Reels — mandatory guide
+
+Before changing, deploying, troubleshooting, or manually replacing the Raga
+whisper Facebook publishing path, read
+[`RAGA_WHISPER_PUBLISHING_GUIDE.md`](RAGA_WHISPER_PUBLISHING_GUIDE.md). Raga
+whisper is a separate external project, not a Free Prompt Base account. The
+Cloudflare Worker owns a dedicated R2 + `raga_reel_jobs` queue for Raga-only
+scheduled Reels. Standard Free Prompt Base campaigns must never publish or copy
+content to Raga. Never run the standalone local Raga uploader for a post already
+owned by the Raga cloud queue.
 
 ## SEO — keywords we are targeting (read before SEO/content work)
 

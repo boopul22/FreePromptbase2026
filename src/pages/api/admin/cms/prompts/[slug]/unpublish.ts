@@ -4,6 +4,7 @@ import type { APIRoute } from 'astro';
 import { getDB } from '../../../../../../lib/db';
 import { logActivity } from '../../../../../../lib/cms';
 import { invalidatePromptPublish } from '../../../../../../lib/publicCache';
+import { getPromptLandingSlugs } from '../../../../../../lib/landingMemberships';
 
 // Move a live prompt back to 'draft' (pulls it from the public site). Refused
 // for user submissions ('pending'/'rejected') — those belong to the review flow.
@@ -28,6 +29,7 @@ export const POST: APIRoute = async ({ params, locals }) => {
       { status: 400, headers: { 'Content-Type': 'application/json' } },
     );
   }
+  const landingSlugs = await getPromptLandingSlugs(db, slug);
 
   await db
     .prepare("UPDATE prompts SET status = 'draft', updated_at = datetime('now') WHERE slug = ?")
@@ -43,7 +45,7 @@ export const POST: APIRoute = async ({ params, locals }) => {
     entityTitle: prompt.title,
   });
 
-  await invalidatePromptPublish(slug, prompt.category);
+  await invalidatePromptPublish(slug, prompt.category, landingSlugs);
 
   return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
 };

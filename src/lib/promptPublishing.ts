@@ -1,6 +1,13 @@
 import { generateSlug, logActivity, toScheduleUtc } from './cms';
 import { generateId } from './crypto';
 import { invalidatePromptPublish } from './publicCache';
+import { promptSlugConflict } from '../data/route-policy';
+import {
+  getPromptLandingSlugs,
+  landingMembershipStatements,
+  LandingMembershipValidationError,
+  normalizeLandingSlugs,
+} from './landingMemberships';
 
 export interface PromptPublishActor {
   id: string;
@@ -14,6 +21,7 @@ export interface PromptPublishInput {
   promptText?: unknown;
   category?: unknown;
   tags?: unknown;
+  landingSlugs?: unknown;
   createdBy?: unknown;
   author?: unknown;
   date?: unknown;
@@ -45,6 +53,7 @@ export interface NormalizedPromptPublishInput {
   promptText: string;
   category: string;
   tags: string[];
+  landingSlugs: string[];
   createdBy?: string;
   author?: string;
   date?: string;
@@ -100,6 +109,13 @@ export function normalizePromptPublishInput(
 
   const rawTags = Array.isArray(body.tags) ? body.tags : [];
   const tags = [...new Set(rawTags.map(text).filter(Boolean))].slice(0, 12);
+  let landingSlugs: string[];
+  try {
+    landingSlugs = normalizeLandingSlugs(body.landingSlugs);
+  } catch (error) {
+    if (error instanceof LandingMembershipValidationError) throw new PromptPublishError(error.message);
+    throw error;
+  }
   const rawImages = Array.isArray(body.images) ? body.images : [];
   const images = [...new Set(rawImages.map(text).filter(Boolean))];
   if (options.maxImages && images.length > options.maxImages) {
@@ -134,6 +150,10 @@ export function normalizePromptPublishInput(
 
   const rawSlug = text(body.slug) || title;
   const slug = generateSlug(rawSlug) || `prompt-${generateId(8).toLowerCase()}`;
+  const routeConflict = promptSlugConflict(slug);
+  if (routeConflict) {
+    throw new PromptPublishError(`Slug “${slug}” conflicts with ${routeConflict}.`);
+  }
   const publishAt = toScheduleUtc(typeof body.publishAt === 'string' ? body.publishAt : null);
   const date = text(body.date);
   if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -161,6 +181,7 @@ export function normalizePromptPublishInput(
       promptText,
       category,
       tags,
+      landingSlugs,
       createdBy: text(body.createdBy) || undefined,
       author: text(body.author) || undefined,
       date: date || undefined,
@@ -190,6 +211,7 @@ export async function publishPrompt(options: {
   publicUrl: string;
   status: 'draft' | 'approved';
   publishAt: string | null;
+  landingSlugs: string[];
   warnings: string[];
   idempotent: boolean;
   dryRun: boolean;
@@ -247,6 +269,7 @@ export async function publishPrompt(options: {
       cover_h: number | null;
     }>();
   if (existing) {
+    const existingLandingSlugs = await getPromptLandingSlugs(db, slug);
     const samePrompt =
       existing.title === prompt.title &&
       existing.description === prompt.description &&
@@ -262,7 +285,8 @@ export async function publishPrompt(options: {
       existing.status === prompt.status &&
       existing.publish_at === prompt.publishAt &&
       existing.cover_w === prompt.coverW &&
-      existing.cover_h === prompt.coverH;
+      existing.cover_h === prompt.coverH &&
+      JSON.stringify(existingLandingSlugs) === JSON.stringify(prompt.landingSlugs);
     if (options.mode === 'agent' && samePrompt) {
       return {
         success: true,
@@ -270,6 +294,7 @@ export async function publishPrompt(options: {
         publicUrl: `https://freepromptbase.com/${slug}`,
         status: existing.status === 'draft' ? 'draft' : 'approved',
         publishAt: existing.publish_at,
+        landingSlugs: existingLandingSlugs,
         warnings,
         idempotent: true,
         dryRun: !!options.dryRun,
@@ -290,20 +315,19 @@ export async function publishPrompt(options: {
       publicUrl: `https://freepromptbase.com/${slug}`,
       status: prompt.status,
       publishAt: prompt.publishAt,
+      landingSlugs: prompt.landingSlugs,
       warnings,
       idempotent: false,
       dryRun: true,
     };
   }
 
-  await db
-    .prepare(
+  const insertPrompt = db.prepare(
       `INSERT INTO prompts
         (slug, title, description, prompt_text, category, tags, author, date,
          cover_image, images, featured, liked, popularity, how_to_use, created_by, status, publish_at, updated_at, cover_w, cover_h)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), ?, ?)`,
-    )
-    .bind(
+    ).bind(
       slug,
       prompt.title,
       prompt.description,
@@ -323,8 +347,11 @@ export async function publishPrompt(options: {
       prompt.publishAt,
       prompt.coverW,
       prompt.coverH,
-    )
-    .run();
+    );
+  await db.batch([
+    insertPrompt,
+    ...landingMembershipStatements(db, slug, prompt.landingSlugs),
+  ]);
 
   await logActivity(db, {
     userId: actor.id,
@@ -340,7 +367,7 @@ export async function publishPrompt(options: {
 
   // The public site uses the Workers Cache API for anonymous HTML. Refresh the
   // prompt/listing surfaces in this serving colo immediately after a publish.
-  await invalidatePromptPublish(slug, prompt.category);
+  await invalidatePromptPublish(slug, prompt.category, prompt.landingSlugs);
 
   return {
     success: true,
@@ -348,6 +375,7 @@ export async function publishPrompt(options: {
     publicUrl: `https://freepromptbase.com/${slug}`,
     status: prompt.status,
     publishAt: prompt.publishAt,
+    landingSlugs: prompt.landingSlugs,
     warnings,
     idempotent: false,
     dryRun: false,
@@ -370,6 +398,7 @@ export async function updatePrompt(options: {
   publicUrl: string;
   status: 'draft' | 'approved';
   publishAt: string | null;
+  landingSlugs: string[];
   warnings: string[];
   updated: boolean;
   dryRun: boolean;
@@ -384,10 +413,13 @@ export async function updatePrompt(options: {
 
   const [category, existing] = await Promise.all([
     db.prepare('SELECT slug FROM prompt_categories WHERE slug = ?').bind(prompt.category).first<{ slug: string }>(),
-    db.prepare('SELECT slug, date FROM prompts WHERE slug = ?').bind(prompt.slug).first<{ slug: string; date: string }>(),
+    db.prepare('SELECT slug, date, category FROM prompts WHERE slug = ?')
+      .bind(prompt.slug)
+      .first<{ slug: string; date: string; category: string }>(),
   ]);
   if (!category) throw new PromptPublishError(`Unknown prompt category: ${prompt.category}.`);
   if (!existing) throw new PromptPublishError(`Prompt “${prompt.slug}” was not found.`, 404);
+  const existingLandingSlugs = await getPromptLandingSlugs(db, prompt.slug);
 
   let createdById = actor.id;
   let authorName = prompt.author || actor.name;
@@ -408,6 +440,7 @@ export async function updatePrompt(options: {
       publicUrl: `https://freepromptbase.com/${prompt.slug}`,
       status: prompt.status,
       publishAt: prompt.publishAt,
+      landingSlugs: prompt.landingSlugs,
       warnings,
       updated: false,
       dryRun: true,
@@ -415,16 +448,14 @@ export async function updatePrompt(options: {
   }
 
   const effectiveDate = prompt.publishAt ? prompt.publishAt.slice(0, 10) : prompt.date || existing.date;
-  await db
-    .prepare(
+  const updateStatement = db.prepare(
       `UPDATE prompts SET
         title = ?, description = ?, prompt_text = ?, category = ?, tags = ?,
         author = ?, date = ?, cover_image = ?, images = ?, featured = ?,
         popularity = ?, how_to_use = ?, created_by = ?, status = ?,
         publish_at = ?, updated_at = datetime('now'), cover_w = ?, cover_h = ?
        WHERE slug = ?`,
-    )
-    .bind(
+    ).bind(
       prompt.title,
       prompt.description,
       prompt.promptText,
@@ -443,8 +474,11 @@ export async function updatePrompt(options: {
       prompt.coverW,
       prompt.coverH,
       prompt.slug,
-    )
-    .run();
+    );
+  await db.batch([
+    updateStatement,
+    ...landingMembershipStatements(db, prompt.slug, prompt.landingSlugs),
+  ]);
 
   await logActivity(db, {
     userId: actor.id,
@@ -455,7 +489,12 @@ export async function updatePrompt(options: {
     entityTitle: prompt.title,
     details: 'agent-api',
   });
-  await invalidatePromptPublish(prompt.slug, prompt.category);
+  // A full replacement can remove an old landing membership or change the
+  // category, so invalidate both sides rather than only the new assignments.
+  await Promise.all([
+    invalidatePromptPublish(prompt.slug, existing.category, existingLandingSlugs),
+    invalidatePromptPublish(prompt.slug, prompt.category, prompt.landingSlugs),
+  ]);
 
   return {
     success: true,
@@ -463,6 +502,7 @@ export async function updatePrompt(options: {
     publicUrl: `https://freepromptbase.com/${prompt.slug}`,
     status: prompt.status,
     publishAt: prompt.publishAt,
+    landingSlugs: prompt.landingSlugs,
     warnings,
     updated: true,
     dryRun: false,

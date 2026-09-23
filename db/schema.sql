@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS prompt_events;
 DROP TABLE IF EXISTS prompt_likes;
 DROP TABLE IF EXISTS prompt_saves;
+DROP TABLE IF EXISTS prompt_landing_memberships;
 DROP TABLE IF EXISTS prompts;
 DROP TABLE IF EXISTS prompt_categories;
 
@@ -101,6 +102,19 @@ CREATE INDEX idx_prompts_updated_at    ON prompts(updated_at);
 CREATE INDEX idx_prompts_status_date  ON prompts(status, date);
 CREATE INDEX idx_prompts_submitted_by ON prompts(submitted_by);
 CREATE INDEX idx_prompts_pinterest_exported ON prompts(pinterest_exported_at);
+
+-- Explicit, editorially reviewed membership for keyword landing pages. Landing
+-- slugs are static policy rather than rows, so only the prompt side is an FK.
+CREATE TABLE prompt_landing_memberships (
+	landing_slug TEXT NOT NULL,
+	prompt_slug  TEXT NOT NULL REFERENCES prompts(slug) ON DELETE CASCADE ON UPDATE CASCADE,
+	position     INTEGER,
+	created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+	updated_at   TEXT NOT NULL DEFAULT (datetime('now')),
+	PRIMARY KEY (landing_slug, prompt_slug)
+);
+CREATE INDEX idx_prompt_landing_memberships_landing_position
+	ON prompt_landing_memberships(landing_slug, position, prompt_slug);
 
 -- Per-actor save list. actor_id is "user:<id>" for signed-in users and
 -- "anon:<uuid>" for anonymous visitors (migrated to user form on login).

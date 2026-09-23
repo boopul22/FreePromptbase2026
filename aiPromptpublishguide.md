@@ -1,6 +1,6 @@
 # AI Prompt Publishing Guide
 
-Last updated: 2026-08-04
+Last updated: 2026-08-30
 
 This is the primary handoff guide for AI agents publishing prompts to
 Free Prompt Base. Follow it for every prompt-publishing request in this
@@ -105,6 +105,10 @@ For each prompt manifest:
   `ai image prompt`, `photo editing prompt`, or
   `gemini ai photo prompt copy paste` when genuinely applicable. Do not stuff
   unrelated Nano Banana or Gemini terms.
+- `landingSlugs`: optional array of zero to four reviewed keyword landing slugs.
+  Assign only genuinely relevant pages. This is separate from tags: no landing
+  membership is inferred from title, description, or tags. On update it fully
+  replaces the prompt's existing memberships.
 - `author`: use `Bipul Kumar` unless the user specifies another author. Let the
   API resolve the active agent actor; do not hard-code an unverified `createdBy`
   ID.
@@ -114,9 +118,10 @@ For each prompt manifest:
   schedule only when the user requests it.
 - `featured`: default to `false` unless explicitly requested.
 
-Publishing an individual prompt does not automatically create a new keyword or
-tag landing page. Update `seo/tracklist.md`, `src/data/tags.ts`, and a tag article
-only when the task explicitly includes a new keyword/page.
+Publishing an individual prompt does not automatically create or join a keyword
+landing page. Use `landingSlugs` only for a known landing, and update
+`seo/tracklist.md`, `src/data/tags.ts`, and a tag article only when the task
+explicitly includes a new keyword/page.
 
 ## 5. Four-image gallery standard
 
@@ -359,6 +364,7 @@ are removed before the API request.
     "photo editing prompt",
     "specific visual style"
   ],
+  "landingSlugs": ["photo-editing-prompt"],
   "author": "Bipul Kumar",
   "howToUse": "Upload or replace placeholders, then paste the prompt into your preferred image generator.",
   "status": "approved",

@@ -3,8 +3,10 @@ export const prerender = false;
 
 import Layout from '../../../../../layouts/Layout.astro';
 import AdminSidebar from '../../../../../components/AdminSidebar.astro';
+import { LANDING_OPTIONS } from '../../../../../lib/landingMemberships';
 
 const slug = Astro.params.slug!;
+const landingOptions = LANDING_OPTIONS;
 ---
 
 <Layout title="Edit Prompt - CMS - Free Prompt Base" noindex={true}>
@@ -105,6 +107,13 @@ const slug = Astro.params.slug!;
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-tags">Tags</label>
  <input id="f-tags" type="text" placeholder="comma, separated, list" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
+ </div>
+ <div>
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-landings">Keyword landings</label>
+ <select id="f-landings" multiple size="6" class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-text-primary">
+ {landingOptions.map((landing) => <option value={landing.slug}>{landing.name}{landing.indexable ? ' · indexed cohort' : ' · noindex'}</option>)}
+ </select>
+ <p class="text-xs text-gray-500 mt-1">Optional. Select up to four reviewed, relevant landings. No automatic matching.</p>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-cover">Cover image URL</label>
@@ -521,7 +530,11 @@ const slug = Astro.params.slug!;
  document.getElementById('f-description').value = p.description || '';
  document.getElementById('f-prompt-text').value = p.promptText || '';
  document.getElementById('f-how-to-use').value = p.howToUse || '';
- document.getElementById('f-tags').value = (p.tags || []).join(', ');
+	 document.getElementById('f-tags').value = (p.tags || []).join(', ');
+	 const selectedLandings = new Set(p.landingSlugs || []);
+	 Array.from(document.getElementById('f-landings').options).forEach((option) => {
+	 option.selected = selectedLandings.has(option.value);
+	 });
  document.getElementById('f-cover').value = p.coverImage || '';
  // Re-render now that the cover is known, so the right thumbnail is badged.
  renderStrip();
@@ -674,14 +687,16 @@ const slug = Astro.params.slug!;
  const activeBtn = activeBtnId ? document.getElementById(activeBtnId) : null;
  setBtnLoading(activeBtn, true, loadingLabel);
 
- const tags = v('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
- const body = {
+	 const tags = v('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
+	 const landingSlugs = Array.from(document.getElementById('f-landings').selectedOptions).map((option) => option.value);
+	 const body = {
  title: v('f-title'),
  slug: v('f-slug'),
  description: v('f-description'),
  promptText: v('f-prompt-text'),
  category: v('f-category'),
- tags,
+	 tags,
+	 landingSlugs,
  createdBy: v('f-author'),
  coverImage: v('f-cover') || null,
  images,

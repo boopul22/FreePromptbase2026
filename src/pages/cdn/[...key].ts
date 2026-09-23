@@ -17,7 +17,7 @@ const CACHE = 'public, max-age=31536000, immutable';
 
 // Folders we'll proxy. Anything outside this list returns 404 so this route
 // doesn't become an arbitrary read of the bucket.
-const ALLOWED_PREFIXES = ['submissions/', 'cms/', 'prompts/'];
+const ALLOWED_PREFIXES = ['submissions/', 'cms/', 'prompts/', 'raga/reels/'];
 
 // Same-origin SVG can execute embedded JS with full access to the site
 // (cookies, localStorage, etc.). Refuse to serve them through this proxy.
@@ -27,7 +27,7 @@ function notFound(): Response {
 	return new Response('Not Found', { status: 404 });
 }
 
-export const GET: APIRoute = async ({ params, request }) => {
+const serve: APIRoute = async ({ params, request }) => {
 	const rawKey = params.key;
 	if (!rawKey || typeof rawKey !== 'string') return notFound();
 
@@ -54,7 +54,7 @@ export const GET: APIRoute = async ({ params, request }) => {
 		}
 	}
 
-	const obj = await R2.get(key);
+	const obj = request.method === 'HEAD' ? await R2.head(key) : await R2.get(key);
 	if (!obj) return notFound();
 
 	const headers = new Headers();
@@ -71,9 +71,15 @@ export const GET: APIRoute = async ({ params, request }) => {
 	if (!headers.has('Content-Type')) {
 		headers.set('Content-Type', 'application/octet-stream');
 	}
+	headers.set('Content-Length', String(obj.size));
 
 	// Browsers that respect this header won't try to sniff a sneaky MIME.
 	headers.set('X-Content-Type-Options', 'nosniff');
 
-	return new Response(obj.body, { headers });
+	return new Response(request.method === 'HEAD' ? null : obj.body, { headers });
 };
+
+export const GET = serve;
+// Meta checks hosted Reel URLs before fetching them, so expose the same exact
+// metadata (especially video/mp4 and Content-Length) for HEAD requests.
+export const HEAD = serve;

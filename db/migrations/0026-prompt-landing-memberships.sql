@@ -1,0 +1,31 @@
+CREATE TABLE IF NOT EXISTS prompt_landing_memberships (
+	landing_slug TEXT NOT NULL,
+	prompt_slug  TEXT NOT NULL REFERENCES prompts(slug) ON DELETE CASCADE ON UPDATE CASCADE,
+	position     INTEGER,
+	created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+	updated_at   TEXT NOT NULL DEFAULT (datetime('now')),
+	PRIMARY KEY (landing_slug, prompt_slug)
+);
+
+CREATE INDEX IF NOT EXISTS idx_prompt_landing_memberships_landing_position
+	ON prompt_landing_memberships(landing_slug, position, prompt_slug);
+
+-- Seed only slugs that exist in this database. This makes the migration safe on
+-- a fresh/partial development DB while giving production the reviewed cohort.
+WITH seed(landing_slug, prompt_slugs) AS (VALUES
+	('nano-banana-prompt', '["nano-banana-photoreal-office-jetpack-meme-prompt","gemini-ai-dna-hologram-portrait-prompt-copy-paste","nano-banana-surreal-ai-identity-portrait-prompt","nano-banana-cinematic-fps-game-scene-prompt-copy-paste","gemini-ai-rivalry-editorial-portrait-prompt-copy-paste","gemini-ai-cinematic-street-portrait-photo-editing-prompt","gemini-ai-couple-elevator-mirror-selfie-editing-prompt","anime-chibi-mural-photo-editing-prompt"]'),
+	('nano-banana-ai', '["nano-banana-photoreal-office-jetpack-meme-prompt","gemini-ai-dna-hologram-portrait-prompt-copy-paste","nano-banana-surreal-ai-identity-portrait-prompt","nano-banana-cinematic-fps-game-scene-prompt-copy-paste","gemini-ai-rivalry-editorial-portrait-prompt-copy-paste","chibi-miniature-doodle-portrait-photo-editing-prompt","soft-anime-4-panel-collage-photo-editing-prompt","gemini-ai-traveler-street-portrait-photo-editing-prompt"]'),
+	('gemini-ai-photo-prompt-copy-paste', '["turquoise-butterfly-cinematic-portrait-prompt","cyberpunk-night-city-light-trails-fashion-photo-prompt","emerald-green-butterfly-cinematic-portrait-prompt","orange-bomber-jacket-indonesian-caption-cta-prompt","indonesian-teal-suit-briefcase-editorial-poster-prompt","rocky-mountain-viewpoint-quiet-typography-prompt","misty-mountain-valley-peace-typography-photo-prompt","cinematic-outdoor-curly-hair-sunglasses-portrait-prompt","cinematic-moody-neck-tattoo-graphic-tee-portrait-prompt","teal-orange-two-tone-studio-portrait-prompt","curly-hair-burnt-orange-editorial-portrait-prompt","disposable-camera-1980s-kitchen-house-party-prompt"]'),
+	('prompt-for-gemini-ai', '["black-suit-bouquet-portrait-prompt","black-blazer-studio-portrait-prompt","duotone-wall-portrait-prompt","garden-staircase-portrait-prompt","red-shirt-baroque-portrait-prompt","sunflower-bouquet-portrait-prompt","golden-hour-blazer-portrait-prompt","colonnade-fashion-portrait-prompt"]'),
+	('gemini-ai-photo-prompt', '["baby-krishna-with-cow-vrindavan-ai-photo-prompt","maa-yashoda-baby-krishna-moonlight-ai-prompt","sleeping-baby-krishna-golden-cradle-ai-photo-prompt","baby-krishna-butter-pot-ai-photo-editing-prompt","gemini-ai-traveler-street-portrait-photo-editing-prompt","gemini-ai-cinematic-street-portrait-photo-editing-prompt","gemini-ai-couple-elevator-mirror-selfie-editing-prompt","anime-chibi-mural-photo-editing-prompt"]'),
+	('gemini-couple-photo-prompt', '["couple-prompt-double-exposure-beach","couple-prompt-seaside-cliff","couple-prompt-kiss-marks","couple-prompt-cliff-selfie","couple-prompt-red-saree","couple-prompt-clear-umbrella","couple-prompt-carousel","couple-prompt-sunflower","couple-prompt-ferris-wheel","couple-prompt-kulhad-chai","couple-prompt-haveli-door","couple-prompt-jasmine-anklet"]'),
+	('trending-gemini-prompt', '["turquoise-butterfly-cinematic-portrait-prompt","cyberpunk-night-city-light-trails-fashion-photo-prompt","emerald-green-butterfly-cinematic-portrait-prompt","orange-bomber-jacket-indonesian-caption-cta-prompt","indonesian-teal-suit-briefcase-editorial-poster-prompt","rocky-mountain-viewpoint-quiet-typography-prompt","misty-mountain-valley-peace-typography-photo-prompt","cinematic-outdoor-curly-hair-sunglasses-portrait-prompt","cinematic-side-profile-vintage-sunglasses-denim-jacket-prompt","fisheye-studio-fashion-flip-phone-photo-prompt","candid-indoor-doorway-portrait-prompt","golden-hour-meadow-headphones-walking-photo-prompt"]'),
+	('photo-editing-prompt', '["golden-hour-glow-text-overlay-photo-editing-prompt","lord-of-the-rings-style-sunrise-photo-editing-prompt","after-rain-twilight-spectrum-photo-editing-prompt","cinematic-foggy-forest-color-grading-prompt","cozy-night-couple-selfie-photo-editing-prompt","teal-blue-floral-couple-photo-editing-prompt","chibi-miniature-doodle-portrait-photo-editing-prompt","soft-anime-4-panel-collage-photo-editing-prompt","gemini-ai-traveler-street-portrait-photo-editing-prompt","gemini-ai-cinematic-street-portrait-photo-editing-prompt","gemini-ai-couple-elevator-mirror-selfie-editing-prompt","anime-chibi-mural-photo-editing-prompt"]'),
+	('chatgpt-photo-editing-prompt', '["anime-chibi-mural-photo-editing-prompt","chibi-miniature-doodle-portrait-photo-editing-prompt","soft-anime-4-panel-collage-photo-editing-prompt","golden-hour-glow-text-overlay-photo-editing-prompt","after-rain-twilight-spectrum-photo-editing-prompt","cozy-night-couple-selfie-photo-editing-prompt","teal-blue-floral-couple-photo-editing-prompt","lord-of-the-rings-style-sunrise-photo-editing-prompt"]'),
+	('ai-image-prompt', '["brutalist-corridor-sketch-double-prompt","giant-man-miniature-clones-surreal-studio-portrait","giant-sunglasses-european-street-fashion-prompt","giant-nike-cap-forced-perspective-prompt","miniature-clone-chaos-surreal-portrait-photo-prompt","floating-sliced-tree-core-surreal-portrait-prompt","nano-banana-surreal-ai-identity-portrait-prompt","pixels-in-motion-prompt-sky-vortex","pixels-in-motion-prompt-tropical-shore","pixel-stretch-prompt","fisheye-floating-photo-prompt","monumental-cloud-sculpture-portrait-ai-image-prompt"]'),
+	('baby-krishna-ai-photo-editing-prompt', '["baby-krishna-with-cow-vrindavan-ai-photo-prompt","maa-yashoda-baby-krishna-moonlight-ai-prompt","sleeping-baby-krishna-golden-cradle-ai-photo-prompt","baby-krishna-butter-pot-ai-photo-editing-prompt"]')
+)
+INSERT OR IGNORE INTO prompt_landing_memberships (landing_slug, prompt_slug, position)
+SELECT seed.landing_slug, json_each.value, CAST(json_each.key AS INTEGER) + 1
+FROM seed, json_each(seed.prompt_slugs)
+INNER JOIN prompts ON prompts.slug = json_each.value;

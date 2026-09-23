@@ -1,7 +1,7 @@
 // ---------------------------------------------------------------------------
 // SEO tag pages — generated from rising-search keyword research.
-// Each tag becomes a landing page at /<slug> that lists matching prompts
-// (falling back to popular prompts when nothing matches the keyword).
+// Each tag becomes a landing page at /<slug>. Supporting prompts are assigned
+// explicitly through prompt_landing_memberships; matchTerms are research data.
 // Index/noindex/redirect policy lives in src/data/tag-seo.ts.
 // Consumed only through src/lib/prompts.ts so a future D1 move stays isolated.
 // ---------------------------------------------------------------------------
@@ -551,15 +551,6 @@ export const tags: Tag[] = [
 		"description": "Free AI Gemini ideas you can copy and paste. Browse ready-to-use AI prompts for ai gemini — no signup needed.",
 		"matchTerms": [
 			"gemini"
-		]
-	},
-	{
-		"slug": "couple-prompt",
-		"name": "Couple Prompt",
-		"query": "couple prompt",
-		"description": "Free Couple Prompt ideas you can copy and paste. Browse ready-to-use AI prompts for couple prompt — no signup needed.",
-		"matchTerms": [
-			"couple"
 		]
 	},
 	{

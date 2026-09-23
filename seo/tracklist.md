@@ -15,7 +15,7 @@
 | P1 | `/nano-banana-ai` | nano banana ai | A | 78–90 | High vol |
 | P1 | `/prompt-for-gemini-ai` | prompt for gemini ai | B | 42 | |
 | P1 | `/gemini-ai-photo-prompt` | gemini ai photo prompt | B | low | Rising |
-| P2 | `/gemini-couple-photo-prompt` | gemini couple photo prompt | B/D | low | Couple sub-niche |
+| P2 | `/gemini-couple-photo-prompt` | gemini couple photo prompt | B/D | low | Secondary: `couple prompt`; `/couple-prompt` is a prompt detail page |
 | P2 | `/trending-gemini-prompt` | trending gemini prompt | B | low | Refresh often |
 | P2 | (home) `/` | free ai prompts | C | 37 | Brand match |
 
@@ -60,9 +60,8 @@
 | Slug | Primary keyword | Note |
 |---|---|---|
 | baby-krishna-ai-photo-editing-prompt | baby krishna ai photo editing prompt | 4-prompt devotional collection; 2 fictional samples per prompt (Aug 2026) |
-| couple-prompt | couple prompt | |
 | couple-prompt-for-gemini-ai | couple prompt for gemini ai | |
-| gemini-couple-photo-prompt | gemini couple photo prompt | |
+| gemini-couple-photo-prompt | gemini couple photo prompt | Secondary: couple prompt |
 | chatgpt-caricature-prompt | chatgpt caricature prompt | |
 | holi-prompt | holi prompt | **seasonal (Feb–Mar)** |
 | prompt-for-gemini-ai-girl | prompt for gemini ai girl | modifier |

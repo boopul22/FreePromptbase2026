@@ -7,6 +7,7 @@ export interface SocialEnv {
 	IG_ACCESS_TOKEN: string;
 	IG_USER_ID: string;
 	FB_PAGE_ACCESS_TOKEN: string;
+	// Primary Free Prompt Base Facebook destination.
 	FB_PAGE_ID: string;
 	META_API_VERSION?: string;
 	IG_API_HOST?: string;
@@ -367,16 +368,25 @@ async function instagramHealth(env: SocialEnv, fetcher = fetch) {
 	}
 }
 
-async function resolveFacebookPage(env: SocialEnv, fetcher = fetch) {
+/**
+ * Resolve one explicitly allowlisted Page from the shared Meta user token.
+ * Both ID and name must match so a typo cannot redirect campaign media.
+ */
+export async function resolveFacebookPage(
+	env: SocialEnv,
+	pageId: string,
+	expectedName: string,
+	fetcher: typeof fetch = fetch,
+) {
 	if (!env.FB_PAGE_ACCESS_TOKEN || !env.FB_PAGE_ID) throw new MetaError('Facebook Worker secrets/configuration are missing.', false, 'facebook');
 	const config = metaConfig(env);
 	try {
 		const result = await metaRequest(config.fbHost, config.version, env.FB_PAGE_ACCESS_TOKEN, 'GET', 'me/accounts', {
 			fields: 'id,name,access_token,tasks', limit: 100,
 		}, fetcher);
-		const page = (result.data || []).find((item: any) => String(item.id) === String(env.FB_PAGE_ID));
-		if (!page || page.name !== 'Free Prompt Base' || !page.access_token || !Array.isArray(page.tasks) || !page.tasks.includes('CREATE_CONTENT')) {
-			throw new MetaError('Facebook Page credential does not match the allowlist or lacks CREATE_CONTENT.');
+		const page = (result.data || []).find((item: any) => String(item.id) === String(pageId));
+		if (!page || page.name !== expectedName || !page.access_token || !Array.isArray(page.tasks) || !page.tasks.includes('CREATE_CONTENT')) {
+			throw new MetaError(`Facebook Page ${expectedName} does not match the allowlist or lacks CREATE_CONTENT.`);
 		}
 		return { id: String(page.id), name: page.name, tasks: page.tasks as string[], token: String(page.access_token) };
 	} catch (error) {
@@ -386,7 +396,10 @@ async function resolveFacebookPage(env: SocialEnv, fetcher = fetch) {
 }
 
 export async function getSocialHealth(env: SocialEnv, fetcher: typeof fetch = fetch) {
-	const [instagram, facebook] = await Promise.allSettled([instagramHealth(env, fetcher), resolveFacebookPage(env, fetcher)]);
+	const [instagram, facebook] = await Promise.allSettled([
+		instagramHealth(env, fetcher),
+		resolveFacebookPage(env, env.FB_PAGE_ID, 'Free Prompt Base', fetcher),
+	]);
 	return {
 		ok: instagram.status === 'fulfilled' && facebook.status === 'fulfilled',
 		instagram: instagram.status === 'fulfilled' ? { ok: true, ...instagram.value } : { ok: false, error: instagram.reason instanceof Error ? instagram.reason.message : 'Instagram check failed.' },
@@ -469,9 +482,9 @@ export async function publishInstagram(env: SocialEnv, campaign: Campaign, deliv
 	return { remoteId: mediaId, permalink: details.permalink || null, state: { ...state, mediaId } };
 }
 
-async function reconcileFacebook(env: SocialEnv, token: string, message: string, startedAt: string, fetcher: typeof fetch) {
+async function reconcileFacebook(env: SocialEnv, pageId: string, token: string, message: string, startedAt: string, fetcher: typeof fetch) {
 	const config = metaConfig(env);
-	const result = await metaRequest(config.fbHost, config.version, token, 'GET', `${env.FB_PAGE_ID}/feed`, {
+	const result = await metaRequest(config.fbHost, config.version, token, 'GET', `${pageId}/feed`, {
 		fields: 'id,message,created_time,permalink_url', limit: 25,
 	}, fetcher);
 	const cutoff = Date.parse(startedAt) - 300_000;
@@ -479,13 +492,29 @@ async function reconcileFacebook(env: SocialEnv, token: string, message: string,
 	return matches.length === 1 ? matches[0] : null;
 }
 
-export async function publishFacebook(env: SocialEnv, pageToken: string, campaign: Campaign, delivery: Delivery, fetcher: typeof fetch) {
+type FacebookTarget = {
+	pageId: string;
+	pageToken: string;
+};
+
+/** Publish one Page copy while persisting every remote mutation to D1. */
+export async function publishFacebookPage(env: SocialEnv, target: FacebookTarget, campaign: Campaign, delivery: Delivery, fetcher: typeof fetch) {
 	const config = metaConfig(env);
-	const state: any = { ...delivery.state, startedAt: delivery.state.startedAt || new Date().toISOString(), photoIds: (delivery.state.photoIds as string[]) || [] };
+	const state: any = {
+		...delivery.state,
+		startedAt: delivery.state.startedAt || new Date().toISOString(),
+		photoIds: (delivery.state.photoIds as string[]) || [],
+	};
 	await saveState(env.DB, campaign.id, 'facebook', state);
+	if (state.postId) {
+		const details = await metaRequest(config.fbHost, config.version, target.pageToken, 'GET', state.postId, { fields: 'id,permalink_url,is_published' }, fetcher);
+		state.permalink = details.permalink_url || state.permalink || null;
+		await saveState(env.DB, campaign.id, 'facebook', state);
+		return { remoteId: String(state.postId), permalink: state.permalink || null, state };
+	}
 	for (let index = state.photoIds.length; index < campaign.media.length; index++) {
 		const item = campaign.media[index];
-		const uploaded = await metaRequest(config.fbHost, config.version, pageToken, 'POST', `${env.FB_PAGE_ID}/photos`, {
+		const uploaded = await metaRequest(config.fbHost, config.version, target.pageToken, 'POST', `${target.pageId}/photos`, {
 			url: item.url, published: false, alt_text_custom: item.altText,
 		}, fetcher);
 		state.photoIds[index] = String(uploaded.id);
@@ -493,17 +522,34 @@ export async function publishFacebook(env: SocialEnv, pageToken: string, campaig
 	}
 	let post: any = null;
 	try {
-		post = await metaRequest(config.fbHost, config.version, pageToken, 'POST', `${env.FB_PAGE_ID}/feed`, {
+		post = await metaRequest(config.fbHost, config.version, target.pageToken, 'POST', `${target.pageId}/feed`, {
 			message: delivery.content,
 			attached_media: state.photoIds.map((media_fbid: string) => ({ media_fbid })),
 		}, fetcher);
 	} catch (error) {
-		post = await reconcileFacebook(env, pageToken, delivery.content, state.startedAt, fetcher);
+		post = await reconcileFacebook(env, target.pageId, target.pageToken, delivery.content, state.startedAt, fetcher);
 		if (!post) throw error;
 	}
 	const postId = String(post.id);
-	const details = post.permalink_url ? post : await metaRequest(config.fbHost, config.version, pageToken, 'GET', postId, { fields: 'id,permalink_url,is_published' }, fetcher);
-	return { remoteId: postId, permalink: details.permalink_url || null, state: { ...state, postId } };
+	const details = post.permalink_url ? post : await metaRequest(config.fbHost, config.version, target.pageToken, 'GET', postId, { fields: 'id,permalink_url,is_published' }, fetcher);
+	state.postId = postId;
+	state.permalink = details.permalink_url || null;
+	await saveState(env.DB, campaign.id, 'facebook', state);
+	return { remoteId: postId, permalink: state.permalink, state };
+}
+
+export async function publishFacebook(
+	env: SocialEnv,
+	pageToken: string,
+	campaign: Campaign,
+	delivery: Delivery,
+	fetcher: typeof fetch,
+) {
+	// Standard PromptBase campaigns publish only to the PromptBase Page. Raga
+	// has a separate raga_reel_jobs queue and must never be a campaign copy.
+	return publishFacebookPage(env, {
+		pageId: env.FB_PAGE_ID, pageToken,
+	}, campaign, delivery, fetcher);
 }
 
 async function finishDelivery(db: D1Database, campaignId: string, platform: SocialPlatform, result: { remoteId: string; permalink: string | null; state: object }) {
@@ -575,7 +621,7 @@ export async function processDueCampaign(env: SocialEnv, fetcher: typeof fetch =
 	let page: Awaited<ReturnType<typeof resolveFacebookPage>> | null = null;
 	try {
 		await instagramHealth(env, fetcher);
-		page = await resolveFacebookPage(env, fetcher);
+		page = await resolveFacebookPage(env, env.FB_PAGE_ID, 'Free Prompt Base', fetcher);
 	} catch (error) {
 		const platform = error instanceof MetaError && error.platform ? error.platform : 'instagram';
 		await env.DB.prepare(`UPDATE social_deliveries SET attempts = attempts + 1, status = 'running', updated_at = datetime('now') WHERE campaign_id = ? AND platform = ? AND status != 'published'`).bind(campaign.id, platform).run();

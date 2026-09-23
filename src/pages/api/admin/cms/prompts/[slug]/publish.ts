@@ -4,6 +4,7 @@ import type { APIRoute } from 'astro';
 import { getDB } from '../../../../../../lib/db';
 import { logActivity } from '../../../../../../lib/cms';
 import { invalidatePromptPublish } from '../../../../../../lib/publicCache';
+import { getPromptLandingSlugs } from '../../../../../../lib/landingMemberships';
 
 // Publish an admin draft → 'approved' (the public/live state). Refreshes `date`
 // so the prompt sorts into "Newest" at the publish moment. This is the admin
@@ -30,6 +31,7 @@ export const POST: APIRoute = async ({ params, locals }) => {
       { status: 400, headers: { 'Content-Type': 'application/json' } },
     );
   }
+  const landingSlugs = await getPromptLandingSlugs(db, slug);
 
   // Publishing always means "live now": clear any pending schedule so a
   // scheduled prompt published from the list isn't left hidden by a future time.
@@ -48,7 +50,7 @@ export const POST: APIRoute = async ({ params, locals }) => {
     entityTitle: prompt.title,
   });
 
-  await invalidatePromptPublish(slug, prompt.category);
+  await invalidatePromptPublish(slug, prompt.category, landingSlugs);
 
   return new Response(JSON.stringify({ success: true }), { headers: { 'Content-Type': 'application/json' } });
 };

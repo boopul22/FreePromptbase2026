@@ -17,9 +17,11 @@ admin configured by `AGENT_PUBLISH_USER_ID`.
 ## Recommended agent flow
 
 1. Write a JSON manifest with an SEO-focused title, description, exact prompt,
-   tags, author, a required sample-identity policy, and optional local `imagePaths`.
-2. Run a dry validation. This checks the category, author, slug collision,
-   trusted CDN URLs, gallery limits, dimensions, and SEO warnings without writing.
+   tags, optional explicit `landingSlugs`, author, a required sample-identity
+   policy, and optional local `imagePaths`.
+2. Run a dry validation. This checks the category, author, reserved-route/slug
+   collision, landing memberships, trusted CDN URLs, gallery limits, dimensions,
+   and SEO warnings without writing.
 3. Upload all local images in one authenticated media request. Uploads use the
    same content-addressed R2/media-table path as the admin UI and dedupe by bytes.
 4. Validate the final payload again after CDN URLs have been attached.
@@ -71,6 +73,7 @@ persistent; authorization is still required again for every exact prompt.
   "promptText": "Full copyable prompt...",
   "category": "images",
   "tags": ["gemini ai", "couple prompt", "mirror selfie", "photo editing"],
+  "landingSlugs": ["gemini-couple-photo-prompt", "photo-editing-prompt"],
   "createdBy": "oRrwF0SWVY3NqH6iQ8LPf",
   "howToUse": "Upload two clear identity photos, then paste the prompt.",
   "status": "approved",
@@ -86,6 +89,11 @@ persistent; authorization is still required again for every exact prompt.
 `imagePaths` and `coverIndex` are CLI-only fields and are removed before the API
 request. Direct API callers use the returned media URLs in `images` and
 `coverImage`.
+
+`landingSlugs` is optional and accepts zero to four known, non-redirect keyword
+landing slugs. It is a full-replacement field on update. A prompt appears on a
+keyword landing only through this explicit assignment; tags do not create an
+automatic membership and there is no popular-prompts fallback.
 
 ## Mandatory sample identity rule
 

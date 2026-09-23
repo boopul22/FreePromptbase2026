@@ -1,0 +1,27 @@
+{
+  "count": 250,
+  "first": "2026-10-20T03:30:00.000Z",
+  "last": "2027-03-03T03:30:00.000Z",
+  "days": 135,
+  "status": "publishing-in-waves",
+  "liveScheduled": [
+    {
+      "slug": "banarasi-silk-courtyard-saree-gemini-photo-prompt",
+      "publishAt": "2026-10-20 03:30:00"
+    },
+    {
+      "slug": "mustard-winter-shawl-saree-gemini-photo-prompt",
+      "publishAt": "2026-10-20 03:30:00"
+    },
+    {
+      "slug": "chatgpt-chhath-photo-editing-prompt-for-women-prompt",
+      "publishAt": "2026-11-13 03:30:00"
+    },
+    {
+      "slug": "kurta-sunrise-ghat-chhath-men-gemini-prompt",
+      "publishAt": "2026-11-14 03:30:00"
+    }
+  ],
+  "sourceCount": 250,
+  "productionCount": 4
+}

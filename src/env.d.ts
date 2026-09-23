@@ -42,6 +42,7 @@ declare namespace App {
         IG_USER_ID: string;
         FB_PAGE_ACCESS_TOKEN: string;
         FB_PAGE_ID: string;
+        RAGA_FB_PAGE_ID: string;
         META_API_VERSION: string;
         IG_API_HOST: string;
         FB_API_HOST: string;

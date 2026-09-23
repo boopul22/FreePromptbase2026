@@ -64,10 +64,60 @@ const curatedTagSlugs = new Set(
 	getAllTags().filter((t) => isTagIndexable(t.slug)).map((t) => t.slug),
 );
 const slugifyTag = (t: string) => t.toLowerCase().trim().replace(/\s+/g, '-');
+// Free-form prompt tags that map to a landing page even though the tag text is
+// not a hub slug. Short, natural anchors on indexed prompt pages.
+const TAG_HUB_ALIASES: Record<string, string> = {
+	'gemini prompt': 'prompt-for-gemini-ai',
+	'ai photo prompt': 'gemini-ai-photo-prompt',
+	'couple prompt': 'gemini-couple-photo-prompt',
+	'nano banana': 'nano-banana-ai',
+};
 const tagHref = (t: string) => {
 	const s = slugifyTag(t);
+	const alias = TAG_HUB_ALIASES[s];
+	if (alias) return `/${alias}`;
 	return curatedTagSlugs.has(s) ? `/${s}` : null;
 };
+
+// How-to copy is plain text in D1, so escape it first and only then link the
+// keyword phrases it already contains. One link per target per text.
+const HOW_TO_LINK_RULES = [
+	{ pattern: /gemini ai photo prompt \(copy paste\)/i, href: '/gemini-ai-photo-prompt-copy-paste' },
+	{ pattern: /gemini ai photo prompt copy paste/i, href: '/gemini-ai-photo-prompt-copy-paste' },
+	{ pattern: /gemini couple photo prompt/i, href: '/gemini-couple-photo-prompt' },
+	{ pattern: /nano banana pro/i, href: '/nano-banana-pro' },
+	{ pattern: /nano banana/i, href: '/nano-banana-ai' },
+	{ pattern: /gemini ai photo prompt/i, href: '/gemini-ai-photo-prompt' },
+	{ pattern: /prompt for gemini ai/i, href: '/prompt-for-gemini-ai' },
+	{ pattern: /chatgpt photo editing prompt/i, href: '/chatgpt-photo-editing-prompt' },
+];
+const HOW_TO_LINK_STYLE = 'text-decoration:underline;text-underline-offset:2px;font-weight:600';
+
+function escapeHtml(value: string): string {
+	return value
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
+function linkifyHowToUse(value: string): string {
+	const escaped = escapeHtml(value);
+	const combined = new RegExp(
+		HOW_TO_LINK_RULES.map((rule) => `(${rule.pattern.source})`).join('|'),
+		'gi',
+	);
+	const used = new Set<string>();
+	return escaped.replace(combined, (match, ...args) => {
+		const groups = args.slice(0, HOW_TO_LINK_RULES.length) as (string | undefined)[];
+		const ruleIndex = groups.findIndex((group) => group !== undefined);
+		const rule = ruleIndex === -1 ? undefined : HOW_TO_LINK_RULES[ruleIndex];
+		if (!rule || used.has(rule.href)) return match;
+		used.add(rule.href);
+		return `<a href="${rule.href}" style="${HOW_TO_LINK_STYLE}">${match}</a>`;
+	});
+}
 
 const isSaved = Astro.locals.savedSlugs?.has(prompt.slug) ?? false;
 const isLiked = Astro.locals.likedSlugs?.has(prompt.slug) ?? false;
@@ -468,7 +518,9 @@ const heading = prompt.title;
 					</svg>
 					<div class="min-w-0">
 						<h2 class="text-sm font-semibold text-amber-900 mb-1">How to use it</h2>
-						<p class="text-sm text-amber-900/80 leading-relaxed whitespace-pre-wrap">{prompt.howToUse}</p>
+						<p class="text-sm text-amber-900/80 leading-relaxed whitespace-pre-wrap">
+							<Fragment set:html={linkifyHowToUse(prompt.howToUse)} />
+						</p>
 					</div>
 				</aside>
 			)

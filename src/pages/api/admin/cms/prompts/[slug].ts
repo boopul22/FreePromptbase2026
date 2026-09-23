@@ -4,6 +4,13 @@ import type { APIRoute } from 'astro';
 import { getDB } from '../../../../../lib/db';
 import { generateSlug, logActivity, toScheduleUtc } from '../../../../../lib/cms';
 import { invalidatePromptPublish, invalidatePublicPaths } from '../../../../../lib/publicCache';
+import { promptSlugConflict } from '../../../../../data/route-policy';
+import {
+  getPromptLandingSlugs,
+  landingMembershipStatements,
+  LandingMembershipValidationError,
+  normalizeLandingSlugs,
+} from '../../../../../lib/landingMemberships';
 
 interface PromptRow {
   slug: string;
@@ -34,7 +41,7 @@ interface PromptRow {
   creator_email?: string | null;
 }
 
-function mapRow(r: PromptRow) {
+function mapRow(r: PromptRow, landingSlugs: string[] = []) {
   return {
     slug: r.slug,
     title: r.title,
@@ -44,6 +51,7 @@ function mapRow(r: PromptRow) {
     categoryName: r.category_name ?? null,
     categoryEmoji: r.category_emoji ?? null,
     tags: safeJsonArray(r.tags),
+    landingSlugs,
     images: safeJsonArray(r.images),
     author: r.author,
     date: r.date,
@@ -107,7 +115,8 @@ export const GET: APIRoute = async ({ params, locals }) => {
     });
   }
 
-  return new Response(JSON.stringify({ success: true, prompt: mapRow(row) }), {
+  const landingSlugs = await getPromptLandingSlugs(db, slug);
+  return new Response(JSON.stringify({ success: true, prompt: mapRow(row, landingSlugs) }), {
     headers: { 'Content-Type': 'application/json' },
   });
 };
@@ -128,11 +137,32 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   }
+  const existingLandingSlugs = await getPromptLandingSlugs(db, currentSlug);
+
+  let finalLandingSlugs = existingLandingSlugs;
+  if (body.landingSlugs !== undefined) {
+    try {
+      finalLandingSlugs = normalizeLandingSlugs(body.landingSlugs);
+    } catch (error) {
+      const message = error instanceof LandingMembershipValidationError
+        ? error.message
+        : 'Invalid keyword landing selection.';
+      return new Response(JSON.stringify({ error: message }), {
+        status: 400, headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  }
 
   // Resolve new slug (if changed). Reject collisions.
   let newSlug = currentSlug;
   if (body.slug && generateSlug(body.slug) !== currentSlug) {
     newSlug = generateSlug(body.slug);
+    const routeConflict = promptSlugConflict(newSlug);
+    if (routeConflict) {
+      return new Response(JSON.stringify({ error: `Slug “${newSlug}” conflicts with ${routeConflict}.` }), {
+        status: 400, headers: { 'Content-Type': 'application/json' },
+      });
+    }
     const clash = await db.prepare('SELECT slug FROM prompts WHERE slug = ?').bind(newSlug).first();
     if (clash) {
       return new Response(
@@ -210,16 +240,14 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     finalDate = new Date().toISOString().slice(0, 10);
   }
 
-  await db
-    .prepare(
+  const updateStatement = db.prepare(
       `UPDATE prompts SET
         slug = ?, title = ?, description = ?, prompt_text = ?, category = ?,
         tags = ?, author = ?, date = ?, cover_image = ?, images = ?,
         featured = ?, popularity = ?, how_to_use = ?, created_by = ?, status = ?,
         publish_at = ?, updated_at = datetime('now'), cover_w = ?, cover_h = ?
        WHERE slug = ?`,
-    )
-    .bind(
+    ).bind(
       newSlug,
       body.title ?? existing.title,
       body.description ?? existing.description,
@@ -239,8 +267,11 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
       Number.isFinite(body.coverW) ? body.coverW : existing.cover_w,
       Number.isFinite(body.coverH) ? body.coverH : existing.cover_h,
       currentSlug,
-    )
-    .run();
+    );
+  await db.batch([
+    updateStatement,
+    ...landingMembershipStatements(db, newSlug, finalLandingSlugs),
+  ]);
 
   await logActivity(db, {
     userId: locals.user.id,
@@ -262,10 +293,14 @@ export const PUT: APIRoute = async ({ params, request, locals }) => {
     `/category/${encodeURIComponent(nextCategory)}`,
     '/categories',
     '/sitemap.xml',
+    '/sitemaps/core.xml',
+    '/sitemaps/prompts.xml',
+    ...existingLandingSlugs.map((slug) => `/${encodeURIComponent(slug)}`),
+    ...finalLandingSlugs.map((slug) => `/${encodeURIComponent(slug)}`),
   ];
   await invalidatePublicPaths(paths);
 
-  return new Response(JSON.stringify({ success: true, slug: newSlug }), {
+  return new Response(JSON.stringify({ success: true, slug: newSlug, landingSlugs: finalLandingSlugs }), {
     headers: { 'Content-Type': 'application/json' },
   });
 };
@@ -285,6 +320,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
       headers: { 'Content-Type': 'application/json' },
     });
   }
+  const landingSlugs = await getPromptLandingSlugs(db, slug);
 
   await db.prepare('DELETE FROM prompts WHERE slug = ?').bind(slug).run();
 
@@ -297,7 +333,7 @@ export const DELETE: APIRoute = async ({ params, locals }) => {
     entityTitle: existing.title,
   });
 
-  await invalidatePromptPublish(slug, existing.category);
+  await invalidatePromptPublish(slug, existing.category, landingSlugs);
 
   return new Response(JSON.stringify({ success: true }), {
     headers: { 'Content-Type': 'application/json' },

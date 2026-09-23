@@ -1,0 +1,197 @@
+<!-- SEO audit report. Keep the CSS and structure. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>freepromptbase.com SEO review</title>
+<style>
+  :root {
+    --bg: #e2e9f3;
+    --ink: #122650;
+    --muted: #4f5f79;
+    --rule: #c2cddd;
+    --rule-strong: #122650;
+  }
+  html { background: var(--bg); color-scheme: light; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: Charter, Georgia, "Times New Roman", serif;
+    line-height: 1.55; margin: 0; padding: 3.5rem 1.5rem 5rem;
+  }
+  .page { max-width: 860px; margin: 0 auto; }
+  .mono {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  }
+  h1 {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 700; font-size: 1.6rem; letter-spacing: -0.01em;
+    margin: 0.75rem 0 0.25rem; text-wrap: balance;
+  }
+  .subtitle { color: var(--muted); margin: 0 0 2.5rem; font-size: 1.02rem; max-width: 46rem; }
+  .dateline { color: var(--muted); font-size: 0.92rem; margin: 0 0 1.1rem; }
+  h2 {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: 700; font-size: 1.25rem; margin: 3rem 0 0.75rem;
+  }
+  .lede { font-size: 1.05rem; max-width: 46rem; }
+  section > p { max-width: 46rem; }
+  hr.heavy { border: 0; border-top: 2px solid var(--rule-strong); margin: 3rem 0 0; }
+  section .cols:first-of-type { border-top: 1px solid var(--rule); }
+  .cols {
+    display: grid; grid-template-columns: minmax(180px, 5fr) 8fr;
+    gap: 1.25rem; padding: 0.6rem 0; border-bottom: 1px solid var(--rule);
+  }
+  .row-title { font-size: 1.12rem; margin: 0; }
+  .row-title .tag { display: block; margin-top: 0.35rem; }
+  .cols > div p { margin: 0 0 0.6rem; color: var(--muted); font-size: 0.95rem; }
+  .cols > div p:last-child { margin-bottom: 0; }
+  .cols > div p.fix { color: var(--ink); }
+  .fix b { font-weight: 600; }
+  code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85em; word-break: break-word;
+  }
+  ol { padding-left: 1.3rem; max-width: 44rem; }
+  ol li { margin-bottom: 0.5rem; }
+  ul.plain { list-style: none; padding: 0; max-width: 46rem; }
+  ul.plain li { padding: 0.5rem 0; border-bottom: 1px solid var(--rule); font-size: 0.98rem; }
+  ul.plain li:first-child { border-top: 1px solid var(--rule); }
+  ul.plain .why { color: var(--muted); }
+  footer { margin-top: 4rem; color: var(--muted); font-size: 0.88rem; max-width: 46rem; }
+  @media (max-width: 620px) {
+    .cols { grid-template-columns: 1fr; gap: 0.4rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>freepromptbase.com</h1>
+    <p class="dateline">20 September 2026</p>
+    <p class="subtitle">The site is live, crawlable, and has the right Gemini and Nano Banana pages. Google Search Console shows search clicks falling from a few a day in late 2025 to almost none now, and the old URLs that used to collect most of those clicks now return 404. This review covers that gap, the one redirect fix to do this week, a short repair list, and a first keyword focus for India.</p>
+  </header>
+
+  <section>
+    <h2>Where the site stands</h2>
+    <p class="lede">Free Prompt Base loads, uses HTTPS, sends www to the apex host, allows crawlers in robots.txt, and keeps a small set of keyword pages in the sitemap. Search Console is connected. India still accounts for most of the remaining clicks (21 of the last three months).</p>
+    <p class="lede">Google Search Console recorded a drop from about 100 impressions a day in early January 2026 to under 10 a day after 13 January, and it never came back. Over the last 16 months the pages with the most clicks were the homepage and hundreds of old <code>/prompts/...</code> URLs. Those old paths now 404. The new Gemini and Nano Banana pages almost do not appear in search.</p>
+  </section>
+
+  <hr class="heavy">
+
+  <section>
+    <h2>If you only do one thing</h2>
+    <p class="lede">Add a permanent 301 redirect (a “this page moved” signal for Google) so every old <code>/prompts/...</code> URL goes to a live page, instead of a 404.</p>
+    <p>A 404 tells Google the page is gone. That is what we fetched live: <code>https://www.freepromptbase.com/prompts/chatgpt-prompt-for-answering-physics-problem-assignment-solutions</code> 301s to the same path on the apex host, then that apex URL returns 404. About 774 of the first 1,000 Search Console page rows still mention <code>/prompts/</code>. Until those URLs point at something live, Google has nothing left to rank from the old library.</p>
+    <ol>
+      <li>Open Cloudflare, select <code>freepromptbase.com</code>, then go to <b>Rules → Redirect Rules → Create rule</b>.</li>
+      <li>Name it <i>Legacy /prompts/ URLs</i>. Match when URI Path starts with <code>/prompts/</code>. Action: Dynamic redirect, status code 301, destination <code>concat("https://freepromptbase.com", regex_replace(http.request.uri.path, "^/prompts", ""))</code>. That strips the old folder. If the new slug 404s, add a second rule below it: same match, destination <code>https://freepromptbase.com/</code>, status 301, so leftovers still land on the homepage.</li>
+      <li>Check it worked: open <code>https://freepromptbase.com/prompts/photo-prompts</code> in a private window. You should land on a live page, not “doesn’t exist.” Then in Google Search Console open URL Inspection for that old address and click Request indexing. Repeat for the homepage and for <code>https://freepromptbase.com/gemini-ai-photo-prompt-copy-paste</code>.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Small fixes, in order</h2>
+    <div class="cols">
+      <div><p class="row-title">Old prompt folder returns 404 <span class="mono tag">critical</span></p></div>
+      <div>
+        <p>Live fetch: <code>/prompts/photo-prompts</code> and the physics-assignment URL both return HTTP 404 after the www-to-apex 301. Search Console still lists those URLs from 2025.</p>
+        <p class="fix"><b>Fix:</b> The Cloudflare rule above. If you prefer code, add the same mapping next to the existing list in <code>src/data/legacy-redirects.ts</code> (that file already 301s a few old blog URLs, and we verified one of those hops works).</p>
+      </div>
+    </div>
+    <div class="cols">
+      <div><p class="row-title">One live prompt page is empty</p></div>
+      <div>
+        <p><code>https://freepromptbase.com/bulldog-industrial-streetwear-fashion-prompt</code> returns HTTP 200 with a 0-byte body, so it has no title, no heading, and no links. The sitemap still lists it. A 50-page crawl found this as the only empty title in the sample; 25 other prompt URLs loaded normally.</p>
+        <p class="fix"><b>Fix:</b> Unpublish or restore that prompt in the CMS so it either 404s cleanly or shows a full page. Then remove it from the sitemap if it stays unpublished.</p>
+      </div>
+    </div>
+    <div class="cols">
+      <div><p class="row-title">New keyword pages are almost invisible</p></div>
+      <div>
+        <p>Last 16 months in Search Console: <code>/gemini-ai-photo-prompt-copy-paste</code> has 0 clicks and 1 impression. <code>/nano-banana-prompt</code> has 0 clicks and 2 impressions. Last three months, those pages have no query-level rows at all.</p>
+        <p class="fix"><b>Fix:</b> After the redirects, use URL Inspection on the 11 hub URLs already in <code>/sitemaps/core.xml</code> and request indexing for each. Put the copy-paste URL in the Instagram bio as the only site link for a week: <code>https://freepromptbase.com/gemini-ai-photo-prompt-copy-paste</code>.</p>
+      </div>
+    </div>
+    <div class="cols">
+      <div><p class="row-title">Almost all recorded backlinks are sister sites</p></div>
+      <div>
+        <p>OpenSEO reports 941 backlinks from 45 referring domains. 661 come from extractpics.com and 235 from freetexttospeech.net. The other listed domains each have 1 link.</p>
+        <p class="fix"><b>Fix:</b> Do not add more sitewide links from those two sites. Ask 5 unrelated pages (a Gemini prompt roundup, a creator blog, a Facebook photo-editing group about page) to link to the copy-paste URL. Message you can send: <i>Hi, I made a free copy-paste list of Gemini photo prompts at https://freepromptbase.com/gemini-ai-photo-prompt-copy-paste. If it is useful to your readers, a link would help people find it.</i></p>
+      </div>
+    </div>
+    <div class="cols">
+      <div><p class="row-title">Old blog URLs still 404</p></div>
+      <div>
+        <p>Search Console still shows clicks on paths like <code>/blog/artistabhii__dpaxmxzeaps_blog/</code>. Live fetch: trailing slash 308s to the same path without the slash, then that URL 404s. A few similar posts already have working 301s in <code>legacy-redirects.ts</code>.</p>
+        <p class="fix"><b>Fix:</b> In Search Console, filter pages containing <code>/blog/</code> with clicks. For each 404, either add a 301 to the closest live blog post or to <code>/blog</code>.</p>
+      </div>
+    </div>
+    <div class="cols">
+      <div><p class="row-title">Keep the small indexable set</p></div>
+      <div>
+        <p>Most keyword landings are already marked <code>noindex, follow</code> (a “do not show this in Google” tag), with only 11 hubs in the core sitemap. That recovery choice is still right. Re-opening every old tag page would recreate the duplicate-page problem.</p>
+        <p class="fix"><b>Fix:</b> Leave the noindex cohort as it is this week. Spend the time on redirects and the 11 hubs.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Where to focus first</h2>
+    <p>Once the old URLs stop 404ing, build toward one topic: copy-paste Gemini photo prompts for Instagram, aimed at India. That matches what the site already sells, and the difficulty scores on these phrases are much lower than the broad “nano banana” head term.</p>
+    <div class="cols">
+      <div><p class="row-title">gemini ai photo prompt copy paste <span class="mono tag">about 246,000 searches/mo in India</span></p></div>
+      <div>
+        <p>People who want a ready block of text to paste into Gemini. The page already exists and says that in the first paragraph. Google’s tools reported a very low difficulty score for this phrase; treat the volume as grouped, but it is still the main page to push.</p>
+        <p class="fix"><b>Make:</b> Do not make a new page. Strengthen <code>/gemini-ai-photo-prompt-copy-paste</code> and point links, bio, and internal links at it.</p>
+      </div>
+    </div>
+    <div class="cols">
+      <div><p class="row-title">nano banana prompt <span class="mono tag">about 33,000 searches/mo in India</span></p></div>
+      <div>
+        <p>People looking for prompts for Google’s Gemini image model, nicknamed Nano Banana. Difficulty about 23, so it is winnable with a real page and some links. The flagship page is already live.</p>
+        <p class="fix"><b>Make:</b> Keep <code>/nano-banana-prompt</code> as the one URL for this phrase. Do not split it across banana-prompt aliases; those already 301 here.</p>
+      </div>
+    </div>
+    <div class="cols">
+      <div><p class="row-title">photo editing prompt <span class="mono tag">about 33,000 searches/mo in India</span></p></div>
+      <div>
+        <p>Broader “give me a photo edit prompt” intent. Difficulty about 3. The old URL <code>/prompts/photo-prompts</code> had 303 impressions; that demand should land on the current hub.</p>
+        <p class="fix"><b>Make:</b> 301 <code>/prompts/photo-prompts</code> to <code>/photo-editing-prompt</code> if you add a one-off rule, then keep publishing examples on that hub.</p>
+      </div>
+    </div>
+    <div class="cols">
+      <div><p class="row-title">chatgpt photo editing prompts trending instagram <span class="mono tag">about 27,000 searches/mo in India</span></p></div>
+      <div>
+        <p>India Instagram users looking for ChatGPT photo-edit wording. Difficulty reported as very low. You already have <code>/chatgpt-photo-editing-prompt</code>.</p>
+        <p class="fix"><b>Make:</b> A dated blog post that lists this week’s ChatGPT photo prompts and canonicalizes (points Google) at the hub if the post is only a refresh.</p>
+      </div>
+    </div>
+    <div class="cols">
+      <div><p class="row-title">gemini prompts for image editing <span class="mono tag">about 9,900 searches/mo in India</span></p></div>
+      <div>
+        <p>Same job as the copy-paste page, slightly different wording. Difficulty about 11.</p>
+        <p class="fix"><b>Make:</b> Add a short section on <code>/gemini-ai-photo-prompt-copy-paste</code> that uses this phrase. Do not create a fourth Gemini landing.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Already working</h2>
+    <ul class="plain">
+      <li>Homepage, robots.txt, and sitemap respond 200. <span class="why">Google can fetch the site.</span></li>
+      <li>www and http both 301 to <code>https://freepromptbase.com/</code>. <span class="why">Host and scheme are already consolidated.</span></li>
+      <li>Eleven keyword hubs are indexable and listed in <code>/sitemaps/core.xml</code>, including the Gemini copy-paste and Nano Banana pages. <span class="why">The recovery cohort is in place; aliases such as <code>/banana-prompt</code> already 301 to the hub.</span></li>
+      <li>A few old blog URLs already 301 through <code>legacy-redirects.ts</code>. <span class="why">The same pattern can cover <code>/prompts/</code>.</span></li>
+      <li>Homepage title is <code>Free AI Prompts - Photo Editing Prompts for Gemini &amp; ChatGPT</code> and the H1 is “Free AI prompts you can copy and paste.” <span class="why">The home page already matches the brand query that still gets a few clicks.</span></li>
+    </ul>
+  </section>
+
+  <footer>
+    <p>Reviewed 20 September 2026. OpenSEO crawled 50 pages (Lighthouse off), pulled a backlink overview, an India domain overview (about 2 estimated organic visits and 4 keywords), and one keyword-research call with three seeds. Google Search Console (last 3 months and last 16 months) was read directly. Every finding above was checked on the live site with HTTP fetches: homepage, robots.txt, sitemaps, the 11 hubs sampled, old <code>/prompts/</code> URLs, www redirects, and one empty prompt page. I treated the business as a free Gemini and ChatGPT prompt directory for India. If that is wrong, say so and the next pass can retarget.</p>
+  </footer>
+</div>
+</body>
+</html>

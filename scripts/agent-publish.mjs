@@ -15,6 +15,17 @@ if (!manifestArg) {
 const projectRoot = process.cwd();
 const manifestPath = resolve(projectRoot, manifestArg);
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+if (manifest.landingSlugs !== undefined) {
+  if (!Array.isArray(manifest.landingSlugs)) {
+    throw new Error('landingSlugs must be an array.');
+  }
+  if (manifest.landingSlugs.some((value) => typeof value !== 'string' || !value.trim())) {
+    throw new Error('Every landingSlugs value must be a non-empty string.');
+  }
+  const landingSlugs = [...new Set(manifest.landingSlugs.map((value) => value.trim().toLowerCase()))];
+  if (landingSlugs.length > 4) throw new Error('landingSlugs accepts at most four values.');
+  manifest.landingSlugs = landingSlugs;
+}
 const imagePaths = Array.isArray(manifest.imagePaths) ? manifest.imagePaths : [];
 delete manifest.imagePaths;
 const coverIndex = Number.isInteger(manifest.coverIndex) ? manifest.coverIndex : 0;

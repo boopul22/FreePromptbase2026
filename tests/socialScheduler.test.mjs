@@ -1,10 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import {
 	MetaError,
 	deriveCampaignStatus,
 	normalizeCampaignInput,
 	publishFacebook,
+	publishFacebookPage,
 	publishInstagram,
 	retryDisposition,
 	validateMediaAvailability,
@@ -21,6 +23,16 @@ const campaign = {
 	], deliveries: [],
 };
 
+test('source boundary keeps the Raga Page ID out of the PromptBase scheduler', async () => {
+	const [promptbaseSource, ragaSource] = await Promise.all([
+		readFile(new URL('../src/lib/socialScheduler.ts', import.meta.url), 'utf8'),
+		readFile(new URL('../src/lib/ragaReelScheduler.ts', import.meta.url), 'utf8'),
+	]);
+	assert.doesNotMatch(promptbaseSource, /RAGA_FB_PAGE_ID|1277300398800100/);
+	assert.doesNotMatch(ragaSource, /env\.FB_PAGE_ID\b/);
+	assert.match(ragaSource, /resolveFacebookPage\(env, env\.RAGA_FB_PAGE_ID, 'Raga whisper'/);
+});
+
 function fakeDb() {
 	const writes = [];
 	return {
@@ -31,7 +43,7 @@ function fakeDb() {
 	};
 }
 
-test('normalizes timezone and validates the paired payload', () => {
+test('normalizes timezone and validates the two-destination PromptBase campaign payload', () => {
 	const result = normalizeCampaignInput({
 		idempotencyKey: 'campaign-001', canonicalUrl: campaign.canonicalUrl,
 		scheduledAt: '2030-08-10T18:30:00+05:30', media: campaign.media,
@@ -98,7 +110,7 @@ test('Instagram resumes existing child state instead of duplicating it', async (
 	assert.deepEqual(result.state.childContainerIds, ['child-1', 'child-2']);
 });
 
-test('Facebook resumes uploaded photo IDs and builds one parent post', async () => {
+test('one Facebook Page resumes uploaded photo IDs and builds one parent post', async () => {
 	const db = fakeDb(); const posts = [];
 	const fetcher = async (url, init = {}) => {
 		const path = new URL(url).pathname; const body = new URLSearchParams(init.body || '');
@@ -109,10 +121,33 @@ test('Facebook resumes uploaded photo IDs and builds one parent post', async () 
 		throw new Error(`Unexpected ${init.method || 'GET'} ${path}`);
 	};
 	const delivery = { platform: 'facebook', content: `Message ${campaign.canonicalUrl}`, status: 'running', attempts: 1, nextAttemptAt: null, state: { photoIds: ['photo-1'] }, remoteId: null, permalink: null, lastError: null, publishedAt: null };
-	const result = await publishFacebook({ DB: db, IG_ACCESS_TOKEN: '', IG_USER_ID: '', FB_PAGE_ACCESS_TOKEN: 'secret', FB_PAGE_ID: 'page' }, 'page-token', campaign, delivery, fetcher);
+	const result = await publishFacebookPage(
+		{ DB: db, IG_ACCESS_TOKEN: '', IG_USER_ID: '', FB_PAGE_ACCESS_TOKEN: 'secret', FB_PAGE_ID: 'page', RAGA_FB_PAGE_ID: 'raga' },
+		{ pageId: 'page', pageToken: 'page-token' }, campaign, delivery, fetcher,
+	);
 	assert.equal(result.remoteId, 'page_post');
 	assert.equal(posts.filter(item => item.path.endsWith('/photos')).length, 1);
 	assert.deepEqual(result.state.photoIds, ['photo-1', 'photo-2']);
+});
+
+test('standard PromptBase Facebook publishing never calls the Raga Page', async () => {
+	const db = fakeDb(); const posts = [];
+	const fetcher = async (url, init = {}) => {
+		const path = new URL(url).pathname; const body = new URLSearchParams(init.body || '');
+		if (init.method === 'POST') posts.push({ path, body: Object.fromEntries(body) });
+		if (path.includes('/raga/')) throw new Error('PromptBase campaign attempted to call Raga');
+		if (path.endsWith('/photos')) return Response.json({ id: `primary-photo-${posts.length}` });
+		if (path.endsWith('/feed')) return Response.json({ id: 'primary_post' });
+		if (path.endsWith('/primary_post')) return Response.json({ id: 'primary_post', permalink_url: 'https://facebook.com/primary' });
+		throw new Error(`Unexpected ${init.method || 'GET'} ${path}`);
+	};
+	const delivery = { platform: 'facebook', content: `Message ${campaign.canonicalUrl}`, status: 'running', attempts: 1, nextAttemptAt: null, state: {}, remoteId: null, permalink: null, lastError: null, publishedAt: null };
+	const env = { DB: db, IG_ACCESS_TOKEN: '', IG_USER_ID: '', FB_PAGE_ACCESS_TOKEN: 'secret', FB_PAGE_ID: 'primary', RAGA_FB_PAGE_ID: 'raga' };
+	const result = await publishFacebook(env, 'primary-token', campaign, delivery, fetcher);
+	assert.equal(result.remoteId, 'primary_post');
+	assert.equal(result.permalink, 'https://facebook.com/primary');
+	assert.equal(posts.filter(item => item.path === '/v25.0/primary/feed').length, 1);
+	assert.equal(posts.some(item => item.path.includes('/raga/')), false);
 });
 
 test('MetaError keeps transient classification', () => {

@@ -3,9 +3,11 @@ export const prerender = false;
 
 import Layout from '../../../../layouts/Layout.astro';
 import AdminSidebar from '../../../../components/AdminSidebar.astro';
+import { LANDING_OPTIONS } from '../../../../lib/landingMemberships';
 
 const currentAdminId = Astro.locals.user?.id || '';
 const today = new Date().toISOString().slice(0, 10);
+const landingOptions = LANDING_OPTIONS;
 ---
 
 <Layout title="New Prompt - CMS - Free Prompt Base" noindex={true}>
@@ -96,6 +98,13 @@ const today = new Date().toISOString().slice(0, 10);
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-tags">Tags</label>
  <input id="f-tags" name="tags" type="text" placeholder="copywriting, social media, hooks" class="w-full border border-gray-200 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-text-primary" />
  <p class="text-xs text-gray-500 mt-1">Comma-separated.</p>
+ </div>
+ <div>
+ <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-landings">Keyword landings</label>
+ <select id="f-landings" multiple size="6" class="w-full border border-gray-200 rounded-md px-2 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-text-primary">
+ {landingOptions.map((landing) => <option value={landing.slug}>{landing.name}{landing.indexable ? ' · indexed cohort' : ' · noindex'}</option>)}
+ </select>
+ <p class="text-xs text-gray-500 mt-1">Optional. Select up to four reviewed, relevant landings. No automatic matching.</p>
  </div>
  <div>
  <label class="block text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1" for="f-cover">Cover image URL</label>
@@ -426,14 +435,16 @@ const today = new Date().toISOString().slice(0, 10);
  }
  }
 
- const tags = val('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
- const body = {
+	 const tags = val('f-tags').split(',').map((t) => t.trim()).filter(Boolean);
+	 const landingSlugs = Array.from((document.getElementById('f-landings') as HTMLSelectElement).selectedOptions).map((option) => option.value);
+	 const body = {
  title: val('f-title'),
  slug: val('f-slug') || undefined,
  description: val('f-description'),
  promptText: val('f-prompt-text'),
  category: val('f-category'),
- tags,
+	 tags,
+	 landingSlugs,
  createdBy: val('f-author'),
  coverImage: val('f-cover') || null,
  images,

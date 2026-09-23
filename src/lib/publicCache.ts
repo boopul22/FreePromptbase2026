@@ -2,7 +2,7 @@ const SITE_ORIGIN = 'https://freepromptbase.com';
 // Bump after a structural public-HTML change that must bypass previously stored
 // Cache API entries immediately. The revision lives only in the internal cache
 // key; visitors and canonical URLs never see it.
-const PUBLIC_CACHE_REVISION = '2026-08-09-prompt-edit';
+const PUBLIC_CACHE_REVISION = '2026-08-30-indexing-recovery';
 
 export function publicCacheKey(url: string | URL): Request {
   const key = new URL(url.toString());
@@ -31,12 +31,19 @@ export async function invalidatePublicPaths(paths: string[]): Promise<{ path: st
   })));
 }
 
-export async function invalidatePromptPublish(slug: string, category: string): Promise<void> {
+export async function invalidatePromptPublish(
+  slug: string,
+  category: string,
+  landingSlugs: string[] = [],
+): Promise<void> {
   await invalidatePublicPaths([
     `/${encodeURIComponent(slug)}`,
     '/',
     `/category/${encodeURIComponent(category)}`,
     '/categories',
     '/sitemap.xml',
+    '/sitemaps/core.xml',
+    '/sitemaps/prompts.xml',
+    ...landingSlugs.map((landingSlug) => `/${encodeURIComponent(landingSlug)}`),
   ]);
 }

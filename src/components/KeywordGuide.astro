@@ -1,0 +1,66 @@
+---
+import AdSlot from './AdSlot.astro';
+
+interface Props {
+	lowerPlural: string;
+	bodyHtml: string;
+	articleParts: [string, string] | null;
+	faqs: { q: string; a: string }[];
+	showFaq: boolean;
+}
+
+const { lowerPlural, bodyHtml, articleParts, faqs, showFaq } = Astro.props;
+---
+
+<section class="mt-16 pt-12 border-t border-gray-200 max-w-3xl">
+	<p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-secondary mb-3">
+		<span class="h-1.5 w-1.5 rounded-full bg-secondary"></span>
+		The guide
+	</p>
+	<h2 class="text-2xl md:text-3xl font-bold tracking-tight text-text-primary leading-tight mb-7">
+		How to use {lowerPlural}
+	</h2>
+
+	<div class="kw-article">
+		{
+			articleParts ? (
+				<>
+					<Fragment set:html={articleParts[0]} />
+					<AdSlot placement="tag-article-mid" />
+					<Fragment set:html={articleParts[1]} />
+				</>
+			) : (
+				<Fragment set:html={bodyHtml} />
+			)
+		}
+	</div>
+
+	{
+		showFaq && (
+			<div class="mt-16 pt-12 border-t border-gray-200">
+				<p class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-secondary mb-3">
+					<span class="h-1.5 w-1.5 rounded-full bg-secondary"></span>
+					Questions
+				</p>
+				<h2 class="text-2xl font-bold tracking-tight text-text-primary mb-6">
+					Frequently asked questions
+				</h2>
+				<div class="divide-y divide-gray-200 border-t border-gray-200">
+					{faqs.map((faq, index) => (
+						<details class="group py-1" open={index === 0}>
+							<summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold text-text-primary hover:text-secondary transition-colors">
+								<h3 class="m-0 text-base font-semibold">{faq.q}</h3>
+								<svg class="w-5 h-5 shrink-0 text-gray-400 transition-transform duration-200 group-open:rotate-180 group-open:text-secondary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+									<polyline points="6 9 12 15 18 9" />
+								</svg>
+							</summary>
+							<p class="text-gray-700 leading-relaxed pb-4 -mt-1 max-w-[68ch]">{faq.a}</p>
+						</details>
+					))}
+				</div>
+			</div>
+		)
+	}
+</section>
+
+{showFaq && <AdSlot placement="tag-after-faq" />}

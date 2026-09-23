@@ -5,6 +5,7 @@
 import { prompts } from '../src/data/prompts.ts';
 import { categories } from '../src/data/categories.ts';
 import { posts } from '../src/data/posts.ts';
+import { INITIAL_LANDING_MEMBERSHIPS } from '../src/data/initial-landing-memberships.ts';
 import { writeFileSync, mkdirSync } from 'node:fs';
 
 // Escape single quotes, and break each real newline so the resulting SQL is
@@ -52,6 +53,15 @@ for (const p of prompts) {
 			].join(',') +
 			`);`,
 	);
+}
+
+for (const [landingSlug, promptSlugs] of Object.entries(INITIAL_LANDING_MEMBERSHIPS)) {
+	promptSlugs.forEach((promptSlug, index) => {
+		lines.push(
+			`INSERT OR IGNORE INTO prompt_landing_memberships (landing_slug,prompt_slug,position) ` +
+			`SELECT ${q(landingSlug)},slug,${index + 1} FROM prompts WHERE slug=${q(promptSlug)};`,
+		);
+	});
 }
 
 for (const p of posts) {

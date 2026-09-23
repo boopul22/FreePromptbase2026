@@ -185,6 +185,27 @@ def build_intro(primary_kw: str, title: str) -> str:
     )
 
 
+# Rotated end-of-post link blocks. The old block was byte-identical on every
+# draft, which is the exact-match pattern the internal-linking audit flagged.
+CTA_VARIANTS = [
+    '<p>More prompts to copy: <a href="/prompt-for-gemini-ai">prompts for Gemini AI</a> | '
+    '<a href="/nano-banana-ai">Nano Banana AI</a> | '
+    '<a href="/trending-gemini-prompt">trending Gemini prompts</a></p>',
+    '<p>Keep browsing: <a href="/gemini-ai-photo-prompt">Gemini AI photo prompts</a> | '
+    '<a href="/gemini-ai-photo-prompt-copy-paste">copy-paste photo prompts</a> | '
+    '<a href="/nano-banana-prompt">Nano Banana prompts</a></p>',
+    '<p>Related collections: <a href="/gemini-couple-photo-prompt">Gemini couple photo prompts</a> | '
+    '<a href="/photo-editing-prompt">photo editing prompts</a> | '
+    '<a href="/ai-image-prompt">AI image prompts</a></p>',
+    '<p>If you want more: <a href="/chatgpt-photo-editing-prompt">ChatGPT photo editing prompts</a> | '
+    '<a href="/prompt-for-gemini-ai">prompts for Gemini AI</a> | '
+    '<a href="/gemini-ai-photo-prompt">Gemini AI photo prompt</a></p>',
+    '<p>More like this: <a href="/trending-gemini-prompt">trending Gemini prompts</a> | '
+    '<a href="/nano-banana-ai">Nano Banana AI</a> | '
+    '<a href="/gemini-ai-photo-prompt-copy-paste">Gemini AI photo prompt copy paste</a></p>',
+]
+
+
 def build_html(blog: dict, sections: list[dict], aura_title: str) -> str:
     primary = blog["primaryKw"]
     parts = [build_intro(primary, blog["title"])]
@@ -215,11 +236,7 @@ def build_html(blog: dict, sections: list[dict], aura_title: str) -> str:
     parts.append(
         "<p>Aspect Ratio: 3:4 Vertical — works best for Instagram grid posts, Pinterest pins, and WhatsApp DP crops.</p>"
     )
-    parts.append(
-        '<p>Check out our latest prompts: <a href="/gemini-ai-photo-prompt-copy-paste">Gemini AI photo prompt copy paste</a> | '
-        '<a href="/nano-banana-prompt">Nano Banana prompt</a> | '
-        '<a href="/trending-gemini-prompt">Trending Gemini prompt</a></p>'
-    )
+    parts.append(CTA_VARIANTS[int(blog["id"]) % len(CTA_VARIANTS)])
     parts.append(
         f"<!-- Source inspiration rewritten from {blog['auraUrl']} | Aura title: {aura_title} -->"
     )
