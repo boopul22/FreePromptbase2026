@@ -13,11 +13,12 @@ export const LEGACY_EDITORIAL_REDIRECTS: Readonly<Record<string, string>> = {
 	'/principal-ai-code-reviewer-senior-software-engineer-architect-prompt-pc-1101':
 		'/blog/chatgpt-prompt-frameworks',
 
-	// Recent Search Console 404s.
-	'/blog/artistabhii__dpaxmxzeaps_blog': '/blog/ai-photo-prompt-ideas',
-	'/blog/image-generation/artistabhii__dpaxmxzeaps_blog': '/blog/ai-photo-prompt-ideas',
+	// Recent Search Console 404s. Legacy URLs point at the closest page that is
+	// already indexed, so the rankings they still hold transfer on the 301.
+	'/blog/artistabhii__dpaxmxzeaps_blog': '/gemini-ai-photo-prompt',
+	'/blog/image-generation/artistabhii__dpaxmxzeaps_blog': '/gemini-ai-photo-prompt',
 	'/blog/image-generation/master-the-stranger-things-ai-aesthetic-with-nanobanana_ds7kp9texka':
-		'/blog/nano-banana-prompts',
+		'/nano-banana-prompt',
 	'/category/writing-copy': '/blog/how-to-write-a-good-ai-prompt',
 
 	// Old tool and marketing URLs that used to collect Search Console clicks.
@@ -43,17 +44,47 @@ export const LEGACY_EDITORIAL_REDIRECTS: Readonly<Record<string, string>> = {
 	'/prompts/complete-interior-design-and-space-planning-prompt-for-expert-level': '/skills',
 	'/prompts/complete-web-security-implementation-prompt-for-expert-level': '/skills',
 
-	// Existing editorial replacements.
+	// Existing editorial replacements. Legacy guides point at the indexed hub for
+	// their topic rather than the matching blog post, because the hubs are in the
+	// index already and inherit the old rankings; the blog posts are not indexed yet.
 	'/blog/image-generation/master-gemini-prompts-for-viral-social-media-content_dsrx4_sfkyv':
-		'/blog/trending-gemini-prompts',
+		'/gemini-ai-photo-prompt-copy-paste',
 	'/blog/mastering-nano-banana-prompts-a-comprehensive-guide-to-ai-powered-personal-branding-and-creative-imagery':
-		'/blog/nano-banana-prompts',
+		'/nano-banana-prompt',
 	'/blog/mastering-nano-banana-guide-to-viral-ai-image-prompts_drm6g-qjqaw':
-		'/blog/nano-banana-prompts',
+		'/nano-banana-prompt',
 	'/blog/master-ai-for-photorealistic-content-a-creators-guide_dspdsfwjckh':
-		'/blog/how-to-edit-photos-with-ai-prompts',
+		'/gemini-ai-photo-prompt',
 	'/blog/image-generation/guide-to-photorealistic-ai-mastering-visual-content-creation_dsxc0lfjtxl':
-		'/blog/how-to-edit-photos-with-ai-prompts',
+		'/gemini-ai-photo-prompt',
+
+	// Legacy 404s verified 23 Sep 2026: old blog posts and category URLs that
+	// still show Search Console impressions while the live URL returns 404.
+	'/blog/ai-training-revolution-future-of-cycling-and-running_dsu146rken8':
+		'/prompt-for-gemini-ai',
+	'/blog/anannyaraii_dk97lc1bb0r': '/gemini-ai-photo-prompt',
+	'/blog/guide-to-ai-realism-master-photorealistic-content-creation_drzbvdbdj_4':
+		'/gemini-ai-photo-prompt',
+	'/blog/marketing/analyze_lead_generation_data_2_blog': '/blog',
+	'/blog/marketing/analyze_lead_generation_data_3_blog': '/blog',
+	'/blog/master-ai-art-a-guide-to-the-nano-banana-design-trend_dpvuom1jdgs':
+		'/nano-banana-prompt',
+	'/blog/master-nature-themed-ai-prompt-engineering-a-strategy-guide_dslgcagkygo':
+		'/prompt-for-gemini-ai',
+	'/blog/master-stranger-things-ai-art-with-google-gemini_dscpa1pdh6y':
+		'/nano-banana-prompt',
+	'/blog/mastering-gemini-nano-banana-prompts-2025-creator-guide_ds6fiarfaf2':
+		'/nano-banana-prompt',
+	'/blog/mastering-high-fidelity-ai-visuals-2025-realistic-prompts_ds2fz4lffuq':
+		'/gemini-ai-photo-prompt',
+	'/blog/mastering-stylized-3d-holiday-character-prompts_dspgq1qakcg':
+		'/nano-banana-prompt',
+	'/blog/mastering-the-ai-haute-couture-aesthetic-how-to-create-dior-inspired-cinematic-portraits-in-midjourney':
+		'/blog/how-to-write-midjourney-prompts',
+	'/category/image-generation': '/category/images',
+	'/category/coding': '/blog/chatgpt-prompt-frameworks',
+	'/category/business': '/blog',
+	'/disclaimer': '/terms',
 };
 
 function normalizePath(pathname: string): string {
@@ -102,21 +133,25 @@ function blogFolderTarget(path: string): string | undefined {
 	if (exact) return exact;
 
 	const importedAuthorBlog = /^\/blog(?:\/image-generation)?\/[^/]+_blog$/.test(path);
-	if (importedAuthorBlog) return '/blog/ai-photo-prompt-ideas';
+	if (importedAuthorBlog) return '/gemini-ai-photo-prompt';
 
 	if (path.startsWith('/blog/image-generation/')) {
-		if (/nano-?banana|nanobanana|stranger-things/.test(path)) return '/blog/nano-banana-prompts';
-		if (path.includes('gemini')) return '/blog/trending-gemini-prompts';
-		if (/photorealistic|photography|photo/.test(path)) return '/blog/how-to-edit-photos-with-ai-prompts';
+		if (/nano-?banana|nanobanana|stranger-things/.test(path)) return '/nano-banana-prompt';
+		if (/photorealistic|photography|photo/.test(path)) return '/gemini-ai-photo-prompt';
+		if (path.includes('gemini')) return '/gemini-ai-photo-prompt-copy-paste';
 		return '/blog/ai-photo-prompt-ideas';
 	}
 
 	if (path.startsWith('/blog/mastering-nano-banana') || path.includes('nano-banana-guide')) {
-		return '/blog/nano-banana-prompts';
+		return '/nano-banana-prompt';
 	}
 	if (path.startsWith('/blog/master-ai-for-photorealistic') || path.includes('photorealistic-ai')) {
-		return '/blog/how-to-edit-photos-with-ai-prompts';
+		return '/gemini-ai-photo-prompt';
 	}
+
+	// Imported legacy posts carry an underscore hash suffix. Live slugs never do,
+	// so an unmatched one is safe to send to the prompt guides index.
+	if (/_[a-z0-9-]{6,}$/.test(path.slice('/blog/'.length))) return '/blog/ai-photo-prompt-ideas';
 
 	return undefined;
 }

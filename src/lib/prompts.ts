@@ -285,7 +285,7 @@ export async function getFeaturedPrompts(): Promise<Prompt[]> {
 }
 
 /** Related prompts: same category first, then most popular, excluding self. Approved only. */
-export async function getRelatedPrompts(prompt: Prompt, limit = 3): Promise<Prompt[]> {
+export async function getRelatedPrompts(prompt: Prompt, limit = 6): Promise<Prompt[]> {
 	// Rank by genuine relevance: how many of THIS prompt's own tags another prompt
 	// shares (in its tags/title/description). Specific overlaps (e.g. "couple prompt")
 	// add to the count alongside generic ones, so the most similar prompts rank

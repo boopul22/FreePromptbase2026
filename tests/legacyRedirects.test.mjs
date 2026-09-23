@@ -9,11 +9,11 @@ test('still-indexed 404 and recent Search Console 404s 301 to live equivalents',
 	);
 	assert.equal(
 		legacyEditorialTarget('/blog/artistabhii__dpaxmxzeaps_blog/'),
-		'/blog/ai-photo-prompt-ideas',
+		'/gemini-ai-photo-prompt',
 	);
 	assert.equal(
 		legacyEditorialTarget('/blog/image-generation/master-the-stranger-things-ai-aesthetic-with-nanobanana_ds7kp9texka/'),
-		'/blog/nano-banana-prompts',
+		'/nano-banana-prompt',
 	);
 	assert.equal(legacyEditorialTarget('/category/writing-copy/'), '/blog/how-to-write-a-good-ai-prompt');
 });
@@ -42,12 +42,26 @@ test('old tools and nested image-generation blogs collapse in one hop', () => {
 	assert.equal(legacyEditorialTarget('/image-to-prompt'), '/tools/gemini-prompt-generator');
 	assert.equal(
 		legacyEditorialTarget('/blog/image-generation/master-gemini-prompts-for-viral-social-media-content_dsrx4_sfkyv'),
-		'/blog/trending-gemini-prompts',
+		'/gemini-ai-photo-prompt-copy-paste',
 	);
 	assert.equal(
 		legacyEditorialTarget('/blog/awaisthedesigner_dosemnydgen_blog'),
-		'/blog/ai-photo-prompt-ideas',
+		'/gemini-ai-photo-prompt',
 	);
+});
+
+test('legacy 404s from the 23 Sep 2026 audit land on indexed pages in one hop', () => {
+	assert.equal(
+		legacyEditorialTarget('/blog/master-nature-themed-ai-prompt-engineering-a-strategy-guide_dslgcagkygo/'),
+		'/prompt-for-gemini-ai',
+	);
+	assert.equal(
+		legacyEditorialTarget('/blog/mastering-gemini-nano-banana-prompts-2025-creator-guide_ds6fiarfaf2/'),
+		'/nano-banana-prompt',
+	);
+	assert.equal(legacyEditorialTarget('/category/image-generation/'), '/category/images');
+	assert.equal(legacyEditorialTarget('/category/coding/'), '/blog/chatgpt-prompt-frameworks');
+	assert.equal(legacyEditorialTarget('/disclaimer/'), '/terms');
 });
 
 test('live current pages are not swallowed by legacy rules', () => {

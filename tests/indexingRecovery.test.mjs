@@ -126,7 +126,7 @@ test('landing query is exact membership-only and has no popular fallback', async
 test('only verified legacy articles redirect and unknown paths remain unmapped', () => {
 	assert.equal(
 		legacyEditorialTarget('/blog/mastering-nano-banana-guide-to-viral-ai-image-prompts_drm6g-qjqaw/'),
-		'/blog/nano-banana-prompts',
+		'/nano-banana-prompt',
 	);
 	assert.equal(legacyEditorialTarget('/category/writing-copy'), '/blog/how-to-write-a-good-ai-prompt');
 	assert.equal(legacyEditorialTarget('/removed-pc-1234'), undefined);
@@ -139,7 +139,7 @@ test('early redirects collapse trailing-slash legacy and tag routes into one hop
 	assert.equal(earlyRedirectTarget('/tag/nano-banana/'), '/nano-banana-ai');
 	assert.equal(
 		earlyRedirectTarget('/blog/master-ai-for-photorealistic-content-a-creators-guide_dspdsfwjckh/'),
-		'/blog/how-to-edit-photos-with-ai-prompts',
+		'/gemini-ai-photo-prompt',
 	);
 	assert.equal(earlyRedirectTarget('/category/writing-copy/'), '/blog/how-to-write-a-good-ai-prompt');
 	assert.equal(earlyRedirectTarget('/couple-prompt/'), undefined);
