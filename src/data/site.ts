@@ -13,13 +13,13 @@ export const collection = {
 // but an in-content link from the homepage carries more weight and gets clicks.
 export const popularLinks = [
 	{ label: 'Nano Banana prompts', href: '/nano-banana-prompt' },
-	{ label: 'Nano Banana AI', href: '/nano-banana-ai' },
-	{ label: 'Gemini AI photo prompt copy paste', href: '/gemini-ai-photo-prompt-copy-paste' },
-	{ label: 'Gemini AI photo prompts', href: '/gemini-ai-photo-prompt' },
-	{ label: 'prompts for Gemini AI', href: '/prompt-for-gemini-ai' },
-	{ label: 'Gemini couple photo prompts', href: '/gemini-couple-photo-prompt' },
-	{ label: 'trending Gemini prompts', href: '/trending-gemini-prompt' },
-	{ label: 'photo editing prompts', href: '/photo-editing-prompt' },
-	{ label: 'ChatGPT photo editing prompts', href: '/chatgpt-photo-editing-prompt' },
+	{ label: 'Nano Banana AI guide', href: '/nano-banana-ai' },
+	{ label: 'Gemini photo prompts', href: '/gemini-ai-photo-prompt' },
+	{ label: 'Copy-paste Gemini prompts', href: '/gemini-ai-photo-prompt-copy-paste' },
+	{ label: 'Prompts for Gemini', href: '/prompt-for-gemini-ai' },
+	{ label: 'Couple photo prompts', href: '/gemini-couple-photo-prompt' },
+	{ label: 'Trending Gemini prompts', href: '/trending-gemini-prompt' },
+	{ label: 'Photo editing prompts', href: '/photo-editing-prompt' },
+	{ label: 'ChatGPT photo prompts', href: '/chatgpt-photo-editing-prompt' },
 	{ label: 'AI image prompts', href: '/ai-image-prompt' },
 ];

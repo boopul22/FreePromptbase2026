@@ -67,15 +67,15 @@ const slugifyTag = (t: string) => t.toLowerCase().trim().replace(/\s+/g, '-');
 // Free-form prompt tags that map to a landing page even though the tag text is
 // not a hub slug. Short, natural anchors on indexed prompt pages.
 const TAG_HUB_ALIASES: Record<string, string> = {
-	'gemini prompt': 'prompt-for-gemini-ai',
-	'ai photo prompt': 'gemini-ai-photo-prompt',
-	'couple prompt': 'gemini-couple-photo-prompt',
-	'nano banana': 'nano-banana-ai',
-	'portrait prompt': 'gemini-ai-photo-prompt',
+	'gemini-prompt': 'prompt-for-gemini-ai',
+	'ai-photo-prompt': 'gemini-ai-photo-prompt',
+	'couple-prompt': 'gemini-couple-photo-prompt',
+	'nano-banana': 'nano-banana-ai',
+	'portrait-prompt': 'gemini-ai-photo-prompt',
 	'couple': 'gemini-couple-photo-prompt',
-	'chatgpt prompt': 'chatgpt-photo-editing-prompt',
-	'3d figurine': 'nano-banana-prompt',
-	'ai image prompts': 'ai-image-prompt',
+	'chatgpt-prompt': 'chatgpt-photo-editing-prompt',
+	'3d-figurine': 'nano-banana-prompt',
+	'ai-image-prompts': 'ai-image-prompt',
 };
 const tagHref = (t: string) => {
 	const s = slugifyTag(t);
@@ -87,7 +87,7 @@ const tagHref = (t: string) => {
 // How-to copy is plain text in D1, so escape it first and only then link the
 // keyword phrases it already contains. One link per target per text.
 const HOW_TO_LINK_RULES = [
-	{ pattern: /gemini ai photo prompt \(copy paste\)/i, href: '/gemini-ai-photo-prompt-copy-paste' },
+	{ pattern: /gemini ai photo prompt(?= \(copy paste\))/i, href: '/gemini-ai-photo-prompt-copy-paste' },
 	{ pattern: /gemini ai photo prompt copy paste/i, href: '/gemini-ai-photo-prompt-copy-paste' },
 	{ pattern: /gemini couple photo prompt/i, href: '/gemini-couple-photo-prompt' },
 	{ pattern: /nano banana pro/i, href: '/nano-banana-pro' },
