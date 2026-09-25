@@ -39,6 +39,35 @@ function getEdgeCache(): Cache | null {
   }
 }
 
+// Short edge TTL for anonymous 404 renders (see the response caching below).
+const NOT_FOUND_EDGE_TTL = 300;
+
+// Scheduling-aware edge TTL. Scheduled prompts go live because the SSR gate
+// (`publish_at <= now`) is re-evaluated per request, so a stale cached page
+// would keep hiding a freshly-due prompt; the cache must expire exactly at the
+// next scheduled go-live. This runs only on cache misses, so the single indexed
+// MIN lookup costs nothing on the hot path. Default (nothing scheduled within
+// the hour): 1h TTL.
+async function scheduledEdgeTtl(): Promise<number> {
+  try {
+    const nextPublish = await getNextPublishAt();
+    if (nextPublish) {
+      // publish_at is stored UTC but zone-less; append 'Z' so Date.parse reads it as UTC.
+      const secs = Math.floor((Date.parse(nextPublish.replace(' ', 'T') + 'Z') - Date.now()) / 1000);
+      if (Number.isFinite(secs) && secs <= 3600) {
+        // A go-live is imminent. Pin freshness to expire right at publish time
+        // so the cache hard-expires at the boundary and the very next request
+        // renders the new prompt — no stale-serve window. Floored at 30s to
+        // avoid a thundering herd of origin renders at the instant of go-live.
+        return Math.max(30, secs);
+      }
+    }
+  } catch {
+    // D1 unavailable or query failed — keep the safe 1h default.
+  }
+  return 3600;
+}
+
 export const onRequest = defineMiddleware(async ({ request, cookies, locals, redirect }, next) => {
   const url = new URL(request.url);
   const path = url.pathname;
@@ -306,6 +335,14 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       // published) for up to an hour — a freshly-added page would keep serving a
       // stale 404 to crawlers. Make error responses revalidate immediately.
       response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
+      // Anonymous 404s are still worth a *short* per-colo edge cache entry: the
+      // same dead URL is often re-requested by crawlers/bots, and each miss is a
+      // full SSR render. Kept to 5 minutes, capped by the next scheduled go-live,
+      // and prompt publishes purge `/${slug}` explicitly (invalidatePromptPublish)
+      // so a new page never sits behind a cached 404.
+      if (edgeCacheStore && response.status === 404 && !hasPersonalization && !isEditorialPath) {
+        storeAnonymousRender(Math.min(NOT_FOUND_EDGE_TTL, await scheduledEdgeTtl()));
+      }
     } else if (hasPersonalization) {
       // Personalized HTML (signed-in user OR an anon who has saved at least one
       // prompt) must not be shared across visitors via the CDN cache.
@@ -314,13 +351,6 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
       response.headers.set('Cloudflare-CDN-Cache-Control', 'no-store');
     } else {
-      // Scheduling-aware edge TTL. Scheduled prompts have no cron — they go live
-      // purely because this SSR gate (`publish_at <= now`) is re-evaluated per
-      // request. A stale cached page would keep hiding a freshly-due prompt, so we
-      // make the cache expire exactly at the next scheduled go-live. This runs
-      // only on cache misses, so the single indexed MIN lookup costs nothing on
-      // the hot path. Default (nothing scheduled within the hour): 1h TTL.
-      //
       // Cache only at the edge, never in the browser. The same URL renders a
       // personalized header (logged-out button vs avatar), so if the browser
       // kept an anonymous copy (max-age), a visitor who then signs in would keep
@@ -328,48 +358,34 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       // The actual caching happens via the Cache API put below (see
       // getEdgeCache); Cloudflare-CDN-Cache-Control is kept as documentation of
       // intent and for any future move behind the CDN cache proper.
-      let edgeTtl = 3600;
-      try {
-        const nextPublish = await getNextPublishAt();
-        if (nextPublish) {
-          // publish_at is stored UTC but zone-less; append 'Z' so Date.parse reads it as UTC.
-          const secs = Math.floor((Date.parse(nextPublish.replace(' ', 'T') + 'Z') - Date.now()) / 1000);
-          if (Number.isFinite(secs) && secs <= 3600) {
-            // A go-live is imminent. Pin freshness to expire right at publish time
-            // so the cache hard-expires at the boundary and the very next request
-            // renders the new prompt — no stale-serve window. Floored at 30s to
-            // avoid a thundering herd of origin renders at the instant of go-live.
-            edgeTtl = Math.max(30, secs);
-          }
-        }
-      } catch {
-        // D1 unavailable or query failed — keep the safe 1h default above.
-      }
+      const edgeTtl = await scheduledEdgeTtl();
       response.headers.set('Cache-Control', 'public, max-age=0, must-revalidate');
       response.headers.set('Cloudflare-CDN-Cache-Control', `public, s-maxage=${edgeTtl}`);
+      if (response.status === 200) storeAnonymousRender(edgeTtl);
+    }
+  }
 
-      // Store the anonymous render in the per-colo edge cache (see the lookup
-      // above). The stored copy drops Set-Cookie (added per visitor at serve
-      // time) and carries an s-maxage the Cache API uses for freshness; browsers
-      // still see max-age=0 so they always revalidate.
-      if (edgeCacheStore && response.status === 200) {
-        try {
-          response.headers.set('X-Edge-Cache', 'miss');
-          const stored = new Response(response.clone().body, response);
-          stored.headers.delete('Set-Cookie');
-          stored.headers.set('Cache-Control', `public, s-maxage=${edgeTtl}`);
-          const put = edgeCacheStore.put(publicCacheKey(url), stored).catch(() => {});
-          try {
-            // Astro v6 cloudflare adapter exposes the Workers execution context
-            // as locals.cfContext (locals.runtime.ctx throws a removal error).
-            locals.cfContext.waitUntil(put);
-          } catch {
-            // No execution context (astro dev) — the put still runs, just unanchored.
-          }
-        } catch {
-          // Never let cache writes break the response.
-        }
+  // Store the anonymous render in the per-colo edge cache (see the lookup
+  // above). The stored copy drops Set-Cookie (added per visitor at serve time)
+  // and carries an s-maxage the Cache API uses for freshness; browsers still see
+  // max-age=0 so they always revalidate.
+  function storeAnonymousRender(ttl: number) {
+    if (!edgeCacheStore) return;
+    try {
+      response.headers.set('X-Edge-Cache', 'miss');
+      const stored = new Response(response.clone().body, response);
+      stored.headers.delete('Set-Cookie');
+      stored.headers.set('Cache-Control', `public, s-maxage=${ttl}`);
+      const put = edgeCacheStore.put(publicCacheKey(url), stored).catch(() => {});
+      try {
+        // Astro v6 cloudflare adapter exposes the Workers execution context
+        // as locals.cfContext (locals.runtime.ctx throws a removal error).
+        locals.cfContext.waitUntil(put);
+      } catch {
+        // No execution context (astro dev) — the put still runs, just unanchored.
       }
+    } catch {
+      // Never let cache writes break the response.
     }
   }
 

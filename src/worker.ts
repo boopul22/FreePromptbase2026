@@ -2,6 +2,7 @@ import { handle } from '@astrojs/cloudflare/handler';
 import { processDueCampaign, type SocialEnv } from './lib/socialScheduler';
 import { processDueRagaReel, type RagaReelEnv } from './lib/ragaReelScheduler';
 import { earlyRedirectTarget } from './data/request-redirects';
+import { isProbePath, probeNotFoundResponse } from './data/probe-paths';
 
 const CANONICAL_HOST = 'freepromptbase.com';
 
@@ -25,6 +26,9 @@ export default {
 	fetch(request, env, ctx) {
 		const redirect = earlyRedirect(request);
 		if (redirect) return redirect;
+		// Scanner probes (/.env, /wp-login.php, *.php, stray *.json, ...) get a
+		// tiny static 404 here instead of a D1 slug lookup + SSR 404 render.
+		if (isProbePath(new URL(request.url).pathname)) return probeNotFoundResponse();
 		return handle(request, env, ctx);
 	},
 	async scheduled(_controller, env) {

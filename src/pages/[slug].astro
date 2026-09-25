@@ -17,6 +17,12 @@ const redirectTo = tagCanonicalTarget(slug);
 if (redirectTo) {
 	return Astro.redirect(`/${redirectTo}`, 301);
 }
+// Prompt and keyword slugs are always plain [a-z0-9-] (see generateSlug); a
+// value with dots, encoded bytes, or other punctuation can never match, so skip
+// the D1 lookup for it and go straight to the 404.
+if (!/^[a-z0-9][a-z0-9_-]{0,199}$/i.test(slug)) {
+	return Astro.rewrite('/404');
+}
 const prompt = await getPromptBySlug(slug);
 const keyword = prompt ? null : getTagBySlug(slug);
 if (!prompt && !keyword) {
