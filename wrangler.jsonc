@@ -35,7 +35,10 @@
 		"not_found_handling": "none"
 	},
 	"observability": { "enabled": true },
-	"triggers": { "crons": ["* * * * *"] },
+	// Social + Raga schedulers pick up anything with scheduled_at/next_attempt_at
+	// <= now, so a 5-minute tick only coarsens timing (publishes start up to ~5
+	// min after the requested instant). Leases (15/10 min) exceed the interval.
+	"triggers": { "crons": ["*/5 * * * *"] },
 	"d1_databases": [
 		{
 			// Accessed in code as env.DB (see src/lib/prompts.ts + src/lib/db.ts).

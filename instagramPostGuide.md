@@ -570,8 +570,9 @@ ambiguous job, because that can create a duplicate post.
 
 The Cloudflare scheduler is the production source of truth. Use **Save & queue
 now** for an immediate two-destination campaign, or select a future local date/time and
-use **Schedule campaign**. Cloudflare checks D1 once per minute, so publication
-may begin up to roughly one minute after the requested instant. Do not also use
+use **Schedule campaign**. Cloudflare checks D1 every five minutes, so publication
+(including **Save & queue now**) may begin up to roughly five minutes after the
+requested instant. Do not also use
 Meta's native Facebook scheduled-post fields; the Cron worker controls all
 destinations and their retry state.
 

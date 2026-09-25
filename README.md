@@ -67,4 +67,4 @@ npx wrangler deploy
 
 Production resources include Worker `freepromptbase2026`, D1 database
 `freepromptbase-com`, R2 bucket `freepromptbase-media-2026`, and a Cron trigger
-running every minute.
+running every five minutes.

@@ -58,7 +58,7 @@ the Mac is off:
 ```text
 local source (one-time import) -> R2 video -> D1 raga_reel_jobs
                                       |              |
-                                      +-- public CDN <- Worker Cron (every minute)
+                                      +-- public CDN <- Worker Cron (every 5 min) 
                                                         |
                                                         +-> Raga whisper only
 ```
@@ -71,7 +71,7 @@ Retries always reuse the saved `video_id`; they do not create replacement Reels.
 The Raga queue statuses are `scheduled`, `running`, `processing`, `retrying`,
 `published`, `failed`, and `canceled`. A ten-minute lease protects against
 overlapping Cron invocations. Transient Meta/network failures back off and retry
-up to five times. A processing Reel is polled every minute without resending the
+up to five times. A processing Reel is polled every five minutes without resending the
 start, upload, or finish calls.
 
 The `finalv2` batch uses keys under `raga/reels/finalv2/`. Item 1 was published
@@ -87,7 +87,7 @@ the Worker version ID without changing the architecture.
 | Raga destination | `Raga whisper`, Page ID `1277300398800100` |
 | Worker | `freepromptbase2026` |
 | Verified Worker version | `9be0a27b-ea1a-49ba-bf70-4e31618d4fd5` |
-| Cron | Every minute: `* * * * *` |
+| Cron | Every five minutes: `*/5 * * * *` |
 | D1 database | `freepromptbase-com` |
 | R2 bucket | `freepromptbase-media-2026` |
 | Public media base | `https://freepromptbase.com/cdn` |
