@@ -3,6 +3,7 @@ import { getSession } from './lib/session';
 import { getDB } from './lib/db';
 import { getNextPublishAt } from './lib/prompts';
 import { publicCacheKey } from './lib/publicCache';
+import { ENGAGEMENT_HINT_COOKIE, getActorEngagement } from './lib/engagement';
 import { legacyEditorialTarget } from './data/legacy-redirects';
 import { tagCanonicalTarget } from './data/tag-seo';
 
@@ -162,42 +163,14 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     anonId = crypto.randomUUID();
     setAnonCookie = true;
   }
-  locals.actorId = locals.user ? `user:${locals.user.id}` : `anon:${anonId ?? ''}`;
-
-  // Preload the current actor's liked + saved slugs so PromptCard renders the
-  // hearts/bookmarks in their correct initial state on SSR (no client-fetch
-  // flicker). Skip for API routes and the admin/CMS area — neither renders
-  // PromptCard, so these two D1 queries would be pure overhead there.
-  // A brand-new anonymous visitor (no prior anon_id cookie) can't have any
-  // saves/likes yet, so skip the two D1 queries entirely — this is the common
-  // first-visit / crawler / Lighthouse case and the queries were adding to TTFB
-  // on every public page.
-  const isAdmin = path.startsWith('/admin');
-  const freshAnon = !locals.user && setAnonCookie;
-  if (db && !path.startsWith('/api/') && !isStaticProxy && !isAdmin && !freshAnon) {
-    try {
-      const [savedRes, likedRes] = await db.batch<{ prompt_slug: string }>([
-        db
-          .prepare('SELECT prompt_slug FROM prompt_saves WHERE actor_id = ?')
-          .bind(locals.actorId),
-        db
-          .prepare('SELECT prompt_slug FROM prompt_likes WHERE actor_id = ?')
-          .bind(locals.actorId),
-      ]);
-      locals.savedSlugs = new Set(savedRes.results.map((r) => r.prompt_slug));
-      locals.likedSlugs = new Set(likedRes.results.map((r) => r.prompt_slug));
-    } catch {
-      locals.savedSlugs = new Set();
-      locals.likedSlugs = new Set();
-    }
-  } else {
-    locals.savedSlugs = new Set();
-    locals.likedSlugs = new Set();
-  }
+  const actorId = locals.user ? `user:${locals.user.id}` : `anon:${anonId ?? ''}`;
+  locals.actorId = actorId;
 
   // Issue the anon_id cookie if this visitor didn't have one. Long-lived; not
-  // HttpOnly so we could read it client-side if ever needed (server still uses
-  // the same value either way). Never overwrite an existing cookie.
+  // HttpOnly so client code can tell a returning device from a brand-new one
+  // (see hydrateEngagement in src/scripts/social.ts). Never overwrite an
+  // existing cookie. A brand-new device has no saves/likes, so it also gets
+  // `fpb_eng=0`, which tells the client it can skip the engagement fetch.
   const appendAnonCookie = (res: Response) => {
     if (!setAnonCookie) return;
     const isSecure = import.meta.env.PROD;
@@ -207,21 +180,26 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       'Set-Cookie',
       `anon_id=${anonId}; SameSite=Lax; Path=/; Max-Age=${maxAge}${isSecure ? '; Secure' : ''}${domain}`,
     );
+    res.headers.append(
+      'Set-Cookie',
+      `${ENGAGEMENT_HINT_COOKIE}=0; SameSite=Lax; Path=/; Max-Age=${maxAge}${isSecure ? '; Secure' : ''}`,
+    );
   };
 
-  // Edge-cache lookup. Only fully anonymous renders are shared: no user, no
-  // saves/likes (those personalize the card hearts/bookmarks), a bare GET with
-  // no query string. Query-stringed URLs are skipped so junk params can't fill
-  // the cache with variants.
+  // Shared edge cache. Every anonymous render of a public page is generic: a
+  // bare GET with no query string (so junk params can't fill the cache with
+  // variants) and no per-visitor saved/liked state baked into the HTML. For
+  // these requests the anonymous visitor's hearts/bookmarks are applied in the
+  // browser from /api/engagement instead, so the cache lookup can happen
+  // BEFORE any per-visitor D1 work and returning visitors hit the cache too.
   const sharedCacheable =
     request.method === 'GET' &&
     !url.search &&
     !isStaticProxy &&
     !isEditorialPath &&
     !locals.user &&
-    locals.savedSlugs.size === 0 &&
-    locals.likedSlugs.size === 0 &&
     isPubliclyCacheablePath(path);
+  locals.engagementClientSide = sharedCacheable;
   const edgeCacheStore = sharedCacheable ? getEdgeCache() : null;
   if (edgeCacheStore) {
     try {
@@ -240,6 +218,37 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     } catch {
       // Cache unavailable — fall through to a normal render.
     }
+  }
+
+  // Preload the current actor's liked + saved slugs so PromptCard renders the
+  // hearts/bookmarks in their correct initial state on SSR for renders that are
+  // never shared: signed-in users, query-string variants (e.g. the
+  // /partials/prompts infinite-scroll fragments), editorial pages, /saved and
+  // /liked. Skipped for:
+  //   - shared-cacheable anonymous renders (state is hydrated client-side),
+  //   - API routes and the admin/CMS area (neither renders PromptCard),
+  //   - a brand-new anonymous visitor (no prior anon_id → no saves/likes yet).
+  const isAdmin = path.startsWith('/admin');
+  const freshAnon = !locals.user && setAnonCookie;
+  if (
+    db &&
+    !sharedCacheable &&
+    !path.startsWith('/api/') &&
+    !isStaticProxy &&
+    !isAdmin &&
+    !freshAnon
+  ) {
+    try {
+      const { saved, liked } = await getActorEngagement(db, actorId);
+      locals.savedSlugs = new Set(saved);
+      locals.likedSlugs = new Set(liked);
+    } catch {
+      locals.savedSlugs = new Set();
+      locals.likedSlugs = new Set();
+    }
+  } else {
+    locals.savedSlugs = new Set();
+    locals.likedSlugs = new Set();
   }
 
   // /dashboard, /submit, /account — any authenticated user

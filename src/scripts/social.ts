@@ -115,6 +115,7 @@ export function wireSave() {
 				if (!res.ok) throw new Error(String(res.status));
 				const data = (await res.json()) as { saved: boolean; count: number };
 				setSavedVisual(btn, data.saved, data.count);
+				if (data.saved) markEngaged();
 				if (card) {
 					card.dataset.saveCount = String(data.count);
 					card.dataset.popularity = String(data.count);
@@ -202,6 +203,7 @@ export function wireLike() {
 				if (!res.ok) throw new Error(String(res.status));
 				const data = (await res.json()) as { liked: boolean; count: number };
 				setLikedVisual(btn, data.liked, data.count);
+				if (data.liked) markEngaged();
 				if (card) card.dataset.likeCount = String(data.count);
 			} catch {
 				setLikedVisual(btn, previous, startCount);
@@ -210,6 +212,63 @@ export function wireLike() {
 			}
 		});
 	});
+}
+
+// ---------------------------------------------------------------------------
+// Engagement hydration — anonymous public pages are served from the shared
+// edge cache with every heart/bookmark in its default (off) state, marked by
+// <html data-engagement="client">. Returning devices that may have saves/likes
+// fetch them once per page and switch the matching buttons on. The `fpb_eng`
+// hint cookie ("0" = nothing saved/liked) keeps most visitors from making the
+// request at all. Server-personalized pages (signed-in users, /saved, /liked,
+// partial fragments) never carry the marker and are left untouched.
+// ---------------------------------------------------------------------------
+
+const ENGAGEMENT_HINT_COOKIE = 'fpb_eng';
+
+function readCookie(name: string): string | undefined {
+	for (const part of document.cookie.split(';')) {
+		const [k, ...v] = part.trim().split('=');
+		if (k === name) return v.join('=');
+	}
+	return undefined;
+}
+
+function markEngaged() {
+	const secure = location.protocol === 'https:' ? '; Secure' : '';
+	document.cookie = `${ENGAGEMENT_HINT_COOKIE}=1; Path=/; Max-Age=31536000; SameSite=Lax${secure}`;
+}
+
+let engagementRequested = false;
+
+export function hydrateEngagement() {
+	if (engagementRequested) return;
+	if (document.documentElement.dataset.engagement !== 'client') return;
+	// No anon_id yet → brand-new device, nothing to show.
+	if (!readCookie('anon_id')) return;
+	if (readCookie(ENGAGEMENT_HINT_COOKIE) === '0') return;
+	engagementRequested = true;
+
+	fetch('/api/engagement', { credentials: 'same-origin' })
+		.then((r) => (r.ok ? r.json() : null))
+		.then((data: { saved?: string[]; liked?: string[] } | null) => {
+			if (!data) return;
+			const saved = new Set(data.saved ?? []);
+			const liked = new Set(data.liked ?? []);
+			if (saved.size > 0) {
+				document.querySelectorAll<HTMLElement>('[data-save]').forEach((btn) => {
+					const slug = slugFor(btn);
+					if (slug && saved.has(slug) && btn.dataset.saved !== 'true') setSavedVisual(btn, true);
+				});
+			}
+			if (liked.size > 0) {
+				document.querySelectorAll<HTMLElement>('[data-like]').forEach((btn) => {
+					const slug = slugFor(btn);
+					if (slug && liked.has(slug) && btn.dataset.liked !== 'true') setLikedVisual(btn, true);
+				});
+			}
+		})
+		.catch(() => {});
 }
 
 // ---------------------------------------------------------------------------

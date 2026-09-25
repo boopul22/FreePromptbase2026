@@ -71,5 +71,11 @@ declare namespace App {
     savedSlugs?: Set<string>;
     /** Slugs the current actor has liked — seeds heart state on cards. */
     likedSlugs?: Set<string>;
+    /**
+     * True when this render is a generic, shared-cacheable anonymous page:
+     * saved/liked state is NOT baked in and the browser hydrates it from
+     * /api/engagement instead. Set by middleware.
+     */
+    engagementClientSide?: boolean;
   }
 }

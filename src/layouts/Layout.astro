@@ -213,7 +213,7 @@ const organizationSchema = {
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-engagement={Astro.locals.engagementClientSide ? 'client' : undefined}>
 	<head>
 		<meta charset="utf-8" />
 		<!-- gtag.js deferred to first interaction; charset must stay first (<1024B). -->
