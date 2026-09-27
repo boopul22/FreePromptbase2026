@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
 import Tabs from '../components/Tabs.astro';
+import AdSlot from '../components/AdSlot.astro';
 import PromptGrid from '../components/PromptGrid.astro';
 import Footer from '../components/Footer.astro';
 import {
@@ -100,6 +101,7 @@ const homeList = itemListSchema(
 	<Header />
 	<main class="site-main py-12" id="prompt-gallery">
 		<Hero promptCount={stats.promptCount} categoryCount={categories.length} topContributor={topContributor} />
+		<AdSlot placement="home-after-hero" />
 		<Tabs />
 		<PromptGrid
 			prompts={imageTrending}

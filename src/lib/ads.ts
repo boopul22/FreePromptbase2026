@@ -17,7 +17,8 @@ export type AdPlacement =
 	| 'tag-article-mid'
 	| 'tag-after-faq'
 	| 'blog-article-mid'
-	| 'blog-end';
+	| 'blog-end'
+	| 'home-after-hero';
 
 export interface AdSlotConfig {
 	slot: string;
@@ -31,7 +32,7 @@ export interface AdSlotConfig {
 export const AD_SLOTS: Record<AdPlacement, AdSlotConfig> = {
 	// Sits between the action row and the (gated) copy card — guaranteed
 	// display fill alongside the rewarded copy gate, which only monetizes when
-	// rewarded inventory exists. ("FPB - Copy gate" 6138440036 stays unused.)
+	// rewarded inventory exists.
 	'prompt-above-copy': { slot: '1615184167', format: 'display', minHeight: 280 },
 	// Responsive display inventory commonly resolves to a 250px creative on
 	// phones. Reserve the full frame instead of allowing it to grow from 100px.
@@ -41,6 +42,10 @@ export const AD_SLOTS: Record<AdPlacement, AdSlotConfig> = {
 	'tag-after-faq': { slot: '1650843185', format: 'display', minHeight: 280 },
 	'blog-article-mid': { slot: '7501935661', format: 'in-article', minHeight: 250 },
 	'blog-end': { slot: '4818685166', format: 'display', minHeight: 280 },
+	// Homepage, between hero and sort tabs: where Auto ads used to inject an
+	// unreserved 280px in-page unit on phones (mobile CLS ~0.42). A reserved
+	// manual unit here takes that spot. Reuses the idle "FPB - Copy gate" unit.
+	'home-after-hero': { slot: '6138440036', format: 'display', minHeight: 280 },
 };
 
 /**
