@@ -1,6 +1,7 @@
 ---
 import { collection, popularLinks } from '../data/site';
 import type { TopContributor } from '../lib/users';
+import { sizedAvatar } from '../lib/cfImage';
 
 interface Props {
 	promptCount: number;
@@ -64,7 +65,7 @@ const tcInitial = topContributor?.name?.slice(0, 1).toUpperCase() ?? '';
 					<span class="relative shrink-0">
 						{topContributor.avatarUrl ? (
 							<img
-								src={topContributor.avatarUrl}
+								src={sizedAvatar(topContributor.avatarUrl, 32)}
 								alt={topContributor.name}
 								width="32"
 								height="32"

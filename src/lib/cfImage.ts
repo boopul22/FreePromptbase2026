@@ -51,3 +51,21 @@ export function cfSrcset(
   if (!cdnPath(src)) return undefined;
   return widths.map((w) => `${cfImg(src, w, quality)} ${w}w`).join(', ');
 }
+
+/**
+ * Google profile photos (lh3.googleusercontent.com) take their size from a
+ * `=sNN-c` suffix. OAuth hands us `=s96-c`, which for some accounts is a
+ * ~180 KB PNG — far too heavy for a 32px avatar. Request the display size
+ * (at 2x for retina) instead; any other URL is returned unchanged.
+ */
+export function sizedAvatar(src: string, displayPx: number): string {
+  let host = '';
+  try {
+    host = new URL(src).hostname;
+  } catch {
+    return src;
+  }
+  if (!host.endsWith('googleusercontent.com')) return src;
+  const size = `=s${displayPx * 2}-c`;
+  return /=s\d+(-c)?$/.test(src) ? src.replace(/=s\d+(-c)?$/, size) : `${src}${size}`;
+}

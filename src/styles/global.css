@@ -382,7 +382,7 @@ a.pill:hover { filter: brightness(0.97); transform: translateY(-1px); }
 	font-size: 0.9375rem;
 	font-weight: 600;
 	line-height: 1;
-	color: #6b7280; /* gray-500 */
+	color: #636a77; /* gray-500 darkened to 4.7:1 on the #f0eeea track (WCAG AA) */
 	cursor: pointer;
 	background: transparent;
 	border: 0;
