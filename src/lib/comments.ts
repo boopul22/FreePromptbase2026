@@ -1,4 +1,5 @@
 import { generateId } from './crypto';
+import { notRemovedPostSql } from '../data/removed-posts';
 
 export type CommentStatus = 'visible' | 'hidden' | 'deleted';
 
@@ -248,7 +249,8 @@ export async function resolvePostId(
 			.prepare(
 				`SELECT id, title, slug FROM posts
 				 WHERE id = ? AND status = 'published'
-				   AND (publish_at IS NULL OR publish_at <= datetime('now'))`,
+				   AND (publish_at IS NULL OR publish_at <= datetime('now'))
+				   AND ${notRemovedPostSql('')}`,
 			)
 			.bind(opts.postId)
 			.first<{ id: string; title: string; slug: string }>();
@@ -259,7 +261,8 @@ export async function resolvePostId(
 			.prepare(
 				`SELECT id, title, slug FROM posts
 				 WHERE slug = ? AND status = 'published'
-				   AND (publish_at IS NULL OR publish_at <= datetime('now'))`,
+				   AND (publish_at IS NULL OR publish_at <= datetime('now'))
+				   AND ${notRemovedPostSql('')}`,
 			)
 			.bind(opts.slug)
 			.first<{ id: string; title: string; slug: string }>();

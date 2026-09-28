@@ -1,10 +1,15 @@
 ---
 import ArticleDetail from '../../components/ArticleDetail.astro';
 import { getPostBySlug } from '../../lib/posts';
+import { isRemovedPostSlug, removedPostGoneResponse } from '../../data/removed-posts';
 
 export const prerender = false;
 
 const slug = Astro.params.slug!;
+if (isRemovedPostSlug(slug)) {
+	return removedPostGoneResponse();
+}
+
 const post = await getPostBySlug(slug);
 
 if (!post) {

@@ -6,6 +6,7 @@ import { publicCacheKey } from './lib/publicCache';
 import { ENGAGEMENT_HINT_COOKIE, getActorEngagement } from './lib/engagement';
 import { legacyEditorialTarget } from './data/legacy-redirects';
 import { tagCanonicalTarget } from './data/tag-seo';
+import { removedPostSlugForPath, removedPostGoneResponse } from './data/removed-posts';
 
 // Single-language middleware. If you want multi-locale routing, use
 // `middleware.i18n.ts` as a starting point — it adds /{locale}/* prefix
@@ -89,6 +90,11 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   // preview URLs are left untouched. Cloudflare may carry the original scheme in
   // the CF-Visitor header, so we check that alongside url.protocol.
   const CANONICAL_HOST = 'freepromptbase.com';
+  // Permanently removed editorial posts (see src/data/removed-posts.ts): answer
+  // 410 Gone + noindex before any redirect, cache, session or D1 work.
+  if (removedPostSlugForPath(path)) {
+    return removedPostGoneResponse();
+  }
   // Only verified equivalent editorial URLs are redirected. This runs before
   // the general host/slash canonicalization so every mapping is one 301 hop.
   const legacyTarget = legacyEditorialTarget(path);

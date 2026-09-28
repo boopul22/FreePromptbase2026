@@ -1,4 +1,5 @@
 import { generateId } from './crypto';
+import { notRemovedPostSql } from '../data/removed-posts';
 
 // --- Types ---
 
@@ -231,7 +232,8 @@ function parseJsonFaq(raw: string | null): FAQItem[] {
 
 /** Live editorial posts: published and not still waiting on a future publish_at. */
 const POST_LIVE_P =
-  "p.status = 'published' AND (p.publish_at IS NULL OR p.publish_at <= datetime('now'))";
+  "p.status = 'published' AND (p.publish_at IS NULL OR p.publish_at <= datetime('now')) AND " +
+  notRemovedPostSql('p');
 
 export async function getPublishedPosts(
   db: D1Database,
@@ -362,8 +364,7 @@ export async function getPostBySlugLocalized(
          FROM post_translations pt
          JOIN posts p ON p.id = pt.post_id
          LEFT JOIN categories c ON p.category_id = c.id
-         WHERE pt.locale = ? AND pt.slug = ? AND p.status = 'published'
-           AND (p.publish_at IS NULL OR p.publish_at <= datetime('now'))`,
+         WHERE pt.locale = ? AND pt.slug = ? AND ${POST_LIVE_P}`,
       )
       .bind(locale, slug)
       .first<any>();

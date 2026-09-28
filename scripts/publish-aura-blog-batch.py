@@ -7,6 +7,22 @@ Blogs 02–30 → status=published with publish_at one day apart at 09:00 IST
 """
 from __future__ import annotations
 
+# ---------------------------------------------------------------------------
+# DISABLED (Sept 2026). This script copied articles from auraprompt.in, put
+# them under "Bipul Kumar" with an unverified "I tested each one" intro, and
+# published them to D1. That is scraped content with fake authorship, which
+# Google's spam policies target. The 30 posts it produced were removed (see
+# src/data/removed-posts.ts and db/migrations/0029-unpublish-aura-posts.sql).
+# Do not re-enable. Write original posts instead.
+# ---------------------------------------------------------------------------
+import sys as _sys
+
+_sys.stderr.write(
+    "publish-aura-blog-batch.py is disabled: it republished copied auraprompt.in articles under a "
+    "fake author. See src/data/removed-posts.ts. Nothing was done.\n"
+)
+raise SystemExit(1)
+
 import json
 import os
 import subprocess

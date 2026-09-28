@@ -3,6 +3,7 @@ import { processDueCampaign, type SocialEnv } from './lib/socialScheduler';
 import { processDueRagaReel, type RagaReelEnv } from './lib/ragaReelScheduler';
 import { earlyRedirectTarget } from './data/request-redirects';
 import { isProbePath, probeNotFoundResponse } from './data/probe-paths';
+import { removedPostSlugForPath, removedPostGoneResponse } from './data/removed-posts';
 
 const CANONICAL_HOST = 'freepromptbase.com';
 
@@ -24,6 +25,8 @@ function earlyRedirect(request: Request): Response | undefined {
 
 export default {
 	fetch(request, env, ctx) {
+		// Permanently removed blog posts (src/data/removed-posts.ts): 410 + noindex.
+		if (removedPostSlugForPath(new URL(request.url).pathname)) return removedPostGoneResponse();
 		const redirect = earlyRedirect(request);
 		if (redirect) return redirect;
 		// Scanner probes (/.env, /wp-login.php, *.php, stray *.json, ...) get a
