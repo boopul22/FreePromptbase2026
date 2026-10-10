@@ -9,9 +9,18 @@
 // Only our own same-origin /cdn/ images are transformed; anything else (and
 // SVGs) is returned unchanged so the helper is always safe to call.
 
-// 76 is visually indistinguishable from 82 for AVIF/WebP at card/cover sizes but
-// ~25% smaller — directly trims LCP bytes (the scored metric).
-const DEFAULT_QUALITY = 76;
+// Billing: Cloudflare charges per *unique* transformation (image × width ×
+// quality) each month beyond 5,000 free. Cards, detail pages, feeds and blog
+// posts used to ask for ~9 different width/quality pairs per image, so every
+// width is snapped up to one shared ladder and a single quality is used
+// site-wide — the same few variants are reused everywhere.
+const WIDTH_LADDER = [400, 720, 1080, 1600] as const;
+const SITE_QUALITY = 72;
+const DEFAULT_QUALITY = SITE_QUALITY;
+
+function snapWidth(width: number): number {
+  return WIDTH_LADDER.find((w) => w >= width) ?? WIDTH_LADDER[WIDTH_LADDER.length - 1];
+}
 
 // Cloudflare Image Transformations only run on a real zone (the production
 // domain). On *.workers.dev preview URLs and on localhost the /cdn-cgi/image/
@@ -36,10 +45,12 @@ function cdnPath(src: string | undefined | null): string | null {
 }
 
 /** Single transformed URL at a given width (AVIF/WebP auto-negotiated). */
-export function cfImg(src: string, width: number, quality = DEFAULT_QUALITY): string {
+// `quality` is accepted for call-site compatibility but ignored: one site-wide
+// quality keeps the unique-transformation count down (see WIDTH_LADDER).
+export function cfImg(src: string, width: number, _quality = DEFAULT_QUALITY): string {
   const path = cdnPath(src);
   if (!path) return src;
-  return `${ORIGIN}/cdn-cgi/image/width=${width},quality=${quality},format=auto/${path.replace(/^\//, '')}`;
+  return `${ORIGIN}/cdn-cgi/image/width=${snapWidth(width)},quality=${SITE_QUALITY},format=auto/${path.replace(/^\//, '')}`;
 }
 
 /** `srcset` string across widths, or undefined when src isn't transformable. */
@@ -49,7 +60,10 @@ export function cfSrcset(
   quality = DEFAULT_QUALITY,
 ): string | undefined {
   if (!cdnPath(src)) return undefined;
-  return widths.map((w) => `${cfImg(src, w, quality)} ${w}w`).join(', ');
+  // Snapped widths can collide (e.g. 480 and 672 both -> 720); list each once
+  // with its real width so the browser's srcset choice stays correct.
+  const snapped = [...new Set(widths.map(snapWidth))];
+  return snapped.map((w) => `${cfImg(src, w, quality)} ${w}w`).join(', ');
 }
 
 /**
