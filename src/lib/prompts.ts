@@ -470,15 +470,16 @@ export async function getTrendingPrompts(limit = 60, category?: string): Promise
 	const categoryFilter = category ? ' AND p.category = ?' : '';
 	const { results } = await getDB()
 		.prepare(
-			`SELECT ${cols}, COUNT(e.id) AS score
-			 FROM prompts p
-			 LEFT JOIN prompt_events e
-			   ON e.prompt_slug = p.slug
-			  AND e.kind IN ('save','like','share')
-			  AND e.created_at > datetime('now','-7 days')
+			// Aggregate the week's events once, then join; joining prompt_events
+			// per prompt re-scanned the whole window for every prompt.
+			`SELECT ${cols}, e.score AS score
+			 FROM (
+			   SELECT prompt_slug, COUNT(*) AS score FROM prompt_events
+			    WHERE kind IN ('save','like','share') AND created_at > datetime('now','-7 days')
+			    GROUP BY prompt_slug
+			 ) e
+			 CROSS JOIN prompts p ON p.slug = e.prompt_slug
 			 WHERE p.${APPROVED}${categoryFilter}
-			 GROUP BY p.slug
-			 HAVING score > 0
 			 ORDER BY score DESC, p.date DESC
 			 LIMIT ?`,
 		)

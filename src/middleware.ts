@@ -378,6 +378,14 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
       response.headers.set('Cloudflare-CDN-Cache-Control', `public, s-maxage=${edgeTtl}`);
       if (response.status === 200) storeAnonymousRender(edgeTtl);
     }
+  } else if (
+    sharedCacheable &&
+    response.status === 200 &&
+    /xml/.test(response.headers.get('content-type') ?? '')
+  ) {
+    // Sitemaps and RSS read every approved prompt; crawlers fetch them often.
+    // Same per-colo edge cache (and go-live cap) as anonymous HTML.
+    storeAnonymousRender(await scheduledEdgeTtl());
   }
 
   // Store the anonymous render in the per-colo edge cache (see the lookup
