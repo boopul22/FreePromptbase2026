@@ -146,10 +146,10 @@ export async function getNextPublishAt(): Promise<string | null> {
 	const row = await getDB()
 		.prepare(
 			`SELECT MIN(next) AS next FROM (
-				SELECT MIN(publish_at) AS next FROM prompts
+				SELECT MIN(publish_at) AS next FROM prompts INDEXED BY idx_prompts_publish_at
 				WHERE status = 'approved' AND publish_at IS NOT NULL AND publish_at > datetime('now')
 				UNION ALL
-				SELECT MIN(publish_at) AS next FROM posts
+				SELECT MIN(publish_at) AS next FROM posts INDEXED BY idx_posts_publish_at
 				WHERE status = 'published' AND publish_at IS NOT NULL AND publish_at > datetime('now')
 			)`,
 		)
@@ -510,14 +510,14 @@ export async function getPromptOfTheDaySlug(now = Date.now()): Promise<string | 
 
 	const row = await getDB()
 		.prepare(
-			`SELECT p.slug AS slug, COUNT(e.id) AS recent_views
+			`SELECT p.slug AS slug, COALESCE(v.n, 0) AS recent_views
 			 FROM prompts p
-			 LEFT JOIN prompt_events e
-			   ON e.prompt_slug = p.slug
-			  AND e.kind = 'view'
-			  AND e.created_at > datetime('now', ?)
+			 LEFT JOIN (
+			   SELECT prompt_slug, COUNT(*) AS n FROM prompt_events
+			    WHERE kind = 'view' AND created_at > datetime('now', ?)
+			    GROUP BY prompt_slug
+			 ) v ON v.prompt_slug = p.slug
 			 WHERE p.${APPROVED}
-			 GROUP BY p.slug
 			 ORDER BY recent_views DESC, p.view_count DESC, p.date DESC
 			 LIMIT 1`,
 		)
