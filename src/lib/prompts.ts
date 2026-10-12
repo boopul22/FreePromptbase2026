@@ -292,7 +292,12 @@ export async function getRelatedPrompts(prompt: Prompt, limit = 6): Promise<Prom
 	// highest and the rail varies per page — instead of always showing the same
 	// most-popular prompts. Falls back to category + popularity when there's no
 	// tag overlap (or the prompt has no tags).
+	// D1 caps LIKE patterns at 50 bytes; a longer pattern throws "LIKE or GLOB
+	// pattern too complex" and the streamed page body came out empty. Long
+	// tags are near-unique phrases anyway, so drop any term whose %term%
+	// pattern would exceed the cap.
 	const terms = [...new Set((prompt.tags ?? []).map((t) => t.trim().toLowerCase()).filter(Boolean))]
+		.filter((t) => new TextEncoder().encode(t).length <= 48)
 		.slice(0, 10);
 	if (terms.length > 0) {
 		const cond = '(LOWER(tags) LIKE ? OR LOWER(title) LIKE ? OR LOWER(description) LIKE ?)';
@@ -301,22 +306,27 @@ export async function getRelatedPrompts(prompt: Prompt, limit = 6): Promise<Prom
 		const like = terms.map((t) => `%${t}%`);
 		// Binds, in placeholder order: score block (3/term), slug for slug!=?, WHERE
 		// block (3/term), category for the ORDER BY tiebreak, then limit.
-		const { results } = await getDB()
-			.prepare(
-				`SELECT ${PROMPT_COLS}, (${score}) AS rank FROM prompts
-				 WHERE slug != ? AND ${APPROVED} AND (${where})
-				 ORDER BY rank DESC, (category = ?) DESC, popularity DESC, save_count DESC
-				 LIMIT ?`,
-			)
-			.bind(
-				...like.flatMap((l) => [l, l, l]),
-				prompt.slug,
-				...like.flatMap((l) => [l, l, l]),
-				prompt.category,
-				limit,
-			)
-			.all<PromptRow>();
-		if (results.length > 0) return results.map(rowToPrompt);
+		// A related rail must never take the whole page down; fall back below.
+		try {
+			const { results } = await getDB()
+				.prepare(
+					`SELECT ${PROMPT_COLS}, (${score}) AS rank FROM prompts
+					 WHERE slug != ? AND ${APPROVED} AND (${where})
+					 ORDER BY rank DESC, (category = ?) DESC, popularity DESC, save_count DESC
+					 LIMIT ?`,
+				)
+				.bind(
+					...like.flatMap((l) => [l, l, l]),
+					prompt.slug,
+					...like.flatMap((l) => [l, l, l]),
+					prompt.category,
+					limit,
+				)
+				.all<PromptRow>();
+			if (results.length > 0) return results.map(rowToPrompt);
+		} catch (error) {
+			console.error(JSON.stringify({ event: 'related_prompts_failed', slug: prompt.slug, error: String(error) }));
+		}
 	}
 	// Fallback: no tags or no overlap — same-category, most-popular prompts.
 	const { results } = await getDB()
