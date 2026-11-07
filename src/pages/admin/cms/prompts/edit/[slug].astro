@@ -290,9 +290,10 @@ const landingOptions = LANDING_OPTIONS;
  const cover = currentCover();
  strip.innerHTML = images.map((url, i) => {
  const isCover = url === cover;
+ const attrUrl = String(url).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
  return `
- <div draggable="true" data-idx="${i}" class="relative group rounded-md overflow-hidden border ${isCover ? 'border-text-primary ring-2 ring-text-primary' : 'border-gray-200'} aspect-square bg-gray-50 cursor-pointer select-none" data-cover="${url}" title="${isCover ? 'Cover image · drag to reorder' : 'Click to set as cover · drag to reorder'}">
- <img src="${url}" alt="" draggable="false" class="w-full h-full object-cover pointer-events-none" />
+ <div draggable="true" data-idx="${i}" class="relative group rounded-md overflow-hidden border ${isCover ? 'border-text-primary ring-2 ring-text-primary' : 'border-gray-200'} aspect-square bg-gray-50 cursor-pointer select-none" data-cover="${attrUrl}" title="${isCover ? 'Cover image · drag to reorder' : 'Click to set as cover · drag to reorder'}">
+ <img src="${attrUrl}" alt="" draggable="false" class="w-full h-full object-cover pointer-events-none" />
  ${isCover
  ? '<span class="absolute top-1 left-1 bg-primary text-link text-[10px] font-semibold px-1.5 py-0.5 rounded-md uppercase tracking-wide">Cover</span>'
  : '<span class="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-colors"><span class="opacity-0 group-hover:opacity-100 text-white text-[10px] font-semibold uppercase tracking-wide bg-black/60 px-2 py-1 rounded-md transition-opacity">Set as cover</span></span>'}

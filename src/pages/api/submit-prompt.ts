@@ -4,8 +4,11 @@ import type { APIRoute } from 'astro';
 import { submitPrompt, getCategoryBySlug } from '../../lib/prompts';
 import { verifyCaptcha, captchaErrorMessage } from '../../lib/captcha';
 import { getEnv } from '../../lib/env';
+import { withinRateLimit } from '../../lib/rateLimit';
 
 const MAX_IMAGES = 3;
+const MAX_PROMPT_TEXT = 50_000;
+const MAX_HOW_TO_USE = 5_000;
 
 function jsonError(error: string, status = 400, extra: Record<string, unknown> = {}) {
 	return new Response(JSON.stringify({ error, ...extra }), {
@@ -28,7 +31,16 @@ function isAcceptableImageUrl(url: string, r2PublicUrl: string): boolean {
 		// and the stored URL line up regardless of whether R2_PUBLIC_URL ends in
 		// `/` or not.
 		const basePath = base.pathname.replace(/\/$/, '');
-		return u.pathname.startsWith(`${basePath}/submissions/`);
+		// The raw string is what gets stored and later rendered, so it must be the
+		// exact canonical URL with plain key characters: no quotes or markup that
+		// new URL() would quietly encode, and no userinfo, query or fragment.
+		return (
+			u.href === url &&
+			!u.search &&
+			!u.hash &&
+			/^[A-Za-z0-9._/-]+$/.test(u.pathname) &&
+			u.pathname.startsWith(`${basePath}/submissions/`)
+		);
 	} catch {
 		return false;
 	}
@@ -36,6 +48,10 @@ function isAcceptableImageUrl(url: string, r2PublicUrl: string): boolean {
 
 export const POST: APIRoute = async ({ request, locals }) => {
 	if (!locals.user) return jsonError('Authentication required', 401);
+
+	if (!(await withinRateLimit('SUBMIT_RATE_LIMITER', locals.user.id))) {
+		return jsonError('Too many submissions. Please wait a minute and try again.', 429);
+	}
 
 	let body: any;
 	try {
@@ -59,6 +75,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
 	if (!category) return jsonError('Please pick a category.', 400, { field: 'category' });
 
 	if (title.length > 120) return jsonError('Title is too long (120 chars max).', 400, { field: 'title' });
+	if (promptText.length > MAX_PROMPT_TEXT) {
+		return jsonError('Prompt text is too long (50,000 chars max).', 400, { field: 'promptText' });
+	}
+	if (typeof body.howToUse === 'string' && body.howToUse.length > MAX_HOW_TO_USE) {
+		return jsonError('How-to-use notes are too long (5,000 chars max).', 400, { field: 'howToUse' });
+	}
 
 	const cat = await getCategoryBySlug(category);
 	if (!cat) return jsonError('Invalid category.', 400, { field: 'category' });

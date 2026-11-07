@@ -103,6 +103,10 @@ const adScriptsInit = `(function () {
 	}
 })();`;
 
+// JSON-LD is emitted raw, and profile bios and names are user text: escape `<` so
+// a value can't close the script tag. Parsers read the same JSON either way.
+const jsonLd = (value: unknown): string => JSON.stringify(value).replace(/</g, '\\u003c');
+
 const siteUrl = (Astro.site ?? new URL(Astro.url.origin)).href.replace(/\/$/, '');
 
 // Google truncates meta descriptions around ~160 chars, so clamp anything longer
@@ -320,11 +324,11 @@ const organizationSchema = {
 		)}
 
 		<!-- Structured data -->
-		<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
-		<script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
-		{schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
+		<script type="application/ld+json" set:html={jsonLd(websiteSchema)} />
+		<script type="application/ld+json" set:html={jsonLd(organizationSchema)} />
+		{schema && <script type="application/ld+json" set:html={jsonLd(schema)} />}
 		{extraSchemas.map((s) => (
-			<script type="application/ld+json" set:html={JSON.stringify(s)} />
+			<script type="application/ld+json" set:html={jsonLd(s)} />
 		))}
 	</head>
 	<body class="min-h-screen flex flex-col">

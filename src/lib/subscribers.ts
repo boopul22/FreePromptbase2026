@@ -16,6 +16,7 @@
 
 // @ts-ignore - cloudflare:workers is a Workers-only built-in module
 import { env } from 'cloudflare:workers';
+import { sha256Hex } from './crypto';
 
 // Minimal shape of the Cloudflare Email Sending binding (env.EMAIL.send()).
 // `npx wrangler types` generates the full `SendEmail` type; we type it loosely
@@ -34,6 +35,7 @@ interface EmailBinding {
 
 interface Env {
 	DB: D1Database;
+	SESSION?: KVNamespace;
 	EMAIL?: EmailBinding;
 	EMAIL_FROM?: string;
 	EMAIL_FROM_NAME?: string;
@@ -45,6 +47,7 @@ function getConfig() {
 	const e = env as unknown as Env;
 	return {
 		db: e.DB,
+		kv: e.SESSION,
 		email: e.EMAIL,
 		from: e.EMAIL_FROM || 'updates@freepromptbase.com',
 		fromName: e.EMAIL_FROM_NAME || 'Free Prompt Base',
@@ -54,7 +57,15 @@ function getConfig() {
 }
 
 export function isValidEmail(email: string): boolean {
-	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+	return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// One confirmation email per recipient per hour, however many IPs ask. Lives in
+// KV (not D1) with a TTL. Plus-tags are folded so a+1@x and a+2@x share a key.
+const CONFIRM_COOLDOWN_SECONDS = 3600;
+
+async function confirmCooldownKey(email: string): Promise<string> {
+	return `subscribe-cooldown:${await sha256Hex(email.replace(/\+[^@]*(?=@)/, ''))}`;
 }
 
 // URL-safe random token (192 bits of entropy, hex-encoded).
@@ -85,9 +96,16 @@ export async function subscribe(
 	rawEmail: string,
 	meta: { ip?: string; userAgent?: string } = {},
 ): Promise<SubscribeResult> {
-	const { db } = getConfig();
+	const { db, kv } = getConfig();
 	const email = rawEmail.trim().toLowerCase();
 	if (!isValidEmail(email)) return { ok: false, error: 'Please enter a valid email address.' };
+
+	// Inside the cooldown the earlier link still works, so answer as usual without
+	// touching D1 or sending again. KV trouble must never block a signup.
+	const cooldownKey = await confirmCooldownKey(email);
+	try {
+		if (await kv?.get(cooldownKey)) return { ok: true, status: 'pending' };
+	} catch {}
 
 	const existing = await db
 		.prepare('SELECT id, email, status, confirm_token, unsubscribe_token FROM subscribers WHERE email = ?')
@@ -123,6 +141,9 @@ export async function subscribe(
 	}
 
 	await sendConfirmationEmail(email, confirmToken, unsubscribeToken);
+	try {
+		await kv?.put(cooldownKey, '1', { expirationTtl: CONFIRM_COOLDOWN_SECONDS });
+	} catch {}
 	return { ok: true, status: 'pending' };
 }
 

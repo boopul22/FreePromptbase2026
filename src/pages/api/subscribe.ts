@@ -2,6 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from 'astro';
 import { subscribe } from '../../lib/subscribers';
+import { withinRateLimit } from '../../lib/rateLimit';
 
 function json(body: unknown, status = 200) {
 	return new Response(JSON.stringify(body), {
@@ -11,6 +12,10 @@ function json(body: unknown, status = 200) {
 }
 
 export const POST: APIRoute = async ({ request }) => {
+	if (!(await withinRateLimit('SUBSCRIBE_RATE_LIMITER', request.headers.get('CF-Connecting-IP')))) {
+		return json({ error: 'Too many attempts. Please wait a minute and try again.' }, 429);
+	}
+
 	let body: any;
 	try {
 		body = await request.json();

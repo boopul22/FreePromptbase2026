@@ -1,5 +1,6 @@
 import { defineMiddleware } from 'astro:middleware';
 import { getSession } from './lib/session';
+import { routedPath } from './lib/routedPath';
 import { getDB } from './lib/db';
 import { getNextPublishAt } from './lib/prompts';
 import { publicCacheKey } from './lib/publicCache';
@@ -73,6 +74,8 @@ async function scheduledEdgeTtl(): Promise<number> {
 export const onRequest = defineMiddleware(async ({ request, cookies, locals, redirect }, next) => {
   const url = new URL(request.url);
   const path = url.pathname;
+  // Gates below test the path Astro routes on; redirects keep the raw `path`.
+  const gatePath = routedPath(path);
   // Editorial pages are backed by D1 and can change immediately when an author
   // publishes, edits, or moves an entry between Blog and News. Keeping them out
   // of the hour-long shared cache prevents stale article routes, canonicals,
@@ -204,7 +207,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
     !isStaticProxy &&
     !isEditorialPath &&
     !locals.user &&
-    isPubliclyCacheablePath(path);
+    isPubliclyCacheablePath(gatePath);
   locals.engagementClientSide = sharedCacheable;
   const edgeCacheStore = sharedCacheable ? getEdgeCache() : null;
   if (edgeCacheStore) {
@@ -234,7 +237,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   //   - shared-cacheable anonymous renders (state is hydrated client-side),
   //   - API routes and the admin/CMS area (neither renders PromptCard),
   //   - a brand-new anonymous visitor (no prior anon_id → no saves/likes yet).
-  const isAdmin = path.startsWith('/admin');
+  const isAdmin = gatePath.startsWith('/admin');
   const freshAnon = !locals.user && setAnonCookie;
   if (
     db &&
@@ -259,17 +262,17 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
 
   // /dashboard, /submit, /account — any authenticated user
   const requiresAuth =
-    path.startsWith('/dashboard') ||
-    path.startsWith('/api/dashboard/') ||
-    path === '/submit' ||
-    path.startsWith('/submit/') ||
-    path === '/api/submit-prompt' ||
-    path.startsWith('/api/submit-prompt/') ||
-    path === '/account' ||
-    path.startsWith('/account/') ||
-    path === '/api/account';
+    gatePath.startsWith('/dashboard') ||
+    gatePath.startsWith('/api/dashboard/') ||
+    gatePath === '/submit' ||
+    gatePath.startsWith('/submit/') ||
+    gatePath === '/api/submit-prompt' ||
+    gatePath.startsWith('/api/submit-prompt/') ||
+    gatePath === '/account' ||
+    gatePath.startsWith('/account/') ||
+    gatePath === '/api/account';
   if (requiresAuth && !locals.user) {
-    if (path.startsWith('/api/')) {
+    if (gatePath.startsWith('/api/')) {
       return new Response(JSON.stringify({ error: 'Authentication required' }), {
         status: 401,
         headers: {
@@ -284,9 +287,9 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
   }
 
   // /admin — admin role required
-  if (path.startsWith('/admin') || path.startsWith('/api/admin/')) {
+  if (gatePath.startsWith('/admin') || gatePath.startsWith('/api/admin/')) {
     if (!locals.user || locals.user.role !== 'admin') {
-      if (path.startsWith('/api/')) {
+      if (gatePath.startsWith('/api/')) {
         return new Response(JSON.stringify({ error: 'Forbidden' }), {
           status: 403,
           headers: {
@@ -337,7 +340,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals, red
 
   // Public HTML caching — skip API/admin/dashboard. Logged-in users get private,
   // no-cache so personalized nav isn't served from the CDN.
-  if (isPubliclyCacheablePath(path) && response.headers.get('content-type')?.includes('text/html')) {
+  if (isPubliclyCacheablePath(gatePath) && response.headers.get('content-type')?.includes('text/html')) {
     const hasPersonalization =
       locals.user ||
       (locals.savedSlugs && locals.savedSlugs.size > 0) ||

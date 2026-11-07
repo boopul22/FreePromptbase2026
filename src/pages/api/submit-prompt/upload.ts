@@ -14,6 +14,8 @@ import { env as cfEnv } from 'cloudflare:workers';
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
 const MAX_SIZE = 5 * 1024 * 1024;
 const UPLOAD_RATE_LIMIT_PER_HOUR = 12;
+// Allowance for multipart boundaries and part headers around the file itself.
+const MAX_REQUEST_SIZE = MAX_SIZE + 64 * 1024;
 
 function extFor(mime: string): string {
 	if (mime === 'image/jpeg') return 'jpg';
@@ -44,6 +46,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
 	if (!locals.user) return jsonError('Authentication required', 401);
 	if (locals.user.role !== 'admin' /* admins get the dedicated CMS endpoint */) {
 		// Still allow admins through, just continue.
+	}
+
+	// Refuse oversized bodies before the D1 count and before buffering formData().
+	if (Number(request.headers.get('content-length') ?? 0) > MAX_REQUEST_SIZE) {
+		return jsonError('Image too large. Maximum 5 MB per file.', 413);
 	}
 
 	const db = getDB(locals);

@@ -78,6 +78,13 @@
 			"id": "f32c5a6d533d46dea4de2fe8417d82d6"
 		}
 	],
+	// Workers Rate Limiting (src/lib/rateLimit.ts): edge counters, no D1 traffic.
+	// namespace_id must be unique across the Cloudflare account. Periods can only
+	// be 10 or 60 seconds. Newsletter is keyed by IP, submissions by user id.
+	"ratelimits": [
+		{ "name": "SUBSCRIBE_RATE_LIMITER", "namespace_id": "26110711", "simple": { "limit": 5, "period": 60 } },
+		{ "name": "SUBMIT_RATE_LIMITER", "namespace_id": "26110712", "simple": { "limit": 5, "period": 60 } }
+	],
 	"vars": {
 		// Same-origin CDN proxy — uploaded media URLs are built as
 		// `${R2_PUBLIC_URL}/${r2_key}` and served via the /cdn/<key> route in
